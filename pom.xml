@@ -4,4 +4,11 @@
   <artifactId>bior_pipeline</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>bior_pipeline</name>
+  	<dependencies>
+		<dependency>
+			<groupId>edu.mayo</groupId>
+			<artifactId>pipes</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+        </dependencies>
 </project>
