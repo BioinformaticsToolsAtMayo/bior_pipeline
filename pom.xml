@@ -1,14 +1,69 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>edu.mayo.bior</groupId>
-  <artifactId>bior_pipeline</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>bior_pipeline</name>
-  	<dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>edu.mayo.bior</groupId>
+	<artifactId>bior_pipeline</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>bior_pipeline</name>
+	<build>
+		<plugins>
+			<!-- Build all necessary files into a zip file for ez deploy. Run this 
+				as "Run As..." : "Maven build..." : "package" -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assemble/distribution.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<echo>Unzipping distribution</echo>
+
+								<!-- use exec task over unzip task to preserve perms -->
+								<exec executable="unzip">
+									<arg value="target/bior*.zip" />
+									<arg value="-d" />
+									<arg value="target" />
+								</exec>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+
+	<dependencies>
 		<dependency>
 			<groupId>edu.mayo</groupId>
 			<artifactId>pipes</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-        </dependencies>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.2</version>
+		</dependency>		
+	</dependencies>
 </project>
