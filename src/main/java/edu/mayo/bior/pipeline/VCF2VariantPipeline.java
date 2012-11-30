@@ -18,8 +18,7 @@ import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
  */
 public class VCF2VariantPipeline {
 
-	public static void main(String[] args) {
-
+	public void execute() {
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
 		SplitPipe 		split 	= new SplitPipe("\t");
@@ -44,5 +43,6 @@ public class VCF2VariantPipeline {
         while (pipeline.hasNext()) {
         	pipeline.next();
         }
+		
 	}
 }
