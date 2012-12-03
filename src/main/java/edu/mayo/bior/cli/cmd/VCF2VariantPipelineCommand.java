@@ -1,7 +1,5 @@
 package edu.mayo.bior.cli.cmd;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -16,7 +14,7 @@ public class VCF2VariantPipelineCommand implements CommandPlugin {
 	public void init(Properties props) throws Exception {
 	}
 
-	public void execute(CommandLine line, InputStream inStream, OutputStream outStream) throws Exception {
+	public void execute(CommandLine line) throws Exception {
 		mPipeline.execute();		
 	}
 }

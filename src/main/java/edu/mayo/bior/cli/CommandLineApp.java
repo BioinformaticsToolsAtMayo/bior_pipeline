@@ -193,7 +193,7 @@ public class CommandLineApp {
 		}
 		
 		CommandLine line = mParser.parse(opts, args);
-		plugin.execute(line, System.in, System.out);
+		plugin.execute(line);
 	}
 
 	private static Option getHelpOption() {

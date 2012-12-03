@@ -1,7 +1,5 @@
 package edu.mayo.bior.cli.cmd;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -21,7 +19,7 @@ public class DrillPipelineCommand implements CommandPlugin {
 	public void init(Properties props) throws Exception {
 	}
 
-	public void execute(CommandLine line, InputStream inStream, OutputStream outStream) throws Exception {
+	public void execute(CommandLine line) throws Exception {
 	
 		boolean keepJson = false;
 		if (line.hasOption(OPTION_KEEP_JSON)) {
