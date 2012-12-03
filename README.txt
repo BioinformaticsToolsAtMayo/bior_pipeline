@@ -16,7 +16,11 @@
 	
 	Prior to running any project executables, the following must be setup:
 	
-	1. Source in the setupEnv.sh script to setup your environment.
+	1. Source in the ${project}/setupEnv.sh script to setup your environment via:
+
+		1.1		open terminal
+		1.2		cd ${project}
+		1.3		source setupEnv.sh
 		
 = Running =
 	
