@@ -37,7 +37,7 @@ public class UnixStreamPipeline {
 	 * 
 	 * @param logic A Pipe that takes a HISTORY as input and output.
 	 */
-	public void execute(Pipe logic) {
+	public void execute(Pipe<List<String>, List<String>> logic) {
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
 		SplitPipe 		split 	= new SplitPipe("\t");
