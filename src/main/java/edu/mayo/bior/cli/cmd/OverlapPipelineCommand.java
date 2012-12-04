@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import edu.mayo.bior.cli.CommandPlugin;
-import edu.mayo.bior.pipeline.OverlapPipeline;
+import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.pipes.JSON.tabix.OverlapPipe;
 
 
 /**
@@ -20,7 +21,7 @@ public class OverlapPipelineCommand implements CommandPlugin {
     
 	private static final char OPTION_TABIX_FILE = 'd'; //-d usually means 'database' in the BioR case, it is a catalog	
 		
-	private OverlapPipeline mPipeline = new OverlapPipeline();
+	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
 	public void init(Properties props) throws Exception {
 	}
@@ -31,7 +32,8 @@ public class OverlapPipelineCommand implements CommandPlugin {
 		if (line.hasOption(OPTION_TABIX_FILE)) {
 			tabixFile = line.getOptionValue(OPTION_TABIX_FILE);
 		}		
-	
-		mPipeline.execute(tabixFile);		
+                
+                OverlapPipe overlapPipe = new OverlapPipe(tabixFile);
+		mPipeline.execute(overlapPipe);		
 	}
 }
