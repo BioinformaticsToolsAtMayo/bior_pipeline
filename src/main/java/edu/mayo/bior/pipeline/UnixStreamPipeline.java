@@ -11,18 +11,36 @@ import edu.mayo.pipes.InputStreamPipe;
 import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.SplitPipe;
-import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
 
 /**
- * Pipeline that takes a history containing VCF columns and appends a JSON payload.
+ * This pipeline can be used to expose a Pipe to behave like a UNIX command 
+ * that operates with STDIN and STDOUT text streams.  To make this possible,
+ * this implementation will:
+ * 
+ *  <ol>
+ *  <li>deserialize a HISTORY from the incoming text stream from STDIN</li>
+ *  <li>invoke the given Pipe to do some business logic on the HISTORY</li>
+ *  <li>serialize a HISTORY into an outgoing text stream to STDOUT</li>
+ *  </ol>
+ * 
+ * STDIN --> HISTORY --> LOGIC PIPE --> HISTORY* --> STDOUT
+ * </br>
+ * </br>
+ * 
+ * NOTE: It is required that the given Pipe has a HISTORY as input and output.
+ * 
  */
-public class VCF2VariantPipeline {
+public class UnixStreamPipeline {
 
-	public void execute() {
+	/**
+	 * Executes the given Pipe like a stream-compatible UNIX command.
+	 * 
+	 * @param logic A Pipe that takes a HISTORY as input and output.
+	 */
+	public void execute(Pipe logic) {
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
 		SplitPipe 		split 	= new SplitPipe("\t");
-		VCF2VariantPipe	vcf2Var	= new VCF2VariantPipe();
 		MergePipe		merge 	= new MergePipe("\t");
 		PrintPipe		print	= new PrintPipe();
 		
@@ -31,8 +49,8 @@ public class VCF2VariantPipeline {
 			(
 					in,		// each STDIN line	--> String 
 					split,	// each String		-->	history created
-					vcf2Var,// history			--> history + JSON column appended
-					merge,	// history			--> String
+					logic,	// history			--> modified history*
+					merge,	// history*			--> String
 					print	// String			--> STDOUT
 			);
 		
@@ -42,7 +60,6 @@ public class VCF2VariantPipeline {
         // run pipeline
         while (pipeline.hasNext()) {
         	pipeline.next();
-        }
-		
+        }		
 	}
 }

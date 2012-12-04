@@ -5,17 +5,21 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 
 import edu.mayo.bior.cli.CommandPlugin;
-import edu.mayo.bior.pipeline.VCF2VariantPipeline;
+import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
 
 public class VCF2VariantPipelineCommand implements CommandPlugin {
 
-	private VCF2VariantPipeline mPipeline = new VCF2VariantPipeline();
+	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
 	public void init(Properties props) throws Exception {
 	}
 
 	public void execute(CommandLine line) throws Exception {
-		mPipeline.execute();		
+		
+		VCF2VariantPipe pipe = new VCF2VariantPipe();
+		
+		mPipeline.execute(pipe);		
 	}
 }
 

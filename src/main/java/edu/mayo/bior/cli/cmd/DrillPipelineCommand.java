@@ -7,23 +7,24 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 
 import edu.mayo.bior.cli.CommandPlugin;
-import edu.mayo.bior.pipeline.DrillPipeline;
+import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.pipes.JSON.DrillPipe;
 
 public class DrillPipelineCommand implements CommandPlugin {
 
 	private static final char OPTION_KEEP_JSON = 'k';	
 	private static final char OPTION_PATH = 'p';
 		
-	private DrillPipeline mPipeline = new DrillPipeline();
+	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
 	public void init(Properties props) throws Exception {
 	}
 
 	public void execute(CommandLine line) throws Exception {
 	
-		boolean keepJson = false;
+		boolean keepJSON = false;
 		if (line.hasOption(OPTION_KEEP_JSON)) {
-			keepJson = true;
+			keepJSON = true;
 		}
 
 		List<String> paths = new ArrayList<String>();
@@ -33,6 +34,8 @@ public class DrillPipelineCommand implements CommandPlugin {
 			}
 		}		
 	
-		mPipeline.execute(keepJson, paths.toArray(new String[0]));		
+		DrillPipe pipe = new DrillPipe(keepJSON, paths.toArray(new String[0]));
+		
+		mPipeline.execute(pipe);		
 	}
 }
