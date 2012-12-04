@@ -10,7 +10,7 @@ import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.pipes.JSON.DrillPipe;
 
-public class DrillPipelineCommand implements CommandPlugin {
+public class DrillCommand implements CommandPlugin {
 
 	private static final char OPTION_KEEP_JSON = 'k';	
 	private static final char OPTION_PATH = 'p';

@@ -8,7 +8,7 @@ import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
 
-public class VCF2VariantPipelineCommand implements CommandPlugin {
+public class VCF2VariantCommand implements CommandPlugin {
 
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
