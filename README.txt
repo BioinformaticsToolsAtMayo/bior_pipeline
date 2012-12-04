@@ -16,14 +16,15 @@
 	
 	Prior to running any project executables, the following must be setup:
 	
-	1. Source in the ${project}/setupEnv.sh script to setup your environment via:
+	1. Setup your UNIX environment:
 
 		1.1		open terminal
 		1.2		cd ${project}
-		1.3		source setupEnv.sh
+		1.3		mvn clean package	# runs the build to create the distribution
+		1.4		source setupEnv.sh	# inspects the target folder to setup env vars	
 		
 = Running =
 	
-	Execute any of the CLI scripts from your shell.  All scripts are prefixed with
-	"bior" by convention, so TAB'ing after typing "bior" will show you all of the 
-	CLI commands.
+	Execute any of the CLI scripts from your shell.  Since all scripts are prefixed
+	with "bior" by convention, TAB'ing after typing "bior" will show you all of 
+	the CLI commands.
