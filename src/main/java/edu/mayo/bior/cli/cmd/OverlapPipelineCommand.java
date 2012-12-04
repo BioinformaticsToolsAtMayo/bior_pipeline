@@ -16,7 +16,7 @@ import edu.mayo.bior.pipeline.OverlapPipeline;
  *
  * @author m102417
  */
-public class OverlapPipelineCommand {
+public class OverlapPipelineCommand implements CommandPlugin {
     
 	private static final char OPTION_TABIX_FILE = 'd'; //-d usually means 'database' in the BioR case, it is a catalog	
 		
