@@ -8,9 +8,10 @@ import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.pipes.InputStreamPipe;
-import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
-import edu.mayo.pipes.SplitPipe;
+import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
 
 /**
  * This pipeline can be used to expose a Pipe to behave like a UNIX command 
@@ -31,27 +32,28 @@ import edu.mayo.pipes.SplitPipe;
  * 
  */
 public class UnixStreamPipeline {
-
+	
 	/**
 	 * Executes the given Pipe like a stream-compatible UNIX command.
 	 * 
 	 * @param logic A Pipe that takes a HISTORY as input and output.
 	 */
-	public void execute(Pipe<List<String>, List<String>> logic) {
+	public void execute(Pipe<History, History> logic) {
+				
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
-		SplitPipe 		split 	= new SplitPipe("\t");
-		MergePipe		merge 	= new MergePipe("\t");
+		HistoryInPipe	historyIn = new HistoryInPipe();
+		HistoryOutPipe	historyOut = new HistoryOutPipe();
 		PrintPipe		print	= new PrintPipe();
 		
 		// pipeline definition
 		Pipe<InputStream, List<String>> pipeline = new Pipeline<InputStream, List<String>>
 			(
-					in,		// each STDIN line	--> String 
-					split,	// each String		-->	history created
-					logic,	// history			--> modified history*
-					merge,	// history*			--> String
-					print	// String			--> STDOUT
+					in,			// each STDIN line	--> String
+					historyIn,	// String			--> history
+					logic,		// history			--> modified history*
+					historyOut,	// history			--> String
+					print		// String			--> STDOUT
 			);
 		
 		// prime pipeline with STDIN stream

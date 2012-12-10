@@ -1,19 +1,21 @@
 package edu.mayo.bior.pipeline;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import com.tinkerpop.pipes.AbstractPipe;
 import com.tinkerpop.pipes.Pipe;
+
+import edu.mayo.pipes.history.History;
 
 public class UnixStreamPipelineTest {
 
@@ -33,7 +35,10 @@ public class UnixStreamPipelineTest {
 	 */
 	public void testExecute() throws IOException {
 		
-		final String history = "A\tB\tC";
+		final String history = 
+				"##Directive\n" + 
+				"#COL1\tCOL2\tCOL3\n" + 
+				"A\tB\tC";
 		
 		// create IN/OUT streams to be used by UnixStreamPipeline
 		InputStream inStream = new ByteArrayInputStream(history.getBytes());		
@@ -44,7 +49,7 @@ public class UnixStreamPipelineTest {
 		System.setOut(new PrintStream(outStream));
 		
 		// create pipe that will modify history by appending a suffix to each item
-		Pipe<List<String>, List<String>> pipe = new AppendSuffixPipe("_MODIFIED");			
+		Pipe<History, History> pipe = new AppendSuffixPipe("_MODIFIED");			
 		
 		// run UnixStreamPipeline
 		mPipeline.execute(pipe);
@@ -53,14 +58,19 @@ public class UnixStreamPipelineTest {
 		outStream.flush();
 		String historyModified = outStream.toString().trim();
 		
-		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", historyModified);
+		String[] lines = historyModified.split("\n");
+		assertEquals(3, lines.length);
+		
+		assertEquals("##Directive",		 					lines[0].trim());
+		assertEquals("#COL1\tCOL2\tCOL3", 					lines[1].trim());
+		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", 	lines[2].trim());
 		
 	}
 
 	/**
 	 * Simple pipe that appends the given SUFFIX to the end of each item in the history.
 	 */
-	class AppendSuffixPipe extends AbstractPipe<List<String>, List<String>> {
+	class AppendSuffixPipe extends AbstractPipe<History, History> {
 
 		private String mSuffix;
 		
@@ -69,10 +79,10 @@ public class UnixStreamPipelineTest {
 		}
 		
 		@Override
-		protected List<String> processNextStart() throws NoSuchElementException {
+		protected History processNextStart() throws NoSuchElementException {
 	        if(this.starts.hasNext()){
 
-	        	List<String> history = this.starts.next();
+	        	History history = this.starts.next();
 	            for (int i=0; i < history.size(); i++) {
 	            	String value = history.get(i) + mSuffix;
 	            	history.set(i, value);
@@ -83,6 +93,6 @@ public class UnixStreamPipelineTest {
 	        	throw new NoSuchElementException();
 	        }
 		}
-		
+
 	}
 }
