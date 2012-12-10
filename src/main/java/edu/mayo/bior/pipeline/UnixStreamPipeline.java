@@ -52,7 +52,7 @@ public class UnixStreamPipeline {
 					in,			// each STDIN line	--> String
 					historyIn,	// String			--> history
 					logic,		// history			--> modified history*
-					historyOut,	// history			--> String
+					historyOut,	// history*			--> String
 					print		// String			--> STDOUT
 			);
 		
