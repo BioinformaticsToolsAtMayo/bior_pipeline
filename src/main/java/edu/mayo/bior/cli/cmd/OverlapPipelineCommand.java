@@ -4,10 +4,10 @@
  */
 package edu.mayo.bior.cli.cmd;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
+
 import org.apache.commons.cli.CommandLine;
+
 import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.pipes.JSON.tabix.OverlapPipe;
