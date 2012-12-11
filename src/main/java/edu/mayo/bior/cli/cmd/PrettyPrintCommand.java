@@ -50,8 +50,7 @@ public class PrettyPrintCommand implements CommandPlugin {
 						String prettyJsonString = mGson.toJson(je);
 
 						System.out.println(prettyJsonString);
-
-						break;
+						System.exit(0);
 					}
 				}
 
