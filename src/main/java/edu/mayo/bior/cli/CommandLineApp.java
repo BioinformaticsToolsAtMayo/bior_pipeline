@@ -16,6 +16,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
@@ -30,9 +31,11 @@ import com.google.gson.Gson;
  */
 public class CommandLineApp {
 
-	private static final Logger sLogger = Logger.getLogger(CommandLineApp.class);
+	private static Logger sLogger; 
 
 	private static final char OPTION_HELP = 'h';
+	
+	private static final char OPTION_ENABLELOG = 'l';
 
 	private CommandLineParser mParser = new PosixParser();
 	
@@ -54,7 +57,12 @@ public class CommandLineApp {
 		String scriptName = args[1];
 		
 		String[] cmdArgs = Arrays.copyOfRange(args, 2, args.length);
-
+		
+		//Generate log file only if user specifies explicitly
+        if ( ArrayUtils.contains(cmdArgs, "-l") || ArrayUtils.contains(cmdArgs, "--log")) {
+                sLogger = Logger.getLogger(CommandLineApp.class);
+        }
+        
 		Options opts = null;
 		try {
 			Properties props = new Properties();
@@ -64,7 +72,8 @@ public class CommandLineApp {
 			plugin.init(props);
 
 			opts = loadOptions(plugin);
-			opts.addOption(getHelpOption());			
+			opts.addOption(getHelpOption());	
+			opts.addOption(getLogfileOption());
 			
 			CommandLineApp app = new CommandLineApp();
 			app.execute(plugin, cmdArgs, opts, scriptName);
@@ -134,7 +143,9 @@ public class CommandLineApp {
 	 */
 	private static void processException(String scriptName, Options opts, Exception e) {
 		
-		sLogger.error("Error executing script " + scriptName);
+		if (sLogger != null) {
+			sLogger.error("Error executing script " + scriptName);
+		}
 		
 		System.err.println("Error executing script " + getShortScriptName(scriptName));
 		System.err.println();
@@ -171,7 +182,9 @@ public class CommandLineApp {
 			System.err.println();				
 			System.err.println("Execute the command with -h or --help to find out more information");
 		} else {
-			sLogger.error(e.getMessage(), e);
+			if (sLogger != null) {
+				sLogger.error(e.getMessage(), e);
+			}
 			e.printStackTrace(System.err);
 		}
 	}
@@ -198,7 +211,14 @@ public class CommandLineApp {
 
 	private static Option getHelpOption() {
 		return OptionBuilder.withLongOpt("help")
-				.withDescription("print this message").create(OPTION_HELP);
+				.withDescription("print this message")
+				.create(OPTION_HELP);
+	}
+
+	private static Option getLogfileOption() {
+        return OptionBuilder.withLongOpt("log")
+        		.withDescription("Use this option to generate the log file. By default, log file is not generated.")
+                .create(OPTION_ENABLELOG);
 	}
 
 	/**
@@ -264,10 +284,12 @@ public class CommandLineApp {
 	private static CommandPlugin loadPlugin(String classname)
 			throws ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
-		sLogger.info("Loading plugin: " + classname);
+		
+		if (sLogger != null) {
+			sLogger.info("Loading plugin: " + classname);
+		}
 		Class c = Class.forName(classname);
-		CommandPlugin plugin = (CommandPlugin) c
-				.newInstance();
+		CommandPlugin plugin = (CommandPlugin) c.newInstance();
 		return plugin;
 	}
 }
