@@ -27,6 +27,8 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 
+import edu.mayo.bior.util.StringUtils;
+
 /**
  * Command line interface java application built upon Apache commons-cli.
  * CLI specific command behavior is delegated to a plugin-style architecture
@@ -243,14 +245,14 @@ public class CommandLineApp {
 		
 		String shortScriptName = getShortScriptName(scriptName);
 		
-		String shortDesc = indent(shortScriptName + " -- " + wrap(bundle.getString("short.description"), MAX_WIDTH), 1);
-		String longDesc = indent(wrap(bundle.getString("long.description"), MAX_WIDTH), 1);
-		String usage = indent(getUsage(shortScriptName, opts), 1);
+		String shortDesc = StringUtils.indent(shortScriptName + " -- " + StringUtils.wrap(bundle.getString("short.description"), MAX_WIDTH), 1);
+		String longDesc = StringUtils.indent(StringUtils.wrap(bundle.getString("long.description"), MAX_WIDTH), 1);
+		String usage = StringUtils.indent(getUsage(shortScriptName, opts), 1);
 		
 		List<String> examples = new ArrayList<String>();
 		for (String key: bundle.keySet()) {
 			if (key.startsWith("example.")) {
-				examples.add(indent(wrap(bundle.getString(key), MAX_WIDTH), 1));
+				examples.add(StringUtils.indent(StringUtils.wrap(bundle.getString(key), MAX_WIDTH), 1));
 			}
 		}
 		
@@ -264,7 +266,7 @@ public class CommandLineApp {
 		System.out.println("DESCRIPTION");
 		System.out.println(longDesc);
 		System.out.println();
-		System.out.println(indent("The options are as follows:", 1));
+		System.out.println(StringUtils.indent("The options are as follows:", 1));
 		System.out.println();
 		for (Object optObj: opts.getOptions()) {
 			Option opt = (Option) optObj;
@@ -272,8 +274,8 @@ public class CommandLineApp {
 			if (opt.hasArg()) {
 				optStr += " <" + opt.getArgName() + ">";
 			}
-			System.out.println(indent(optStr, 1));
-			System.out.println(indent(wrap(opt.getDescription(), MAX_WIDTH), 2));
+			System.out.println(StringUtils.indent(optStr, 1));
+			System.out.println(StringUtils.indent(StringUtils.wrap(opt.getDescription(), MAX_WIDTH), 2));
 			System.out.println();
 		}
 		if (examples.size() > 0) {
@@ -283,89 +285,6 @@ public class CommandLineApp {
 				System.out.println();
 			}
 		}
-	}
-
-	/**
-	 * Wraps the given string to the specified width.  Lines that start with the
-	 * tag <NOWRAP> will not be wrapped.
-	 * 
-	 * @param str 
-	 * 			the string to wrap
-	 * @param max_width 
-	 * 			the maximum width
-	 * @return the wrapped string
-	 * @throws IOException
-	 */
-	private String wrap(String str, int max_width) throws IOException {
-		StringWriter sWtr = new StringWriter();
-		PrintWriter pWtr = new PrintWriter(sWtr);
-		
-		StringReader sRdr = new StringReader(str);
-		BufferedReader bRdr = new BufferedReader(sRdr);
-		String line = bRdr.readLine();
-		while (line != null) {
-			if (line.trim().startsWith("<NOWRAP>")) {
-				line = line.substring("<NOWRAP>".length());
-			} else {
-				line = WordUtils.wrap(line, max_width);				
-			}
-			pWtr.println(line);
-			
-			line = bRdr.readLine();
-		}		
-		
-		sWtr.close();		
-		String wrappedStr = sWtr.toString();
-
-		// chomp trailing line feed
-		if (wrappedStr.length() > 0) {
-			wrappedStr = wrappedStr.substring(0, wrappedStr.length() - 1);
-		}
-		
-		return wrappedStr;		
-	}
-	
-	/**
-	 * Does a "block" indent on the given string such that each line in the string
-	 * is indented over the specified number of indents.
-	 *  
-	 * @param str
-	 * 			the string to be indented
-	 * @param numIndents
-	 * 			number of indents to use
-	 * @return the indented string 		
-	 * @throws IOException
-	 */
-	private String indent(String str, int numIndents) throws IOException {
-
-		String indent = "";
-		for (int i=0; i < numIndents; i++) {
-			indent += "\t";
-		}
-		
-		StringWriter sWtr = new StringWriter();
-		PrintWriter pWtr = new PrintWriter(sWtr);
-		
-		StringReader sRdr = new StringReader(str);
-		BufferedReader bRdr = new BufferedReader(sRdr);
-		String line = bRdr.readLine();
-		while (line != null) {
-			
-			pWtr.print(indent);
-			pWtr.println(line);
-			
-			line = bRdr.readLine();
-		}		
-		
-		sWtr.close();		
-		String indentedStr = sWtr.toString();
-
-		// chomp trailing line feed
-		if (indentedStr.length() > 0) {
-			indentedStr = indentedStr.substring(0, indentedStr.length() - 1);
-		}
-		
-		return indentedStr;
 	}
 	
 	private String getUsage(String scriptName, Options opts) {
