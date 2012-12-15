@@ -1,7 +1,9 @@
 package edu.mayo.bior.cli.cmd;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -10,15 +12,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.tinkerpop.pipes.AbstractPipe;
 
 import edu.mayo.bior.cli.CommandPlugin;
+import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.pipes.history.ColumnMetaData;
+import edu.mayo.pipes.history.History;
 
 public class PrettyPrintCommand implements CommandPlugin {
 
 	public static char OPTION_ROW = 'r';
 
-	private Gson mGson = new GsonBuilder().setPrettyPrinting().create();
-	private JsonParser mJsonParser = new JsonParser();
+	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 
 	public void init(Properties props) throws Exception {
 	}
@@ -33,54 +38,117 @@ public class PrettyPrintCommand implements CommandPlugin {
 			rowNum = Integer.parseInt(line.getOptionValue(OPTION_ROW));
 		}
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			int lineNumber = 0;
-			String nextLine = br.readLine();
-			while (nextLine != null) {
-
-				// only check data lines, ignore comments
-				if (nextLine.startsWith("#") == false) {
-
-					lineNumber++;
-
-					if (lineNumber == rowNum) {
-						String json = getJson(nextLine);
-						JsonElement je = mJsonParser.parse(json);
-						String prettyJsonString = mGson.toJson(je);
-
-						System.out.println(prettyJsonString);
-						System.exit(0);
-					}
-				}
-
-				nextLine = br.readLine();
-			}
-
-		} finally {
-			br.close();
-		}
-
+		PrettyPrintPipe pipe = new PrettyPrintPipe(rowNum);
+		mPipeline.execute(pipe);
 	}
 
 	/**
-	 * Finds the last JSON column. An exception is thrown if no JSON column is
-	 * found.
+	 * Pipe that goes through the History 1-by-1 until it finds the selected
+	 * row. The selected row is then printed to STDOUT.
 	 * 
-	 * @param line
-	 * @return
-	 * @throws Exception
+	 * @author duffp
+	 * 
 	 */
-	private String getJson(String line) throws Exception {
-		String[] cols = line.split("\t");
+	class PrettyPrintPipe extends AbstractPipe<History, History> {
 
-		for (int i = cols.length - 1; i >= 0; i--) {
-			if (cols[i].startsWith("{") && cols[i].endsWith("}")) {
-				return cols[i];
-			}
+		private int rowNum = 0;
+		private Integer selectedRow;
+		private Gson mGson = new GsonBuilder().setPrettyPrinting().create();
+		private JsonParser mJsonParser = new JsonParser();
+
+		public PrettyPrintPipe(int selectedRow) {
+			this.selectedRow = selectedRow;
 		}
 
-		// TODO:
-		throw new Exception("JSON column not found.");
+		@Override
+		protected History processNextStart() throws NoSuchElementException {
+			rowNum++;
+			History history = this.starts.next();
+
+			if (selectedRow == rowNum) {
+				try {
+					printDataRow(history);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				System.exit(0);
+			}
+
+			return history;
+		}
+
+		/**
+		 * Pretty prints this row to STDOUT.
+		 * 
+		 * @param history
+		 * @throws Exception
+		 */
+		private void printDataRow(History history) throws Exception {
+
+			final String PRETTY_HEADER_COL_NAME = "COLUMN NAME";
+			final String PRETTY_HEADER_COL_NAME_LINE = "-----------";
+			final String PRETTY_HEADER_COL_VALUE = "COLUMN VALUE";
+			final String PRETTY_HEADER_COL_VALUE_LINE = "------------";
+
+			List<ColumnMetaData> metaCols = History.getMetaData().getColumns();
+
+			// calculate widest column name
+			int maxColNameWidth = 0;
+			for (ColumnMetaData metaCol : metaCols) {
+				String colName = metaCol.getColumnName();
+				if (colName.length() > maxColNameWidth) {
+					maxColNameWidth = colName.length();
+				}
+			}
+			if (PRETTY_HEADER_COL_NAME.length() > maxColNameWidth) {
+				maxColNameWidth = PRETTY_HEADER_COL_NAME.length();
+			}
+
+			// printf style format
+			final String format = "%1$-" + maxColNameWidth + "s %2$s";
+
+			// print out the pretty header
+			System.out.println(String.format(format, PRETTY_HEADER_COL_NAME,
+					PRETTY_HEADER_COL_VALUE));
+			System.out.println(String.format(format,
+					PRETTY_HEADER_COL_NAME_LINE, PRETTY_HEADER_COL_VALUE_LINE));
+
+			for (int i = 0; i < history.size(); i++) {
+				ColumnMetaData cmd = metaCols.get(i);
+
+				String colName = cmd.getColumnName();
+				String dataCol = history.get(i);
+
+				if (dataCol.startsWith("{") && (dataCol.endsWith("}"))) {
+					// JSON
+
+					// use GSON API to get a nicely formatted JSON string
+					String json = dataCol;
+					JsonElement je = mJsonParser.parse(json);
+					String prettyJsonString = mGson.toJson(je);
+
+					// construct reader to go through pretty JSON line by line
+					StringReader sRdr = new StringReader(prettyJsonString);
+					BufferedReader bRdr = new BufferedReader(sRdr);
+					String line = bRdr.readLine();
+
+					// print 1st line with column name
+					System.out.println(String.format(format, colName, line));
+
+					// print subsequent lines w/ same format, but blank colName
+					line = bRdr.readLine();
+					while (line != null) {
+						System.out.println(String.format(format, "", line));
+
+						line = bRdr.readLine();
+					}
+
+				} else {
+					// NON-JSON
+					System.out.println(String.format(format, colName, dataCol));
+				}
+
+			}
+		}
 	}
 }
