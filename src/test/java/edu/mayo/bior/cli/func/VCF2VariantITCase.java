@@ -2,8 +2,12 @@ package edu.mayo.bior.cli.func;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 import org.junit.Test;
 
@@ -16,13 +20,33 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
 		
 		String stdin = loadFile(new File("src/test/resources/test.vcf"));
 
-		CommandOutput out = executeScript("bior_vcf_to_variants.sh", stdin);
+		CommandOutput out = executeScript("bior_vcf_to_json.sh", stdin);
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
 
+		String header = getHeader(out.stdout);
+		
+		assertEquals(
+				"##fileformat=VCFv4.0" +"\n" +
+				"##fileDate=20090805" +"\n" +
+				"##source=myImputationProgramV3.1" +"\n" +
+				"##reference=1000GenomesPilot-NCBI36" +"\n" +
+				"##phasing=partial" +"\n" +
+				"##INFO=<ID=NS,Number=1,Type=Integer,Description=\"Number of Samples With Data\">" +"\n" +
+				"##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">" +"\n" +
+				"##INFO=<ID=AF,Number=.,Type=Float,Description=\"Allele Frequency\">" +"\n" +
+				"##INFO=<ID=AA,Number=1,Type=String,Description=\"Ancestral Allele\">" +"\n" +
+				"##INFO=<ID=DB,Number=0,Type=Flag,Description=\"dbSNP membership, build 129\">" +"\n" +
+				"##INFO=<ID=H2,Number=0,Type=Flag,Description=\"HapMap2 membership\">" +"\n" +
+				"#CHROM POS     ID        REF ALT    QUAL FILTER INFO"+"\tVCF2VariantPipe"+"\n", 
+				header);
+		
+		// pull out just data rows
+		String data = out.stdout.replace(header, "");
+		
 		// JSON should be added as last column (9th)
-		String[] cols = out.stdout.split("\t");
+		String[] cols = data.split("\t");
 		
 		assertEquals(9, cols.length);
 		
@@ -33,4 +57,23 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
         assertEquals(3,				JsonPath.compile("INFO.NS").read(json));
 	}
 
+	private String getHeader(String s) throws IOException {
+		
+		StringReader sRdr = new StringReader(s);
+		BufferedReader bRdr = new BufferedReader(sRdr);
+		
+		StringWriter sWtr = new StringWriter();
+		PrintWriter pWtr = new PrintWriter(sWtr);
+		
+		String line = bRdr.readLine();
+		while (line != null) {
+			if (line.startsWith("#")) {
+				pWtr.println(line);
+			}
+			line = bRdr.readLine();
+		}
+		
+		pWtr.close();
+		return sWtr.toString();
+	}
 }
