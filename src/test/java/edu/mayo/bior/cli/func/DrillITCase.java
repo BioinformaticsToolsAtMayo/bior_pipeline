@@ -8,7 +8,8 @@ import org.junit.Test;
 
 public class DrillITCase extends BaseFunctionalTest {
 
-	private final String json = 
+	private final String jsonColumn = 
+			"#JSON_COLUMN\n" + 
 			"{" +
 					"\"key1\":\"string_value1\"," +
 					"\"key2\": true," +
@@ -19,14 +20,19 @@ public class DrillITCase extends BaseFunctionalTest {
 	public void testNormalPath() throws IOException, InterruptedException {
 		
 		// have JSON for STDIN
-		String stdin = json;
+		String stdin = jsonColumn;
 		
 		CommandOutput out = executeScript("bior_drill.sh", stdin, "-p", "key1", "-p", "key2", "-p", "key3");
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
 
-		String[] cols = out.stdout.split("\t");
+		String header = getHeader(out.stdout);
+		assertEquals("#key1\tkey2\tkey3\n", header);
+
+		// pull out just data rows		
+		String data = out.stdout.replace(header, "");		
+		String[] cols = data.split("\t");
 		
 		assertEquals(3, cols.length);
 
@@ -39,19 +45,28 @@ public class DrillITCase extends BaseFunctionalTest {
 	public void testKeepJson() throws IOException, InterruptedException {
 		
 		// have JSON for STDIN
-		String stdin = json;
+		String stdin = jsonColumn;
 		
 		CommandOutput out = executeScript("bior_drill.sh", stdin, "-k", "-p", "key2");
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
 
+		String header = getHeader(out.stdout);
+		assertEquals("#key2\tJSON_COLUMN\n", header);
+
+		// pull out just data rows
+		String data = out.stdout.replace(header, "");		
+		
+		// pull out just json
+		String expectedJson = jsonColumn.replace(getHeader(jsonColumn), "");
+		
 		// JSON should be added as last column (4th)
-		String[] cols = out.stdout.split("\t");
+		String[] cols = data.split("\t");
 		
 		assertEquals(2, cols.length);
 
         assertEquals("true",			cols[0].trim());
-        assertEquals(json,				cols[1].trim());
+        assertEquals(expectedJson,		cols[1].trim());
 	}	
 }
