@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,6 +155,33 @@ public abstract class BaseFunctionalTest {
 		}
 		pWtr.close();
 
+		return sWtr.toString();
+	}
+
+	/**
+	 * Extracts any rows that begin with a '#' character
+	 * 
+	 * @param s
+	 * @return
+	 * @throws IOException
+	 */
+	protected String getHeader(String s) throws IOException {
+		
+		StringReader sRdr = new StringReader(s);
+		BufferedReader bRdr = new BufferedReader(sRdr);
+		
+		StringWriter sWtr = new StringWriter();
+		PrintWriter pWtr = new PrintWriter(sWtr);
+		
+		String line = bRdr.readLine();
+		while (line != null) {
+			if (line.startsWith("#")) {
+				pWtr.println(line);
+			}
+			line = bRdr.readLine();
+		}
+		
+		pWtr.close();
 		return sWtr.toString();
 	}
 }

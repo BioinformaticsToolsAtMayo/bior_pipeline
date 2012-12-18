@@ -2,12 +2,8 @@ package edu.mayo.bior.cli.func;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 import org.junit.Test;
 
@@ -55,25 +51,5 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
         assertEquals("20",			JsonPath.compile("CHROM").read(json));
         assertEquals("14370",		JsonPath.compile("POS").read(json));
         assertEquals(3,				JsonPath.compile("INFO.NS").read(json));
-	}
-
-	private String getHeader(String s) throws IOException {
-		
-		StringReader sRdr = new StringReader(s);
-		BufferedReader bRdr = new BufferedReader(sRdr);
-		
-		StringWriter sWtr = new StringWriter();
-		PrintWriter pWtr = new PrintWriter(sWtr);
-		
-		String line = bRdr.readLine();
-		while (line != null) {
-			if (line.startsWith("#")) {
-				pWtr.println(line);
-			}
-			line = bRdr.readLine();
-		}
-		
-		pWtr.close();
-		return sWtr.toString();
 	}
 }
