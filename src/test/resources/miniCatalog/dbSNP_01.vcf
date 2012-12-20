@@ -1,4 +1,16 @@
+##fileformat=VCFv4.0
+##fileDate=20090805
+##source=myImputationProgramV3.1
+##reference=1000GenomesPilot-NCBI36
+##phasing=partial
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Data">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=AF,Number=.,Type=Float,Description="Allele Frequency">
+##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">
+##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP membership, build 129">
+##INFO=<ID=H2,Number=0,Type=Flag,Description="HapMap2 membership">
 ## NOTE: all SNPs should be found in geneTestCatalog.tsv.bgz, EXCEPT for the one on chrom 2
+#CHROM POS     ID        REF ALT    QUAL FILTER INFO
 1   11846092    rs112870018 G   GT  .   .   RSPOS=11846092;dbSNPBuildID=132;SSR=0;SAO=0;VP=050100880001000102000200;GENEINFO=MTHFR:4524|LOC100506310:100506310;WGT=1;VC=DIV;SLO;U3;INT;GNO;OTHERKG
 2   1846026 rs35135356  T   TA  .   .   RSPOS=1846026;dbSNPBuildID=126;SSR=0;SAO=0;VP=050000080001000002000200;GENEINFO=MYT1L:23040;WGT=1;VC=DIV;INT;OTHERKG
 7   155595988   155595988   A   G   .   .   RSPOS=155595988;RV=true;dbSNPBuildID=132;SSR=0;SAO=1;VP=050060000a01000002110100;GENEINFO=SHH:6469;WGT=1;VC=SNV;PM=true;NSM=true;REF=true;OTHERKG=true;LSD=trueOM=true
