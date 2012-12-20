@@ -7,9 +7,11 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 
 import com.tinkerpop.pipes.Pipe;
+import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
 import edu.mayo.pipes.history.History;
 
 public class SameVariantCommand implements CommandPlugin {
@@ -38,10 +40,24 @@ public class SameVariantCommand implements CommandPlugin {
 			}
 		}		
 		
-		// TODO: wire this up to the SameVariantPipe by passing
-		// column and tabixFiles to the constructor
-		Pipe<History, History> p = null;
-		
-		mPipeline.execute(p);
+		// construct a new pipeline that contains one or more SameVariantPipes
+		int historyPosition = column;
+		List<Pipe> chain = new ArrayList<Pipe>();
+		for (String tabixFile: tabixFiles) {
+			chain.add(new SameVariantPipe(tabixFile, historyPosition));
+			
+			// update history position that points to input variant JSON column
+			// for NEXT pipe to account for additional column
+			if (historyPosition < 0) {
+				// negative, 
+				historyPosition--;
+			} else {
+				// positive, 
+				historyPosition++;
+			}
+		}		
+		Pipeline<History, History> sameVariantPipeline = new Pipeline<History, History>(chain); 
+				
+		mPipeline.execute(sameVariantPipeline);
 	}
 }
