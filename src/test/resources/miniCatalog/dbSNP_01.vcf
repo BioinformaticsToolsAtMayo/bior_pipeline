@@ -9,7 +9,7 @@
 ##INFO=<ID=AA,Number=1,Type=String,Description="Ancestral Allele">
 ##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP membership, build 129">
 ##INFO=<ID=H2,Number=0,Type=Flag,Description="HapMap2 membership">
-## NOTE: all SNPs should be found in geneTestCatalog.tsv.bgz, EXCEPT for the one on chrom 2
+## NOTE: all SNPs should be found in geneTestCatalog.tsv.bgz, EXCEPT for the one on chrom 2.
 #CHROM POS     ID        REF ALT    QUAL FILTER INFO
 1   11846092    rs112870018 G   GT  .   .   RSPOS=11846092;dbSNPBuildID=132;SSR=0;SAO=0;VP=050100880001000102000200;GENEINFO=MTHFR:4524|LOC100506310:100506310;WGT=1;VC=DIV;SLO;U3;INT;GNO;OTHERKG
 2   1846026 rs35135356  T   TA  .   .   RSPOS=1846026;dbSNPBuildID=126;SSR=0;SAO=0;VP=050000080001000002000200;GENEINFO=MYT1L:23040;WGT=1;VC=DIV;INT;OTHERKG
