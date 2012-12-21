@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -24,6 +25,8 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.helpers.Loader;
 
 import com.google.gson.Gson;
 
@@ -39,7 +42,7 @@ import edu.mayo.bior.util.StringUtils;
  */
 public class CommandLineApp {
 
-	private static Logger sLogger; 
+	private static Logger sLogger = Logger.getLogger(CommandLineApp.class);
 
 	private static final char OPTION_HELP = 'h';
 	
@@ -68,7 +71,8 @@ public class CommandLineApp {
 		
 		//Generate log file only if user specifies explicitly
         if ( ArrayUtils.contains(cmdArgs, "-l") || ArrayUtils.contains(cmdArgs, "--log")) {
-                sLogger = Logger.getLogger(CommandLineApp.class);
+        	//sLogger = Logger.getLogger(CommandLineApp.class);
+        	turnLogOn();
         }
         
 		Options opts = null;
@@ -110,8 +114,7 @@ public class CommandLineApp {
 				String json = bundle.getString(key);
 				
 				// transform JSON into POJO
-				OptionDefinition def = sGson.fromJson(json, OptionDefinition.class);
-				
+				OptionDefinition def = sGson.fromJson(json, OptionDefinition.class);				
 				
 				opts.addOption(def.toOption());
 			}
@@ -151,9 +154,9 @@ public class CommandLineApp {
 	 */
 	private static void processException(String scriptName, Options opts, Exception e) {
 		
-		if (sLogger != null) {
-			sLogger.error("Error executing script " + scriptName);
-		}
+		//if (sLogger != null) {
+		sLogger.error("Error executing script " + scriptName);
+		//}
 		
 		System.err.println("Error executing script " + getShortScriptName(scriptName));
 		System.err.println();
@@ -190,9 +193,9 @@ public class CommandLineApp {
 			System.err.println();				
 			System.err.println("Execute the command with -h or --help to find out more information");
 		} else {
-			if (sLogger != null) {
-				sLogger.error(e.getMessage(), e);
-			}
+			//if (sLogger != null) {
+			sLogger.error(e.getMessage(), e);
+			//}
 			e.printStackTrace(System.err);
 		}
 	}
@@ -337,11 +340,25 @@ public class CommandLineApp {
 			throws ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
 		
-		if (sLogger != null) {
-			sLogger.info("Loading plugin: " + classname);
-		}
+		//if (sLogger != null) {
+		sLogger.info("Loading plugin: " + classname);
+		//}
 		Class c = Class.forName(classname);
 		CommandPlugin plugin = (CommandPlugin) c.newInstance();
 		return plugin;
+	}
+	
+	/**
+	 * Point LOG4J framework at different properties file that has logging
+	 * enabled.
+	 */
+	public static void turnLogOn() {
+		URL configURL = Loader.getResource("log4j.properties.enabled");
+		PropertyConfigurator.configure(configURL);
+	}
+
+	public static void turnLogOff() {
+		URL configURL = Loader.getResource("log4j.properties");
+		PropertyConfigurator.configure(configURL);
 	}
 }
