@@ -85,6 +85,8 @@ public class PrettyPrintCommand implements CommandPlugin {
 		 */
 		private void printDataRow(History history) throws Exception {
 
+			final String PRETTY_HEADER_COL_NUM = "#";
+			final String PRETTY_HEADER_COL_NUM_LINE = "-";
 			final String PRETTY_HEADER_COL_NAME = "COLUMN NAME";
 			final String PRETTY_HEADER_COL_NAME_LINE = "-----------";
 			final String PRETTY_HEADER_COL_VALUE = "COLUMN VALUE";
@@ -92,6 +94,9 @@ public class PrettyPrintCommand implements CommandPlugin {
 
 			List<ColumnMetaData> metaCols = History.getMetaData().getColumns();
 
+			// width of number column
+			int maxColNumWidth = String.valueOf(history.size()).length();
+			
 			// calculate widest column name
 			int maxColNameWidth = 0;
 			for (ColumnMetaData metaCol : metaCols) {
@@ -105,17 +110,16 @@ public class PrettyPrintCommand implements CommandPlugin {
 			}
 
 			// printf style format
-			final String format = "%1$-" + maxColNameWidth + "s %2$s";
+			final String format = "%1$-" + maxColNumWidth + "s  %2$-" + maxColNameWidth + "s  %3$s";
 
 			// print out the pretty header
-			System.out.println(String.format(format, PRETTY_HEADER_COL_NAME,
-					PRETTY_HEADER_COL_VALUE));
-			System.out.println(String.format(format,
-					PRETTY_HEADER_COL_NAME_LINE, PRETTY_HEADER_COL_VALUE_LINE));
+			System.out.println(String.format(format, PRETTY_HEADER_COL_NUM, PRETTY_HEADER_COL_NAME,PRETTY_HEADER_COL_VALUE));
+			System.out.println(String.format(format, PRETTY_HEADER_COL_NUM_LINE, PRETTY_HEADER_COL_NAME_LINE, PRETTY_HEADER_COL_VALUE_LINE));
 
 			for (int i = 0; i < history.size(); i++) {
 				ColumnMetaData cmd = metaCols.get(i);
 
+				int num = i + 1;
 				String colName = cmd.getColumnName();
 				String dataCol = history.get(i);
 
@@ -133,21 +137,20 @@ public class PrettyPrintCommand implements CommandPlugin {
 					String line = bRdr.readLine();
 
 					// print 1st line with column name
-					System.out.println(String.format(format, colName, line));
+					System.out.println(String.format(format, num, colName, line));
 
-					// print subsequent lines w/ same format, but blank colName
+					// print subsequent lines w/ same format, but blank col num and name
 					line = bRdr.readLine();
 					while (line != null) {
-						System.out.println(String.format(format, "", line));
+						System.out.println(String.format(format, "", "", line));
 
 						line = bRdr.readLine();
 					}
 
 				} else {
 					// NON-JSON
-					System.out.println(String.format(format, colName, dataCol));
+					System.out.println(String.format(format, num, colName, dataCol));
 				}
-
 			}
 		}
 	}
