@@ -50,44 +50,16 @@ public class VEPPostProcessingPipelineTest {
      * Test of execute method, of class VEPPostProcessingPipeline.
      */
     @Test
-    public void testExecute() {
-        System.out.println("execute VEP PostProcessing Pipeline");
-        String[] drillPath = new String[1];
-        drillPath[0]= "INFO.CSQ";
-        DrillPipe drill = new DrillPipe(false, drillPath);
-        //##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
-        String[] headers = {"Allele", 
-                            "Gene", 
-                            "Feature",
-                            "Feature_type",
-                            "Consequence",
-                            "cDNA_position",
-                            "CDS_position",
-                            "Protein_position",
-                            "Amino_acids",
-                            "Codons",
-                            "Existing_variation",
-                            "DISTANCE",
-                            "SIFT",
-                            "PolyPhen",
-                            "CELL_TYPE"
-            };//A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||
-//        Delim2JSONPipe pipes2json = new Delim2JSONPipe(-1, false,  headers, "|");
-//        Pipe fixSiftPoly = new TransformFunctionPipe<History,History>(new FixSiftandPolyphen());
-        
-//        Pipe p = new Pipeline(new CatPipe(),//the output of vep
-//                              new HistoryInPipe(),
-//                              new VCF2VariantPipe(), 
-//                              new FindAndReplaceHPipe(8,"CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
-//                              drill,
-//                              new FanPipe(),
-//                              pipes2json,
-//                              fixSiftPoly,
-//                              new PrintPipe());
-//        p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
-//        while(p.hasNext()){
-//            p.next();
-//        }
+    public void testGetPipeline() {
+        System.out.println("test get pipeline: VEPPostProcessingPipeline...");
+        VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
+        Pipe p = vepp.getPipeline(new CatPipe());
+
+        p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
+        while(p.hasNext()){
+            String s = (String) p.next().toString();
+            System.out.println(s);
+        }
 
     }
 }
