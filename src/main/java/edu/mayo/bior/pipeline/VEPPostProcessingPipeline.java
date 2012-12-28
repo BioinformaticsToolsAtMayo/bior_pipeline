@@ -31,29 +31,29 @@ public class VEPPostProcessingPipeline {
 	 */
 	public void execute(Pipe<History, History> logic) {
 				
-		// pipes
-		InputStreamPipe	in 		= new InputStreamPipe();
-		HistoryInPipe	historyIn = new HistoryInPipe();
-		HistoryOutPipe	historyOut = new HistoryOutPipe();
-		PrintPipe		print	= new PrintPipe();
-		
-		// pipeline definition
-		Pipe<InputStream, List<String>> pipeline = new Pipeline<InputStream, List<String>>
-			(
-					//in,			// each STDIN line	--> String
-					historyIn,	// String			--> history
-					logic,		// history			--> modified history*
-					historyOut,	// history*			--> String
-					print		// String			--> STDOUT
-			);
-		
-		// prime pipeline with STDIN stream
-                pipeline.setStarts(Arrays.asList(System.in));
-
-                // run pipeline
-                while (pipeline.hasNext()) {
-                        pipeline.next();
-                }		
+//		// pipes
+//		InputStreamPipe	in 		= new InputStreamPipe();
+//		HistoryInPipe	historyIn = new HistoryInPipe();
+//		HistoryOutPipe	historyOut = new HistoryOutPipe();
+//		PrintPipe		print	= new PrintPipe();
+//		
+//		// pipeline definition
+//		Pipe<InputStream, List<String>> pipeline = new Pipeline<InputStream, List<String>>
+//			(
+//					//in,			// each STDIN line	--> String
+//					historyIn,	// String			--> history
+//					logic,		// history			--> modified history*
+//					historyOut,	// history*			--> String
+//					print		// String			--> STDOUT
+//			);
+//		
+//		// prime pipeline with STDIN stream
+//                pipeline.setStarts(Arrays.asList(System.in));
+//
+//                // run pipeline
+//                while (pipeline.hasNext()) {
+//                        pipeline.next();
+//                }		
 	}
         
         public static class FixSiftandPolyphen implements PipeFunction<History,History> {
