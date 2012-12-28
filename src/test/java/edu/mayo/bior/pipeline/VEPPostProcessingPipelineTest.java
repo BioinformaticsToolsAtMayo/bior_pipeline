@@ -72,26 +72,22 @@ public class VEPPostProcessingPipelineTest {
                             "PolyPhen",
                             "CELL_TYPE"
             };//A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||
-        Delim2JSONPipe pipes2json = new Delim2JSONPipe(-1, false,  headers, "|");
-        Pipe fixSiftPoly = new TransformFunctionPipe<History,History>(new FixSiftandPolyphen());
+//        Delim2JSONPipe pipes2json = new Delim2JSONPipe(-1, false,  headers, "|");
+//        Pipe fixSiftPoly = new TransformFunctionPipe<History,History>(new FixSiftandPolyphen());
         
-        Pipe p = new Pipeline(new CatPipe(),//the output of vep
-                              new HistoryInPipe(),
-                              new VCF2VariantPipe(), 
-                              new FindAndReplaceHPipe(8,"CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
-                              drill,
-                              new FanPipe(),
-                              pipes2json,
-                              fixSiftPoly,
-                              new PrintPipe());
-        p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
-        while(p.hasNext()){
-            p.next();
-        }
-//        Pipe<History, History> logic = null;
-//        VEPPostProcessingPipeline instance = new VEPPostProcessingPipeline();
-//        instance.execute(logic);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
+//        Pipe p = new Pipeline(new CatPipe(),//the output of vep
+//                              new HistoryInPipe(),
+//                              new VCF2VariantPipe(), 
+//                              new FindAndReplaceHPipe(8,"CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
+//                              drill,
+//                              new FanPipe(),
+//                              pipes2json,
+//                              fixSiftPoly,
+//                              new PrintPipe());
+//        p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
+//        while(p.hasNext()){
+//            p.next();
+//        }
+
     }
 }
