@@ -59,7 +59,7 @@ public class VEPPostProcessingPipelineTest {
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
         while(p.hasNext()){
             String s = (String) p.next().toString();
-            System.out.println(s);
+            //System.out.println(s);
         }
 
     }
