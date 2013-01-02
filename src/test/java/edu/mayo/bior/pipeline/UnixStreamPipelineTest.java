@@ -34,7 +34,7 @@ public class UnixStreamPipelineTest {
 	 * @throws IOException
 	 */
 	public void testExecute() throws IOException {
-		
+		System.out.println("UnixStreamPipelineTest.testExecute()");
 		final String history = 
 				"##Directive\n" + 
 				"#COL1\tCOL2\tCOL3\n" + 
@@ -58,12 +58,14 @@ public class UnixStreamPipelineTest {
 		outStream.flush();
 		String historyModified = outStream.toString().trim();
 		
+                System.out.println(historyModified);
 		String[] lines = historyModified.split("\n");
 		assertEquals(3, lines.length);
 		
 		assertEquals("##Directive",		 					lines[0].trim());
 		assertEquals("#COL1\tCOL2\tCOL3", 					lines[1].trim());
 		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", 	lines[2].trim());
+                
 		
 	}
 
@@ -71,7 +73,7 @@ public class UnixStreamPipelineTest {
 	 * Simple pipe that appends the given SUFFIX to the end of each item in the history.
 	 */
 	class AppendSuffixPipe extends AbstractPipe<History, History> {
-
+                
 		private String mSuffix;
 		
 		public AppendSuffixPipe(String suffix) {
