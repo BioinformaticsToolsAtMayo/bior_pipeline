@@ -16,6 +16,8 @@ import com.tinkerpop.pipes.AbstractPipe;
 import com.tinkerpop.pipes.Pipe;
 
 import edu.mayo.pipes.history.History;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 
 public class UnixStreamPipelineTest {
 
@@ -58,6 +60,9 @@ public class UnixStreamPipelineTest {
 		outStream.flush();
 		String historyModified = outStream.toString().trim();
 		
+                
+                PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out));
+                System.setOut(ps);
                 System.out.println(historyModified);
 		String[] lines = historyModified.split("\n");
 		assertEquals(3, lines.length);
