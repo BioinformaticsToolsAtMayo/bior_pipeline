@@ -36,6 +36,7 @@ public class UnixStreamPipelineTest {
 	 * @throws IOException
 	 */
 	public void testExecute() throws IOException {
+		System.out.flush();
 		System.out.println("UnixStreamPipelineTest.testExecute()");
 		final String history = 
 				"##Directive\n" + 
@@ -47,8 +48,8 @@ public class UnixStreamPipelineTest {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		
 		// override STDIN/STDOUT defaults for java
-		System.setIn(inStream);
-		System.setOut(new PrintStream(outStream));
+		System.setIn(inStream);		
+		System.setOut(new PrintStream(outStream, true));
 		
 		// create pipe that will modify history by appending a suffix to each item
 		Pipe<History, History> pipe = new AppendSuffixPipe("_MODIFIED");			
@@ -59,14 +60,15 @@ public class UnixStreamPipelineTest {
 		// flush stream and grab the modified history
 		outStream.flush();
 		String historyModified = outStream.toString().trim();
-		
-                
-                PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out));
-                System.setOut(ps);
-                System.out.println(historyModified);
+		PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out), true);
+        System.setOut(ps);
+        System.out.println(historyModified);
 		String[] lines = historyModified.split("\n");
-		assertEquals(3, lines.length);
 		
+		outStream.close();
+		ps.close();
+		
+		assertEquals(3, lines.length);		
 		assertEquals("##Directive",		 					lines[0].trim());
 		assertEquals("#COL1\tCOL2\tCOL3", 					lines[1].trim());
 		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", 	lines[2].trim());
