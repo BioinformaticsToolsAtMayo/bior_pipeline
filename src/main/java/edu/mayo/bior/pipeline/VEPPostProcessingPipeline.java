@@ -17,9 +17,11 @@ import edu.mayo.pipes.JSON.FanPipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
+import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.FindAndReplaceHPipe;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryMetaData;
 import edu.mayo.pipes.history.HistoryOutPipe;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -130,7 +132,17 @@ public class VEPPostProcessingPipeline {
                 return Double.parseDouble(number);
             }
             Gson gson = new Gson();
+            boolean first = false;
             public History compute(History history) {
+                    if(first == false){
+                        HistoryMetaData meta = history.getMetaData();
+                        ColumnMetaData cmd = new ColumnMetaData("VEP");
+                        List<ColumnMetaData> cols = meta.getColumns();
+                        cols.remove(cols.size()-1);
+            		cols.add(cmd);
+                        first = true;
+                    }
+                
                     //just lop off the last column... could extend later...
                     String json = history.get(history.size()-1);
                     HashMap hm = gson.fromJson(json, HashMap.class);
