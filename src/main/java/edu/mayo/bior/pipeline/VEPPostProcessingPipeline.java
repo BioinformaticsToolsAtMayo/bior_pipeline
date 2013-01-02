@@ -32,6 +32,18 @@ import java.util.List;
  */
 public class VEPPostProcessingPipeline {
     
+        public static void main(String[] args){
+            VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
+            InputStreamPipe	in 		= new InputStreamPipe();
+            PrintPipe           out             = new PrintPipe();
+            Pipe p = vepp.getPipeline(in, out);
+
+            p.setStarts(Arrays.asList(System.in));
+            while(p.hasNext()){
+                p.next();
+            }
+        }
+    
     	/**
 	 * Executes the given Pipe like a stream-compatible UNIX command.
 	 * 
@@ -41,7 +53,8 @@ public class VEPPostProcessingPipeline {
 				
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
-                Pipe            logic           = getPipeline(in);
+                PrintPipe       out             = new PrintPipe();
+                Pipe            logic           = getPipeline(in, out);
 		HistoryOutPipe	historyOut      = new HistoryOutPipe();
 		PrintPipe	print           = new PrintPipe();
 		
@@ -63,7 +76,7 @@ public class VEPPostProcessingPipeline {
                 }		
 	}
         
-        public Pipe getPipeline(Pipe input){
+        public Pipe getPipeline(Pipe input, Pipe output){
                 String[] drillPath = new String[1];
                 drillPath[0]= "INFO.CSQ";
                 DrillPipe drill = new DrillPipe(false, drillPath);
@@ -96,7 +109,9 @@ public class VEPPostProcessingPipeline {
                                     drill,
                                     new FanPipe(),
                                     pipes2json,
-                                    fixSiftPoly);
+                                    fixSiftPoly,
+                                    new HistoryOutPipe(),
+                                    output);
                 return p;
         }
         

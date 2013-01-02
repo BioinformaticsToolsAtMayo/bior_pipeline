@@ -5,6 +5,7 @@
 package edu.mayo.bior.pipeline;
 
 import com.tinkerpop.pipes.Pipe;
+import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.pipeline.VEPPostProcessingPipeline.FixSiftandPolyphen;
@@ -53,7 +54,7 @@ public class VEPPostProcessingPipelineTest {
     public void testGetPipeline() {
         System.out.println("test get pipeline: VEPPostProcessingPipeline...");
         VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
-        Pipe p = vepp.getPipeline(new CatPipe());
+        Pipe p = vepp.getPipeline(new CatPipe(), new IdentityPipe());
 
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
         while(p.hasNext()){
