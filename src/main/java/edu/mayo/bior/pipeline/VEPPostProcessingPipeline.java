@@ -5,6 +5,7 @@
 package edu.mayo.bior.pipeline;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.transform.IdentityPipe;
@@ -23,6 +24,7 @@ import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryMetaData;
 import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.JSONUtil;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -163,11 +165,13 @@ public class VEPPostProcessingPipeline {
                             hm.put("PolyPhen_Score",parseScore(polyraw) );
                         }
                     }
-                    String outJson = gson.toJson(hm);
+                    //String outJson = gson.toJson(hm);
+                    String outJson = JSONUtil.computeJSON(hm, true);
                     history.remove(history.size()-1);
                     history.add(outJson);
                     return history;
             }   
-        }    
-    
+        }  
+        
+
 }
