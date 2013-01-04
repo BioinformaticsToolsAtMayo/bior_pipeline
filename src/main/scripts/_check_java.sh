@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # DESCRIPTION: This script will check an enforce java 1.6 or higher
 REQUIRED_MINOR_VERSION=6
 

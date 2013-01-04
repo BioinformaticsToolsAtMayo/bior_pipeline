@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # exit if any statement returns a non-zero exit code
 set -e
 
