@@ -1,10 +1,6 @@
 package edu.mayo.bior.cli;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +19,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.helpers.Loader;
@@ -44,6 +39,8 @@ public class CommandLineApp {
 
 	private static Logger sLogger = Logger.getLogger(CommandLineApp.class);
 
+	private static final int MAX_WIDTH = 94;
+	
 	private static final char OPTION_HELP = 'h';
 	
 	private static final char OPTION_ENABLELOG = 'l';
@@ -91,7 +88,11 @@ public class CommandLineApp {
 			app.execute(plugin, cmdArgs, opts, scriptName);
 
 		} catch (Exception e) {
-			processException(scriptName, opts, e);
+			try {
+				processException(scriptName, opts, e);
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
 			System.exit(1);
 		}
 	}
@@ -151,51 +152,43 @@ public class CommandLineApp {
 	 * @param scriptName
 	 * @param opts
 	 * @param e
+	 * @throws IOException 
 	 */
-	private static void processException(String scriptName, Options opts, Exception e) {
+	private static void processException(String scriptName, Options opts, Exception e) throws IOException {
 		
-		//if (sLogger != null) {
-		sLogger.error("Error executing script " + scriptName);
-		//}
-		
-		System.err.println("Error executing script " + getShortScriptName(scriptName));
+		String shortScriptName = getShortScriptName(scriptName);
+		String usage = getUsage(shortScriptName, opts);
+				
+		System.err.println("Error executing " + shortScriptName);
 		System.err.println();
 
 		if (e instanceof MissingOptionException) {
+			System.err.println("Usage: " + usage);
+			System.err.println();
 			System.err.println("The command requires the following options:");
+			System.err.println();
 			MissingOptionException moe = (MissingOptionException) e;
 			for (String optName: (List<String>) moe.getMissingOptions()) {
 				Option opt = opts.getOption(optName);
 				
-				StringBuilder msg = new StringBuilder();
-				msg.append("\tOption:\t");
-				msg.append("-"+opt.getOpt());
-				msg.append(", ");
-				msg.append("--"+opt.getLongOpt());
-				msg.append("\n");
-				
-				msg.append("\tArgs:\t");
+				String optStr = "-" + opt.getOpt() +", --" + opt.getLongOpt();  
 				if (opt.hasArg()) {
-					msg.append("<"+ opt.getArgName()+">");
-				} else {
-					msg.append("none");
+					optStr += " <" + opt.getArgName() + ">";
 				}
-				msg.append("\n");
-								
-				msg.append("\tDesc:\t");
-				msg.append(opt.getDescription());
-				System.err.println(msg.toString());				
+				System.err.println(StringUtils.indent(optStr, 1));
+				System.err.println(StringUtils.indent(StringUtils.wrap(opt.getDescription(), MAX_WIDTH), 2));
 				System.err.println();				
 			}
 			System.err.println("Execute the command with -h or --help to find out more information");
+			System.err.println();
 		} else if (e instanceof ParseException ) {
 			System.err.println(e.getMessage());
 			System.err.println();				
 			System.err.println("Execute the command with -h or --help to find out more information");
+			System.err.println();
 		} else {
-			//if (sLogger != null) {
+			sLogger.error("Error executing " + scriptName);			
 			sLogger.error(e.getMessage(), e);
-			//}
 			e.printStackTrace(System.err);
 		}
 	}
@@ -243,9 +236,7 @@ public class CommandLineApp {
 	private void printHelp(CommandPlugin plugin, Options opts, String scriptName) throws IOException {
 		
 		ResourceBundle bundle = getBundle(plugin);
-		
-		final int MAX_WIDTH = 94;
-		
+				
 		String shortScriptName = getShortScriptName(scriptName);
 		
 		String shortDesc = StringUtils.indent(shortScriptName + " -- " + StringUtils.wrap(bundle.getString("short.description"), MAX_WIDTH), 1);
@@ -290,7 +281,7 @@ public class CommandLineApp {
 		}
 	}
 	
-	private String getUsage(String scriptName, Options opts) {
+	private static String getUsage(String scriptName, Options opts) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(scriptName);
 		Iterator<Option> optItr = opts.getOptions().iterator();
