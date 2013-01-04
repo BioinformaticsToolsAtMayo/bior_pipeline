@@ -16,7 +16,7 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
 		
 		String stdin = loadFile(new File("src/test/resources/test.vcf"));
 
-		CommandOutput out = executeScript("bior_vcf_to_json.sh", stdin);
+		CommandOutput out = executeScript("bior_vcf_to_json", stdin);
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);

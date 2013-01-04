@@ -15,7 +15,7 @@ public class SameVariantTCase extends BaseFunctionalTest {
              String stdin = "src/test/resources/sameVariantCatalog.tsv.gz";
 
         String jsonVar = "BADCHR\t26960070XX\trs116645811X\tX\tY\t.\t.\t.\t{\"CHROM\":\"BADCHR\",\"POS\":\"26960070X\",\"ID\":\"rs116645811X\",\"REF\":\"X\",\"ALT\":\"Y\",\"QUAL\":\".\",\"FILTER\":\".\",\"_id\":\"rs116645811X\",\"_type\":\"variant\",\"_landmark\":\"BADCHR\",\"_refAllele\":\"X\",\"_altAlleles\":[\"Y\"],\"_minBP\":26960070X,\"_maxBP\":26960070X}";
-             CommandOutput out = executeScript("bior_same_variant.sh", jsonVar, "-d", stdin);
+             CommandOutput out = executeScript("bior_same_variant", jsonVar, "-d", stdin);
 
              assertEquals(out.stderr, 0, out.exit);
              assertEquals("", out.stderr);
@@ -37,7 +37,7 @@ public class SameVariantTCase extends BaseFunctionalTest {
              String stdin = "src/test/resources/sameVariantCatalog.tsv.gz";
 
         String jsonVar = "21\t26960070\trs116645811\tG\tA\t.\t.\t.\t{\"CHROM\":\"21\",\"POS\":\"26960070\",\"ID\":\"rs116645811\",\"REF\":\"G\",\"ALT\":\"A\",\"QUAL\":\".\",\"FILTER\":\".\",\"_id\":\"rs116645811\",\"_type\":\"variant\",\"_landmark\":\"21\",\"_refAllele\":\"G\",\"_altAlleles\":[\"A\"],\"_minBP\":26960070,\"_maxBP\":26960070}";
-             CommandOutput out = executeScript("bior_same_variant.sh", jsonVar, "-d", stdin);
+             CommandOutput out = executeScript("bior_same_variant", jsonVar, "-d", stdin);
 
              assertEquals(out.stderr, 0, out.exit);
              assertEquals("", out.stderr);
@@ -64,7 +64,7 @@ public class SameVariantTCase extends BaseFunctionalTest {
              String catalog2 = "src/test/resources/example_dbSNP_catalog.tsv.bgz";
 
              String jsonVar = "21\t26960070\trs116645811\tG\tA\t.\t.\t.\t{\"CHROM\":\"21\",\"POS\":\"26960070\",\"ID\":\"rs116645811\",\"REF\":\"G\",\"ALT\":\"A\",\"QUAL\":\".\",\"FILTER\":\".\",\"_id\":\"rs116645811\",\"_type\":\"variant\",\"_landmark\":\"21\",\"_refAllele\":\"G\",\"_altAlleles\":[\"A\"],\"_minBP\":26960070,\"_maxBP\":26960070}";
-             CommandOutput out = executeScript("bior_same_variant.sh", jsonVar, "-d", catalog1, "-d", catalog2);
+             CommandOutput out = executeScript("bior_same_variant", jsonVar, "-d", catalog1, "-d", catalog2);
 
              assertEquals(out.stderr, 0, out.exit);
              assertEquals("", out.stderr);

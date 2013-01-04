@@ -22,7 +22,7 @@ public class DrillITCase extends BaseFunctionalTest {
 		// have JSON for STDIN
 		String stdin = jsonColumn;
 		
-		CommandOutput out = executeScript("bior_drill.sh", stdin, "-p", "key1", "-p", "key2", "-p", "key3");
+		CommandOutput out = executeScript("bior_drill", stdin, "-p", "key1", "-p", "key2", "-p", "key3");
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
@@ -47,7 +47,7 @@ public class DrillITCase extends BaseFunctionalTest {
 		// have JSON for STDIN
 		String stdin = jsonColumn;
 		
-		CommandOutput out = executeScript("bior_drill.sh", stdin, "-k", "-p", "key2");
+		CommandOutput out = executeScript("bior_drill", stdin, "-k", "-p", "key2");
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
