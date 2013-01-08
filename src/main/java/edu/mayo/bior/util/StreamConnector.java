@@ -34,6 +34,7 @@ public class StreamConnector implements Runnable {
 
 			for (int n = 0; n != -1; n = mInStream.read(buffer)) {
 				mOutStream.write(buffer, 0, n);
+				mOutStream.flush();
 			}
 
 			mOutStream.close();
