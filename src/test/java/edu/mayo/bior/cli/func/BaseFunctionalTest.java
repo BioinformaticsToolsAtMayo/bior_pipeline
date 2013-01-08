@@ -1,12 +1,11 @@
 package edu.mayo.bior.cli.func;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -14,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
+
+import edu.mayo.bior.util.StreamConnector;
 
 public abstract class BaseFunctionalTest {
 
@@ -80,11 +81,17 @@ public abstract class BaseFunctionalTest {
 
 		Process p = Runtime.getRuntime().exec(cmdArray, sEnvVars);
 
-		// setup gobblers to grab the STDOUT and STDERR
-		StreamGobbler stderrGobbler = new StreamGobbler(p.getErrorStream());
-		StreamGobbler stdoutGobbler = new StreamGobbler(p.getInputStream());
-		stderrGobbler.start();
-		stdoutGobbler.start();
+		// connect STDERR from script process and store in local memory
+		// STDERR [script process] ---> local byte array
+		ByteArrayOutputStream stderrData = new ByteArrayOutputStream();
+		StreamConnector stderrConnector = new StreamConnector(p.getErrorStream(), stderrData, 1024);
+		new Thread(stderrConnector).start();
+
+		// connect STDOUT from script process and store in local memory
+		// STDOUT [script process] ---> local byte array
+		ByteArrayOutputStream stdoutData = new ByteArrayOutputStream();		
+		StreamConnector stdoutConnector = new StreamConnector(p.getInputStream(), stdoutData, 1024);
+		new Thread(stdoutConnector).start();
 
 		// feed STDIN into process if necessary
 		if (stdin != null) {
@@ -96,44 +103,10 @@ public abstract class BaseFunctionalTest {
 		int exitCode = p.waitFor();
 
 		CommandOutput out = new CommandOutput();
-		out.stderr = stderrGobbler.getStreamContent();
-		out.stdout = stdoutGobbler.getStreamContent();
+		out.stderr = stderrData.toString("UTF-8");
+		out.stdout = stdoutData.toString("UTF-8");
 		out.exit = exitCode;
 		return out;
-	}
-
-	/**
-	 * Grabbed from
-	 * http://www.javaworld.com/jw-12-2000/jw-1229-traps.html?page=4 with slight
-	 * mods.
-	 */
-	class StreamGobbler extends Thread {
-		private InputStream mInputStream;
-		private StringWriter mStrWtr = new StringWriter();
-
-		StreamGobbler(InputStream is) {
-			this.mInputStream = is;
-		}
-
-		public void run() {
-			PrintWriter pWtr = new PrintWriter(mStrWtr);
-
-			try {
-				InputStreamReader isr = new InputStreamReader(mInputStream);
-				BufferedReader br = new BufferedReader(isr);
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					pWtr.println(line);
-				}
-				pWtr.close();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		}
-
-		public String getStreamContent() {
-			return mStrWtr.toString();
-		}
 	}
 
 	/**
