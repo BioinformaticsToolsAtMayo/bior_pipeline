@@ -110,10 +110,10 @@ public class VEPPostProcessingPipeline {
                                     new HistoryInPipe(),
                                     new VCF2VariantPipe(), 
                                     new FindAndReplaceHPipe(8,"CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
-                                    //drill,
-                                    //new FanPipe(),
-                                    //pipes2json,
-                                    //fixSiftPoly,
+                                    drill,
+                                    new FanPipe(),
+                                    pipes2json,
+                                    fixSiftPoly,
                                     new HistoryOutPipe(),
                                     output);
                 return p;
