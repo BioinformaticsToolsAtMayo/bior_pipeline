@@ -14,6 +14,7 @@ public class VEPCommand extends GenericScriptCommand implements CommandPlugin {
 	private static final String ENV_VALUE_BIOR_LITE_HOME = System.getenv(ENV_NAME_BIOR_LITE_HOME);
 
 	private static final String OPTION_BUFFER_SIZE = "b";
+	private static final String OPTION_FORK = "f";
 	
 	public void init(Properties props) throws Exception {
 	}
@@ -26,12 +27,21 @@ public class VEPCommand extends GenericScriptCommand implements CommandPlugin {
 	@Override
 	public String[] getScriptArgs(CommandLine line) {
 		
-        Integer bufferSize = 10;
+        Integer bufferSize = 50;
         if (line.hasOption(OPTION_BUFFER_SIZE)) {
             bufferSize = new Integer(line.getOptionValue(OPTION_BUFFER_SIZE));
         }		
 		
-		return new String[] { String.valueOf(bufferSize) };
+        Integer numForks = 1;
+        if (line.hasOption(OPTION_FORK)) {
+            numForks = new Integer(line.getOptionValue(OPTION_FORK));
+        }		
+
+        return new String[] 
+        		{ 
+        			String.valueOf(bufferSize),
+        			String.valueOf(numForks)
+        		};
 	}
 
 	@Override
