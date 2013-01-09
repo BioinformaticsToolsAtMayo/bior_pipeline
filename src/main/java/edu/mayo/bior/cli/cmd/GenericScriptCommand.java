@@ -118,6 +118,7 @@ public abstract class GenericScriptCommand implements CommandPlugin {
 		// check if process exited abnormally
 		String stderr = stderrOutputStream.toString("UTF-8");
 		if (stderr.length() > 0) {
+			System.err.println(stderr);
 			sLogger.error(stderr);
 		}
 		if (exitCode != 0) {
