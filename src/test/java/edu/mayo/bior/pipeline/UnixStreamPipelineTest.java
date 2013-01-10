@@ -36,8 +36,6 @@ public class UnixStreamPipelineTest {
 	 * @throws IOException
 	 */
 	public void testExecute() throws IOException {
-		System.out.flush();
-		System.out.println("UnixStreamPipelineTest.testExecute()");
 		final String history = 
 				"##Directive\n" + 
 				"#COL1\tCOL2\tCOL3\n" + 
@@ -46,6 +44,10 @@ public class UnixStreamPipelineTest {
 		// create IN/OUT streams to be used by UnixStreamPipeline
 		InputStream inStream = new ByteArrayInputStream(history.getBytes());		
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		
+		// save default streams for STDIN and STDOUT
+		final InputStream DEFAULT_STDIN = System.in;
+		final PrintStream DEFAULT_STDOUT = System.out;
 		
 		// override STDIN/STDOUT defaults for java
 		System.setIn(inStream);		
@@ -60,20 +62,17 @@ public class UnixStreamPipelineTest {
 		// flush stream and grab the modified history
 		outStream.flush();
 		String historyModified = outStream.toString().trim();
-		PrintStream ps = new PrintStream(new FileOutputStream(FileDescriptor.out), true);
-        System.setOut(ps);
-        System.out.println(historyModified);
-		String[] lines = historyModified.split("\n");
-		
 		outStream.close();
-		ps.close();
+
+		// reset streams back to defaults
+		System.setIn(DEFAULT_STDIN);
+		System.setOut(DEFAULT_STDOUT);		
 		
+		String[] lines = historyModified.split("\n");				
 		assertEquals(3, lines.length);		
 		assertEquals("##Directive",		 					lines[0].trim());
 		assertEquals("#COL1\tCOL2\tCOL3", 					lines[1].trim());
-		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", 	lines[2].trim());
-                
-		
+		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", 	lines[2].trim());                		
 	}
 
 	/**
