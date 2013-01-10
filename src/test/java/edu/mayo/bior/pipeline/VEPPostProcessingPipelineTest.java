@@ -83,11 +83,13 @@ public class VEPPostProcessingPipelineTest {
     public void testFindReplacePass() {
         System.out.println("Test FindReplace: VEPPostProcessingPipeline...");
         
+        String csqHeader = "##INFO=<ID=CSQ,Number=.,Type=String,Description=\"Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE\">";
+        String colHeader = "#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO";
         String vcfsample = "21	26960070	rs116645811	G	A	.	.	CSQ=A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||,A|ENSG00000154719|ENST00000352957|Transcript|intron_variant||||||||||,A|ENSG00000154719|ENST00000307301|Transcript|missense_variant|1043|1001|334|T/M|aCg/aTg|||tolerated(0.05)|benign(0.001)|";
         
         VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
         Pipe p = vepp.getPipeline(new IdentityPipe(), new IdentityPipe());
-        p.setStarts(Arrays.asList(vcfsample));
+        p.setStarts(Arrays.asList(csqHeader, colHeader, vcfsample));
         String result = "";
         while(p.hasNext()){
             result = (String) p.next();            
