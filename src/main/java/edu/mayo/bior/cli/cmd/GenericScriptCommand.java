@@ -3,6 +3,7 @@ package edu.mayo.bior.cli.cmd;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -59,7 +60,14 @@ public abstract class GenericScriptCommand implements CommandPlugin {
 
 		String script 			= getScriptName(line);
 		String[] scriptArgs 	= getScriptArgs(line);
-		Map<String, String> env	= getEnvVars(line);
+		
+		Map<String, String> env = new HashMap<String, String>();
+
+		// inject current environment of this JVM process
+		env.putAll(System.getenv());
+		
+		// inject any additional environment vars
+		env.putAll(getEnvVars(line));
 		
 		execute(script, scriptArgs, env);
 	}
