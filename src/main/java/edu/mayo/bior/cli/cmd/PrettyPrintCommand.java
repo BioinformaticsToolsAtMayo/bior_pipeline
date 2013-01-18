@@ -51,7 +51,6 @@ public class PrettyPrintCommand implements CommandPlugin {
 	 */
 	class PrettyPrintPipe extends AbstractPipe<History, History> {
 
-		private int rowNum = 0;
 		private Integer selectedRow;
 		private Gson mGson = new GsonBuilder().setPrettyPrinting().create();
 		private JsonParser mJsonParser = new JsonParser();
@@ -62,19 +61,24 @@ public class PrettyPrintCommand implements CommandPlugin {
 
 		@Override
 		protected History processNextStart() throws NoSuchElementException {
-			rowNum++;
-			History history = this.starts.next();
 
-			if (selectedRow == rowNum) {
-				try {
-					printDataRow(history);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+			int rowNum = 0;
+			
+			while (this.starts.hasNext()) {
+				rowNum++;
+				History history = this.starts.next();
+
+				if (selectedRow == rowNum) {
+					try {
+						printDataRow(history);
+						System.exit(0);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 				}
-				System.exit(0);
 			}
-
-			return history;
+			System.out.println("Please use a value between 1 and " + rowNum);
+			throw new NoSuchElementException();
 		}
 
 		/**
