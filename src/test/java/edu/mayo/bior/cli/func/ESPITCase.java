@@ -12,6 +12,8 @@ public class ESPITCase extends BaseFunctionalTest {
 	
 	 @Test
      public void testVariantFound() throws IOException, InterruptedException {
+		 System.out.println("ESP Functional Test: VariantFound in sample catalog...");
+		 
 	     String espsample = "src/test/resources/miniCatalog/espsample.tsv.bgz";
 	
 	     String jsonVar = "21\t26960070\trs116645811\tG\tA\t.\t.\t.\t{\"CHROM\":\"21\",\"POS\":\"26960070\",\"ID\":\"rs116645811\",\"REF\":\"G\",\"ALT\":\"A\",\"QUAL\":\".\",\"FILTER\":\".\",\"_id\":\"rs116645811\",\"_type\":\"variant\",\"_landmark\":\"21\",\"_refAllele\":\"G\",\"_altAlleles\":[\"A\"],\"_minBP\":26960070,\"_maxBP\":26960070}";
