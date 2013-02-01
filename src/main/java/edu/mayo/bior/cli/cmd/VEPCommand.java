@@ -46,7 +46,8 @@ public class VEPCommand extends GenericScriptCommand implements CommandPlugin {
         return new String[] 
         		{ 
         			String.valueOf(bufferSize),
-        			String.valueOf(numForks)
+        			String.valueOf(numForks),
+                                pipeline
         		};
 	}
 
