@@ -15,6 +15,7 @@ public class VEPCommand extends GenericScriptCommand implements CommandPlugin {
 
 	private static final String OPTION_BUFFER_SIZE = "b";
 	private static final String OPTION_FORK = "f";
+        private static final String OPTION_PIPELINE = "a";
 	
 	public void init(Properties props) throws Exception {
 	}
@@ -35,7 +36,12 @@ public class VEPCommand extends GenericScriptCommand implements CommandPlugin {
         Integer numForks = 1;
         if (line.hasOption(OPTION_FORK)) {
             numForks = new Integer(line.getOptionValue(OPTION_FORK));
-        }		
+        }
+        
+        String pipeline = "-a";
+        if(line.hasOption(OPTION_PIPELINE)){
+            pipeline = line.getOptionValue(OPTION_PIPELINE);
+        }
 
         return new String[] 
         		{ 
