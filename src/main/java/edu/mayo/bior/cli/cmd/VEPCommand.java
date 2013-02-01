@@ -38,9 +38,9 @@ public class VEPCommand extends GenericScriptCommand implements CommandPlugin {
             numForks = new Integer(line.getOptionValue(OPTION_FORK));
         }
         
-        String pipeline = "-a";
+        String pipeline = "-w";
         if(line.hasOption(OPTION_PIPELINE)){
-            pipeline = line.getOptionValue(OPTION_PIPELINE);
+            pipeline = "--all";
         }
 
         return new String[] 
