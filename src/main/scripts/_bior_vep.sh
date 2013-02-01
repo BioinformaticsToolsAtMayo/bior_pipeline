@@ -4,12 +4,13 @@
 set -e
 
 # REQUIRED PARAMETERS
-if [ $# -ne 2 ] ; then
-      echo "USAGE: _bior_vep.sh <buffer_size> <num_forks>"   
+if [ $# -ne 3 ] ; then
+      echo "USAGE: _bior_vep.sh <buffer_size> <num_forks> <-all/-worst>"   
       exit 1
 fi
 VEP_BUFFER_SIZE=$1
 VEP_NUM_FORKS=$2
+ALL=$3
 
 $BIOR_LITE_HOME/bin/_check_java.sh
 
@@ -40,4 +41,4 @@ if test `uname` = "Darwin"; then
 	VEP_COMMAND="$VEP_COMMAND --compress \"gunzip -c\""
 fi
 
-eval $VEP_COMMAND | java -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.bior.pipeline.VEPPostProcessingPipeline $0 $@
+eval $VEP_COMMAND | java -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.bior.pipeline.VEPPostProcessingPipeline $ALL 
