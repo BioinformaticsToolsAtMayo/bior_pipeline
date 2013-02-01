@@ -26,9 +26,11 @@ import edu.mayo.pipes.history.HistoryMetaData;
 import edu.mayo.pipes.history.HistoryOutPipe;
 import edu.mayo.pipes.util.JSONUtil;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import com.google.gson.JsonObject;
 
 /**
  *
@@ -36,12 +38,56 @@ import java.util.List;
  */
 public class VEPPostProcessingPipeline {
     
+        public VEPPostProcessingPipeline(){
+            
+        }
+        
+        public VEPPostProcessingPipeline(String whichPipeline){
+            this.whichPipeline = whichPipeline;
+        }
+    
+        /**
+         * whichPipeline - what vep pipeline do you want to execute for postprocessing?
+         * 1. CartesianProduct - get all the vep results and fan them out replicating the data before
+         * 2. WorstScenario    - do your best to pick the worst outcome and report only that
+         */
+        private String whichPipeline = "CartesianProduct";
+
+        public void setWhichPipeline(String whichPipeline) {
+            this.whichPipeline = whichPipeline;
+        }
+        
+        public Pipe getPipeline(Pipe input, Pipe output){
+            return getPipeline(input, output, whichPipeline);
+        }
+        
+        public Pipe getPipeline(Pipe input, Pipe output, String whichPipeline){
+            this.whichPipeline = whichPipeline;
+            if(whichPipeline.equalsIgnoreCase("CartesianProduct")){
+                return getCartesianProductPipeline(input, output);
+            }
+            if(whichPipeline.equalsIgnoreCase("WorstScenario")){
+                return getWorstCasePipeline(input, output);
+            }
+            return getCartesianProductPipeline(input, output);
+        }
+        
+    
         public static void main(String[] args){
             VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
             InputStreamPipe	in 		= new InputStreamPipe();
             PrintPipe           out             = new PrintPipe();
-            Pipe p = vepp.getPipeline(in, out);
-
+            Pipe p = vepp.getPipeline(in, out, "WorstScenario");
+            
+            for(int i=0; i<args.length; i++){
+                if(args[i].contains("a") ||
+                     args[i].contains("-a") ||
+                     args[i].contains("-all") ||
+                     args[i].contains("--all") ){
+                     p = vepp.getPipeline(in, out, "CartesianProduct");
+                }
+            }
+            
             p.setStarts(Arrays.asList(System.in));
             while(p.hasNext()){
                 p.next();
@@ -58,7 +104,7 @@ public class VEPPostProcessingPipeline {
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
                 PrintPipe       out             = new PrintPipe();
-                Pipe            logic           = getPipeline(in, out);
+                Pipe            logic           = getPipeline(in, out, whichPipeline);
 		HistoryOutPipe	historyOut      = new HistoryOutPipe();
 		PrintPipe	print           = new PrintPipe();
 		
@@ -80,14 +126,7 @@ public class VEPPostProcessingPipeline {
                 }		
 	}
         
-        public Pipe getPipeline(Pipe input, Pipe output){
-                String[] drillPath = new String[1];
-                drillPath[0]= "INFO.CSQ";
-                DrillPipe drill = new DrillPipe(false, drillPath);
-                //##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
-                //example:
-                //A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||
-                String[] headers = {"Allele", 
+        private static String[] headers = {"Allele", 
                                     "Gene", 
                                     "Feature",
                                     "Feature_type",
@@ -98,11 +137,21 @@ public class VEPPostProcessingPipeline {
                                     "Amino_acids",
                                     "Codons",
                                     "Existing_variation",
+                                    "HGNC",
                                     "DISTANCE",
                                     "SIFT",
                                     "PolyPhen",
                                     "CELL_TYPE"
                     };
+        
+        public Pipe getCartesianProductPipeline(Pipe input, Pipe output){
+                String[] drillPath = new String[1];
+                drillPath[0]= "INFO.CSQ";
+                DrillPipe drill = new DrillPipe(false, drillPath);
+                //##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
+                //example:
+                //A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||
+
                 Delim2JSONPipe pipes2json = new Delim2JSONPipe(-1, false,  headers, "|");
                 Pipe fixSiftPoly = new TransformFunctionPipe<History,History>(new FixSiftandPolyphen());
 
@@ -118,6 +167,133 @@ public class VEPPostProcessingPipeline {
                                     output);
                 return p;
         }
+        
+        public Pipe getWorstCasePipeline(Pipe input, Pipe output){
+                String[] drillPath = new String[1];
+                drillPath[0]= "INFO.CSQ";
+                DrillPipe drill = new DrillPipe(false, drillPath);
+                Pipe worstvep = new TransformFunctionPipe<History,History>(new PickWorstVEP());
+                Pipe p = new Pipeline(input,//the output of vep
+                    new HistoryInPipe(),
+                    new VCF2VariantPipe(), 
+                    new FindAndReplaceHPipe(8,"CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
+                    drill,
+                    worstvep,
+                    new HistoryOutPipe(),
+                    output);
+                return p;
+        }
+        
+        /**
+         * pickWorstVEP attempts to select the worst case scenario of all of the CSQ outputs that are availible for a given input.
+         */
+        public static class PickWorstVEP implements PipeFunction<History, History> {
+            
+            public String jsonize(String[] csq){
+                JsonObject jobj = new JsonObject();
+                for(int i=0; i<csq.length; i++){
+                    if(csq[i].length() > 0 && headers.length >= i){
+                        jobj.addProperty(headers[i], csq[i]);
+                    }
+                }
+                jobj.addProperty(siftterm, worstSiftTerm);
+                jobj.addProperty(siftscore, worstsift);
+                jobj.addProperty(polyterm, worstPolyTerm);
+                jobj.addProperty(polyscore, worstPoly);
+                return jobj.toString();
+            }
+            
+            FixSiftandPolyphen fix = new FixSiftandPolyphen();
+            String[] worstCaseCSQ;
+            Double worstsift = 1.0;
+            String worstSiftTerm = "";
+            Double worstPoly = Double.MAX_VALUE;
+            String worstPolyTerm = "";
+            private String handleCSQ(ArrayList<String> csqs){
+                boolean nohits = true;
+                worstsift = 2.0;
+                worstSiftTerm = "";
+                worstPoly = -1.0;
+                worstPolyTerm = "";
+                for(int i=0; i< csqs.size(); i++){
+                    String csq = csqs.get(i);
+                    String[] split = csq.split("\\|");
+                    if(split.length > 13){
+                        //System.out.println(csq);
+                        //sift
+                        //System.out.println(split[12]);                        
+                        //polyphen
+                        //System.out.println(split[13]);
+                        if(split[13].contains("(") && split[13].contains("(")){
+                            nohits = false;
+                            //sift
+                            Double sscore = fix.parseScore(split[13]);
+                            String sterm = fix.parseTerm(split[13]);  
+                            //polyphen
+                            Double pscore = fix.parseScore(split[14]);
+                            String pterm = fix.parseTerm(split[14]);
+                            //System.out.println(sscore);
+                            //System.out.println(sterm);
+                            //System.out.println(pscore);
+                            //System.out.println(pterm);
+                            //if this one beats everything we have seen on both counts...
+                            if(sscore <= worstsift && pscore >= worstPoly){
+                                worstsift = sscore;
+                                worstSiftTerm = sterm;
+                                worstPoly = pscore;
+                                worstPolyTerm = pterm;
+                                worstCaseCSQ = split;
+                            }
+                        }
+
+                    }
+                    
+                }
+                
+                if(nohits == true){
+                    return "{}";  //no significant sift or polyphen value
+                }
+                
+                String outJson = jsonize(worstCaseCSQ);
+                //System.out.println("*************  WE PICK  ****************");
+                //System.out.println(outJson);
+                //System.out.println("*************  WE PICK  ****************");
+                
+                return outJson;
+            }
+            
+            private Gson gson = new Gson();
+            public History compute(History a) {
+                setup();
+                String get = a.remove(a.size()-1);
+                //System.out.println(get);
+                if(get.startsWith("[")){
+                    ArrayList<String> csqs = gson.fromJson(get, ArrayList.class);
+                    String worststr = handleCSQ(csqs);
+                    a.add(worststr);
+                }else{
+                    a.add("{}"); //if we did not get any matches back, thats fine, just tack on null json.
+                }
+                return a;
+            }  
+            
+            private boolean isFirst = true;
+            
+            protected void setup(){     
+                //if it is the first call to the pipe... fix the history...
+                if(isFirst){
+                    isFirst = false;
+                    // add column meta data
+                    List<ColumnMetaData> cols = History.getMetaData().getColumns();
+                        ColumnMetaData cmd = new ColumnMetaData("VEP");
+                        cols.add(cmd);         
+                }        
+            }
+        }
+        private static final String siftterm = "SIFT_TERM";
+        private static final String polyterm = "PolyPhen_TERM";
+        private static final String siftscore = "SIFT_Score";
+        private static final String polyscore = "PolyPhen_Score";
         
         public static class FixSiftandPolyphen implements PipeFunction<History,History> {
             public String parseTerm(String s){
@@ -152,8 +328,8 @@ public class VEPPostProcessingPipeline {
                         String siftraw = (String) hm.get("SIFT");
                         //System.out.println(siftraw);
                         if(siftraw.contains("(") && siftraw.contains(")")){
-                            hm.put("SIFT_TERM", parseTerm(siftraw));
-                            hm.put("SIFT_Score", parseScore(siftraw));
+                            hm.put(siftterm, parseTerm(siftraw));
+                            hm.put(siftscore, parseScore(siftraw));
                         }
                     }           
                     if(hm.containsKey("PolyPhen")){
@@ -161,8 +337,8 @@ public class VEPPostProcessingPipeline {
                         //System.out.println(polyraw);
                         parseTerm(polyraw);
                         if(polyraw.contains("(") && polyraw.contains(")")){
-                            hm.put("PolyPhen_TERM", parseTerm(polyraw));
-                            hm.put("PolyPhen_Score",parseScore(polyraw) );
+                            hm.put(polyterm, parseTerm(polyraw));
+                            hm.put(polyscore,parseScore(polyraw) );
                         }
                     }
                     //String outJson = gson.toJson(hm);

@@ -18,6 +18,7 @@ import edu.mayo.pipes.JSON.FanPipe;
 import edu.mayo.pipes.InputStreamPipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.UNIX.GrepPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
 import edu.mayo.pipes.history.FindAndReplaceHPipe;
 import edu.mayo.pipes.history.History;
@@ -56,6 +57,30 @@ public class VEPPostProcessingPipelineTest {
     @After
     public void tearDown() {
     }
+    
+    
+    @Test
+    public void testGetWorstPipeline(){
+        System.out.println("Test GetPipeline: VEPPostProcessingPipeline...");
+        VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline("WorstScenario");
+        Pipe p;
+        String s = "17	41197702	rs80357183	T	A	.	.	.	{\"Allele\":\"A\",\"Gene\":\"ENSG00000012048\",\"Feature\":\"ENST00000491747\",\"Feature_type\":\"Transcript\",\"Consequence\":\"missense_variant\",\"cDNA_position\":\"2372\",\"CDS_position\":\"2273\",\"Protein_position\":\"758\",\"Amino_acids\":\"H/L\",\"Codons\":\"cAc/cTc\",\"HGNC\":\"BRCA1\",\"SIFT\":\"deleterious(0)\",\"PolyPhen\":\"probably_damaging(0.952)\",\"SIFT_TERM\":\"deleterious\",\"SIFT_Score\":0.0,\"PolyPhen_TERM\":\"probably_damaging\",\"PolyPhen_Score\":0.952}";
+        Pipe testP = new Pipeline(new GrepPipe(".*\\{.+}.*"),
+                                  //new PrintPipe()
+                                  new IdentityPipe()
+                );
+        p = vepp.getPipeline(new CatPipe(), 
+                testP
+                );
+        //p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
+        p.setStarts(Arrays.asList("src/test/resources/tools/vep/dbSNPS_overlap_BRCA1.vcf.vep"));
+        for(int i=0; p.hasNext(); i++){
+            String next = (String) p.next();      
+            if(i==0){
+                assertEquals(s, next);
+            }
+        }
+    }
 
     /**
      * Test of execute method, of class VEPPostProcessingPipeline.
@@ -66,7 +91,7 @@ public class VEPPostProcessingPipelineTest {
         VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
         Pipe p;
 		p = vepp.getPipeline(new CatPipe(), new IdentityPipe());
-        p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
+        p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf.vep"));
         String s="";
         while(p.hasNext()){
             s = (String) p.next().toString();            
@@ -74,6 +99,8 @@ public class VEPPostProcessingPipelineTest {
         //System.out.println(s);
         String[] arrResult = s.split("\t");
         assertEquals("ENSG00000073150", JsonPath.compile("Gene").read(arrResult[8]));
+        //System.out.println(arrResult[8]);
+        assertEquals("PANX2", JsonPath.compile("HGNC").read(arrResult[8]));
     }
     
     /**

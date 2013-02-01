@@ -21,7 +21,7 @@ export BIOR_VEP_HOME=/data2/bsi/RandD/test/vep/variant_effect_predictor
 #export BIOR_VEP_PERL_HOME=/usr/bin
 #export BIOR_VEP_HOME=/Applications/variant_effect_predictor
 
-export VEP_COMMAND="$BIOR_VEP_PERL_HOME/perl $BIOR_VEP_HOME/variant_effect_predictor.pl -i /dev/stdin -o STDOUT -dir $BIOR_VEP_HOME/cache/ -vcf -polyphen b -sift b --offline --buffer_size $VEP_BUFFER_SIZE"
+export VEP_COMMAND="$BIOR_VEP_PERL_HOME/perl $BIOR_VEP_HOME/variant_effect_predictor.pl -i /dev/stdin -o STDOUT -dir $BIOR_VEP_HOME/cache/ -vcf --hgnc -polyphen b -sift b --offline --buffer_size $VEP_BUFFER_SIZE"
 
 if test $VEP_NUM_FORKS -gt 1; then
 	VEP_COMMAND="$VEP_COMMAND --fork $VEP_NUM_FORKS"
