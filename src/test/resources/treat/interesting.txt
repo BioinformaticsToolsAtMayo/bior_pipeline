@@ -1,0 +1,28 @@
+notes on bringing together a full demo of bior as treat
+
+The catalogs in this directory where constructed using the following region in the genome: 17:41196312-41297272
+
+You can extract parts of the catalogs with commands like:
+tabix /data/catalogs/1000_genomes/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37.tsv.gz 17:41196312-41297272 > brca1.1000_genomes.tsv
+
+This was done for the following catalogs:
+1) dbsnp
+2) thousandGenomes
+3) ESP
+4) Cosmic
+5) Hapmap
+6) NCBIGene
+
+using the BRCA1 gene:
+
+
+You can cat the contents of one of these slices to see the size of a catalog:
+bior@biordev:~/bior_lite/bior_pipeline/src/test/resources/treat$ zcat brca1.dbsnp.tsv.gz | wc -l
+3106
+
+Sizes of the above catalogs are as follows:
+
+I wanted to make a 'GOD' VCF file that had all the SNPs in each of the VCF files.
+
+bior@biordev:~/bior_lite/bior_pipeline/src/test/resources/treat$ sort treat.vcf | uniq | wc -l
+3130
