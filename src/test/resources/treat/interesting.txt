@@ -16,13 +16,33 @@ This was done for the following catalogs:
 using the BRCA1 gene:
 
 
-You can cat the contents of one of these slices to see the size of a catalog:
+You can cat the contents of one of these slices to see the size of a catalog e.g. :
 bior@biordev:~/bior_lite/bior_pipeline/src/test/resources/treat$ zcat brca1.dbsnp.tsv.gz | wc -l
 3106
 
-Sizes of the above catalogs are as follows:
+Sizes for the catalogs above:
+3106 - dbsnp
+1123 - thousandGenomes
+261  - ESP
+??Cosmic
+178  - Hapmap
+5    - NCBIGene
 
-I wanted to make a 'GOD' VCF file that had all the SNPs in each of the VCF files.
+I wanted to make a 'GOD' VCF file that had all the SNPs in each of the VCF files. 
+To do this I run the following command for each of the catalog files just created:
+zcat brca1.1000_genomes.tsv.gz | bior_drill -p _landmark -p _minBP -p _id -p _refAllele -p ALT -p NQUAL -p NFILTER -p NINFO >> tmp.vcf
+(make sure the tmp.vcf file does not exist)
 
-bior@biordev:~/bior_lite/bior_pipeline/src/test/resources/treat$ sort treat.vcf | uniq | wc -l
-3130
+also, hapmap is a bit of a trick, because the original data was not in VCF format:
+bior@biordev:~/bior_lite/bior_pipeline/src/test/resources/treat$ zcat brca1.hapmap.tsv.gz | bior_drill -p _landmark -p _minBP -p _id -p _refAllele -p _altAlleles[0] -p NQUAL -p NFILTER -p NINFO >> tmp.vcf
+
+After this is all munged, you can make a non-redundant vcf file by doing:
+cat tmp.vcf | grep -v "#" | sort | uniq | cut --complement -f 1-3 > treat.vcf
+
+(note had to use cut to remove the extra columns from the catalog, this could have been done a step earlier).
+
+The size of this new file is:
+bior@biordev:~/bior_lite/bior_pipeline/src/test/resources/treat$ wc -l treat.vcf 
+3225 treat.vcf
+
+So most of the variants are in DBSNP.
