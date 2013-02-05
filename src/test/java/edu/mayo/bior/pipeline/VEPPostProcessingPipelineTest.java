@@ -16,8 +16,10 @@ import edu.mayo.pipes.JSON.Delim2JSONPipe;
 import edu.mayo.pipes.JSON.DrillPipe;
 import edu.mayo.pipes.JSON.FanPipe;
 import edu.mayo.pipes.InputStreamPipe;
+import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.UNIX.GrepEPipe;
 import edu.mayo.pipes.UNIX.GrepPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
 import edu.mayo.pipes.history.FindAndReplaceHPipe;
@@ -75,10 +77,36 @@ public class VEPPostProcessingPipelineTest {
         //p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/dbSNPS_overlap_BRCA1.vcf.vep"));
         for(int i=0; p.hasNext(); i++){
-            String next = (String) p.next();      
+            String next = (String) p.next(); 
             if(i==0){
                 assertEquals(s, next);
             }
+        }
+    }
+    
+    @Test
+    public void testGetWorstPipeline2(){
+        System.out.println("Test GetPipeline (worst) VEPPostProcessingPipeline...");
+        Pipe verify = new Pipeline(new CatPipe(), new GrepEPipe("#.*"));
+        VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline("WorstScenario");
+        String[] path = {"SIFT_TERM","SIFT_Score","PolyPhen_TERM","PolyPhen_Score"};
+        Pipe p;
+                Pipe testP = new Pipeline( new GrepEPipe("#.*"),
+                                  //new GrepPipe(".*\\{.+}.*"),//if you don't want the ones that don't have a match
+                                  new HistoryInPipe(),
+                                  new DrillPipe(false, path),
+                                  new MergePipe("\t"),
+                                  //new PrintPipe()
+                                  new IdentityPipe()
+                );
+        p = vepp.getPipeline(new CatPipe(), testP);
+        p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf.vep"));
+        verify.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf.vep.drill"));
+        for(int i=0; p.hasNext(); i++){
+            String next = (String) p.next(); 
+            String expected = (String)verify.next();
+            assertEquals(expected, next);
+            
         }
     }
 
