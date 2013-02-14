@@ -230,8 +230,12 @@ public class VEPPostProcessingPipeline {
                             Double sscore = fix.parseScore(split[13]);
                             String sterm = fix.parseTerm(split[13]);  
                             //polyphen
-                            Double pscore = fix.parseScore(split[14]);
-                            String pterm = fix.parseTerm(split[14]);
+                            Double pscore = 0.0;
+                            String pterm = "not_predicted";
+                            if(split.length > 14){
+                                 pscore = fix.parseScore(split[14]);
+                                 pterm = fix.parseTerm(split[14]);
+                            }
                             //System.out.println(sscore);
                             //System.out.println(sterm);
                             //System.out.println(pscore);
