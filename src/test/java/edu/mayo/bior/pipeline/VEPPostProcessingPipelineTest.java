@@ -75,7 +75,7 @@ public class VEPPostProcessingPipelineTest {
                 );
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/cancer.vcf.vep"));
         for(int i=0; p.hasNext(); i++){
-            System.out.println(i);
+            //System.out.println(i);
             String next = (String) p.next(); 
             if(i==0){
                 assertEquals(s, next);
