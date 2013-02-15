@@ -3,18 +3,18 @@ package edu.mayo.bior.cli;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-public class InvalidOptionArgValue extends ParseException {
+public class InvalidOptionArgValueException extends ParseException {
 
 	private static final long serialVersionUID = 1L;
 
 	private Option mOpt;
 	private String mValue;
 
-	public InvalidOptionArgValue(Option opt, String value) {
+	public InvalidOptionArgValueException(Option opt, String value) {
 		this(opt, value, "");
 	}
 
-	public InvalidOptionArgValue(Option opt, String value, String mesg) {
+	public InvalidOptionArgValueException(Option opt, String value, String mesg) {
 		super(mesg);
 		mOpt = opt;
 		mValue = value;

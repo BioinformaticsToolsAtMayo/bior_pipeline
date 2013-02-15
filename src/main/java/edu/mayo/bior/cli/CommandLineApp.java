@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -68,11 +70,11 @@ public class CommandLineApp {
 		
 		//Generate log file only if user specifies explicitly
         if ( ArrayUtils.contains(cmdArgs, "-l") || ArrayUtils.contains(cmdArgs, "--log")) {
-        	//sLogger = Logger.getLogger(CommandLineApp.class);
         	turnLogOn();
         }
         
 		Options opts = null;
+		List<ArgumentDefinition> argDefs = null;
 		try {
 			Properties props = new Properties();
 			props.load(ClassLoader.getSystemClassLoader().getResourceAsStream("CommandLineApp.properties"));
@@ -84,17 +86,45 @@ public class CommandLineApp {
 			opts.addOption(getHelpOption());	
 			opts.addOption(getLogfileOption());
 			
+			argDefs = loadArgumentDefinitions(plugin);
+			
 			CommandLineApp app = new CommandLineApp();
-			app.execute(plugin, cmdArgs, opts, scriptName);
+			app.execute(plugin, cmdArgs, opts, argDefs, scriptName);
 
 		} catch (Exception e) {
 			try {
-				processException(scriptName, opts, e);
+				processException(scriptName, opts, argDefs, e);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
 			System.exit(1);
 		}
+	}
+
+	/**
+	 * Loads zero or more ArgumentDefinition objects from the CommandPlugin's
+	 * corresponding ResourceBundle.
+	 * 
+	 * @param plugin
+	 * @return
+	 */
+	private static List<ArgumentDefinition> loadArgumentDefinitions(
+			CommandPlugin plugin) {
+		
+		Map<String, String> props = getProperties(plugin, "arg.");
+		
+		List<ArgumentDefinition> argDefs = new ArrayList<ArgumentDefinition>();
+		
+		for (String key: props.keySet()) {
+			String json = props.get(key);
+			
+			// transform JSON into POJO
+			ArgumentDefinition def = sGson.fromJson(json, ArgumentDefinition.class);				
+			
+			argDefs.add(def);
+		}		
+		
+		return argDefs;
 	}
 
 	/**
@@ -106,33 +136,42 @@ public class CommandLineApp {
 	 */
 	private static Options loadOptions(CommandPlugin plugin) {
 
-		ResourceBundle bundle = getBundle(plugin);
+		Map<String, String> props = getProperties(plugin, "flag.");
 		
 		Options opts = new Options();
 		
-		for (String key: bundle.keySet()) {
-			if (key.startsWith("flag.")) {
-				String json = bundle.getString(key);
-				
-				// transform JSON into POJO
-				OptionDefinition def = sGson.fromJson(json, OptionDefinition.class);				
-				
-				opts.addOption(def.toOption());
-			}
+		for (String key: props.keySet()) {
+			String json = props.get(key);
+			
+			// transform JSON into POJO
+			OptionDefinition def = sGson.fromJson(json, OptionDefinition.class);				
+			
+			opts.addOption(def.toOption());
 		}
 		
 		return opts;
 	}
-	
+
 	/**
-	 * Gets the CommandPlugin's description dynamically from the CommandPlugin's ResourceBundle.
+	 * Loads zero or more properties from the CommandPlugin's corresponding ResourceBundle.
+	 * Properties are restricted to those that have a name that starts with the given prefix.
 	 * 
 	 * @param plugin
+	 * @param prefix
 	 * @return
 	 */
-	private static String getDescription(CommandPlugin plugin) {
+	private static Map<String, String> getProperties(CommandPlugin plugin, String prefix) {
 		ResourceBundle bundle = getBundle(plugin);
-		return bundle.getString("description");
+		
+		Map<String, String> props = new HashMap<String, String>();
+		
+		for (String key: bundle.keySet()) {
+			if (key.startsWith(prefix)) {
+				String val = bundle.getString(key);
+				props.put(key, val);
+			}
+		}
+		return props;
 	}
 	
 	/**
@@ -151,13 +190,14 @@ public class CommandLineApp {
 	 * 
 	 * @param scriptName
 	 * @param opts
+	 * @param argDefs
 	 * @param e
 	 * @throws IOException 
 	 */
-	private static void processException(String scriptName, Options opts, Exception e) throws IOException {
+	private static void processException(String scriptName, Options opts, List<ArgumentDefinition> argDefs, Exception e) throws IOException {
 		
 		String shortScriptName = getShortScriptName(scriptName);
-		String usage = getUsage(shortScriptName, opts);
+		String usage = getUsage(shortScriptName, opts, argDefs);
 				
 		System.err.println("Error executing " + shortScriptName);
 		System.err.println();
@@ -186,6 +226,24 @@ public class CommandLineApp {
 			System.err.println();				
 			System.err.println("Execute the command with -h or --help to find out more information");
 			System.err.println();
+		} else if (e instanceof InvalidNumberOfArgsException) {
+			InvalidNumberOfArgsException ex = (InvalidNumberOfArgsException) e;
+			System.err.println("Usage: " + usage);
+			System.err.println();
+			System.err.println("Invalid number of argument values specified.");
+			System.err.println();
+			System.err.println("Arguments that are required:");
+			for (ArgumentDefinition argDef: argDefs) {
+				System.err.println("\t" + argDef.getName());				
+			}
+			System.err.println();
+			System.err.println("Arguments specfied by user:");
+			for (String actualArg: ex.getActualArgs()) {
+				System.err.println("\t" + actualArg);				
+			}
+			System.err.println();
+			System.err.println("Execute the command with -h or --help to find out more information");
+			System.err.println();
 		} else {
 			sLogger.error("Error executing " + scriptName);			
 			sLogger.error(e.getMessage(), e);
@@ -197,19 +255,32 @@ public class CommandLineApp {
 	 * Executes the command
 	 * 
 	 * @param plugin
+	 * @param jvmArgs Completely raw argument strings passed to the JVM.
+	 * @param opts
+	 * @param argDefs
+	 * @param scriptName
+	 * 
 	 * @throws Exception 
 	 */
-	public void execute(CommandPlugin plugin, String[] args, Options opts, String scriptName)
+	public void execute(CommandPlugin plugin, String[] jvmArgs, Options opts, List<ArgumentDefinition> argDefs, String scriptName)
 			throws Exception {
 
-		for (String arg: args) {
+		for (String arg: jvmArgs) {
 			if (arg.equals("-h") || arg.equals("--help")) {
-				printHelp(plugin, opts, scriptName);
+				printHelp(plugin, opts, argDefs, scriptName);
 				return;
 			}
 		}
 		
-		CommandLine line = mParser.parse(opts, args);
+		CommandLine line = mParser.parse(opts, jvmArgs);
+
+		// validate whether the correct number of arguments was given
+		int expectedArgCnt = argDefs.size();
+		int actualArgCnt = line.getArgs().length;
+		if (actualArgCnt != expectedArgCnt) {
+			throw new InvalidNumberOfArgsException(expectedArgCnt, line.getArgs());
+		}
+
 		plugin.execute(line);
 	}
 
@@ -230,10 +301,11 @@ public class CommandLineApp {
 	 * 
 	 * @param plugin
 	 * @param opts
+	 * @param argDefs
 	 * @param scriptName
 	 * @throws IOException 
 	 */
-	private void printHelp(CommandPlugin plugin, Options opts, String scriptName) throws IOException {
+	private void printHelp(CommandPlugin plugin, Options opts, List<ArgumentDefinition> argDefs, String scriptName) throws IOException {
 		
 		ResourceBundle bundle = getBundle(plugin);
 				
@@ -241,7 +313,7 @@ public class CommandLineApp {
 		
 		String shortDesc = StringUtils.indent(shortScriptName + " -- " + StringUtils.wrap(bundle.getString("short.description"), MAX_WIDTH), 1);
 		String longDesc = StringUtils.indent(StringUtils.wrap(bundle.getString("long.description"), MAX_WIDTH), 1);
-		String usage = StringUtils.indent(getUsage(shortScriptName, opts), 1);
+		String usage = StringUtils.indent(getUsage(shortScriptName, opts, argDefs), 1);
 		
 		List<String> examples = new ArrayList<String>();
 		for (String key: bundle.keySet()) {
@@ -260,17 +332,28 @@ public class CommandLineApp {
 		System.out.println("DESCRIPTION");
 		System.out.println(longDesc);
 		System.out.println();
-		System.out.println(StringUtils.indent("The options are as follows:", 1));
-		System.out.println();
-		for (Object optObj: opts.getOptions()) {
-			Option opt = (Option) optObj;
-			String optStr = "-" + opt.getOpt() +", --" + opt.getLongOpt();  
-			if (opt.hasArg()) {
-				optStr += " <" + opt.getArgName() + ">";
-			}
-			System.out.println(StringUtils.indent(optStr, 1));
-			System.out.println(StringUtils.indent(StringUtils.wrap(opt.getDescription(), MAX_WIDTH), 2));
+		if (argDefs.size() > 0) {
+			System.out.println(StringUtils.indent("The arguments are as follows:", 1));
 			System.out.println();
+			for (ArgumentDefinition argDef: argDefs) {
+				System.out.println(StringUtils.indent(argDef.getName(), 1));
+				System.out.println(StringUtils.indent(StringUtils.wrap(argDef.getDescription(), MAX_WIDTH), 2));
+				System.out.println();				
+			}
+		}		
+		if (opts.getOptions().size() > 0) {
+			System.out.println(StringUtils.indent("The options are as follows:", 1));
+			System.out.println();
+			for (Object optObj: opts.getOptions()) {
+				Option opt = (Option) optObj;
+				String optStr = "-" + opt.getOpt() +", --" + opt.getLongOpt();  
+				if (opt.hasArg()) {
+					optStr += " <" + opt.getArgName() + ">";
+				}
+				System.out.println(StringUtils.indent(optStr, 1));
+				System.out.println(StringUtils.indent(StringUtils.wrap(opt.getDescription(), MAX_WIDTH), 2));
+				System.out.println();
+			}
 		}
 		if (examples.size() > 0) {
 			for (String example: examples) {
@@ -281,9 +364,18 @@ public class CommandLineApp {
 		}
 	}
 	
-	private static String getUsage(String scriptName, Options opts) {
+	/**
+	 * Dynamically builds the USAGE text based on the option and argument metadata given.
+	 * 
+	 * @param scriptName
+	 * @param opts
+	 * @param argDefs
+	 * @return
+	 */
+	private static String getUsage(String scriptName, Options opts, List<ArgumentDefinition> argDefs) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(scriptName);
+				
 		Iterator<Option> optItr = opts.getOptions().iterator();
 		while (optItr.hasNext()) {
 			sb.append(" ");
@@ -305,10 +397,21 @@ public class CommandLineApp {
 			}
 		}
 		
+		for(ArgumentDefinition argDef: argDefs) {
+			sb.append(" ");
+			
+			sb.append(argDef.getName());
+		}		
+		
 		return sb.toString();
 	}
 
-	
+	/**
+	 * Gets the name of the script minus any path information.
+	 * 
+	 * @param scriptName
+	 * @return
+	 */
 	private static String getShortScriptName(String scriptName) {
 		int lastSeparatorPos = scriptName.lastIndexOf('/');
 		if (lastSeparatorPos != -1) {
@@ -343,12 +446,12 @@ public class CommandLineApp {
 	 * Point LOG4J framework at different properties file that has logging
 	 * enabled.
 	 */
-	public static void turnLogOn() {
+	private static void turnLogOn() {
 		URL configURL = Loader.getResource("log4j.properties.enabled");
 		PropertyConfigurator.configure(configURL);
 	}
 
-	public static void turnLogOff() {
+	private static void turnLogOff() {
 		URL configURL = Loader.getResource("log4j.properties");
 		PropertyConfigurator.configure(configURL);
 	}
