@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -115,7 +117,8 @@ public class CommandLineApp {
 		
 		List<ArgumentDefinition> argDefs = new ArrayList<ArgumentDefinition>();
 		
-		for (String key: props.keySet()) {
+		SortedSet<String> keys = new TreeSet<String>(props.keySet());
+		for (String key: keys) {
 			String json = props.get(key);
 			
 			// transform JSON into POJO
@@ -237,7 +240,7 @@ public class CommandLineApp {
 				System.err.println("\t" + argDef.getName());				
 			}
 			System.err.println();
-			System.err.println("Arguments specfied by user:");
+			System.err.println("Arguments specified by user:");
 			for (String actualArg: ex.getActualArgs()) {
 				System.err.println("\t" + actualArg);				
 			}
