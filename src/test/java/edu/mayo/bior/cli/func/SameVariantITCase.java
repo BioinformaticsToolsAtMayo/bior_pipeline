@@ -12,9 +12,9 @@ public class SameVariantITCase extends BaseFunctionalTest {
 	 @Test
      public void testNoMatch() throws IOException, InterruptedException {
 
-             String stdin = "src/test/resources/sameVariantCatalog.tsv.gz";
+             String stdin = "src/test/resources/sameVariantCatalog.tsv.bgz";
 
-             String jsonVar = "BADCHR\t26960070XX\trs116645811X\tX\tY\t.\t.\t.\t{\"CHROM\":\"BADCHR\",\"POS\":\"26960070X\",\"ID\":\"rs116645811X\",\"REF\":\"X\",\"ALT\":\"Y\",\"QUAL\":\".\",\"FILTER\":\".\",\"_id\":\"rs116645811X\",\"_type\":\"variant\",\"_landmark\":\"BADCHR\",\"_refAllele\":\"X\",\"_altAlleles\":[\"Y\"],\"_minBP\":26960070X,\"_maxBP\":26960070X}";
+             String jsonVar = "BADCHR\t999\trs116645811X\tX\tY\t.\t.\t.\t{\"CHROM\":\"BADCHR\",\"POS\":\"999\",\"ID\":\"rs116645811X\",\"REF\":\"X\",\"ALT\":\"Y\",\"QUAL\":\".\",\"FILTER\":\".\",\"_id\":\"rs116645811X\",\"_type\":\"variant\",\"_landmark\":\"BADCHR\",\"_refAllele\":\"X\",\"_altAlleles\":[\"Y\"],\"_minBP\":999,\"_maxBP\":999}";
              CommandOutput out = executeScript("bior_same_variant", jsonVar, "-d", stdin);
 
              assertEquals(out.stderr, 0, out.exit);
@@ -34,7 +34,7 @@ public class SameVariantITCase extends BaseFunctionalTest {
      @Test
      public void testMatch() throws IOException, InterruptedException {
 
-             String stdin = "src/test/resources/sameVariantCatalog.tsv.gz";
+             String stdin = "src/test/resources/sameVariantCatalog.tsv.bgz";
 
              String jsonVar = "21\t26960070\trs116645811\tG\tA\t.\t.\t.\t{\"CHROM\":\"21\",\"POS\":\"26960070\",\"ID\":\"rs116645811\",\"REF\":\"G\",\"ALT\":\"A\",\"QUAL\":\".\",\"FILTER\":\".\",\"_id\":\"rs116645811\",\"_type\":\"variant\",\"_landmark\":\"21\",\"_refAllele\":\"G\",\"_altAlleles\":[\"A\"],\"_minBP\":26960070,\"_maxBP\":26960070}";
              CommandOutput out = executeScript("bior_same_variant", jsonVar, "-d", stdin);
@@ -59,7 +59,7 @@ public class SameVariantITCase extends BaseFunctionalTest {
      @Test
      public void testMultipleDataSources() throws IOException, InterruptedException {
 
-             String catalog1 = "src/test/resources/sameVariantCatalog.tsv.gz";
+             String catalog1 = "src/test/resources/sameVariantCatalog.tsv.bgz";
 
              String catalog2 = "src/test/resources/example_dbSNP_catalog.tsv.bgz";
 
