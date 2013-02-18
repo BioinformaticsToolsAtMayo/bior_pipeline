@@ -13,9 +13,7 @@ import edu.mayo.pipes.JSON.lookup.LookupPipe;
 
 public class LookupCommand implements CommandPlugin {
 
-	private static final char OPTION_PATH = 'p';
 	private static final char OPTION_DRILL_COLUMN = 'c';
-	private static final char OPTION_KEEP_JSON = 'k';
 	private static final char INDEX_FILE = 'd';
 		
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
@@ -24,19 +22,6 @@ public class LookupCommand implements CommandPlugin {
 	}
 
 	public void execute(CommandLine line) throws Exception {
-	
-		boolean keepJSON = false;
-		if (line.hasOption(OPTION_KEEP_JSON)) {
-			keepJSON = true;
-		}
-
-		List<String> paths = new ArrayList<String>();
-		if (line.hasOption(OPTION_PATH)) {
-			for (String value : line.getOptionValues(OPTION_PATH)) {
-				paths.add(value);
-			}
-		}
-		
 		String indexFile = "";
 		if (line.hasOption(INDEX_FILE)) {
 			indexFile  = line.getOptionValue(INDEX_FILE);
@@ -50,7 +35,7 @@ public class LookupCommand implements CommandPlugin {
 		//DrillPipe pipe = new DrillPipe(keepJSON, paths.toArray(new String[0]), col);
         
         //get the catalog filename from index filename
-        String catalog = indexFile.substring(0, indexFile.indexOf(".")+1) + ".tsv.bgz";
+        String catalog = indexFile.substring(0, indexFile.indexOf(".")) + ".tsv.bgz";
         
         LookupPipe pipe = new LookupPipe(indexFile, catalog);
 		
