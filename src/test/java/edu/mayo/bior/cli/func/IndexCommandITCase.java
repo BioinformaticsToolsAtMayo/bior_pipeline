@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.h2.util.Utils;
+//import org.h2.util.Utils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
