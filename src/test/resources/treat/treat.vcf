@@ -1,3 +1,6 @@
+#This is a test line
+#This is another test line
+#CHROM	Pos	rsID	Ref	Alt	Quality	Filter	Info
 17	41196363	rs8176320	C	T	.	.	.
 17	41196368	rs184237074	C	T	.	.	.
 17	41196372	rs189382442	T	C	.	.	.
