@@ -71,6 +71,8 @@ public class TreatPipeline implements Usage
 	private static final int	kVersionParam = 0;
 	private static final int	kVCFParam = kVersionParam + 1;
 	private static final int	kBaseDirParam = kVCFParam + 1;
+	private static final boolean	kConvertFromPercent = true;
+	private static final boolean	kDoNotConvert = false;
 	
 	
 	/**
@@ -126,6 +128,7 @@ public class TreatPipeline implements Usage
 			baseDir = theProperties.getProperty ("fileBase");
 		if (baseDir == null)
 			baseDir = "";
+		
 		String		genesFile = theProperties.getProperty ("genesFile");
 		String		bgiFile = theProperties.getProperty ("bgiFile");
 		String		espFile = theProperties.getProperty ("espFile");
@@ -139,9 +142,6 @@ public class TreatPipeline implements Usage
 //		int[]		cut = {9};
 		int			posCol = -1;
 //		TransformFunctionPipe<History, History>	tPipe = new TransformFunctionPipe<History, History> (new TreatPipe ());
-//		Pipeline	p = new Pipeline (new CatPipe (), new HistoryInPipe (), new VCF2VariantPipe (), 
-//									  new SameVariantPipe (hapMapFile, -1), new DrillPipe (false, hapMapDrill), 
-//									  new HCutPipe (cut), new HistoryOutPipe (), new PrintPipe ());
 		Pipeline	p = new Pipeline (new CatPipe (), new HistoryInPipe (), new VCF2VariantPipe (), 
 									  new OverlapPipe (baseDir + genesFile), new DrillPipe (false, geneDrill), 
 									  new SameVariantPipe (baseDir + dbsnpFile, posCol -= geneDrill.length), 
@@ -152,16 +152,9 @@ public class TreatPipeline implements Usage
 									  new DrillPipe (false, espDrill), 
 									  new SameVariantPipe (baseDir + hapMapFile, posCol -= espDrill.length), 
 									  new DrillPipe (false, hapMapDrill));
-//									  new HCutPipe (cut));
 //									  new HCutPipe (cut), tPipe, new HistoryOutPipe (), new PrintPipe ());
-//									  new HCutPipe (cut), new HistoryOutPipe (), new PrintPipe ());
 		p.setStarts (Arrays.asList (vcf));
-//		while (p.hasNext ())
-//		{
-//			p.next ();
-//		}
 //		handleAll (p, posCol, hapMapDrill.length);
-//		writeRows (p, posCol, espDrill.length);
 		writeRows (p, posCol, hapMapDrill.length);
 	}
 	
@@ -200,7 +193,6 @@ public class TreatPipeline implements Usage
 		String[]	bgiDrill = {"major_allele", "minor_allele", "calculated_major_allele_freq", "calculated_minor_allele_freq"};
 		String[]	espDrill = {"INFO.EA_AC", "INFO.AA_AC", "INFO.TAC", "INFO.MAF", "_refAllele", "_altAlleles"};
 		String[]	hapMapDrill = {"refallele", "otherallele", "CEU.refallele_freq", "CEU.otherallele_freq"};
-//		int[]		cut = {9};
 		int			posCol = -1;
 		
 		try
@@ -215,8 +207,6 @@ public class TreatPipeline implements Usage
 										  new DrillPipe (false, espDrill), 
 										  new SameVariantPipe (baseDir + hapMapFile, posCol -= espDrill.length), 
 										  new DrillPipe (false, hapMapDrill));
-//										  new HCutPipe (cut), tPipe, new HistoryOutPipe (), new PrintPipe ());
-//										  new HCutPipe (cut), new HistoryOutPipe (), new PrintPipe ());
 			p.setStarts (Arrays.asList (vcfFile));
 			
 			List<AlleleFreq>	freqs = parseRows (p, posCol, hapMapDrill.length);
@@ -272,15 +262,15 @@ public class TreatPipeline implements Usage
 			startCol += kdbSNPCols;
 			String	bgiMajAllele = history.get (startCol + kBGIMajorAllele);
 			String	bgiMinAllele = history.get (startCol + kBGIMinorAllele);
-			double	bgiMajFreq = parseDouble (history.get (startCol + kBGIMajorFreq));
-			double	bgiMinFreq = parseDouble (history.get (startCol + kBGIMinorFreq));
+			double	bgiMajFreq = parseDouble (history.get (startCol + kBGIMajorFreq), kDoNotConvert);
+			double	bgiMinFreq = parseDouble (history.get (startCol + kBGIMinorFreq), kDoNotConvert);
 			startCol += kBGICols;
 			String	espMafs = history.get (startCol + kESPMAF);
 			startCol += kESPCols;
 			String	hapRefAllele = history.get (startCol + kHapMapRefAllele);
 			String	hapAltAllele = history.get (startCol + kHapMapAltAllele);
-			double	hapRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq));
-			double	hapAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq));
+			double	hapRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq), kConvertFromPercent);
+			double	hapAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq), kConvertFromPercent);
 			
 			List<AlleleFreq>	results;
 			
@@ -320,7 +310,6 @@ public class TreatPipeline implements Usage
 			{
 				header = false;
 				numCols = history.size ();
-//				firstCol = numCols - ((-1 - posCol) + lastColCount);
 				firstCol = numCols - (lastColCount - posCol);
 				
 				List<String>	headers = History.getMetaData ().getOriginalHeader ();
@@ -356,15 +345,15 @@ public class TreatPipeline implements Usage
 			startCol += kdbSNPCols;
 			String	bgiMajAllele = history.get (startCol + kBGIMajorAllele);
 			String	bgiMinAllele = history.get (startCol + kBGIMinorAllele);
-			double	bgiMajFreq = parseDouble (history.get (startCol + kBGIMajorFreq));
-			double	bgiMinFreq = parseDouble (history.get (startCol + kBGIMinorFreq));
+			double	bgiMajFreq = parseDouble (history.get (startCol + kBGIMajorFreq), kDoNotConvert);
+			double	bgiMinFreq = parseDouble (history.get (startCol + kBGIMinorFreq), kDoNotConvert);
 			startCol += kBGICols;
 			String	espMafs = history.get (startCol + kESPMAF);
 			startCol += kESPCols;
 			String	hapRefAllele = history.get (startCol + kHapMapRefAllele);
 			String	hapAltAllele = history.get (startCol + kHapMapAltAllele);
-			double	hapRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq));
-			double	hapAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq));
+			double	hapRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq), kConvertFromPercent);
+			double	hapAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq), kConvertFromPercent);
 			
 			printString (geneName);
 			printInt (dbSNPBuild);
@@ -471,15 +460,15 @@ public class TreatPipeline implements Usage
 			startCol += kdbSNPCols;
 			String	bgiMajAllele = cols[startCol + kBGIMajorAllele];
 			String	bgiMinAllele = cols[startCol + kBGIMinorAllele];
-			double	bgiMajFreq = parseDouble (cols[startCol + kBGIMajorFreq]);
-			double	bgiMinFreq = parseDouble (cols[startCol + kBGIMinorFreq]);
+			double	bgiMajFreq = parseDouble (cols[startCol + kBGIMajorFreq], kConvertFromPercent);
+			double	bgiMinFreq = parseDouble (cols[startCol + kBGIMinorFreq], kConvertFromPercent);
 			startCol += kBGICols;
 			String	espMafs = cols[startCol + kESPMAF];
 			startCol += kESPCols;
 			String	hapRefAllele = cols[startCol + kHapMapRefAllele];
 			String	hapAltAllele = cols[startCol + kHapMapAltAllele];
-			double	hapRefFreq = parseDouble (cols[startCol + kHapMapCeuRefFreq]);
-			double	hapAltFreq = parseDouble (cols[startCol + kHapMapCeuAltFreq]);
+			double	hapRefFreq = parseDouble (cols[startCol + kHapMapCeuRefFreq], kConvertFromPercent);
+			double	hapAltFreq = parseDouble (cols[startCol + kHapMapCeuAltFreq], kConvertFromPercent);
 			
 			printString (geneName);
 			printInt (dbSNPBuild);
@@ -588,7 +577,7 @@ public class TreatPipeline implements Usage
 	 * 
 	 * @param espMafs	String holding ESP Minor allele frequencies in the format ["CEU", "AFR", "Total"]
 	 */
-	protected static void printESPMAFs (String espMafs)
+	private static void printESPMAFs (String espMafs)
 	{
 		int	len = espMafs.length ();
 		if (espMafs.equals (kBlank) || (len < 4))
@@ -606,7 +595,8 @@ public class TreatPipeline implements Usage
 		}
 		
 		System.out.print ('\t');
-		System.out.print (espMafs.substring (0, pos));
+		double	maf = parseDouble (espMafs.substring (0, pos), kConvertFromPercent);
+		System.out.print (maf);
 		System.out.print ('\t');
 		
 		pos = espMafs.indexOf ('"', pos + 1) + 1;
@@ -614,7 +604,10 @@ public class TreatPipeline implements Usage
 		{
 			int	end = espMafs.indexOf ('"', pos + 1);
 			if (end > 0)
-				System.out.print (espMafs.substring (pos, end));
+			{
+				maf = parseDouble (espMafs.substring (pos, end), kConvertFromPercent);
+				System.out.print (maf);
+			}
 		}
 	}
 	
@@ -642,7 +635,7 @@ public class TreatPipeline implements Usage
 		char	majorBase = bgiMajAllele.charAt (0);
 		char	minorBase = bgiMinAllele.charAt (0);
 		
-		results.add (new AlleleFreq (minorBase, majorBase, bgiMinFreq / kPercentAdjust, bgiMajFreq / kPercentAdjust, kBGIFreq));
+		results.add (new AlleleFreq (minorBase, majorBase, bgiMinFreq, bgiMajFreq, kBGIFreq));
 		
 		return results;
 	}
@@ -671,7 +664,7 @@ public class TreatPipeline implements Usage
 		char	majorBase = hapRefAllele.charAt (0);
 		char	minorBase = hapAltAllele.charAt (0);
 		
-		results.add (new AlleleFreq (minorBase, majorBase, hapAltFreq / kPercentAdjust, hapRefFreq / kPercentAdjust, kHapMapFreq));
+		results.add (new AlleleFreq (minorBase, majorBase, hapAltFreq, hapRefFreq, kHapMapFreq));
 		
 		return results;
 	}
@@ -696,7 +689,7 @@ public class TreatPipeline implements Usage
 		if (pos < 0)
 			return null;
 		
-		double	ceuMaf = parseDouble (espMafs.substring (0, pos)) / kPercentAdjust;
+		double	ceuMaf = parseDouble (espMafs.substring (0, pos), kConvertFromPercent);
 		double	afrMaf = Double.NaN;
 		
 		pos = espMafs.indexOf ('"', pos + 1) + 1;
@@ -704,7 +697,7 @@ public class TreatPipeline implements Usage
 		{
 			int	end = espMafs.indexOf ('"', pos + 1);
 			if (end > 0)
-				afrMaf = parseDouble (espMafs.substring (pos, end)) / kPercentAdjust;
+				afrMaf = parseDouble (espMafs.substring (pos, end), kConvertFromPercent);
 		}
 		
 		// Make sure have something to report
@@ -758,7 +751,7 @@ public class TreatPipeline implements Usage
 	 * @param theDouble	String to parse.  Must not be null
 	 * @return	An double, NaN if parsing failed
 	 */
-	private static double parseDouble (String theDouble)
+	private static double parseDouble (String theDouble, boolean convertFromPercent)
 	{
 		double	result = Double.NaN;
 		if (!theDouble.equals (kBlank))
@@ -766,6 +759,8 @@ public class TreatPipeline implements Usage
 			try
 			{
 				result = Double.parseDouble (theDouble);
+				if (convertFromPercent)
+					result /= kPercentAdjust;
 			}
 			catch (NumberFormatException oops)
 			{
