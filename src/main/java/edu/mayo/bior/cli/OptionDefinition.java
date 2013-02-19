@@ -6,7 +6,7 @@ import org.apache.commons.cli.Option;
 /**
  * POJO that captures information used to construct a new commons-cli Option.
  * 
- * @see http://commons.apache.org/cli/properties.html
+ * @see <a href="http://commons.apache.org/cli/properties.html">Option Properties</a>
  * 
  * @author duffp
  * 
@@ -117,33 +117,33 @@ public class OptionDefinition {
 	}
 	
 	public Option toOption() {
-		Option opt = new Option(getOpt(), getDescription());
+		Option theOpt = new Option(getOpt(), getDescription());
 
 		if (getNumArgs() != null) {
-			opt.setArgs(getNumArgs());
+			theOpt.setArgs(getNumArgs());
 		}
 		
 		if (getArgName() != null) {
-			opt.setArgName(getArgName());
+			theOpt.setArgName(getArgName());
 		}
 		
 		if (getLongOpt() != null) {
-			opt.setLongOpt(getLongOpt());
+			theOpt.setLongOpt(getLongOpt());
 		}
 		
 		if (isOptionalArg() != null) {
-			opt.setOptionalArg(isOptionalArg());
+			theOpt.setOptionalArg(isOptionalArg());
 		}
 		
 		if (isRequired() != null) {
-			opt.setRequired(isRequired());
+			theOpt.setRequired(isRequired());
 		}
 
 		if (getValueSeparator() != null) {
-			opt.setValueSeparator(getValueSeparator());
+			theOpt.setValueSeparator(getValueSeparator());
 		}
 		
-		return opt;
+		return theOpt;
 
 	}
 }
