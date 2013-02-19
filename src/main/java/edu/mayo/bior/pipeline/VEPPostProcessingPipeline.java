@@ -61,8 +61,8 @@ public class VEPPostProcessingPipeline {
             return getPipeline(input, output, whichPipeline);
         }
         
-        public Pipe getPipeline(Pipe input, Pipe output, String whichPipeline){
-            this.whichPipeline = whichPipeline;
+        public Pipe getPipeline(Pipe input, Pipe output, String whichPipeline1){
+            this.whichPipeline = whichPipeline1;
             if(whichPipeline.equalsIgnoreCase("CartesianProduct")){
                 return getCartesianProductPipeline(input, output);
             }
