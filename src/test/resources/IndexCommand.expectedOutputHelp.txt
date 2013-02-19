@@ -3,7 +3,7 @@ NAME
 	bior_index -- Creates an index from a given catalog
 
 SYNOPSIS
-	bior_index [--column <arg>] [--pathJson <JSON path>] [--log] [--help] [--isKeyAnInt <Is Key an integer>] CATALOG_BGZIP_FILE INDEX_FILE_OUT
+	bior_index [--column <arg>] [--pathJson <JSON path>] [--log] [--help] CATALOG_BGZIP_FILE INDEX_FILE_OUT
 
 DESCRIPTION
 	Creates a key/filePosition index in an H2 database for a given catalog.  The catalog is a
@@ -34,10 +34,6 @@ DESCRIPTION
 
 	-h, --help
 		print this message
-
-	-i, --isKeyAnInt <Is Key an integer>
-		If key is an integer, then it will be treated as such to enhance lookups and indexes in the
-		index database.
 
 EXAMPLE
 	This is a basic example of creating an index based on a key contained within the catalog's
