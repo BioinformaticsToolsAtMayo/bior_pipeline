@@ -51,7 +51,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	public void help() throws IOException, InterruptedException {
 		CommandOutput out = executeScript("bior_index", null);
 		String expected = "Error executing bior_index\n\n"
-				+ "Usage: bior_index [--column <arg>] [--pathJson <JSON path>] [--log] [--help] [--isKeyAnInt <Is Key an integer>] CATALOG_BGZIP_FILE INDEX_FILE_OUT\n\n"
+				+ "Usage: bior_index [--column <arg>] [--pathJson <JSON path>] [--log] [--help] CATALOG_BGZIP_FILE INDEX_FILE_OUT\n\n"
 				+ "Invalid number of argument values specified.\n\n"
 				+ "Arguments that are required:\n"
 				+ "	CATALOG_BGZIP_FILE\n"
