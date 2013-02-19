@@ -56,7 +56,7 @@ public class TestSameVariantOnESP {
                 new HistoryInPipe (), 
                 new VCF2VariantPipe (),
                 new SameVariantPipe("src/test/resources/ESPFuncTest.tsv.bgz"),
-                new MergePipe("\t")
+                new MergePipe("\t")//, //new GrepPipe("865628")
                 //new PrintPipe()
                 );
         p.setStarts(Arrays.asList(greg));
