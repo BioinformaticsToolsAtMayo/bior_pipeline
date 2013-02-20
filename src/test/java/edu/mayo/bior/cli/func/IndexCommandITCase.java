@@ -70,12 +70,12 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		String helpTextOut = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutputHelp.txt"));
 		out = executeScript("bior_index", null, "--help");
 		assertNoErrors(out);
-		assertEquals(helpTextOut, out.stdout);
+		assertEquals(out.stdout, helpTextOut, out.stdout);
 		assertFalse(new File(INDEX_OUT).exists());
 
 		out = executeScript("bior_index", null, "-h");
 		assertNoErrors(out);
-		assertEquals(helpTextOut, out.stdout);
+		assertEquals(out.stdout, helpTextOut, out.stdout);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
 	
@@ -84,7 +84,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null);
 		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt"));
 		assertEquals(1, out.exit);
-		assertEquals(expected, out.stderr);
+		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
 
@@ -93,7 +93,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH);
 		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingArgs.txt"));
 		assertEquals(1, out.exit);
-		assertEquals(expected, out.stderr);
+		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
 
@@ -102,7 +102,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, CATALOG);
 		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt"));
 		assertEquals(1, out.exit);
-		assertEquals(expected, out.stderr);
+		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
 
@@ -111,7 +111,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, "-c", "4", "-p", JSON_PATH, CATALOG, INDEX_OUT);
 		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.badOption.txt"));
 		assertEquals(1, out.exit);
-		assertEquals(expected, out.stderr);
+		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}	
 
@@ -121,7 +121,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, CATALOG, INDEX_OUT_NESTED);
 		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.tooManyArgs.txt"));
 		assertEquals(1, out.exit);
-		assertEquals(expected, out.stderr);
+		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}	
 
@@ -129,7 +129,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	public void jsonPathNotFound() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
 		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", "SomeBadJsonPath");
 		assertEquals(1, out.exit);
-		assertTrue(out.stderr.contains("java.lang.IllegalArgumentException: There were no keys indexed!  Check your inputs and try again."));
+		assertTrue(out.stderr, out.stderr.contains("java.lang.IllegalArgumentException: There were no keys indexed!  Check your inputs and try again."));
 	}
 	
 	
