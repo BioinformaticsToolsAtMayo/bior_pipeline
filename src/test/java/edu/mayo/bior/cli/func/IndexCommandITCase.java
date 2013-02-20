@@ -15,6 +15,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.mayo.pipes.util.index.IndexDatabaseCreator;
+
 //import edu.mayo.pipes.util.index.IndexDatabaseCreator;
 
 //==========================================================================================
@@ -30,7 +32,11 @@ import org.junit.Test;
 //==========================================================================================
 public class IndexCommandITCase extends BaseFunctionalTest {
 	final String CATALOG   = "src/test/resources/sameVariantCatalog.tsv.bgz";
-	final String INDEX_OUT = "src/test/resources/tempOutput/sameVariantCatalog.ID.idx.h2.db";
+	final String INDEX_OUT = "src/test/resources/index/sameVariantCatalog.ID.idx.h2.db";
+	final String INDEX_OUT_CHROM  = "src/test/resources/index/sameVariantCatalog.CHROM.idx.h2.db";
+	final String INDEX_OUT_NESTED = "src/test/resources/index/sameVariantCatalog.INFO.different_bc_ref_notmatch.idx.h2.db";
+	final String INDEX_USER_OUT = System.getProperty("user.home") + "/tempIndex/myIndexFile.Hgnc.idx.h2.db";
+
 	final String JSON_PATH = "ID";  //rsIds
 
 	@Before
@@ -44,30 +50,28 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	}
 	
 	public void deleteH2Db() {
-		new File(INDEX_OUT).delete();
+		// Delete the default index files
+		File idxOut = new File(INDEX_OUT);
+		idxOut.delete();
+		// Delete the indexes on extra paths
+		new File(INDEX_OUT_CHROM).delete();
+		new File(INDEX_OUT_NESTED).delete();
+		
+		
+		// Delete user index and directory
+		File idxOutFile = new File(INDEX_USER_OUT);
+		idxOutFile.delete();
+		idxOutFile.getParentFile().delete();
 	}
 	
 	@Test
 	public void help() throws IOException, InterruptedException {
 		CommandOutput out = executeScript("bior_index", null);
-		String expected = "Error executing bior_index\n\n"
-				+ "Usage: bior_index [--column <arg>] [--pathJson <JSON path>] [--log] [--help] CATALOG_BGZIP_FILE INDEX_FILE_OUT\n\n"
-				+ "Invalid number of argument values specified.\n\n"
-				+ "Arguments that are required:\n"
-				+ "	CATALOG_BGZIP_FILE\n"
-				+ "	INDEX_FILE_OUT\n\n"
-				+ "Arguments specified by user:\n\n"
-				+ "Execute the command with -h or --help to find out more information\n\n";
-		assertEquals(1, out.exit);
-		assertEquals(expected, out.stderr);
-		assertFalse(new File(INDEX_OUT).exists());
-		
-		String helpTextOut = loadTxtFile("src/test/resources/IndexCommand.expectedOutputHelp.txt");
+		String helpTextOut = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutputHelp.txt");
 		out = executeScript("bior_index", null, "--help");
 		assertNoErrors(out);
 		assertEquals(helpTextOut, out.stdout);
 		assertFalse(new File(INDEX_OUT).exists());
-		//System.out.println(out.stdout);
 
 		out = executeScript("bior_index", null, "-h");
 		assertNoErrors(out);
@@ -76,76 +80,107 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	}
 	
 	@Test
-	public void columnAndJson() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, CATALOG, INDEX_OUT, "-c", "4", "-p", JSON_PATH);
-		assertNoErrors(out);
-		assertDbRows(38, INDEX_OUT);
+	public void badCmd_noCatalogOrJsonFlag() throws IOException, InterruptedException {
+		CommandOutput out = executeScript("bior_index", null);
+		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt");
+		assertEquals(1, out.exit);
+		assertEquals(expected, out.stderr);
+		assertFalse(new File(INDEX_OUT).exists());
 	}
 
 	@Test
-	public void keyIsInt() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, CATALOG, INDEX_OUT, "-c", "4", "-p", "CHROM");
-		assertNoErrors(out);
-		assertDbRows(38, INDEX_OUT);
+	public void badCmd_noCatalog() throws IOException, InterruptedException {
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH);
+		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.missingArgs.txt");
+		assertEquals(1, out.exit);
+		assertEquals(expected, out.stderr);
+		assertFalse(new File(INDEX_OUT).exists());
 	}
 
+	@Test
+	public void badCmd_noJsonFlag() throws IOException, InterruptedException {
+		CommandOutput out = executeScript("bior_index", null, CATALOG);
+		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt");
+		assertEquals(1, out.exit);
+		assertEquals(expected, out.stderr);
+		assertFalse(new File(INDEX_OUT).exists());
+	}
+
+	@Test
+	public void badOption() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, "-c", "4", "-p", JSON_PATH, CATALOG, INDEX_OUT);
+		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.badOption.txt");
+		assertEquals(1, out.exit);
+		assertEquals(expected, out.stderr);
+		assertFalse(new File(INDEX_OUT).exists());
+	}	
+
+	
+	@Test
+	public void tooManyArgs() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, CATALOG, INDEX_OUT_NESTED);
+		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.tooManyArgs.txt");
+		assertEquals(1, out.exit);
+		assertEquals(expected, out.stderr);
+		assertFalse(new File(INDEX_OUT).exists());
+	}	
+
 	/** Json path not found in ANY rows - should return "1" for exit code when it realizes the index is empty */
-	public void badJsonPath() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, CATALOG, INDEX_OUT, "-c", "4", "-p", "SomeBadJsonPath");
+	public void jsonPathNotFound() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", "SomeBadJsonPath");
 		assertEquals(1, out.exit);
 		assertTrue(out.stderr.contains("java.lang.IllegalArgumentException: There were no keys indexed!  Check your inputs and try again."));
 	}
 	
+	
 	@Test
-	public void keyIsString() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, CATALOG, INDEX_OUT, "-c", "4", "-p", JSON_PATH);
+	public void jsonPath() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
 	}
 
 	@Test
-	// NOTE: This will choose the last column by default which is the JSON column, 
-	//       and since no JSON path is specified, it will use the whole JSON string as key 
-	public void noColumnNorJsonFlags() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		//System.out.println("=============================");
-		CommandOutput out = executeScript("bior_index", null, CATALOG, INDEX_OUT);
-		//IndexDatabaseCreator.printDatabase(new File(INDEX_OUT), false);
+	public void indexParm() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH, "-x", INDEX_OUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
 	}
-	
-	// Use minBP column
+
 	@Test
-	public void columnFlag_noJsonFlag() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		//System.out.println("=============================");
-		CommandOutput out = executeScript("bior_index", null, "-c", "2", CATALOG, INDEX_OUT);
-		//IndexDatabaseCreator.printDatabase(new File(INDEX_OUT), false);
+	public void userIndexNotInDefaultDir() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH, "-x", INDEX_USER_OUT);
 		assertNoErrors(out);
-		assertDbRows(38, INDEX_OUT);
+		assertDbRows(38, INDEX_USER_OUT);
 	}
-	
+
 	@Test
-	/** NOTE: This will be the default way of calling the index builder */
-	public void jsonFlag_noColumnFlag() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		//System.out.println("=============================");
-		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, CATALOG, INDEX_OUT);
-		//IndexDatabaseCreator.printDatabase(new File(INDEX_OUT), false);
+	public void keyIsInt() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", "CHROM");
+		assertNoErrors(out);
+		assertDbRows(38, INDEX_OUT_CHROM);
+	}
+
+	@Test
+	public void keyIsString() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
 	}
-	
+
+
 	@Test
 	public void flagsBeforeArgs() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-c", "4", "-p", JSON_PATH, CATALOG, INDEX_OUT);
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, CATALOG);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
 	}
-	 
+
 	@Test
-	public void jsonPathNested() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-c", "4", "-p", "INFO.different_bc_ref_notmatch", CATALOG, INDEX_OUT);
+	public void jsonPathNested_matchOne() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		CommandOutput out = executeScript("bior_index", null, "-p", "INFO.different_bc_ref_notmatch", CATALOG);
 		assertNoErrors(out);
-		assertDbRows(1, INDEX_OUT);
+		assertDbRows(1, INDEX_OUT_NESTED);
 	}	
 	//========================================================================
 	
@@ -156,9 +191,9 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	}
 	
 	private void assertDbRows(int rowsExpected, String h2DbPath) throws SQLException, ClassNotFoundException, IOException {
-		File indexFile = new File(INDEX_OUT);
+		File indexFile = new File(h2DbPath);
 		assertTrue(indexFile.exists());
-//		assertEquals(rowsExpected, IndexDatabaseCreator.countDatabaseRows(indexFile));
+		assertEquals(rowsExpected, IndexDatabaseCreator.countDatabaseRows(indexFile));
 	}
 	
 	private Properties loadProperties(String propertiesPath) throws IOException {
