@@ -67,7 +67,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	@Test
 	public void help() throws IOException, InterruptedException {
 		CommandOutput out = executeScript("bior_index", null);
-		String helpTextOut = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutputHelp.txt");
+		String helpTextOut = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutputHelp.txt"));
 		out = executeScript("bior_index", null, "--help");
 		assertNoErrors(out);
 		assertEquals(helpTextOut, out.stdout);
@@ -82,7 +82,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	@Test
 	public void badCmd_noCatalogOrJsonFlag() throws IOException, InterruptedException {
 		CommandOutput out = executeScript("bior_index", null);
-		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt");
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt"));
 		assertEquals(1, out.exit);
 		assertEquals(expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
@@ -91,7 +91,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	@Test
 	public void badCmd_noCatalog() throws IOException, InterruptedException {
 		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH);
-		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.missingArgs.txt");
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingArgs.txt"));
 		assertEquals(1, out.exit);
 		assertEquals(expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
@@ -100,7 +100,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	@Test
 	public void badCmd_noJsonFlag() throws IOException, InterruptedException {
 		CommandOutput out = executeScript("bior_index", null, CATALOG);
-		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt");
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt"));
 		assertEquals(1, out.exit);
 		assertEquals(expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
@@ -109,7 +109,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	@Test
 	public void badOption() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
 		CommandOutput out = executeScript("bior_index", null, "-c", "4", "-p", JSON_PATH, CATALOG, INDEX_OUT);
-		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.badOption.txt");
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.badOption.txt"));
 		assertEquals(1, out.exit);
 		assertEquals(expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
@@ -119,7 +119,7 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	@Test
 	public void tooManyArgs() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
 		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, CATALOG, INDEX_OUT_NESTED);
-		String expected = loadTxtFile("src/test/resources/index/IndexCommand.expectedOutput.tooManyArgs.txt");
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.tooManyArgs.txt"));
 		assertEquals(1, out.exit);
 		assertEquals(expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
@@ -138,6 +138,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
+		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT)));
 	}
 
 	@Test
@@ -145,6 +147,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH, "-x", INDEX_OUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
+		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT)));
 	}
 
 	@Test
@@ -152,6 +156,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH, "-x", INDEX_USER_OUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_USER_OUT);
+		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_USER_OUT)));
 	}
 
 	@Test
@@ -159,6 +165,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", "CHROM");
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT_CHROM);
+		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.CHROM.txt")),
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT_CHROM)));
 	}
 
 	@Test
@@ -166,6 +174,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, CATALOG, "-p", JSON_PATH);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
+		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT)));
 	}
 
 
@@ -174,6 +184,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, CATALOG);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
+		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT)));
 	}
 
 	@Test
@@ -181,6 +193,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		CommandOutput out = executeScript("bior_index", null, "-p", "INFO.different_bc_ref_notmatch", CATALOG);
 		assertNoErrors(out);
 		assertDbRows(1, INDEX_OUT_NESTED);
+		assertEquals("	KEY	FILEPOS\n1)	true	5403\n", 
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT_NESTED)));
 	}	
 	//========================================================================
 	
@@ -196,24 +210,4 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		assertEquals(rowsExpected, IndexDatabaseCreator.countDatabaseRows(indexFile));
 	}
 	
-	private Properties loadProperties(String propertiesPath) throws IOException {
-		Properties props = new Properties();
-		FileInputStream fin = new FileInputStream(propertiesPath);
-		props.load(fin);
-		fin.close();
-		return props;
-	}
-	
-	private String loadTxtFile(String txtPath) throws IOException {
-		FileInputStream fin = new FileInputStream(txtPath);
-		byte[] buf = new byte[64*1024];
-		int len = -1;
-		StringBuilder str = new StringBuilder();
-		while( (len = fin.read(buf)) != -1 ) {
-			str.append(new String(buf), 0, len);
-		}
-		fin.close();
-		return str.toString();
-	}
-
 }
