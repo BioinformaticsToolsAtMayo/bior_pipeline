@@ -65,7 +65,7 @@ public class TestSameVariantOnESP {
             String[] split = s.split("\t");
             for(int j = 0; j<split.length; j++){
                 //if(j<9 || j > 297){
-                    System.out.println(split[j]);
+                    //System.out.println(split[j]);
                 //}
             }
         }
