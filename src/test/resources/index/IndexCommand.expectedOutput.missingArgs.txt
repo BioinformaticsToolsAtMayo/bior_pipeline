@@ -1,0 +1,13 @@
+Error executing bior_index
+
+Usage: bior_index --pathJson <JSON path> [--log] [--help] [--index <arg>] CATALOG_BGZIP_FILE
+
+Invalid number of argument values specified.
+
+Arguments that are required:
+	CATALOG_BGZIP_FILE
+
+Arguments specified by user:
+
+Execute the command with -h or --help to find out more information
+
