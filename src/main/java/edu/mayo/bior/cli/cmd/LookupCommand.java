@@ -44,7 +44,7 @@ public class LookupCommand implements CommandPlugin {
         	column = new Integer(line.getOptionValue(OPTION_DRILL_COLUMN));
         }
 	    
-        LookupPipe pipe = new LookupPipe(catalogPath, indexFilePath, jsonPath, column);
+        LookupPipe pipe = new LookupPipe(catalogPath, indexFilePath, column);
 		
 		mPipeline.execute(pipe);		
 	}
