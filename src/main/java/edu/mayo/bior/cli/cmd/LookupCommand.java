@@ -1,5 +1,7 @@
 package edu.mayo.bior.cli.cmd;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -31,9 +33,10 @@ public class LookupCommand implements CommandPlugin {
 		String jsonPath = line.getOptionValue(OPTION_JSON_PATH);
 		
 		if (line.hasOption(INDEX_FILE)) {
-			indexFilePath  = line.getOptionValue(INDEX_FILE);
+			indexFilePath = line.getOptionValue(INDEX_FILE);
 		} else {
 			//find the index file based on catalog-name??
+			indexFilePath = buildIndexPath(catalogPath, jsonPath);
 		}
                 
         Integer column = -1;
@@ -44,5 +47,19 @@ public class LookupCommand implements CommandPlugin {
         LookupPipe pipe = new LookupPipe(catalogPath, indexFilePath, jsonPath, column);
 		
 		mPipeline.execute(pipe);		
+	}
+	
+	private String buildIndexPath(String catalogPath, String jsonPath) throws IOException {
+		File bgzipFile = new File(catalogPath);
+		
+		// Get the catalog prefix up to the first dot
+		String bgzipPrefix = bgzipFile.getName();
+		int idxFirstDot = bgzipPrefix.indexOf(".");
+		if(idxFirstDot != -1)
+			bgzipPrefix = bgzipPrefix.substring(0, idxFirstDot);
+		
+		File bgzipParentDir = bgzipFile.getParentFile();
+		String fullIndexPath = bgzipParentDir.getCanonicalPath() + "/index/" + bgzipPrefix + "." + jsonPath + ".idx.h2.db";
+		return fullIndexPath;
 	}
 }
