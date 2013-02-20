@@ -17,7 +17,8 @@ public class LookupCommand implements CommandPlugin {
 	// JSON path to extract key (if column is specified, the json in that column is used.
 	// If not, then the last column is used)
 	private static final char OPTION_JSON_PATH = 'p';
-		
+	private static final char CATALOG_FILE = 'd';
+	
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
 	public void init(Properties props) throws Exception {
@@ -25,8 +26,12 @@ public class LookupCommand implements CommandPlugin {
 
 	public void execute(CommandLine line) throws Exception {
 		String indexFilePath = "";
+
+		String catalogFilePath = line.getOptionValue(CATALOG_FILE);
 		
-		String catalogPath = line.getArgs()[0];
+		if (!doesFileExist(catalogFilePath)) {
+			System.err.println("The catalog file path '" + catalogFilePath+ "' does not exist. Please specify a vlaid catalog file path.");
+		}			
 		
 		// JSON may be null if parameter not specified
 		// (NOTE: It is NOT required - if not specified, then the entire column will be used as Id)
@@ -36,15 +41,19 @@ public class LookupCommand implements CommandPlugin {
 			indexFilePath = line.getOptionValue(INDEX_FILE);
 		} else {
 			//find the index file based on catalog-name??
-			indexFilePath = buildIndexPath(catalogPath, jsonPath);
+			indexFilePath = buildIndexPath(catalogFilePath, jsonPath);
 		}
+		
+		if (!doesFileExist(indexFilePath)) {
+			System.err.println("The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path.");
+		}			
                 
         Integer column = -1;
         if (line.hasOption(OPTION_DRILL_COLUMN)) {
         	column = new Integer(line.getOptionValue(OPTION_DRILL_COLUMN));
         }
-	    
-        LookupPipe pipe = new LookupPipe(catalogPath, indexFilePath, column);
+        
+        LookupPipe pipe = new LookupPipe(catalogFilePath, indexFilePath, column);
 		
 		mPipeline.execute(pipe);		
 	}
@@ -61,5 +70,16 @@ public class LookupCommand implements CommandPlugin {
 		File bgzipParentDir = bgzipFile.getParentFile();
 		String fullIndexPath = bgzipParentDir.getCanonicalPath() + "/index/" + bgzipPrefix + "." + jsonPath + ".idx.h2.db";
 		return fullIndexPath;
+	}
+	
+	private boolean doesFileExist(String filePath) throws IOException {
+		boolean fileExists = false;
+		
+		File objFile = new File(filePath);
+		
+		if (objFile.exists())
+			fileExists = true;
+		
+		return fileExists;
 	}
 }
