@@ -3,14 +3,16 @@ NAME
 	bior_index -- Creates an index from a given catalog
 
 SYNOPSIS
-	bior_index --pathJson <JSON path> [--log] [--help] [--index <arg>] CATALOG_BGZIP_FILE
+	bior_index --pathJson <JSON path> [--log] [--help] [--index <Index file to create>] CATALOG_BGZIP_FILE
 
 DESCRIPTION
-	Creates a key/filePosition index in an H2 database for a given catalog.  The catalog is a
-	bgzip file that contains a JSON string.  The index key can be based on either a column, or a
-	column/JsonPath pair.  The output is an H2 database with a table called 'Indexer' that
-	contains a Key/FilePosition pair, where the FilePosition is a location within the catalog
-	bgzip file.
+	Creates a searchable index for a key contained within the JSON column of a given catalog.  The
+	output is an H2 database with a table called 'Indexer' that contains a Key/FilePosition pair,
+	where the FilePosition is a location within the catalog bgzip file pointing to the beginning
+	of the line containing the key. By default, the index file is stored within the catalog's
+	./index/ subdirectory in the format: ./index/[catalogPrefix].[JsonPath].idx.h2.db Users can
+	also create their own indexes by using the --index flag and specifying a location to write the
+	index file.
 
 	The arguments are as follows:
 
@@ -20,7 +22,8 @@ DESCRIPTION
 	The options are as follows:
 
 	-p, --pathJson <JSON path>
-		A JSON path that will be used to find and extract data from JSON.  Paths are case sensitive.
+		A JSON path that will be used to find and extract data from the catalog matching this key
+		within the catalog's JSON column.  Paths are case sensitive.
 
 	-l, --log
 		Use this option to generate the log file. By default, log file is not generated.
@@ -28,9 +31,10 @@ DESCRIPTION
 	-h, --help
 		print this message
 
-	-x, --index <arg>
+	-x, --index <Index file to create>
 		The path to the index file that will be built.  This should have a similar format to the
-		catalog. For example: [catalogPrefix].[JsonPath].idx.h2.db
+		catalog.  For example: [catalogPrefix].[JsonPath].idx.h2.db. If not specified, the index file
+		will be created within the index subfolder where the catalog is located.
 
 EXAMPLE
 	This is a basic example of creating an index based on a key contained within the catalog's

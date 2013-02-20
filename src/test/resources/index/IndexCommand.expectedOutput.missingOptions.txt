@@ -1,11 +1,12 @@
 Error executing bior_index
 
-Usage: bior_index --pathJson <JSON path> [--log] [--help] [--index <arg>] CATALOG_BGZIP_FILE
+Usage: bior_index --pathJson <JSON path> [--log] [--help] [--index <Index file to create>] CATALOG_BGZIP_FILE
 
 The command requires the following options:
 
 	-p, --pathJson <JSON path>
-		A JSON path that will be used to find and extract data from JSON.  Paths are case sensitive.
+		A JSON path that will be used to find and extract data from the catalog matching this key
+		within the catalog's JSON column.  Paths are case sensitive.
 
 Execute the command with -h or --help to find out more information
 
