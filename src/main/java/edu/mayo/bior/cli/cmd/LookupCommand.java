@@ -11,7 +11,7 @@ import edu.mayo.pipes.JSON.lookup.LookupPipe;
 public class LookupCommand implements CommandPlugin {
 
 	private static final char OPTION_DRILL_COLUMN = 'c';
-	private static final char INDEX_FILE = 'd';
+	private static final char INDEX_FILE = 'x';
 	// JSON path to extract key (if column is specified, the json in that column is used.
 	// If not, then the last column is used)
 	private static final char OPTION_JSON_PATH = 'p';
