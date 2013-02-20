@@ -28,6 +28,9 @@ import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.helpers.Loader;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import edu.mayo.bior.util.StringUtils;
 
@@ -122,6 +125,8 @@ public class CommandLineApp {
 			String json = props.get(key);
 			
 			// transform JSON into POJO
+			if( ! isValidJson(json) )
+				throw new JsonSyntaxException("Argument in command help text is not valid json: " + key);
 			ArgumentDefinition def = sGson.fromJson(json, ArgumentDefinition.class);				
 			
 			argDefs.add(def);
@@ -147,12 +152,23 @@ public class CommandLineApp {
 			String json = props.get(key);
 			
 			// transform JSON into POJO
+			if( ! isValidJson(json) )
+				throw new JsonSyntaxException("Flag option in command help text is not valid json: " + key);
 			OptionDefinition def = sGson.fromJson(json, OptionDefinition.class);				
 			
 			opts.addOption(def.toOption());
 		}
 		
 		return opts;
+	}
+	
+	private static boolean isValidJson(String json) {
+		boolean isValidJson = false;
+		try {
+			JsonElement jelem = new JsonParser().parse(json);
+			isValidJson = true;
+		}catch(Exception e) {}
+		return isValidJson;
 	}
 
 	/**
@@ -198,6 +214,11 @@ public class CommandLineApp {
 	 * @throws IOException 
 	 */
 	private static void processException(String scriptName, Options opts, List<ArgumentDefinition> argDefs, Exception e) throws IOException {
+		if( e instanceof JsonSyntaxException ) {
+			System.err.println("Error in command properties file.");
+			e.printStackTrace(System.err);
+			return;
+		}
 		
 		String shortScriptName = getShortScriptName(scriptName);
 		String usage = getUsage(shortScriptName, opts, argDefs);
