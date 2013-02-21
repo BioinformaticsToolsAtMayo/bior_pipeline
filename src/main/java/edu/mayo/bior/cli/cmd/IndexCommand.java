@@ -12,13 +12,15 @@ import edu.mayo.pipes.util.index.IndexDatabaseCreator;
 
 /** Create an index H2 database from a catalog bgzip file */
 public class IndexCommand implements CommandPlugin {
-
+	// Catalog path
+	private static final char OPTION_CATALOG = 'd';
+	
 	// Index database path to write
 	private static final char OPTION_INDEX_PATH = 'x';
 
 	// JSON path to extract key (if column is specified, the json in that column is used.
 	// If not, then the last column is used)
-	private static final char OPTION_JSON_PATH = 'p';
+	private static final char OPTION_JSON_PATH = 'k';
 	
 	public void init(Properties props) throws Exception {
 	}
@@ -26,7 +28,8 @@ public class IndexCommand implements CommandPlugin {
 	// Example
 	//   bior_index  /data/catalogs/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC  -x /data/catalogs/NCBIGene/GRCh37_p10/index/genes.HGNC.idx.h2.db
 	public void execute(CommandLine line) throws Exception {
-		String bgzipPath 	= line.getArgs()[0];
+		// Catalog path is required
+		String bgzipPath 	= line.getOptionValue(OPTION_CATALOG);
 		
 		// JsonPath is required
 		String jsonPath = line.getOptionValue(OPTION_JSON_PATH);
