@@ -10,7 +10,9 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.BeforeClass;
 
@@ -22,20 +24,40 @@ public abstract class BaseFunctionalTest {
 	
 	// stores the $BIOR_LITE_HOME value
 	private static String sHomePath;
-	
-	// array of UNIX environment variables
-	private static String[] sEnvVars;
+
+	// UNIX environment variables
+	private static Map<String, String> sEnvVars = new HashMap<String, String>();
 
 	@BeforeClass
 	public static void setup() throws FileNotFoundException {
-		
+
+		// pass along current environment
+		sEnvVars.putAll(System.getenv());
+				
 		sHomePath = getHomeFolder().getAbsolutePath();
 		
-		// setup UNIX environment variables
-		sEnvVars = new String[1];
-		sEnvVars[0] = ENV_VAR_BIOR_LITE_HOME + "=" + sHomePath;
+		// setup UNIX environment variables required by bior lite
+		sEnvVars.put(ENV_VAR_BIOR_LITE_HOME, sHomePath);
 	}
 
+	/**
+	 * Gets array of environment variables in the format "var1=value1" that will
+	 * be used in the script to be executed.
+	 * 
+	 * @return
+	 */
+	private String[] getEnvironmentVariables() {
+		List<String> list = new ArrayList<String>();
+		for (String varName: sEnvVars.keySet()) {
+			String varValue = sEnvVars.get(varName);
+			
+			list.add(varName+"="+varValue);
+		}
+			
+		return (String[]) list.toArray(new String[0]);
+	}
+	
+	
 	/**
 	 * Locates the unzipped distribution folder under target built by  maven.
 	 * 
@@ -51,7 +73,9 @@ public abstract class BaseFunctionalTest {
 		if ((envValue != null) && (envValue.trim().length() > 0)) {
 			// use UNIX environment variable if available
 			homeFolder = new File(envValue);
-			System.out.println("WARNING: found $" + ENV_VAR_BIOR_LITE_HOME + " in your environment.  Running functional test against: " + homeFolder.getAbsolutePath());
+			System.out.println(
+					"WARNING: found $" + ENV_VAR_BIOR_LITE_HOME + " in your environment.  "+
+			        "Running functional test against: " + homeFolder.getAbsolutePath());
 		} else {
 			// auto-detect inside maven target folder
 			File targetFolder = new File("target");
@@ -96,7 +120,7 @@ public abstract class BaseFunctionalTest {
 		}
 		String[] cmdArray = cmdList.toArray(new String[0]);
 
-		Process p = Runtime.getRuntime().exec(cmdArray, sEnvVars);
+		Process p = Runtime.getRuntime().exec(cmdArray, getEnvironmentVariables());
 
 		// connect STDERR from script process and store in local memory
 		// STDERR [script process] ---> local byte array
