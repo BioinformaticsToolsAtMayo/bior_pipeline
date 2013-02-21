@@ -7,6 +7,15 @@
 	<name>bior_pipeline</name>
 	<build>
 		<plugins>
+			<!-- compile to java 1.6 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>		
 			<!-- Build all necessary files into a zip file for ez deploy. Run this 
 				as "Run As..." : "Maven build..." : "package" -->
 			<plugin>

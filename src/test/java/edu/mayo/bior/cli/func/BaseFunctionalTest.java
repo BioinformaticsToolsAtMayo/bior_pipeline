@@ -51,7 +51,7 @@ public abstract class BaseFunctionalTest {
 		if ((envValue != null) && (envValue.trim().length() > 0)) {
 			// use UNIX environment variable if available
 			homeFolder = new File(envValue);
-			System.out.println("WARNING: found $" + ENV_VAR_BIOR_LITE_HOME + " in your environment.  Running functional test against: " + sHomePath);
+			System.out.println("WARNING: found $" + ENV_VAR_BIOR_LITE_HOME + " in your environment.  Running functional test against: " + homeFolder.getAbsolutePath());
 		} else {
 			// auto-detect inside maven target folder
 			File targetFolder = new File("target");
