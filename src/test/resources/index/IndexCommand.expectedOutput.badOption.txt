@@ -1,6 +1,6 @@
 Error executing bior_index
 
-Unrecognized option: -c
+Unrecognized option: -p
 
 Execute the command with -h or --help to find out more information
 

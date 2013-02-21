@@ -1,14 +1,12 @@
 Error executing bior_index
 
-Usage: bior_index --pathJson <JSON path> [--log] [--help] [--index <Index file to create>] CATALOG_BGZIP_FILE
+Usage: bior_index --catalog-file <Catalog Bgzip File> [--log] --index-key <Index key> [--help] [--index <Index file to create>]
 
 Invalid number of argument values specified.
 
 Arguments that are required:
-	CATALOG_BGZIP_FILE
 
 Arguments specified by user:
-	src/test/resources/sameVariantCatalog.tsv.bgz
 	src/test/resources/index/sameVariantCatalog.INFO.different_bc_ref_notmatch.idx.h2.db
 
 Execute the command with -h or --help to find out more information

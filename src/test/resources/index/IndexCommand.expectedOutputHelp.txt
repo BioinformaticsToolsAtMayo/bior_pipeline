@@ -3,7 +3,7 @@ NAME
 	bior_index -- Creates an index from a given catalog
 
 SYNOPSIS
-	bior_index --pathJson <JSON path> [--log] [--help] [--index <Index file to create>] CATALOG_BGZIP_FILE
+	bior_index --catalog-file <Catalog Bgzip File> [--log] --index-key <Index key> [--help] [--index <Index file to create>]
 
 DESCRIPTION
 	Creates a searchable index for a key contained within the JSON column of a given catalog.  The
@@ -14,19 +14,17 @@ DESCRIPTION
 	also create their own indexes by using the --index flag and specifying a location to write the
 	index file.
 
-	The arguments are as follows:
-
-	CATALOG_BGZIP_FILE
-		The catalog file (bgzip format) that will be indexed.
-
 	The options are as follows:
 
-	-p, --pathJson <JSON path>
-		A JSON path that will be used to find and extract data from the catalog matching this key
-		within the catalog's JSON column.  Paths are case sensitive.
+	-d, --catalog-file <Catalog Bgzip File>
+		The catalog file (bgzip format) that will be indexed.
 
 	-l, --log
 		Use this option to generate the log file. By default, log file is not generated.
+
+	-k, --index-key <Index key>
+		The JSON path/key within the catalog's JSON column. The index will be created based on this
+		key.  JSON Paths are case sensitive.
 
 	-h, --help
 		print this message
