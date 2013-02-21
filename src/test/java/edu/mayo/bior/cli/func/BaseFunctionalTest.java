@@ -18,6 +18,8 @@ import edu.mayo.bior.util.StreamConnector;
 
 public abstract class BaseFunctionalTest {
 
+	private static final String ENV_VAR_BIOR_LITE_HOME = "BIOR_LITE_HOME";
+	
 	// stores the $BIOR_LITE_HOME value
 	private static String sHomePath;
 	
@@ -28,10 +30,10 @@ public abstract class BaseFunctionalTest {
 	public static void setup() throws FileNotFoundException {
 		
 		sHomePath = getHomeFolder().getAbsolutePath();
-
+		
 		// setup UNIX environment variables
 		sEnvVars = new String[1];
-		sEnvVars[0] = "BIOR_LITE_HOME=" + sHomePath;
+		sEnvVars[0] = ENV_VAR_BIOR_LITE_HOME + "=" + sHomePath;
 	}
 
 	/**
@@ -41,15 +43,30 @@ public abstract class BaseFunctionalTest {
 	 * @throws FileNotFoundException thrown if the folder is not found
 	 */
 	private static File getHomeFolder() throws FileNotFoundException {
+		
+		File homeFolder = null;
+		
 		// figure out $BIOR_LITE_HOME value
-		File targetFolder = new File("target");
-		for (File f: targetFolder.listFiles()) {
-			if (f.isDirectory() && (f.getName().startsWith("bior_pipeline"))) {
-				return f;
+		String envValue = System.getenv(ENV_VAR_BIOR_LITE_HOME);
+		if ((envValue != null) && (envValue.trim().length() > 0)) {
+			// use UNIX environment variable if available
+			homeFolder = new File(envValue);
+			System.out.println("WARNING: found $" + ENV_VAR_BIOR_LITE_HOME + " in your environment.  Running functional test against: " + sHomePath);
+		} else {
+			// auto-detect inside maven target folder
+			File targetFolder = new File("target");
+			for (File f: targetFolder.listFiles()) {
+				if (f.isDirectory() && (f.getName().startsWith("bior_pipeline"))) {
+					homeFolder = f;
+				}
 			}
-		}		
-
-		throw new FileNotFoundException("Unable to locate target/bior_pipeline-<version> distribution folder");
+		}
+		
+		if (homeFolder == null) {
+			throw new FileNotFoundException("Unable to locate target/bior_pipeline-<version> distribution folder");
+		}
+		
+		return homeFolder;
 	}
 	
 	/**
