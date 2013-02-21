@@ -30,7 +30,9 @@ public class LookupCommand implements CommandPlugin {
 		String catalogFilePath = line.getOptionValue(CATALOG_FILE);
 		
 		if (!doesFileExist(catalogFilePath)) {			
-			throw new Exception("The catalog file path '" + catalogFilePath+ "' does not exist. Please specify a vlaid catalog file path.");
+			//throw new Exception("The catalog file path '" + catalogFilePath+ "' does not exist. Please specify a valid catalog file path.");
+			System.err.println("The catalog file path '" + catalogFilePath+ "' does not exist. Please specify a valid catalog file path.");
+			System.exit(0);
 		}			
 		
 		// JSON may be null if parameter not specified
@@ -45,7 +47,9 @@ public class LookupCommand implements CommandPlugin {
 		}
 		
 		if (!doesFileExist(indexFilePath)) {
-			throw new Exception("The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path.");
+			//throw new Exception("The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path.");
+			System.out.println("The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path.");
+			System.exit(0);
 		}			
                 
         Integer column = -1;
