@@ -18,7 +18,7 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
 
 		CommandOutput out = executeScript("bior_vcf_to_json", stdin);
 
-		assertEquals("STDERR:"+out.stderr, 0, out.exit);
+		assertEquals("STDERR:"+out.stderr+"\n"+"STDOUT:"+out.stdout, 0, out.exit);
 		assertEquals("", out.stderr);
 
 		String header = getHeader(out.stdout);
