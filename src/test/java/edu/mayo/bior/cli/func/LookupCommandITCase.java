@@ -3,7 +3,6 @@ package edu.mayo.bior.cli.func;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.junit.Test;
 
