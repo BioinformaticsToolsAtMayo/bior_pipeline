@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 
 import edu.mayo.bior.cli.CommandPlugin;
-import edu.mayo.bior.cli.InvalidFileException;
+import edu.mayo.bior.cli.InvalidOptionArgValueException;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.pipes.JSON.lookup.LookupPipe;
 
@@ -19,25 +19,29 @@ public class LookupCommand implements CommandPlugin {
 	// If not, then the last column is used)
 	private static final char OPTION_JSON_PATH = 'p';
 	private static final char CATALOG_FILE = 'd';
+	private static final char OPTION_INDEX_KEY = 'k';
 	
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
 	public void init(Properties props) throws Exception {
 	}
 
-	public void execute(CommandLine line) throws Exception {
-		String indexFilePath = "";
-
+	public void execute(CommandLine line) throws Exception {		
+		
 		String catalogFilePath = line.getOptionValue(CATALOG_FILE);
 		
 		if (!doesFileExist(catalogFilePath)) {			
-			throw new InvalidFileException("The catalog file path '" + catalogFilePath+ "' does not exist. Please specify a valid catalog file path.");
+			throw new InvalidOptionArgValueException("catalogFile", 
+														catalogFilePath, 
+														"The catalog file path '" + catalogFilePath+ "' does not exist. Please specify a valid catalog file path."
+													);
 		}			
 		
 		// JSON may be null if parameter not specified
 		// (NOTE: It is NOT required - if not specified, then the entire column will be used as Id)
 		String jsonPath = line.getOptionValue(OPTION_JSON_PATH);
-		
+
+		String indexFilePath = "";
 		if (line.hasOption(INDEX_FILE)) {
 			indexFilePath = line.getOptionValue(INDEX_FILE);
 		} else {
@@ -46,12 +50,19 @@ public class LookupCommand implements CommandPlugin {
 		}
 		
 		if (!doesFileExist(indexFilePath)) {
-			throw new InvalidFileException("The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path.");
+			throw new InvalidOptionArgValueException("indexFile", 
+					indexFilePath, 
+					"The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path."
+				);
 		}			
                 
         Integer column = -1;
         if (line.hasOption(OPTION_DRILL_COLUMN)) {
         	column = new Integer(line.getOptionValue(OPTION_DRILL_COLUMN));
+        }
+        
+        if (line.hasOption(OPTION_INDEX_KEY)) {
+        	
         }
         
         LookupPipe pipe = new LookupPipe(catalogFilePath, indexFilePath, column);
