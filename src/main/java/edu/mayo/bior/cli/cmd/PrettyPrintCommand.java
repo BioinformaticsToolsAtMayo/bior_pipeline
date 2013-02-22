@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,7 +29,7 @@ public class PrettyPrintCommand implements CommandPlugin {
 	public void init(Properties props) throws Exception {
 	}
 
-	public void execute(CommandLine line) throws Exception {
+	public void execute(CommandLine line, Options opts) throws Exception {
 
 		// defaults to 1st row
 		int rowNum = 1;

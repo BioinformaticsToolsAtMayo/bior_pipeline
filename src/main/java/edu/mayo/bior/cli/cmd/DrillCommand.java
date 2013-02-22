@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
 import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
@@ -21,7 +22,7 @@ public class DrillCommand implements CommandPlugin {
 	public void init(Properties props) throws Exception {
 	}
 
-	public void execute(CommandLine line) throws Exception {
+	public void execute(CommandLine line, Options opts) throws Exception {
 	
 		boolean keepJSON = false;
 		if (line.hasOption(OPTION_KEEP_JSON)) {

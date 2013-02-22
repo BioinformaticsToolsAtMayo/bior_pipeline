@@ -37,7 +37,7 @@ public class CommandLineAppTest {
 			public void init(Properties props) throws Exception {
 			}
 
-			public void execute(CommandLine line) throws Exception {
+			public void execute(CommandLine line, Options opts) throws Exception {
 			}
 			
 		};

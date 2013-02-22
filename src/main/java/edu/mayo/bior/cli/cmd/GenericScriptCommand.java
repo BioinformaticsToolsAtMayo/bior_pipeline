@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
 import edu.mayo.bior.cli.CommandPlugin;
@@ -56,7 +57,7 @@ public abstract class GenericScriptCommand implements CommandPlugin {
 	 */
 	public abstract Map<String, String> getEnvVars(CommandLine line);
 	
-	public void execute(CommandLine line) throws Exception {
+	public void execute(CommandLine line, Options opts) throws Exception {
 
 		String script 			= getScriptName(line);
 		String[] scriptArgs 	= getScriptArgs(line);

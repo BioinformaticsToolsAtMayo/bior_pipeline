@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.util.Pipeline;
@@ -24,7 +25,7 @@ public class SameVariantCommand implements CommandPlugin {
 	public void init(Properties props) throws Exception {
 	}
 
-	public void execute(CommandLine line) throws Exception {
+	public void execute(CommandLine line, Options opts) throws Exception {
 
 		// default column is last column (e.g. -1)
 		int column = -1;

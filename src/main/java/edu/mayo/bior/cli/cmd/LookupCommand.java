@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.cli.InvalidOptionArgValueException;
@@ -19,19 +21,19 @@ public class LookupCommand implements CommandPlugin {
 	// If not, then the last column is used)
 	private static final char OPTION_JSON_PATH = 'p';
 	private static final char CATALOG_FILE = 'd';
-	private static final char OPTION_INDEX_KEY = 'k';
 	
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
 	public void init(Properties props) throws Exception {
 	}
 
-	public void execute(CommandLine line) throws Exception {		
+	public void execute(CommandLine line, Options opts) throws Exception {		
 		
 		String catalogFilePath = line.getOptionValue(CATALOG_FILE);
 		
-		if (!doesFileExist(catalogFilePath)) {			
-			throw new InvalidOptionArgValueException("catalogFile", 
+		if (!doesFileExist(catalogFilePath)) {	
+			Option catalogFileOpt = opts.getOption(String.valueOf(CATALOG_FILE));
+			throw new InvalidOptionArgValueException(catalogFileOpt, 
 														catalogFilePath, 
 														"The catalog file path '" + catalogFilePath+ "' does not exist. Please specify a valid catalog file path."
 													);
@@ -50,7 +52,8 @@ public class LookupCommand implements CommandPlugin {
 		}
 		
 		if (!doesFileExist(indexFilePath)) {
-			throw new InvalidOptionArgValueException("indexFile", 
+			Option indexFileOpt = opts.getOption(String.valueOf(INDEX_FILE));			
+			throw new InvalidOptionArgValueException(indexFileOpt, 
 					indexFilePath, 
 					"The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path." + "\n Do you need to create the index? \n use bior_index -h for more information."
 				);
@@ -59,10 +62,6 @@ public class LookupCommand implements CommandPlugin {
         Integer column = -1;
         if (line.hasOption(OPTION_DRILL_COLUMN)) {
         	column = new Integer(line.getOptionValue(OPTION_DRILL_COLUMN));
-        }
-        
-        if (line.hasOption(OPTION_INDEX_KEY)) {
-        	
         }
         
         LookupPipe pipe = new LookupPipe(catalogFilePath, indexFilePath, column);

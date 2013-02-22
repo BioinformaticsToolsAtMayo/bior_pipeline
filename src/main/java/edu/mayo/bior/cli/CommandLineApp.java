@@ -305,7 +305,7 @@ public class CommandLineApp {
 			throw new InvalidNumberOfArgsException(expectedArgCnt, line.getArgs());
 		}
 
-		plugin.execute(line);
+		plugin.execute(line, opts);
 	}
 
 	private static Option getHelpOption() {

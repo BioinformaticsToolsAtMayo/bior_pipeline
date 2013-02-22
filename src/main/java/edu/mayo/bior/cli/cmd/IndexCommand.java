@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 
 import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
@@ -27,7 +28,7 @@ public class IndexCommand implements CommandPlugin {
 
 	// Example
 	//   bior_index  /data/catalogs/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC  -x /data/catalogs/NCBIGene/GRCh37_p10/index/genes.HGNC.idx.h2.db
-	public void execute(CommandLine line) throws Exception {
+	public void execute(CommandLine line, Options opts) throws Exception {
 		// Catalog path is required
 		String bgzipPath 	= line.getOptionValue(OPTION_CATALOG);
 		
