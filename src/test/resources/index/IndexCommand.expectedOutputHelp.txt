@@ -39,8 +39,8 @@ EXAMPLE
 	JSON structure.  Here, the bior_index command creates an index on the HGNC id within the
 	catalog's JSON column.
 	
-	bior_index  /data4/bsi/refdata-new/catalogs/v1/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC 
+	bior_index  $BIOR_CATALOG/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC 
 	OR
-	bior_index  /data4/bsi/refdata-new/catalogs/v1/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC  -x
+	bior_index  $BIOR_CATALOG/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC  -x
 	/data/myindexes/genes.HGNC.idx.h2.db 
 
