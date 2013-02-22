@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.mayo.bior</groupId>
 	<artifactId>bior_pipeline</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3</version>
 	<name>bior_pipeline</name>
 	<build>
 		<plugins>
@@ -79,7 +79,7 @@
 		<dependency>
 			<groupId>edu.mayo</groupId>
 			<artifactId>pipes</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
