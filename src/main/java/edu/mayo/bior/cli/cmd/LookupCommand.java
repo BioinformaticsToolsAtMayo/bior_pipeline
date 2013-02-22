@@ -52,7 +52,7 @@ public class LookupCommand implements CommandPlugin {
 		if (!doesFileExist(indexFilePath)) {
 			throw new InvalidOptionArgValueException("indexFile", 
 					indexFilePath, 
-					"The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path."
+					"The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path." + "\n Do you need to create the index? \n use bior_index -h for more information."
 				);
 		}			
                 
