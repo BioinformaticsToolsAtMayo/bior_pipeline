@@ -267,15 +267,7 @@ public class CommandLineApp {
 			}
 			System.err.println();
 			System.err.println("Execute the command with -h or --help to find out more information");
-			System.err.println();
-		}  else if (e instanceof InvalidFileException) {
-            sLogger.error("Error executing " + scriptName);
-            sLogger.error(e.getMessage(), e);
-            System.err.println();
-            System.err.println(e.getMessage());
-            System.err.println();
-            System.err.println("Execute the command with -h or --help to find out more information");
-            System.err.println();
+			System.err.println();		
 		} else {
 			sLogger.error("Error executing " + scriptName);			
 			sLogger.error(e.getMessage(), e);
