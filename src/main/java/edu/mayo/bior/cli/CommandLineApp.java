@@ -54,6 +54,9 @@ public class CommandLineApp {
 
 	private CommandLineParser mParser = new PosixParser();
 	
+	// by default, log is off
+	private static boolean sIsLogEnabled = false;
+	
 	private static Gson sGson = new Gson();	
 
 	/**
@@ -72,12 +75,7 @@ public class CommandLineApp {
 		String scriptName = args[1];
 		
 		String[] cmdArgs = Arrays.copyOfRange(args, 2, args.length);
-		
-		//Generate log file only if user specifies explicitly
-        if ( ArrayUtils.contains(cmdArgs, "-l") || ArrayUtils.contains(cmdArgs, "--log")) {
-        	turnLogOn();
-        }
-        
+		        
 		Options opts = null;
 		List<ArgumentDefinition> argDefs = null;
 		try {
@@ -96,9 +94,9 @@ public class CommandLineApp {
 			CommandLineApp app = new CommandLineApp();
 			app.execute(plugin, cmdArgs, opts, argDefs, scriptName);
 
-		} catch (Exception e) {
+		} catch (Throwable t) {
 			try {
-				processException(scriptName, opts, argDefs, e);
+				processError(scriptName, cmdArgs, opts, argDefs, t);
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -208,15 +206,16 @@ public class CommandLineApp {
 	 * Helper method to nicely print error messages to STDERR to the user.
 	 * 
 	 * @param scriptName
+	 * @param cmdArgs
 	 * @param opts
 	 * @param argDefs
-	 * @param e
+	 * @param t
 	 * @throws IOException 
 	 */
-	private static void processException(String scriptName, Options opts, List<ArgumentDefinition> argDefs, Exception e) throws IOException {
-		if( e instanceof JsonSyntaxException ) {
+	private static void processError(String scriptName, String[] cmdArgs, Options opts, List<ArgumentDefinition> argDefs, Throwable t) throws IOException {
+		if( t instanceof JsonSyntaxException ) {
 			System.err.println("Error in command properties file.");
-			e.printStackTrace(System.err);
+			t.printStackTrace(System.err);
 			return;
 		}
 		
@@ -226,12 +225,12 @@ public class CommandLineApp {
 		System.err.println("Error executing " + shortScriptName);
 		System.err.println();
 
-		if (e instanceof MissingOptionException) {
+		if (t instanceof MissingOptionException) {
 			System.err.println("Usage: " + usage);
 			System.err.println();
 			System.err.println("The command requires the following options:");
 			System.err.println();
-			MissingOptionException moe = (MissingOptionException) e;
+			MissingOptionException moe = (MissingOptionException) t;
 			for (String optName: (List<String>) moe.getMissingOptions()) {
 				Option opt = opts.getOption(optName);
 				
@@ -245,13 +244,13 @@ public class CommandLineApp {
 			}
 			System.err.println("Execute the command with -h or --help to find out more information");
 			System.err.println();
-		} else if (e instanceof ParseException ) {
-			System.err.println(e.getMessage());
+		} else if (t instanceof ParseException ) {
+			System.err.println(t.getMessage());
 			System.err.println();				
 			System.err.println("Execute the command with -h or --help to find out more information");
 			System.err.println();
-		} else if (e instanceof InvalidNumberOfArgsException) {
-			InvalidNumberOfArgsException ex = (InvalidNumberOfArgsException) e;
+		} else if (t instanceof InvalidNumberOfArgsException) {
+			InvalidNumberOfArgsException ex = (InvalidNumberOfArgsException) t;
 			System.err.println("Usage: " + usage);
 			System.err.println();
 			System.err.println("Invalid number of argument values specified.");
@@ -268,10 +267,57 @@ public class CommandLineApp {
 			System.err.println();
 			System.err.println("Execute the command with -h or --help to find out more information");
 			System.err.println();		
+		} 
+		else if (t instanceof InvalidDataException ) {
+			// alert user about invalid data and direct them to the log file
+			System.err.println(t.getMessage());
+			System.err.println();
+			String logMessage;
+			if (sIsLogEnabled) 
+				logMessage = String.format(
+					"Please view the log file for details.",
+					shortScriptName
+				);
+			else
+				logMessage = String.format(
+					"Please re-execute the command %s with the -l or --log option to dump the log file with details.",
+					shortScriptName
+				);
+			System.err.println(logMessage);
+			System.err.println();
+			
 		} else {
-			sLogger.error("Error executing " + scriptName);			
-			sLogger.error(e.getMessage(), e);
-			e.printStackTrace(System.err);
+			// uncaught Exception or unchecked RuntimeException
+
+			// dump UNIX environment to log
+			StringBuilder debug = new StringBuilder(); 
+			debug.append("\n");
+			debug.append("ENVIRONMENT VARIABLES:\n");
+			for(String name: System.getenv().keySet()) {
+				String value = System.getenv().get(name);
+				debug.append(String.format("\t%s=%s\n", name, value));
+			}
+			debug.append("\n");
+
+			// dump command with args to log
+			debug.append("COMMAND:\n");
+			debug.append(String.format("\tScript=%s\n", scriptName));
+			for (String cmdArg: cmdArgs) {
+				debug.append(String.format("\tArg=%s\n", cmdArg));			
+			}			
+			
+			sLogger.error(debug.toString());
+			
+			
+			// dump exception to log
+			sLogger.error(t.getMessage(), t);
+
+			System.err.println("Internal system error.");
+			System.err.println();
+			System.err.println("Please send the following to the development team:");
+			System.err.println(String.format("\t1. Log file by running %s with -l or --log", shortScriptName));
+			System.err.println("\t2. Entire command executed at the UNIX command prompt ");
+			System.err.println();			
 		}
 	}
 	
@@ -294,6 +340,10 @@ public class CommandLineApp {
 				printHelp(plugin, opts, argDefs, scriptName);
 				return;
 			}
+			//Generate log file only if user specifies explicitly
+			else if (arg.equals("-l") || arg.equals("--log")) {
+	        	turnLogOn();
+	        }			
 		}
 		
 		CommandLine line = mParser.parse(opts, jvmArgs);
@@ -470,12 +520,14 @@ public class CommandLineApp {
 	 * Point LOG4J framework at different properties file that has logging
 	 * enabled.
 	 */
-	private static void turnLogOn() {
+	private void turnLogOn() {
+		sIsLogEnabled = true;
 		URL configURL = Loader.getResource("log4j.properties.enabled");
 		PropertyConfigurator.configure(configURL);
 	}
 
-	private static void turnLogOff() {
+	private void turnLogOff() {
+		sIsLogEnabled =false;
 		URL configURL = Loader.getResource("log4j.properties");
 		PropertyConfigurator.configure(configURL);
 	}
