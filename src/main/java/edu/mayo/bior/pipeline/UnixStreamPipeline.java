@@ -3,12 +3,17 @@ package edu.mayo.bior.pipeline;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.apache.log4j.Logger;
 
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
+import edu.mayo.bior.cli.InvalidDataException;
 import edu.mayo.pipes.InputStreamPipe;
 import edu.mayo.pipes.PrintPipe;
+import edu.mayo.pipes.exceptions.InvalidPipeInputException;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
@@ -32,13 +37,15 @@ import edu.mayo.pipes.history.HistoryOutPipe;
  * 
  */
 public class UnixStreamPipeline {
+
+	private static Logger sLogger = Logger.getLogger(UnixStreamPipeline.class);
 	
 	/**
 	 * Executes the given Pipe like a stream-compatible UNIX command.
 	 * 
 	 * @param logic A Pipe that takes a HISTORY as input and output.
 	 */
-	public void execute(Pipe<History, History> logic) {
+	public void execute(Pipe<History, History> logic) throws InvalidDataException {
 				
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
@@ -59,9 +66,34 @@ public class UnixStreamPipeline {
 		// prime pipeline with STDIN stream
         pipeline.setStarts(Arrays.asList(System.in));
 
+        // track how many data rows encounter an error
+        int invalidDataErrorCnt = 0;        
+        
         // run pipeline
-        while (pipeline.hasNext()) {
-        	pipeline.next();
-        }		
+        boolean hasNext = true;
+        while (hasNext) {
+            try {
+            	
+            	pipeline.next();
+            	
+            } catch (NoSuchElementException e) {
+            	
+            	// reached the end
+            	hasNext = false;
+            	
+            } catch (InvalidPipeInputException e) {
+            	invalidDataErrorCnt++;
+            	sLogger.error(e.getMessage());            	
+            }        	
+        }
+        
+        if (invalidDataErrorCnt > 0) {
+        	String mesg = 
+        		String.format(
+        			"WARNING: Found %s data error(s).  Not all input data rows could be successfully processed.", 
+        			String.valueOf(invalidDataErrorCnt)
+        		);
+        	throw new InvalidDataException(mesg);
+        }
 	}
 }
