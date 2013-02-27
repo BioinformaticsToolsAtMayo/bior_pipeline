@@ -1,6 +1,7 @@
 package edu.mayo.bior.pipeline;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,9 +16,9 @@ import org.junit.Test;
 import com.tinkerpop.pipes.AbstractPipe;
 import com.tinkerpop.pipes.Pipe;
 
+import edu.mayo.bior.cli.InvalidDataException;
+import edu.mayo.pipes.exceptions.InvalidPipeInputException;
 import edu.mayo.pipes.history.History;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 
 public class UnixStreamPipelineTest {
 
@@ -35,11 +36,33 @@ public class UnixStreamPipelineTest {
 	 * 
 	 * @throws IOException
 	 */
-	public void testExecute() throws IOException {
+	public void testExecute() throws IOException, InvalidDataException {
 		final String history = 
 				"##Directive\n" + 
 				"#COL1\tCOL2\tCOL3\n" + 
 				"A\tB\tC";
+		
+		// create pipe that will modify history by appending a suffix to each item
+		Pipe<History, History> pipe = new AppendSuffixPipe("_MODIFIED");			
+		
+		String historyModified = run(history, pipe);
+		
+		String[] lines = historyModified.split("\n");				
+		assertEquals(3, lines.length);		
+		assertEquals("##Directive",		 					lines[0].trim());
+		assertEquals("#COL1\tCOL2\tCOL3", 					lines[1].trim());
+		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", 	lines[2].trim());                		
+	}
+
+	/**
+	 * Helper method that runs the UnixStreamPipeline with the given history and logic pipe.
+	 * @param history
+	 * @param pipe
+	 * @return
+	 * @throws IOException
+	 * @throws InvalidDataException
+	 */
+	private String run(String history, Pipe pipe) throws IOException, InvalidDataException {
 		
 		// create IN/OUT streams to be used by UnixStreamPipeline
 		InputStream inStream = new ByteArrayInputStream(history.getBytes());		
@@ -53,9 +76,6 @@ public class UnixStreamPipelineTest {
 		System.setIn(inStream);		
 		System.setOut(new PrintStream(outStream, true));
 		
-		// create pipe that will modify history by appending a suffix to each item
-		Pipe<History, History> pipe = new AppendSuffixPipe("_MODIFIED");			
-		
 		// run UnixStreamPipeline
 		mPipeline.execute(pipe);
 		
@@ -68,13 +88,32 @@ public class UnixStreamPipelineTest {
 		System.setIn(DEFAULT_STDIN);
 		System.setOut(DEFAULT_STDOUT);		
 		
-		String[] lines = historyModified.split("\n");				
-		assertEquals(3, lines.length);		
-		assertEquals("##Directive",		 					lines[0].trim());
-		assertEquals("#COL1\tCOL2\tCOL3", 					lines[1].trim());
-		assertEquals("A_MODIFIED\tB_MODIFIED\tC_MODIFIED", 	lines[2].trim());                		
+		return historyModified;
 	}
+	
+	@Test
+	public void testInvalidInput() throws IOException {
 
+		final String history = 
+				"##Directive\n" + 
+				"#COL1\tCOL2\tCOL3\n" + 
+				"A\tB\tC";		
+		
+		Pipe<History, History> pipe = new InvalidInputPipe();
+
+		try {
+			
+			// run UnixStreamPipeline
+			run(history, pipe);			
+			
+			String mesg = String.format("Expected %s to be thrown.", InvalidDataException.class.getName());
+			fail(mesg);
+			
+		} catch (InvalidDataException e) {
+			// expected
+		}
+	}
+	
 	/**
 	 * Simple pipe that appends the given SUFFIX to the end of each item in the history.
 	 */
@@ -103,4 +142,25 @@ public class UnixStreamPipelineTest {
 		}
 
 	}
+	
+	/**
+	 * Pipe that immediately throws an InvalidPipeInputException for 1st history.
+	 */
+	class InvalidInputPipe extends AbstractPipe<History, History> {
+
+		private boolean mIsFirst = true;
+		
+		@Override
+		protected History processNextStart() throws NoSuchElementException, InvalidPipeInputException {
+			if (mIsFirst) {				
+				mIsFirst = false;
+				throw new InvalidPipeInputException("message", this);
+			} else {
+				return this.starts.next();
+			}
+			
+		}
+		
+	}
+	
 }
