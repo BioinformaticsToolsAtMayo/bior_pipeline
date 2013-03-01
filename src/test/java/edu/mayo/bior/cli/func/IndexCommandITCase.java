@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.util.Properties;
 
 //import org.h2.util.Utils;
@@ -15,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.mayo.pipes.JSON.lookup.lookupUtils.IndexUtils;
 import edu.mayo.pipes.util.index.IndexDatabaseCreator;
 
 //import edu.mayo.pipes.util.index.IndexDatabaseCreator;
@@ -37,6 +39,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	final String INDEX_OUT_NESTED = "src/test/resources/index/sameVariantCatalog.INFO.different_bc_ref_notmatch.idx.h2.db";
 	final String INDEX_USER_OUT = System.getProperty("user.home") + "/tempIndex/myIndexFile.Hgnc.idx.h2.db";
 
+	final String TEMP_OUTPUT = "src/test/resources/temp.txt";
+	
 	final String JSON_PATH = "ID";  //rsIds
 
 	@Before
@@ -62,31 +66,36 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 		File idxOutFile = new File(INDEX_USER_OUT);
 		idxOutFile.delete();
 		idxOutFile.getParentFile().delete();
+		
+		// REmove the temp out file
+		new File(TEMP_OUTPUT).delete();
 	}
 	
 	@Test
 	public void help() throws IOException, InterruptedException {
 		CommandOutput out = executeScript("bior_index", null);
-		String helpTextOut = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutputHelp.txt"));
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.help.txt"));
 		// bior_index --help
 		out = executeScript("bior_index", null, "--help");
 		assertNoErrors(out);
-		assertEquals(out.stdout, helpTextOut, out.stdout);
+		assertEquals(out.stdout, expected, out.stdout);
 		assertFalse(new File(INDEX_OUT).exists());
 
 		// bior_index -h
 		out = executeScript("bior_index", null, "-h");
 		assertNoErrors(out);
-		assertEquals(out.stdout, helpTextOut, out.stdout);
+		assertEquals(out.stdout, expected, out.stdout);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
-	
+
 	@Test
 	public void badCmd_noCatalogOrJsonFlag() throws IOException, InterruptedException {
 		// bior_index
 		CommandOutput out = executeScript("bior_index", null);
-		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt"));
 		assertEquals(1, out.exit);
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingOptions.txt"));
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
@@ -94,9 +103,10 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	@Test
 	public void badCmd_noCatalog() throws IOException, InterruptedException {
 		// bior_index -k ID
-		CommandOutput out = executeScript("bior_index", null, "-k", JSON_PATH);
-		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingArgs.txt"));
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH);
 		assertEquals(1, out.exit);
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingCatalog.txt"));
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
@@ -105,8 +115,9 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	public void badCmd_noJsonFlag() throws IOException, InterruptedException {
 		// bior_index -d src/test/resources/sameVariantCatalog.tsv.bgz
 		CommandOutput out = executeScript("bior_index", null, "-d", CATALOG);
-		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingKeyOption.txt"));
 		assertEquals(1, out.exit);
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.missingKeyOption.txt"));
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}
@@ -115,27 +126,30 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	public void badOption() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
 		// bior_index -p ID -k ID -d src/test/resources/sameVariantCatalog.tsv.bgz
 		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, "-k", JSON_PATH, "-d", CATALOG);
-		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.badOption.txt"));
 		assertEquals(1, out.exit);
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.badOption.txt"));
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
-	}	
+	}
 
-	
+
 	@Test
 	public void tooManyArgs() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		// bior_index -k ID -d src/test/resources/sameVariantCatalog.tsv.bgz  src/test/resources/index/sameVariantCatalog.INFO.different_bc_ref_notmatch.idx.h2.db
-		CommandOutput out = executeScript("bior_index", null, "-k", JSON_PATH, "-d", CATALOG, INDEX_OUT_NESTED);
-		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.tooManyArgs.txt"));
+		// bior_index -p ID -d src/test/resources/sameVariantCatalog.tsv.bgz  someUnnecessaryArg
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, "-d", CATALOG, "someUnnecessaryArg");
 		assertEquals(1, out.exit);
+		String expected = loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.tooManyArgs.txt"));
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertEquals(out.stderr, expected, out.stderr);
 		assertFalse(new File(INDEX_OUT).exists());
 	}	
 
 	/** Json path not found in ANY rows - should return "1" for exit code when it realizes the index is empty */
 	public void jsonPathNotFound() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		// bior_index -d src/test/resources/sameVariantCatalog.tsv.bgz  -k SomeBadJsonPath 
-		CommandOutput out = executeScript("bior_index", null, "-d", CATALOG, "-k", "SomeBadJsonPath");
+		// bior_index  -p SomeBadJsonPath  -d src/test/resources/sameVariantCatalog.tsv.bgz 
+		CommandOutput out = executeScript("bior_index", null, "-p", "SomeBadJsonPath", "-d", CATALOG);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertEquals(1, out.exit);
 		assertTrue(out.stderr, out.stderr.contains("java.lang.IllegalArgumentException: There were no keys indexed!  Check your inputs and try again."));
 	}
@@ -143,7 +157,9 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 	
 	@Test
 	public void jsonPath() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-d", CATALOG, "-k", JSON_PATH);
+		// bior_index    -p ID  -d src/test/resources/sameVariantCatalog.tsv.bgz
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, "-d", CATALOG);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
 		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
@@ -152,7 +168,19 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void indexParm() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-d", CATALOG, "-k", JSON_PATH, "-x", INDEX_OUT);
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, "-d", CATALOG, "-i", INDEX_OUT);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
+		assertNoErrors(out);
+		assertDbRows(38, INDEX_OUT);
+		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
+			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT)));
+	}
+
+	@Test
+	public void longOptionNames() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
+		// bior_index --path ID  --database src/test/resources/sameVariantCatalog.tsv.bgz  --index  src/test/resources/index/sameVariantCatalog.ID.idx.h2.db
+		CommandOutput out = executeScript("bior_index", null, "--path", JSON_PATH, "--database", CATALOG, "--index", INDEX_OUT);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
 		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
@@ -161,7 +189,9 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void userIndexNotInDefaultDir() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-d", CATALOG, "-k", JSON_PATH, "-x", INDEX_USER_OUT);
+		// bior_index -p ID  -d src/test/resources/sameVariantCatalog.tsv.bgz  -i  src/test/resources/index/sameVariantCatalog.ID.idx.h2.db
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, "-d", CATALOG, "-i", INDEX_USER_OUT);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_USER_OUT);
 		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
@@ -170,7 +200,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void keyIsInt() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-d", CATALOG, "-k", "CHROM");
+		CommandOutput out = executeScript("bior_index", null, "-p", "CHROM",  "-d", CATALOG);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT_CHROM);
 		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.CHROM.txt")),
@@ -179,7 +210,8 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void keyIsString() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-d", CATALOG, "-k", JSON_PATH);
+		CommandOutput out = executeScript("bior_index", null, "-p", JSON_PATH, "-d", CATALOG);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertNoErrors(out);
 		assertDbRows(38, INDEX_OUT);
 		assertEquals(loadFile(new File("src/test/resources/index/IndexCommand.expectedOutput.ID.txt")),
@@ -189,12 +221,13 @@ public class IndexCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void jsonPathNested_matchOne() throws IOException, InterruptedException, SQLException, ClassNotFoundException {
-		CommandOutput out = executeScript("bior_index", null, "-k", "INFO.different_bc_ref_notmatch", "-d", CATALOG);
+		CommandOutput out = executeScript("bior_index", null, "-p", "INFO.different_bc_ref_notmatch", "-d", CATALOG);
+		IndexUtils.writeToFile(out.stdout, TEMP_OUTPUT);
 		assertNoErrors(out);
 		assertDbRows(1, INDEX_OUT_NESTED);
 		assertEquals("	KEY	FILEPOS\n1)	true	5403\n", 
 			     IndexDatabaseCreator.getTableAsString(new File(INDEX_OUT_NESTED)));
-	}	
+	}
 	//========================================================================
 	
 	private void assertNoErrors(CommandOutput out) {
