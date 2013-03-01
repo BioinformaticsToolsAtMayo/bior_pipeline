@@ -50,7 +50,6 @@ public class InvalidOptionArgValueException extends ParseException {
 			msg.append("Invalid value specified for option: --"+mOpt.getLongOpt()+ " " + mValue + "\n");
 
 		if (super.getMessage().length() > 0) {
-			msg.append("\n");
 			msg.append(super.getMessage());
 		}
 
