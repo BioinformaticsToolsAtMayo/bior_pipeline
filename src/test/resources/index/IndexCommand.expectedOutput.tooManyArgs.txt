@@ -1,13 +1,13 @@
 Error executing bior_index
 
-Usage: bior_index --database <Catalog Bgzip File> [--log] --index-key <Index key> [--help] [--index <Index file to create>]
+Usage: bior_index --database <DATABASE> --path <PATH> [--log] [--help] [--index <INDEX>]
 
 Invalid number of argument values specified.
 
 Arguments that are required:
 
 Arguments specified by user:
-	src/test/resources/index/sameVariantCatalog.INFO.different_bc_ref_notmatch.idx.h2.db
+	someUnnecessaryArg
 
 Execute the command with -h or --help to find out more information
 

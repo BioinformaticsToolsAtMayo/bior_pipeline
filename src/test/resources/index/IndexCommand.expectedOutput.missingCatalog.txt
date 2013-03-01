@@ -1,10 +1,10 @@
 Error executing bior_index
 
-Usage: bior_index --database <Catalog Bgzip File> [--log] --index-key <Index key> [--help] [--index <Index file to create>]
+Usage: bior_index --database <DATABASE> --path <PATH> [--log] [--help] [--index <INDEX>]
 
 The command requires the following options:
 
-	-d, --database <Catalog Bgzip File>
+	-d, --database <DATABASE>
 		The catalog file (bgzip format) that will be indexed.
 
 Execute the command with -h or --help to find out more information
