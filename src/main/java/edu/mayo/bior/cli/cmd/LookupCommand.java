@@ -64,19 +64,20 @@ public class LookupCommand implements CommandPlugin {
 		String specifiedIndexNotReadableMsg = "The index file path you specified does not have read access:  "
 				+ indexFilePath + ".  Please verify file permissions.";
 		File indexFile = new File(indexFilePath);
+		boolean isIndexSpecified = line.hasOption(OPTION_INDEX_FILE);
 		if ( ! indexFile.exists() ) {
 			throw new InvalidOptionArgValueException(
 					opts.getOption(OPTION_INDEX_FILE + ""), 
 					indexFilePath,
-					line.hasOption(OPTION_KEY) ? specifiedIndexNotExistMsg  :  defaultIndexNotExistMsg,
-					line.hasOption(OPTION_INDEX_FILE)
+					isIndexSpecified ? specifiedIndexNotExistMsg  :  defaultIndexNotExistMsg,
+					isIndexSpecified
 					);
 		} else if( ! indexFile.canRead() ) {
 			throw new InvalidOptionArgValueException(
 					opts.getOption(OPTION_INDEX_FILE + ""), 
 					indexFilePath,
 					specifiedIndexNotReadableMsg,
-					line.hasOption(OPTION_INDEX_FILE)
+					isIndexSpecified
 					);
 		}
                 
