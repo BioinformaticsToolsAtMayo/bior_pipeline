@@ -57,13 +57,28 @@ public class LookupCommand implements CommandPlugin {
 			}
 		}
 
-		if ( ! new File(indexFilePath).exists() ) {
+		String defaultIndexNotExistMsg = "The built-in index for " + line.getOptionValue(OPTION_KEY)
+				+ " does not exist.  Please e-mail the BioR development team at bior@mayo.edu to add this, "
+				+ "or create your own custom index using the bior_index command.";
+		String specifiedIndexNotExistMsg = "The index file path you specified does not exist: " + indexFilePath;
+		String specifiedIndexNotReadableMsg = "The index file path you specified does not have read access:  "
+				+ indexFilePath + ".  Please verify file permissions.";
+		File indexFile = new File(indexFilePath);
+		if ( ! indexFile.exists() ) {
 			throw new InvalidOptionArgValueException(
 					opts.getOption(OPTION_INDEX_FILE + ""), 
-					indexFilePath, 
-					"The index file path '" + indexFilePath+ "' does not exist. Please specify a valid index file path." + "\n Do you need to create the index? \n use bior_index -h for more information."
+					indexFilePath,
+					line.hasOption(OPTION_KEY) ? specifiedIndexNotExistMsg  :  defaultIndexNotExistMsg,
+					line.hasOption(OPTION_INDEX_FILE)
 					);
-		}			
+		} else if( ! indexFile.canRead() ) {
+			throw new InvalidOptionArgValueException(
+					opts.getOption(OPTION_INDEX_FILE + ""), 
+					indexFilePath,
+					specifiedIndexNotReadableMsg,
+					line.hasOption(OPTION_INDEX_FILE)
+					);
+		}
                 
         Integer column = -1;
         if (line.hasOption(OPTION_DRILL_COLUMN)) {
