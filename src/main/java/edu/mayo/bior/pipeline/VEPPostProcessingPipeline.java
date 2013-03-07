@@ -180,7 +180,8 @@ public class VEPPostProcessingPipeline {
                     drill,
                     worstvep,
                     new HistoryOutPipe(),
-                    output);
+                    output
+                        );
                 return p;
         }
         
