@@ -131,6 +131,35 @@ public class VEPPostProcessingPipelineTest {
             
         }
     }
+    
+    /**
+     * test case from michael zimmermann
+     */
+//        @Test
+//    public void testGetWorstPipeline3(){
+//        System.out.println("Test GetPipeline (worst) VEPPostProcessingPipeline from michael zimmermann...");
+//        Pipe verify = new Pipeline(new CatPipe(), new GrepEPipe("#.*"));
+//        VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline("WorstScenario");
+//        String[] path = {"SIFT_TERM","SIFT_Score","PolyPhen_TERM","PolyPhen_Score"};
+//        Pipe p;
+//                Pipe testP = new Pipeline( new GrepEPipe("#.*"),
+//                                  //new GrepPipe(".*\\{.+}.*"),//if you don't want the ones that don't have a match
+//                                  new HistoryInPipe(),
+//                                  new DrillPipe(false, path),
+//                                  new MergePipe("\t"),
+//                                  //new PrintPipe()
+//                                  new IdentityPipe()
+//                );
+//        p = vepp.getPipeline(new CatPipe(), testP);
+//        p.setStarts(Arrays.asList("src/test/resources/tools/vep/mexample.vcf.vep"));
+//        verify.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf.vep.drill"));
+//        for(int i=0; p.hasNext(); i++){
+//            String next = (String) p.next(); 
+//            //String expected = (String)verify.next();
+//            //assertEquals(expected, next);
+//            
+//        }
+//    }
 
     /**
      * Test of execute method, of class VEPPostProcessingPipeline.
