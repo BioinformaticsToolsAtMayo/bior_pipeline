@@ -27,18 +27,26 @@ import edu.mayo.pipes.history.HistoryMetaData;
  * 
  * @author Gregory Dougherty
  */
-public class TreatPipeline implements Usage
+public class TreatPipeline implements Usage, Runnable
 {
+	private String				aVcfFile;
+	private String				aBaseDir;
+	private List<AlleleFreq>	theFreqs;
+	
 	private static final int	kGeneName = 0;
 	private static final int	kNCBICols = kGeneName + 1;
+	private static final String[]	kGeneDrill = {"gene"}; // , "note"
 	private static final int	kdbSNPBuild = 0;
 	private static final int	kdbSNPID = kdbSNPBuild + 1;
 	private static final int	kdbSNPCols = kdbSNPID + 1;
+	private static final String[]	kDbSnpDrill = {"INFO.dbSNPBuildID", "_id"};
 	private static final int	kBGIMajorAllele = 0;
 	private static final int	kBGIMinorAllele = kBGIMajorAllele + 1;
 	private static final int	kBGIMajorFreq = kBGIMinorAllele + 1;
 	private static final int	kBGIMinorFreq = kBGIMajorFreq + 1;
 	private static final int	kBGICols = kBGIMinorFreq + 1;
+	private static final String[]	kBgiDrill = {"major_allele", "minor_allele", "estimated_major_allele_freq", 
+	                             	             "estimated_minor_allele_freq"};
 	private static final int	kESPCeuCounts = 0;
 	private static final int	kESPAfrCounts = kESPCeuCounts + 1;
 	private static final int	kESPTotalCounts = kESPAfrCounts + 1;
@@ -46,22 +54,61 @@ public class TreatPipeline implements Usage
 	private static final int	kESPRefAllele = kESPMAF + 1;
 	private static final int	kESPAltAllele = kESPRefAllele + 1;
 	private static final int	kESPCols = kESPAltAllele + 1;
+	private static final String[]	kEspDrill = {"INFO.EA_AC", "INFO.AA_AC", "INFO.TAC", "INFO.MAF", "_refAllele", "_altAlleles"};
 	private static final int	kHapMapRefAllele = 0;
 	private static final int	kHapMapAltAllele = kHapMapRefAllele + 1;
 	private static final int	kHapMapCeuRefFreq = kHapMapAltAllele + 1;
 	private static final int	kHapMapCeuAltFreq = kHapMapCeuRefFreq + 1;
-	protected static final int	kHapMapCols = kHapMapCeuAltFreq + 1;
+	private static final int	kHapMapYriRefFreq = kHapMapCeuAltFreq + 1;
+	private static final int	kHapMapYriAltFreq = kHapMapYriRefFreq + 1;
+	private static final int	kHapMapJptRefCount = kHapMapYriAltFreq + 1;
+	private static final int	kHapMapJptAltCount = kHapMapJptRefCount + 1;
+	private static final int	kHapMapJptTotalCount = kHapMapJptAltCount + 1;
+	private static final int	kHapMapChbRefCount = kHapMapJptTotalCount + 1;
+	private static final int	kHapMapChbAltCount = kHapMapChbRefCount + 1;
+	private static final int	kHapMapChbTotalCount = kHapMapChbAltCount + 1;
+	protected static final int	kHapMapCols = kHapMapChbTotalCount + 1;
+	private static final String[]	kHapMapDrill = {"refallele", "otherallele", "CEU.refallele_freq", "CEU.otherallele_freq", 
+              			        	                "YRI.refallele_freq", "YRI.otherallele_freq", "JPT.refallele_count", 
+             			        	                "JPT.otherallele_count", "JPT.totalcount", "CHB.refallele_count", 
+             			        	                "CHB.otherallele_count", "CHB.totalcount"};
+	private static final int	k1kGenomeAll = 0;
+	private static final int	k1kGenomeEUR = k1kGenomeAll + 1;
+	private static final int	k1kGenomeASN = k1kGenomeEUR + 1;
+	private static final int	k1kGenomeAFR = k1kGenomeASN + 1;
+	private static final int	k1kGenomeAMR = k1kGenomeAFR + 1;
+	private static final int	k1kGenomeRef = k1kGenomeAMR + 1;
+	private static final int	k1kGenomeAlt = k1kGenomeRef + 1;
+	protected static final int	k1kGenomeCols = k1kGenomeAlt + 1;
+	private static final String[]	k1kGenomeDrill = {"INFO.AF", "INFO.EUR_AF", "INFO.ASN_AF", "INFO.AFR_AF", "INFO.AMR_AF", 
+	                             	                  "_refAllele", "_altAlleles"};
+	private static final int	kRefOffset = 0;
+	private static final int	kAltOffset = kRefOffset + 1;
+	private static final int	kTotalOffset = kAltOffset + 1;
+	private static final int	kNumOffsets = kTotalOffset + 1;
+	private static final int	kNumResults = kAltOffset + 1;
+	private static final int	kCeuPop = 0;
+	private static final int	kYriPop = kCeuPop + 1;
+	private static final int	kAsnPop = kYriPop + 1;
 	private static final String	kRestOfHeader = "	Gene	FirstDBSNPSBuild	BGIMajorAllele	BGIMinorAllele	" +
 												"BGIMajorFrequency	BGIMinorFrequency	ESP6500CEUMAF	ESP6500AFRMAF	" +
-												"HapMapRefAllele	HapMapAltAllele	HapMapRefFrequency	HapMapAltFrequency";
+												"HapMapRefAllele	HapMapAltAllele	HapMapCEURefFrequency	" +
+												"HapMapCEUAltFrequency	HapMapYRIRefFrequency	HapMapYRIAltFrequency	" +
+												"HapMapJPT+CHBRefFrequency	HapMapJPT+CHBAltFrequency	1kGenome_allele_freq" +
+												"	1kGenome_EUR_allele_freq	1kGenome_ASN_allele_freq	" +
+												"1kGenome_AFR_allele_freq	1kGenome_AMR_allele_freq";
 	private static final String	kBlank = ".";
 	private static final String	kEspEurMaf = "ESP6500_EUR_maf";
 	private static final String	kEspAfrMaf = "ESP6500_AFR_maf";
-	private static final String[]	kBaseStrs = {"REF", "ALT"};
-	private static final int	kRefPos = 0;
+	private static final String[]	kBaseStrs = {"CHROM", "POS", "REF", "ALT"};
+	private static final int	kChromPos = 0;
+	private static final int	kPositionPos = kChromPos + 1;
+	private static final int	kRefPos = kPositionPos + 1;
 	private static final int	kAltPos = kRefPos + 1;
-	private static final String	kHapMapFreq	= "HapMap_CEU_allele_freq";	// HapMap_YRI_allele_freq, HapMap_JPT+CHB_allele_freq
-	private static final String	kBGIFreq	= "BGI200_Danish";
+	private static final String[]	kHapMapFreq = {"HapMap_CEU_allele_freq", "HapMap_YRI_allele_freq", "HapMap_JPT+CHB_allele_freq"};
+	private static final String	kBGIFreq = "BGI200_Danish";
+	private static final String[]	k1kGenomeFreq = {"1kGenome_allele_freq", "1kGenome_EUR_allele_freq", "1kGenome_ASN_allele_freq", 
+	                             	                 "1kGenome_AFR_allele_freq", "1kGenome_AMR_allele_freq"};
 	private static final double	kPercentAdjust = 100.0;
 	private static final OptType	kRequired = OptType.kRequiredParam;
 	private static final OptType	kOptional = OptType.kOptionalParam;
@@ -73,31 +120,41 @@ public class TreatPipeline implements Usage
 	private static final int	kBaseDirParam = kVCFParam + 1;
 	private static final boolean	kConvertFromPercent = true;
 	private static final boolean	kDoNotConvert = false;
+	private static final boolean	kIsFirst = true;
+	private static final boolean	kIsNotFirst = false;
 	
 	
 	/**
-	 * Parse the arguments into usable parameters, returning null if there's a problem, or nothing to do
+	 * Create a Pipeline to process a VCF file with all the information BioR has to offer, and write the results to freqs
 	 * 
-	 * @param args	User provided command line arguments
-	 * @return	The parsed arguments, or null if nothing to do
+	 * @param vcfFile	Path to the VCF file.  May not be null, empty, or point to a non-existent file
+	 * @param baseDir	Path to the BioR Catalog files.  If null, will use the default: /data4/bsi/refdata-new/catalogs/v1/BioR/
+	 * @param freqs		Synchronized List where we'll place any AlleleFreq results found, must not be null.  
+	 * Will add the AlleleFreqs at the end of the List, and a null at the end when done processing the VCF file
 	 */
-	private static final String[] getParameters (String[] args)
+	public TreatPipeline (String vcfFile, String baseDir, List<AlleleFreq> freqs)
 	{
-		GetOpts.addOption ('V', "--version", ArgType.kNoArgument, kOnly);
-		GetOpts.addOption ('v', "--vcfFile", ArgType.kRequiredArgument, kRequired);
-		GetOpts.addOption ('b', "--baseDir", ArgType.kRequiredArgument, kOptional);
-		
-		String[]	parameters = GetOpts.parseArgs (args, new TreatPipeline ());
-		if (parameters == null)
-			return null;
-		
-		if (parameters[kVersionParam] != null)
-		{
-			printVersion ();
-			return null;
-		}
-		
-		return parameters;
+		aVcfFile = vcfFile;
+		aBaseDir = baseDir;
+		theFreqs = freqs;
+	}
+	
+	
+	/**
+	 * Normal Constructor
+	 */
+	public TreatPipeline ()
+	{
+		super ();
+	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	public void run ()
+	{
+		getAlleleFrequencies (aVcfFile, aBaseDir, theFreqs);
 	}
 	
 	
@@ -134,11 +191,13 @@ public class TreatPipeline implements Usage
 		String		espFile = theProperties.getProperty ("espFile");
 		String		hapMapFile = theProperties.getProperty ("hapMapFile");
 		String		dbsnpFile = theProperties.getProperty ("dbsnpFile");
-		String[]	geneDrill = {"gene"}; // , "note"
-		String[]	dbSnpDrill = {"INFO.dbSNPBuildID", "_id"};
-		String[]	bgiDrill = {"major_allele", "minor_allele", "calculated_major_allele_freq", "calculated_minor_allele_freq"};
-		String[]	espDrill = {"INFO.EA_AC", "INFO.AA_AC", "INFO.TAC", "INFO.MAF", "_refAllele", "_altAlleles"};
-		String[]	hapMapDrill = {"refallele", "otherallele", "CEU.refallele_freq", "CEU.otherallele_freq"};
+		String		genomeFile = theProperties.getProperty ("genomeFile");
+		String[]	geneDrill = kGeneDrill;
+		String[]	dbSnpDrill = kDbSnpDrill;
+		String[]	bgiDrill = kBgiDrill;
+		String[]	espDrill = kEspDrill;
+		String[]	hapMapDrill = kHapMapDrill;
+		String[]	genomeDrill = k1kGenomeDrill;
 //		int[]		cut = {9};
 		int			posCol = -1;
 //		TransformFunctionPipe<History, History>	tPipe = new TransformFunctionPipe<History, History> (new TreatPipe ());
@@ -151,11 +210,53 @@ public class TreatPipeline implements Usage
 									  new SameVariantPipe (baseDir + espFile, posCol -= bgiDrill.length), 
 									  new DrillPipe (false, espDrill), 
 									  new SameVariantPipe (baseDir + hapMapFile, posCol -= espDrill.length), 
-									  new DrillPipe (false, hapMapDrill));
+									  new DrillPipe (false, hapMapDrill), 
+									  new SameVariantPipe (baseDir + genomeFile, posCol -= hapMapDrill.length), 
+									  new DrillPipe (false, genomeDrill));
 //									  new HCutPipe (cut), tPipe, new HistoryOutPipe (), new PrintPipe ());
 		p.setStarts (Arrays.asList (vcf));
 //		handleAll (p, posCol, hapMapDrill.length);
-		writeRows (p, posCol, hapMapDrill.length);
+//		parseRows (p, posCol, hapMapDrill.length);
+		writeRows (p, posCol, genomeDrill.length);
+	}
+	
+	
+	/**
+	 * Get all the allele source results that BioR has for the variants specified in the passed in VCF File, and 
+	 * put them into the passed in Synchronized List (so a different thread can extract them and do something 
+	 * with them)
+	 * 
+	 * @param vcfFile	Path to the VCF file.  May not be null, empty, or point to a non-existent file
+	 * @param baseDir	Path to the BioR Catalog files.  If null, will use the default: /data4/bsi/refdata-new/catalogs/v1/BioR/
+	 * @param freqs		Synchronized List where we'll place any AlleleFreq results found, must not be null.  
+	 * Will add the AlleleFreqs at the end of the List, and a null at the end when done processing the VCF file
+	 */
+	public static void getAlleleFrequencies (String vcfFile, String baseDir, List<AlleleFreq> freqs)
+	{
+		if (freqs == null)
+			return;
+		
+		if ((vcfFile == null) || vcfFile.isEmpty () || !new File (vcfFile).exists ())
+		{
+			freqs.add (null);	// Tell caller we're done
+			return;
+		}
+		
+		Properties	theProperties = getProperties ();
+		if (theProperties == null)
+		{
+			System.out.println ("Could not load properties");
+			freqs.add (null);	// Tell caller we're done
+			return;
+		}
+		
+		if (baseDir == null)
+			baseDir = theProperties.getProperty ("fileBase");
+		if (baseDir == null)
+			baseDir = "";
+		
+		getAlleleFrequencies (vcfFile, baseDir, theProperties, freqs);
+		freqs.add (null);	// Tell caller we're done
 	}
 	
 	
@@ -166,7 +267,6 @@ public class TreatPipeline implements Usage
 	 * @param baseDir	Path to the BioR Catalog files.  If null, will use the default: /data4/bsi/refdata-new/catalogs/v1/BioR/
 	 * @return	List holding any AlleleFreq results found, or null if got a bad file
 	 */
-	@SuppressWarnings ({"rawtypes", "unchecked"})
 	public static List<AlleleFreq> getAlleleFrequencies (String vcfFile, String baseDir)
 	{
 		if ((vcfFile == null) || vcfFile.isEmpty () || !new File (vcfFile).exists ())
@@ -183,16 +283,62 @@ public class TreatPipeline implements Usage
 			baseDir = theProperties.getProperty ("fileBase");
 		if (baseDir == null)
 			baseDir = "";
+		
+		List<AlleleFreq>	freqs = new ArrayList<AlleleFreq> ();
+		getAlleleFrequencies (vcfFile, baseDir, theProperties, freqs);
+		return freqs;
+	}
+	
+	
+	/**
+	 * Parse the arguments into usable parameters, returning null if there's a problem, or nothing to do
+	 * 
+	 * @param args	User provided command line arguments
+	 * @return	The parsed arguments, or null if nothing to do
+	 */
+	private static final String[] getParameters (String[] args)
+	{
+		GetOpts.addOption ('V', "--version", ArgType.kNoArgument, kOnly);
+		GetOpts.addOption ('v', "--vcfFile", ArgType.kRequiredArgument, kRequired);
+		GetOpts.addOption ('b', "--baseDir", ArgType.kRequiredArgument, kOptional);
+		
+		String[]	parameters = GetOpts.parseArgs (args, new TreatPipeline ());
+		if (parameters == null)
+			return null;
+		
+		if (parameters[kVersionParam] != null)
+		{
+			printVersion ();
+			return null;
+		}
+		
+		return parameters;
+	}
+	
+	
+	/**
+	 * Get all the allele source results that BioR has for the variants specified in the passed in VCF File
+	 * 
+	 * @param vcfFile		Path to the VCF file.  May not be null, empty, or point to a non-existent file
+	 * @param baseDir		Path to the BioR Catalog files
+	 * @param theProperties	Properties to use to get catalog names
+	 * @param freqs			List to fill in with the results found
+	 */
+	@SuppressWarnings ({"rawtypes", "unchecked"})
+	private static void getAlleleFrequencies (String vcfFile, String baseDir, Properties theProperties, List<AlleleFreq> freqs)
+	{
 		String		genesFile = theProperties.getProperty ("genesFile");
 		String		bgiFile = theProperties.getProperty ("bgiFile");
 		String		espFile = theProperties.getProperty ("espFile");
 		String		hapMapFile = theProperties.getProperty ("hapMapFile");
 		String		dbsnpFile = theProperties.getProperty ("dbsnpFile");
-		String[]	geneDrill = {"gene"}; // , "note"
-		String[]	dbSnpDrill = {"INFO.dbSNPBuildID", "_id"};
-		String[]	bgiDrill = {"major_allele", "minor_allele", "calculated_major_allele_freq", "calculated_minor_allele_freq"};
-		String[]	espDrill = {"INFO.EA_AC", "INFO.AA_AC", "INFO.TAC", "INFO.MAF", "_refAllele", "_altAlleles"};
-		String[]	hapMapDrill = {"refallele", "otherallele", "CEU.refallele_freq", "CEU.otherallele_freq"};
+		String		genomeFile = theProperties.getProperty ("genomeFile");
+		String[]	geneDrill = kGeneDrill;
+		String[]	dbSnpDrill = kDbSnpDrill;
+		String[]	bgiDrill = kBgiDrill;
+		String[]	espDrill = kEspDrill;
+		String[]	hapMapDrill = kHapMapDrill;
+		String[]	genomeDrill = k1kGenomeDrill;
 		int			posCol = -1;
 		
 		try
@@ -206,17 +352,16 @@ public class TreatPipeline implements Usage
 										  new SameVariantPipe (baseDir + espFile, posCol -= bgiDrill.length), 
 										  new DrillPipe (false, espDrill), 
 										  new SameVariantPipe (baseDir + hapMapFile, posCol -= espDrill.length), 
-										  new DrillPipe (false, hapMapDrill));
+										  new DrillPipe (false, hapMapDrill), 
+										  new SameVariantPipe (baseDir + genomeFile, posCol -= hapMapDrill.length), 
+										  new DrillPipe (false, genomeDrill));
 			p.setStarts (Arrays.asList (vcfFile));
 			
-			List<AlleleFreq>	freqs = parseRows (p, posCol, hapMapDrill.length);
-			
-			return freqs;
+			parseRows (p, posCol, genomeDrill.length, freqs);
 		}
 		catch (IOException oops)
 		{
 			oops.printStackTrace ();
-			return null;
 		}
 	}
 	
@@ -229,12 +374,13 @@ public class TreatPipeline implements Usage
 	 * @param lastColCount	Count of columns added in the last set
 	 */
 	@SuppressWarnings ("rawtypes")
-	protected static List<AlleleFreq> parseRows (Pipeline pipeline, int posCol, int lastColCount)
+	protected static void parseRows (Pipeline pipeline, int posCol, int lastColCount, List<AlleleFreq> freqs)
 	{
-		List<AlleleFreq>	freqs = new ArrayList<AlleleFreq> ();
 		boolean	header = true;
 		int		numCols = -1;
 		int		firstCol = -1;
+		int		chromPos = -1;
+		int		positionPos = -1;
 		int		refPos = -1;
 		int		altPos = -1;
 		
@@ -245,15 +391,19 @@ public class TreatPipeline implements Usage
 			{
 				header = false;
 				numCols = history.size ();
-				firstCol = (numCols - ((-1 - posCol) + lastColCount)) + 1;	// Skip the history column
+				firstCol = numCols - (lastColCount - posCol) + 1;	// Skip the history column
 				
 				int[]	poses = getPositions (kBaseStrs);
 				
+				chromPos = poses[kChromPos];
+				positionPos = poses[kPositionPos];
 				refPos = poses[kRefPos];
 				altPos = poses[kAltPos];
 			}
 			
 			int		startCol = firstCol;
+			String	chrom = history.get (chromPos);
+			int		pos = parseInt (history.get (positionPos));
 			String	ref = history.get (refPos);
 			String	alt = history.get (altPos);
 //			String	geneName = history.get (startCol + kGeneName);
@@ -269,23 +419,50 @@ public class TreatPipeline implements Usage
 			startCol += kESPCols;
 			String	hapRefAllele = history.get (startCol + kHapMapRefAllele);
 			String	hapAltAllele = history.get (startCol + kHapMapAltAllele);
-			double	hapRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq), kConvertFromPercent);
-			double	hapAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq), kConvertFromPercent);
+			double	hapCeuRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq), kDoNotConvert);
+			double	hapCeuAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq), kDoNotConvert);
+			double	hapYriRefFreq = parseDouble (history.get (startCol + kHapMapYriRefFreq), kDoNotConvert);
+			double	hapYriAltFreq = parseDouble (history.get (startCol + kHapMapYriAltFreq), kDoNotConvert);
+			double[]	hapJptChbFreq = getCombinedFreq (history, startCol);
+			startCol += kHapMapCols;
+			double	kGenomeEURFreq = parseDouble (history.get (startCol + k1kGenomeEUR), kDoNotConvert);
+			double	kGenomeASNFreq = parseDouble (history.get (startCol + k1kGenomeASN), kDoNotConvert);
+			double	kGenomeAFRFreq = parseDouble (history.get (startCol + k1kGenomeAFR), kDoNotConvert);
+			double	kGenomeAMRFreq = parseDouble (history.get (startCol + k1kGenomeAMR), kDoNotConvert);
+			String	genomeRefAllele = history.get (startCol + k1kGenomeRef);
+			String	genomeAltAllele = history.get (startCol + k1kGenomeAlt);
 			
 			List<AlleleFreq>	results;
 			
-			results = getBGIMAFs (bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq);
+			results = getBGIMAFs (chrom, pos, bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq);
 			if (results != null)
 				freqs.addAll (results);
-			results = getESPMAFs (espMafs, ref, alt);
+			results = getESPMAFs (chrom, pos, espMafs, ref, alt);
 			if (results != null)
 				freqs.addAll (results);
-			results = getHapMapMAFs (hapRefAllele, hapAltAllele, hapRefFreq, hapAltFreq);
+			results = getHapMapMAFs (chrom, pos, hapRefAllele, hapAltAllele, kCeuPop, hapCeuRefFreq, hapCeuAltFreq);
+			if (results != null)
+				freqs.addAll (results);
+			results = getHapMapMAFs (chrom, pos, hapRefAllele, hapAltAllele, kYriPop, hapYriRefFreq, hapYriAltFreq);
+			if (results != null)
+				freqs.addAll (results);
+			results = getHapMapMAFs (chrom, pos, hapRefAllele, hapAltAllele, kAsnPop, hapJptChbFreq[kRefOffset], 
+									 hapJptChbFreq[kAltOffset]);
+			if (results != null)
+				freqs.addAll (results);
+			results = get1kGenomeMAFs (chrom, pos, k1kGenomeEUR, genomeRefAllele, genomeAltAllele, kGenomeEURFreq);
+			if (results != null)
+				freqs.addAll (results);
+			results = get1kGenomeMAFs (chrom, pos, k1kGenomeASN, genomeRefAllele, genomeAltAllele, kGenomeASNFreq);
+			if (results != null)
+				freqs.addAll (results);
+			results = get1kGenomeMAFs (chrom, pos, k1kGenomeAFR, genomeRefAllele, genomeAltAllele, kGenomeAFRFreq);
+			if (results != null)
+				freqs.addAll (results);
+			results = get1kGenomeMAFs (chrom, pos, k1kGenomeAMR, genomeRefAllele, genomeAltAllele, kGenomeAMRFreq);
 			if (results != null)
 				freqs.addAll (results);
 		}
-		
-		return freqs;
 	}
 	
 	
@@ -352,16 +529,130 @@ public class TreatPipeline implements Usage
 			startCol += kESPCols;
 			String	hapRefAllele = history.get (startCol + kHapMapRefAllele);
 			String	hapAltAllele = history.get (startCol + kHapMapAltAllele);
-			double	hapRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq), kConvertFromPercent);
-			double	hapAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq), kConvertFromPercent);
+			double	hapCeuRefFreq = parseDouble (history.get (startCol + kHapMapCeuRefFreq), kDoNotConvert);
+			double	hapCeuAltFreq = parseDouble (history.get (startCol + kHapMapCeuAltFreq), kDoNotConvert);
+			double	hapYriRefFreq = parseDouble (history.get (startCol + kHapMapYriRefFreq), kDoNotConvert);
+			double	hapYriAltFreq = parseDouble (history.get (startCol + kHapMapYriAltFreq), kDoNotConvert);
+			double[]	hapJptChbFreq = getCombinedFreq (history, startCol);
+			startCol += kHapMapCols;
+			double	kGenomeFreq = parseDouble (history.get (startCol + k1kGenomeAll), kDoNotConvert);
+			double	kGenomeEURFreq = parseDouble (history.get (startCol + k1kGenomeEUR), kDoNotConvert);
+			double	kGenomeASNFreq = parseDouble (history.get (startCol + k1kGenomeASN), kDoNotConvert);
+			double	kGenomeAFRFreq = parseDouble (history.get (startCol + k1kGenomeAFR), kDoNotConvert);
+			double	kGenomeAMRFreq = parseDouble (history.get (startCol + k1kGenomeAMR), kDoNotConvert);
 			
 			printString (geneName);
 			printInt (dbSNPBuild);
 			printBGI (bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq);
 			printESPMAFs (espMafs);
-			printHapMap (hapRefAllele, hapAltAllele, hapRefFreq, hapAltFreq);
+			printHapMap (hapRefAllele, hapAltAllele, kIsFirst, hapCeuRefFreq, hapCeuAltFreq);
+			printHapMap (hapRefAllele, hapAltAllele, kIsNotFirst, hapYriRefFreq, hapYriAltFreq);
+			printHapMap (hapRefAllele, hapAltAllele, kIsNotFirst, hapJptChbFreq[kRefOffset], hapJptChbFreq[kAltOffset]);
+			print1kGenome (kGenomeFreq);
+			print1kGenome (kGenomeEURFreq);
+			print1kGenome (kGenomeASNFreq);
+			print1kGenome (kGenomeAFRFreq);
+			print1kGenome (kGenomeAMRFreq);
 			System.out.println ();
 		}
+	}
+	
+	
+	/**
+	 * Get the Ref and Alt frequencies for HapMap JPT+CHB populations
+	 * 
+	 * @param history	Object to get the relevant strings from
+	 * @param startCol	Where to start looking in the History
+	 * @return	Array of two doubles.  Both might be NaN, or double between 0 and 1
+	 */
+	private static double[] getCombinedFreq (History history, int startCol)
+	{
+		int[]	jptCounts = getCounts (history, startCol + kHapMapJptRefCount);
+		int[]	chbCounts = getCounts (history, startCol + kHapMapChbRefCount);
+		
+		int			ref = jptCounts[kRefOffset] + chbCounts[kRefOffset];
+		int			alt = jptCounts[kAltOffset] + chbCounts[kAltOffset];
+		int			total = jptCounts[kTotalOffset] + chbCounts[kTotalOffset];
+		double[]	results = new double[kNumResults];
+		
+		if ((total == 0) || (alt == 0))	// If alt is zero, there's nothing to report
+			results[kRefOffset] = results[kRefOffset] = Double.NaN;
+		else
+		{
+			results[kRefOffset] = ((double) ref) / total;
+			results[kAltOffset] = ((double) alt) / total;
+		}
+		
+		return results;
+	}
+	
+	
+	/**
+	 * Get the counts for a population group
+	 * 
+	 * @param history	Where to get the counts from
+	 * @param startCol	First column to look at
+	 * @return	An array of three ints.  It will have all 0s if there are no value, but it will 
+	 * always exist and have three entries
+	 */
+	private static int[] getCounts (History history, int startCol)
+	{
+		int[]	results = new int[kNumOffsets];
+		
+		results[kRefOffset] = parseInt (history.get (startCol + kRefOffset));
+		results[kAltOffset] = parseInt (history.get (startCol + kAltOffset));
+		results[kTotalOffset] = parseInt (history.get (startCol + kTotalOffset));
+		
+		return results;
+	}
+	
+	
+	/**
+	 * Get the Ref and Alt frequencies for HapMap JPT+CHB populations
+	 * 
+	 * @param cols		Object to get the relevant strings from
+	 * @param startCol	Where to start looking in the History
+	 * @return	Array of two doubles.  Both might be NaN, or double between 0 and 1
+	 */
+	private static double[] getCombinedFreq (String[] cols, int startCol)
+	{
+		int[]	jptCounts = getCounts (cols, startCol + kHapMapJptRefCount);
+		int[]	chbCounts = getCounts (cols, startCol + kHapMapChbRefCount);
+		
+		int			ref = jptCounts[kRefOffset] + chbCounts[kRefOffset];
+		int			alt = jptCounts[kAltOffset] + chbCounts[kAltOffset];
+		int			total = jptCounts[kTotalOffset] + chbCounts[kTotalOffset];
+		double[]	results = new double[kNumResults];
+		
+		if ((total == 0) || (alt == 0))	// If alt is zero, there's nothing to report
+			results[kRefOffset] = results[kRefOffset] = Double.NaN;
+		else
+		{
+			results[kRefOffset] = ((double) ref) / total;
+			results[kAltOffset] = ((double) alt) / total;
+		}
+		
+		return results;
+	}
+	
+	
+	/**
+	 * Get the counts for a population group
+	 * 
+	 * @param cols		Where to get the counts from
+	 * @param startCol	First column to look at
+	 * @return	An array of three ints.  It will have all 0s if there are no value, but it will 
+	 * always exist and have three entries
+	 */
+	private static int[] getCounts (String[] cols, int startCol)
+	{
+		int[]	results = new int[kNumOffsets];
+		
+		results[kRefOffset] = parseInt (cols[startCol + kRefOffset]);
+		results[kAltOffset] = parseInt (cols[startCol + kAltOffset]);
+		results[kTotalOffset] = parseInt (cols[startCol + kTotalOffset]);
+		
+		return results;
 	}
 	
 	
@@ -460,21 +751,31 @@ public class TreatPipeline implements Usage
 			startCol += kdbSNPCols;
 			String	bgiMajAllele = cols[startCol + kBGIMajorAllele];
 			String	bgiMinAllele = cols[startCol + kBGIMinorAllele];
-			double	bgiMajFreq = parseDouble (cols[startCol + kBGIMajorFreq], kConvertFromPercent);
-			double	bgiMinFreq = parseDouble (cols[startCol + kBGIMinorFreq], kConvertFromPercent);
+			double	bgiMajFreq = parseDouble (cols[startCol + kBGIMajorFreq], kDoNotConvert);
+			double	bgiMinFreq = parseDouble (cols[startCol + kBGIMinorFreq], kDoNotConvert);
 			startCol += kBGICols;
 			String	espMafs = cols[startCol + kESPMAF];
 			startCol += kESPCols;
 			String	hapRefAllele = cols[startCol + kHapMapRefAllele];
 			String	hapAltAllele = cols[startCol + kHapMapAltAllele];
-			double	hapRefFreq = parseDouble (cols[startCol + kHapMapCeuRefFreq], kConvertFromPercent);
-			double	hapAltFreq = parseDouble (cols[startCol + kHapMapCeuAltFreq], kConvertFromPercent);
+			double	hapCeuRefFreq = parseDouble (cols[startCol + kHapMapCeuRefFreq], kDoNotConvert);
+			double	hapCeuAltFreq = parseDouble (cols[startCol + kHapMapCeuAltFreq], kDoNotConvert);
+			double	hapYriRefFreq = parseDouble (cols[startCol + kHapMapYriRefFreq], kDoNotConvert);
+			double	hapYriAltFreq = parseDouble (cols[startCol + kHapMapYriAltFreq], kDoNotConvert);
+			double[]	hapJptChbFreq = getCombinedFreq (cols, startCol);
 			
 			printString (geneName);
 			printInt (dbSNPBuild);
 			printBGI (bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq);
 			printESPMAFs (espMafs);
-			printHapMap (hapRefAllele, hapAltAllele, hapRefFreq, hapAltFreq);
+			
+			printString (geneName);
+			printInt (dbSNPBuild);
+			printBGI (bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq);
+			printESPMAFs (espMafs);
+			printHapMap (hapRefAllele, hapAltAllele, kIsFirst, hapCeuRefFreq, hapCeuAltFreq);
+			printHapMap (hapRefAllele, hapAltAllele, kIsNotFirst, hapYriRefFreq, hapYriAltFreq);
+			printHapMap (hapRefAllele, hapAltAllele, kIsNotFirst, hapJptChbFreq[kRefOffset], hapJptChbFreq[kAltOffset]);
 			System.out.println ();
 		}
 	}
@@ -525,14 +826,11 @@ public class TreatPipeline implements Usage
 			System.out.print ('\t');
 			System.out.print (bgiMinAllele);
 			System.out.print ('\t');
-			if (Double.isNaN (bgiMajFreq))
-				System.out.print (0.0);
-			else
+			if (!Double.isNaN (bgiMajFreq))	// Otherwise just do a blank
 				System.out.print (bgiMajFreq);
+			
 			System.out.print ('\t');
-			if (Double.isNaN (bgiMinFreq))
-				System.out.print (0.0);
-			else
+			if (!Double.isNaN (bgiMinFreq))	// Otherwise just do a blank
 				System.out.print (bgiMinFreq);
 		}
 		else
@@ -548,27 +846,43 @@ public class TreatPipeline implements Usage
 	 * @param hapRefFreq	Major / Ref Frequency
 	 * @param hapAltFreq	Minor / Alt Frequency
 	 */
-	private static void printHapMap (String hapRefAllele, String hapAltAllele, double hapRefFreq, double hapAltFreq)
+	private static void printHapMap (String hapRefAllele, String hapAltAllele, boolean isFirst, double hapRefFreq, double hapAltFreq)
 	{
 		if (!hapRefAllele.equals (kBlank) && !hapAltAllele.equals (kBlank))
 		{
+			if (isFirst)
+			{
+				System.out.print ('\t');
+				System.out.print (hapRefAllele);
+				System.out.print ('\t');
+				System.out.print (hapAltAllele);
+			}
+			
 			System.out.print ('\t');
-			System.out.print (hapRefAllele);
-			System.out.print ('\t');
-			System.out.print (hapAltAllele);
-			System.out.print ('\t');
-			if (Double.isNaN (hapRefFreq))
-				System.out.print (0.0);
-			else
+			if (!Double.isNaN (hapRefFreq))	// Otherwise just do a blank
 				System.out.print (hapRefFreq);
 			System.out.print ('\t');
-			if (Double.isNaN (hapAltFreq))
-				System.out.print (0.0);
-			else
+			if (!Double.isNaN (hapAltFreq))
 				System.out.print (hapAltFreq);
 		}
-		else
+		else if (isFirst)
 			System.out.print ("\t\t\t\t");
+		else
+			System.out.print ("\t\t");
+	}
+	
+	
+	/**
+	 * Print out the Thousand Genomes info, or tabs if nothing to print
+	 * 
+	 * @param altFreq	Minor / Alt Frequency
+	 */
+	private static void print1kGenome (double altFreq)
+	{
+		System.out.print ('\t');
+		if ((altFreq == 0.0) || (Double.isNaN (altFreq)))
+			return;
+		System.out.print (altFreq);
 	}
 	
 	
@@ -615,13 +929,16 @@ public class TreatPipeline implements Usage
 	/**
 	 * Return a list holding BGI AlleleFreq objects if they're there, or null if they aren't
 	 * 
+	 * @param chromosome	The chromosome the variant is on
+	 * @param pos			The position of the variant in the chromosome
 	 * @param bgiMajAllele	Major / Ref Allele
 	 * @param bgiMinAllele	Minor / Alt Allele
 	 * @param bgiMajFreq	Major / Ref Frequency
 	 * @param bgiMinFreq	Minor / Alt Frequency
 	 * @return	List of one or two AlleleFreq objects, or null if there aren't any specified
 	 */
-	private static List<AlleleFreq> getBGIMAFs (String bgiMajAllele, String bgiMinAllele, double bgiMajFreq, double bgiMinFreq)
+	private static List<AlleleFreq> getBGIMAFs (String chromosome, int pos, String bgiMajAllele, String bgiMinAllele, 
+												double bgiMajFreq, double bgiMinFreq)
 	{
 		if (bgiMajAllele.equals (kBlank) || bgiMinAllele.equals (kBlank))
 			return null;
@@ -635,7 +952,7 @@ public class TreatPipeline implements Usage
 		char	majorBase = bgiMajAllele.charAt (0);
 		char	minorBase = bgiMinAllele.charAt (0);
 		
-		results.add (new AlleleFreq (minorBase, majorBase, bgiMinFreq, bgiMajFreq, kBGIFreq));
+		results.add (new AlleleFreq (chromosome, pos, minorBase, majorBase, bgiMinFreq, bgiMajFreq, kBGIFreq));
 		
 		return results;
 	}
@@ -644,13 +961,17 @@ public class TreatPipeline implements Usage
 	/**
 	 * Return a list holding HapMap AlleleFreq objects if they're there, or null if they aren't
 	 * 
+	 * @param chromosome	The chromosome the variant is on
+	 * @param pos			The position of the variant in the chromosome
 	 * @param hapRefAllele	Major / Ref Allele
 	 * @param hapAltAllele	Minor / Alt Allele
+	 * @param pop			Which population the data is for
 	 * @param hapRefFreq	Major / Ref Frequency
 	 * @param hapAltFreq	Minor / Alt Frequency
-	 * @return	List of one or two AlleleFreq objects, or null if there aren't any specified
+	 * @return	List of one AlleleFreq object, or null if there aren't any specified
 	 */
-	private static List<AlleleFreq> getHapMapMAFs (String hapRefAllele, String hapAltAllele, double hapRefFreq, double hapAltFreq)
+	private static List<AlleleFreq> getHapMapMAFs (String chromosome, int pos, String hapRefAllele, String hapAltAllele, int pop, 
+													double hapRefFreq, double hapAltFreq)
 	{
 		if (hapRefAllele.equals (kBlank) || hapAltAllele.equals (kBlank))
 			return null;
@@ -664,7 +985,33 @@ public class TreatPipeline implements Usage
 		char	majorBase = hapRefAllele.charAt (0);
 		char	minorBase = hapAltAllele.charAt (0);
 		
-		results.add (new AlleleFreq (minorBase, majorBase, hapAltFreq, hapRefFreq, kHapMapFreq));
+		results.add (new AlleleFreq (chromosome, pos, minorBase, majorBase, hapAltFreq, hapRefFreq, kHapMapFreq[pop]));
+		
+		return results;
+	}
+	
+	
+	/**
+	 * Return a list holding Thousand Genomes AlleleFreq objects if they're there, or null if they aren't
+	 * 
+	 * @param chromosome	The chromosome the variant is on
+	 * @param pos			The position of the variant in the chromosome
+	 * @param pop			Which population the data is for
+	 * @param ref			Reference base, will use first char, so can not be null or empty
+	 * @param alt			Alternate base, will use first char, so can not be null or empty
+	 * @param altFreq		Minor / Alt Frequency
+	 * @return	List of one AlleleFreq object, or null if there aren't any specified
+	 */
+	private static List<AlleleFreq> get1kGenomeMAFs (String chromosome, int pos, int pop, String ref, String alt, double altFreq)
+	{
+		if ((altFreq == 0.0) || (Double.isNaN (altFreq)))
+			return null;
+		
+		List<AlleleFreq>	results = new ArrayList<AlleleFreq> ();
+		char	majorBase = ref.charAt (0);
+		char	minorBase = alt.charAt (0);
+		
+		results.add (new AlleleFreq (chromosome, pos, minorBase, majorBase, altFreq, 1.0 - altFreq, k1kGenomeFreq[pop]));
 		
 		return results;
 	}
@@ -673,12 +1020,14 @@ public class TreatPipeline implements Usage
 	/**
 	 * Return a list holding CEU and AFR ESP AlleleFreq objects if they're there, or null if they aren't
 	 * 
-	 * @param espMafs	String holding ESP Minor allele frequencies in the format ["CEU", "AFR", "Total"]
-	 * @param ref		Reference base, will use first char, so can not be null or empty
-	 * @param alt		Alternate base, will use first char, so can not be null or empty
+	 * @param chromosome	The chromosome the variant is on
+	 * @param position		The position of the variant in the chromosome
+	 * @param espMafs		String holding ESP Minor allele frequencies in the format ["CEU", "AFR", "Total"]
+	 * @param ref			Reference base, will use first char, so can not be null or empty
+	 * @param alt			Alternate base, will use first char, so can not be null or empty
 	 * @return	List of one or two AlleleFreq objects, or null if there aren't any specified
 	 */
-	private static List<AlleleFreq> getESPMAFs (String espMafs, String ref, String alt)
+	private static List<AlleleFreq> getESPMAFs (String chromosome, int position, String espMafs, String ref, String alt)
 	{
 		int	len = espMafs.length ();
 		if (espMafs.equals (kBlank) || (len < 4))
@@ -711,10 +1060,10 @@ public class TreatPipeline implements Usage
 		char	minorBase = alt.charAt (0);
 		
 		if (hasCEU)
-			results.add (new AlleleFreq (minorBase, majorBase, ceuMaf, 1.0 - ceuMaf, kEspEurMaf));
+			results.add (new AlleleFreq (chromosome, position, minorBase, majorBase, ceuMaf, 1.0 - ceuMaf, kEspEurMaf));
 		
 		if (hasAFR)
-			results.add (new AlleleFreq (minorBase, majorBase, afrMaf, 1.0 - afrMaf, kEspAfrMaf));
+			results.add (new AlleleFreq (chromosome, position, minorBase, majorBase, afrMaf, 1.0 - afrMaf, kEspAfrMaf));
 		
 		return results;
 	}
