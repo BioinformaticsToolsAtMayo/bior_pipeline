@@ -950,7 +950,7 @@ public class TreatPipeline implements Usage, Runnable
 		
 		List<AlleleFreq>	results = new ArrayList<AlleleFreq> ();
 		char	majorBase = bgiMajAllele.charAt (0);
-		char	minorBase = bgiMinAllele.charAt (0);
+		char	minorBase = getFirstBase (bgiMinAllele);
 		
 		results.add (new AlleleFreq (chromosome, pos, minorBase, majorBase, bgiMinFreq, bgiMajFreq, kBGIFreq));
 		
@@ -983,7 +983,7 @@ public class TreatPipeline implements Usage, Runnable
 		
 		List<AlleleFreq>	results = new ArrayList<AlleleFreq> ();
 		char	majorBase = hapRefAllele.charAt (0);
-		char	minorBase = hapAltAllele.charAt (0);
+		char	minorBase = getFirstBase (hapAltAllele);
 		
 		results.add (new AlleleFreq (chromosome, pos, minorBase, majorBase, hapAltFreq, hapRefFreq, kHapMapFreq[pop]));
 		
@@ -1009,11 +1009,50 @@ public class TreatPipeline implements Usage, Runnable
 		
 		List<AlleleFreq>	results = new ArrayList<AlleleFreq> ();
 		char	majorBase = ref.charAt (0);
-		char	minorBase = alt.charAt (0);
+		char	minorBase = getFirstBase (alt);
 		
 		results.add (new AlleleFreq (chromosome, pos, minorBase, majorBase, altFreq, 1.0 - altFreq, k1kGenomeFreq[pop]));
 		
 		return results;
+	}
+	
+	
+	/**
+	 * Look through a String for the first A, C, G, T.  Failing to find any of those, look for hte first 
+	 * letter.  Failing that, return 'A'
+	 * 
+	 * @param baseStr	String to look through.  Must not be null
+	 * @return	A Character, guaranteed to be a capital letter
+	 */
+	private static final char getFirstBase (String baseStr)
+	{
+		baseStr = baseStr.toUpperCase ();	// Make sure everything's upper case
+		int		numBases = baseStr.length ();
+		char	base;
+		
+		for (int i = 0; i < numBases; ++i)
+		{
+			base = baseStr.charAt (i);
+			switch (base)
+			{
+				case 'A':
+				case 'C':
+				case 'G':
+				case 'T':
+					return base;
+			}
+		}
+		
+		// Couldn't find an A, T, C, or G, go for any letter
+		for (int i = 0; i < numBases; ++i)
+		{
+			base = baseStr.charAt (i);
+			if (Character.isLetter (base))
+				return base;
+		}
+		
+		// Couldn't find anything, return the default
+		return 'A';
 	}
 	
 	
@@ -1057,7 +1096,7 @@ public class TreatPipeline implements Usage, Runnable
 		
 		List<AlleleFreq>	results = new ArrayList<AlleleFreq> ();
 		char	majorBase = ref.charAt (0);
-		char	minorBase = alt.charAt (0);
+		char	minorBase = getFirstBase (alt);
 		
 		if (hasCEU)
 			results.add (new AlleleFreq (chromosome, position, minorBase, majorBase, ceuMaf, 1.0 - ceuMaf, kEspEurMaf));
