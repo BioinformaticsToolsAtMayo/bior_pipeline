@@ -1,8 +1,7 @@
-package edu.mayo.bior.util;
+package edu.mayo.bior.pipeline.SNPEff;
 
 import java.util.List;
 
-import edu.mayo.bior.pipeline.SNPEffPipeline.SNPEffectHolder;
 
 /**
  * SNPEffHelper helper class computes the "most-significant-effect" from all the Effects 
@@ -11,6 +10,30 @@ import edu.mayo.bior.pipeline.SNPEffPipeline.SNPEffectHolder;
  *
  */
 public class SNPEffHelper {
+	
+	public enum InfoFieldKey {
+        EFFECT_KEY            ("SNPEFF_EFFECT"),
+        IMPACT_KEY            ("SNPEFF_IMPACT"),
+        FUNCTIONAL_CLASS_KEY  ("SNPEFF_FUNCTIONAL_CLASS"),
+        CODON_CHANGE_KEY      ("SNPEFF_CODON_CHANGE"),
+        AMINO_ACID_CHANGE_KEY ("SNPEFF_AMINO_ACID_CHANGE"),
+        GENE_NAME_KEY         ("SNPEFF_GENE_NAME"),
+        GENE_BIOTYPE_KEY      ("SNPEFF_GENE_BIOTYPE"),    
+        CODING				  ("SNPEFF_CODING"),
+        TRANSCRIPT_ID_KEY     ("SNPEFF_TRANSCRIPT_ID"),
+        EXON_ID_KEY           ("SNPEFF_EXON_ID");
+
+        // Actual text of the key
+        private final String keyName;
+
+        InfoFieldKey ( String keyName) {
+            this.keyName = keyName;
+        }
+
+        public String getKeyName() {
+            return keyName;
+        }
+	}
 	
 	// SnpEff labels each effect as either LOW, MODERATE, or HIGH impact, or as a MODIFIER.
     public enum EffectImpact {

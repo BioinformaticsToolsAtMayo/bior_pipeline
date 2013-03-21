@@ -9,7 +9,7 @@ import org.junit.Test;
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.transform.IdentityPipe;
 
-import edu.mayo.pipes.PrintPipe;
+import edu.mayo.bior.pipeline.SNPEff.SNPEffPipeline;
 import edu.mayo.pipes.UNIX.CatPipe;
 
 public class SNPEffPipelineTest {
