@@ -45,40 +45,11 @@ public class SNPEffPipeline {
 		this.summarizeEffect = summarizeEffect;
 	}
 	
-	
-//	public static void main(String[] args) throws IOException {
-//		System.out.println("Working Directory = " + System.getProperty("user.dir"));
-//        SNPEffPipeline effp = new SNPEffPipeline(true);
-//        String[] command = {"java", 
-//                "-Xmx4g", 
-//                "-jar", 
-//                "snpEff/snpEff.jar eff",
-//                "-c",
-//                "snpEff/snpEff.config",
-//                "-v",
-//                "GRCh37.68",
-//                "/dev/stdin",
-//                ">",
-//                "/dev/stdout"
-//        };
-//        
-//        
-//        ExecPipe exe = new ExecPipe(command, true);        
-//
-//        Pipe p = effp.getSNPEffPipeline(new CatPipe(), new PrintPipe());
-//        //Pipe p = new Pipeline(new CatPipe(), new PrintPipe());
-//        p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/example.vcf"));
-//        while(p.hasNext()){
-//        	p.next();
-//        }		
-//	}
-	
 	 private static String[] headers = {"Effect", 
          "Effect_impact", 
          "Functional_class",
          "Codon_change",
          "Amino_acid_change",
-         "Amino_acid_length",
          "Gene_name",
          "Gene_bioType",
          "Coding",
@@ -93,7 +64,6 @@ public class SNPEffPipeline {
 	        FUNCTIONAL_CLASS_KEY  ("SNPEFF_FUNCTIONAL_CLASS"),
 	        CODON_CHANGE_KEY      ("SNPEFF_CODON_CHANGE"),
 	        AMINO_ACID_CHANGE_KEY ("SNPEFF_AMINO_ACID_CHANGE"),
-	        AMINO_ACID_LENGTH_KEY ("SNPEFF_AMINO_ACID_LENGTH"),//new
 	        GENE_NAME_KEY         ("SNPEFF_GENE_NAME"),
 	        GENE_BIOTYPE_KEY      ("SNPEFF_GENE_BIOTYPE"),    
 	        CODING				  ("SNPEFF_CODING"),
@@ -209,18 +179,39 @@ public class SNPEffPipeline {
         				
         				for(int i=0;i<splitValues.length;i++) {
         					splitEffectCoreValues.put(InfoFieldKey.IMPACT_KEY.getKeyName(), splitValues[0]);
-        					splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), splitValues[1]);
-        					splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), splitValues[2]);
-        					splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), splitValues[3]);
-        					splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_LENGTH_KEY.getKeyName(), splitValues[4]);
-        					splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), splitValues[5]);
-        					splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), splitValues[6]);
-        					splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), splitValues[7]);
-        					splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), splitValues[8]);
+        					
+        					if (splitValues.length > 1) {
+        						splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), splitValues[1]);
+        					} 
+        					
+        					if (splitValues.length > 2) {
+        						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), splitValues[2]);
+        					}
+        					
+        					if (splitValues.length > 3) {
+        						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), splitValues[3]);
+        					}
+        					//splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_LENGTH_KEY.getKeyName(), splitValues[4]);
+        					
+        					if (splitValues.length > 4) {
+        						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), splitValues[4]);
+        					}
+        					
+        					if (splitValues.length > 5) {
+        						splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), splitValues[5]);
+        					}
+        					
+        					if (splitValues.length > 6) {
+        						splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), splitValues[6]);
+        					}
+        					
+        					if (splitValues.length > 7) {
+        						splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), splitValues[7]);
+        					}
         					
             				// the last column is EXON number which is in case is empty, the array above will not add that value. Add the last value explicitly
-        					if (splitValues.length > 9) {
-        						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), splitValues[9]);
+        					if (splitValues.length > 8) {
+        						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), splitValues[8]);
         					} else {
         						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), "");
         					}        					
@@ -324,11 +315,8 @@ public class SNPEffPipeline {
         public static class SNPEffectHolder {        	
         	
         	private String Effect; 
-        	//private String Effect_impact; 
-        	//private String Functional_class;
         	private String Codon_change;
         	private String Amino_acid_change;
-        	private String Amino_acid_length;
         	private String Gene_name;
         	private String Gene_bioType;
         	private String Coding;
@@ -339,14 +327,8 @@ public class SNPEffPipeline {
 			
 			public SNPEffectHolder(Map<String, String> splitEffectCoreValues) {
 				Effect = splitEffectCoreValues.get(InfoFieldKey.EFFECT_KEY.getKeyName());
-				//Effect_impact = splitEffectCoreValues.get(InfoFieldKey.IMPACT_KEY.getKeyName());
 				
 				impact = SNPEffHelper.EffectImpact.valueOf(splitEffectCoreValues.get(InfoFieldKey.IMPACT_KEY.getKeyName()));
-				//System.out.println("i="+splitEffectCoreValues.get(InfoFieldKey.IMPACT_KEY.getKeyName()));
-				//System.out.println("impact="+impact.name());
-								
-				//Functional_class = splitEffectCoreValues.get(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName());				
-				//System.out.println("f="+splitEffectCoreValues.get(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName()));
 				
 				if (splitEffectCoreValues.get(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName()).trim().length() > 0 ) {
 				effectFunctionalClass = SNPEffHelper.EffectFunctionalClass.valueOf(splitEffectCoreValues.get(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName()));
@@ -357,13 +339,11 @@ public class SNPEffPipeline {
 				
 				Codon_change = splitEffectCoreValues.get(InfoFieldKey.CODON_CHANGE_KEY.getKeyName());
 				Amino_acid_change = splitEffectCoreValues.get(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName());
-				Amino_acid_length = splitEffectCoreValues.get(InfoFieldKey.AMINO_ACID_LENGTH_KEY.getKeyName());
 				Gene_name = splitEffectCoreValues.get(InfoFieldKey.GENE_NAME_KEY.getKeyName());
 				Gene_bioType = splitEffectCoreValues.get(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName());
 				Coding = splitEffectCoreValues.get(InfoFieldKey.CODING.getKeyName());
 				Transcript = splitEffectCoreValues.get(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName());
 				Exon = splitEffectCoreValues.get(InfoFieldKey.EXON_ID_KEY.getKeyName());
-				
 			}
 		
 			public boolean isHigherImpactThan ( SNPEffectHolder other ) {
@@ -418,7 +398,7 @@ public class SNPEffPipeline {
 				mse.add(this.getFunctional_class());
 				mse.add(this.getCodon_change());
 				mse.add(this.getAmino_acid_change());
-				mse.add(this.getAmino_acid_length());
+				//mse.add(this.getAmino_acid_length());
 				mse.add(this.getGene_name());
 				mse.add(this.getGene_bioType());
 				mse.add(this.getCoding());
@@ -446,10 +426,6 @@ public class SNPEffPipeline {
 
 			public String getAmino_acid_change() {
 				return Amino_acid_change;
-			}
-
-			public String getAmino_acid_length() {
-				return Amino_acid_length;
 			}
 
 			public String getGene_name() {
