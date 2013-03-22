@@ -5,24 +5,29 @@
 package edu.mayo.bior.pipeline.SNPEff;
 
 import com.tinkerpop.pipes.AbstractPipe;
+import edu.mayo.pipes.history.History;
 import java.util.NoSuchElementException;
 
 /**
  *
  * @author m102417
  */
-public class SNPEffPreProcessPipe extends AbstractPipe<String, String> {
+public class SNPEffPreProcessPipe extends AbstractPipe<History, String> {
 
+    private int count = 0;
     @Override
     protected String processNextStart() throws NoSuchElementException {
         StringBuilder sb = new StringBuilder();
-        String next = this.starts.next();
-        while(next.startsWith("#")){
-            sb.append(next);
-            sb.append("\n");
-            next = this.starts.next();
+        History h = this.starts.next();
+        if(count==0){
+            sb.append("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO\n");
         }
-        sb.append(next);
+        for(int i=0; i<7;i++){
+            sb.append(h.get(i));
+            sb.append("\t");
+        }
+        sb.append(".");
+        count++;
         return sb.toString();
     }
     
