@@ -10,8 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import com.google.gson.JsonObject;
+import com.tinkerpop.pipes.AbstractPipe;
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
@@ -20,6 +22,8 @@ import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEffHelper.InfoFieldKey;
 import edu.mayo.pipes.HeaderPipe;
 import edu.mayo.pipes.JSON.DrillPipe;
+import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.UNIX.GrepEPipe;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
@@ -27,7 +31,7 @@ import edu.mayo.pipes.history.HistoryOutPipe;
  *
  * @author m089716
  */
-public class SNPEffPipeline {
+public class SNPEffPostProcessPipeline {
 	
 	boolean summarizeEffect = true;
 	
@@ -39,10 +43,10 @@ public class SNPEffPipeline {
 	 * only the 'MostSignificantEffect' is shown. Which is default behavior in TreatWorkflow.
 	 * @param summarizeEffect
 	 */
-	public SNPEffPipeline(boolean summarizeEffect) {
+	public SNPEffPostProcessPipeline(boolean summarizeEffect) {
 		this.summarizeEffect = summarizeEffect;
 	}
-	
+
 	 private static String[] headers = {"Effect", 
          "Effect_impact", 
          "Functional_class",
@@ -54,31 +58,6 @@ public class SNPEffPipeline {
          "Transcript",
          "Exon"
 	 };
-	
-	 
-//	 public enum InfoFieldKey {
-//	        EFFECT_KEY            ("SNPEFF_EFFECT"),
-//	        IMPACT_KEY            ("SNPEFF_IMPACT"),
-//	        FUNCTIONAL_CLASS_KEY  ("SNPEFF_FUNCTIONAL_CLASS"),
-//	        CODON_CHANGE_KEY      ("SNPEFF_CODON_CHANGE"),
-//	        AMINO_ACID_CHANGE_KEY ("SNPEFF_AMINO_ACID_CHANGE"),
-//	        GENE_NAME_KEY         ("SNPEFF_GENE_NAME"),
-//	        GENE_BIOTYPE_KEY      ("SNPEFF_GENE_BIOTYPE"),    
-//	        CODING				  ("SNPEFF_CODING"),
-//	        TRANSCRIPT_ID_KEY     ("SNPEFF_TRANSCRIPT_ID"),
-//	        EXON_ID_KEY           ("SNPEFF_EXON_ID");
-//
-//	        // Actual text of the key
-//	        private final String keyName;
-//
-//	        InfoFieldKey ( String keyName) {
-//	            this.keyName = keyName;
-//	        }
-//
-//	        public String getKeyName() {
-//	            return keyName;
-//	        }
-//	 }
 	 
 	/**
 	 * 
@@ -88,17 +67,13 @@ public class SNPEffPipeline {
 	 * @param output - formatted/parsed result file from snpeff
 	 * @return
 	 */
-	public Pipe getSNPEffPipeline(Pipe input, Pipe output) {		
-		String[] drillPath = new String[1];
-        drillPath[0]= "EFF";
-        DrillPipe drill = new DrillPipe(false, drillPath);
+	public Pipe getSNPEffPostProcessPipeline(Pipe input, Pipe output) {		
         
         Pipe<History,History> transform = new TransformFunctionPipe<History,History>(new SNPEffTransformPipe(this.summarizeEffect));
-        
+         
         Pipe pipe = new Pipeline(
             input,//the input file
-            //new AggregatorPipe(5),
-            new HeaderPipe(5),
+            new GrepEPipe("#.*"),
             new HistoryInPipe(),
             transform,            
             new HistoryOutPipe(),
@@ -175,12 +150,14 @@ public class SNPEffPipeline {
         				String[] splitValues = effectCoreValues.split(SNPEFF_EFFECT_METADATA_SUBFIELD_DELIMITER);
         				//System.out.println(Arrays.asList(splitValues));
         				
-        				for(int i=0;i<splitValues.length;i++) {
+        				for(int i=0;i<=splitValues.length;i++) {
         					splitEffectCoreValues.put(InfoFieldKey.IMPACT_KEY.getKeyName(), splitValues[0]);
         					
         					if (splitValues.length > 1) {
         						splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), splitValues[1]);
-        					} 
+        					} else {        						
+        						splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), "");
+        					}
         					
         					if (splitValues.length > 2) {
         						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), splitValues[2]);
@@ -189,7 +166,6 @@ public class SNPEffPipeline {
         					if (splitValues.length > 3) {
         						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), splitValues[3]);
         					}
-        					//splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_LENGTH_KEY.getKeyName(), splitValues[4]);
         					
         					if (splitValues.length > 4) {
         						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), splitValues[4]);
@@ -201,18 +177,22 @@ public class SNPEffPipeline {
         					
         					if (splitValues.length > 6) {
         						splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), splitValues[6]);
-        					}
+        					} else {        						
+        						splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), "");
+        					}        					
         					
         					if (splitValues.length > 7) {
         						splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), splitValues[7]);
+        					} else {        						
+        						splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), "");
         					}
         					
-            				// the last column is EXON number which is in case is empty, the array above will not add that value. Add the last value explicitly
-        					if (splitValues.length > 8) {
+        					if (splitValues.length > 8) {        						
         						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), splitValues[8]);
-        					} else {
+        					} else {        						
+        						//In the Effect, ExonId is the last column and is sometimes empty. In that case, add it explicitly 
         						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), "");
-        					}        					
+        					}
         				}
         				
         				snpEffectHolder = new SNPEffectHolder(splitEffectCoreValues);
@@ -248,9 +228,11 @@ public class SNPEffPipeline {
          */
         private String jsonize(List<String> eff){
             JsonObject jObj = new JsonObject();
+            
             for(int i=0; i<eff.size(); i++){
             	
                 if(eff.get(i).length() > 0 && headers.length >= i){
+                	//System.out.println(headers[i]);
                     jObj.addProperty(headers[i], eff.get(i));
                 }
             }
@@ -303,148 +285,6 @@ public class SNPEffPipeline {
         	return arrayOfJsons.toString();
         }
 	}
-        
-//
-//        /**
-//         * Holds each SNPEff effect result as an object
-//         * @author m089716
-//         *
-//         */
-//        public static class SNPEffectHolder {        	
-//        	
-//        	private String Effect; 
-//        	private String Codon_change;
-//        	private String Amino_acid_change;
-//        	private String Gene_name;
-//        	private String Gene_bioType;
-//        	private String Coding;
-//        	private String Transcript;
-//        	private String Exon;        
-//        	private SNPEffHelper.EffectImpact impact;
-//        	private SNPEffHelper.EffectFunctionalClass effectFunctionalClass;
-//			
-//			public SNPEffectHolder(Map<String, String> splitEffectCoreValues) {
-//				Effect = splitEffectCoreValues.get(InfoFieldKey.EFFECT_KEY.getKeyName());
-//				
-//				impact = SNPEffHelper.EffectImpact.valueOf(splitEffectCoreValues.get(InfoFieldKey.IMPACT_KEY.getKeyName()));
-//				
-//				if (splitEffectCoreValues.get(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName()).trim().length() > 0 ) {
-//				effectFunctionalClass = SNPEffHelper.EffectFunctionalClass.valueOf(splitEffectCoreValues.get(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName()));
-//				} else {
-//					effectFunctionalClass = SNPEffHelper.EffectFunctionalClass.NONE;
-//				}
-//				//System.out.println("effectFunctionalClass="+effectFunctionalClass.name());
-//				
-//				Codon_change = splitEffectCoreValues.get(InfoFieldKey.CODON_CHANGE_KEY.getKeyName());
-//				Amino_acid_change = splitEffectCoreValues.get(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName());
-//				Gene_name = splitEffectCoreValues.get(InfoFieldKey.GENE_NAME_KEY.getKeyName());
-//				Gene_bioType = splitEffectCoreValues.get(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName());
-//				Coding = splitEffectCoreValues.get(InfoFieldKey.CODING.getKeyName());
-//				Transcript = splitEffectCoreValues.get(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName());
-//				Exon = splitEffectCoreValues.get(InfoFieldKey.EXON_ID_KEY.getKeyName());
-//			}
-//		
-//			public boolean isHigherImpactThan ( SNPEffectHolder other ) {
-//		        // If one effect is within a coding gene and the other is not, the effect that is
-//		        // within the coding gene has higher impact:
-//
-//		        if ( isCoding() && ! other.isCoding() ) {
-//		            return true;
-//		        }
-//		        else if ( ! isCoding() && other.isCoding() ) {
-//		            return false;
-//		        }
-//
-//		        // Otherwise, both effects are either in or not in a coding gene, so we compare the impacts
-//		        // of the effects themselves. Effects with the same impact are tie-broken using the
-//		        // functional class of the effect:
-//
-//		        if ( impact.isHigherImpactThan(other.impact) ) {
-//		            return true;
-//		        }
-//		        else if ( impact.isSameImpactAs(other.impact) ) {
-//		            return effectFunctionalClass.isHigherPriorityThan(other.effectFunctionalClass);
-//		        }
-//
-//		        return false;
-//		    }	
-//			
-//			public boolean isCoding() {
-//	            return this.Coding == "CODING";
-//	        }
-//
-////			@Override
-////			public String toString() {
-////				return "Effect="+Effect+
-////						",Effect_impact="+impact.name()+
-////						",Functional_class="+effectFunctionalClass.name()+
-////						",Codon_change="+Codon_change+
-////						",Amino_acid_change="+Amino_acid_change+
-////						",TranscriptId="+Transcript+
-////						",ExonId="+Exon;
-////			}
-//			
-//			/**
-//			 * 
-//			 * @param snpEffectHolder
-//			 * @return value of the object snpEffectHolder as a List<String>
-//			 */
-//			public List<String> getAnnotationAsList() {
-//				List<String> mse = new ArrayList<String>();
-//				mse.add(this.getEffect());
-//				mse.add(this.getEffect_impact());
-//				mse.add(this.getFunctional_class());
-//				mse.add(this.getCodon_change());
-//				mse.add(this.getAmino_acid_change());
-//				//mse.add(this.getAmino_acid_length());
-//				mse.add(this.getGene_name());
-//				mse.add(this.getGene_bioType());
-//				mse.add(this.getCoding());
-//				mse.add(this.getTranscript());
-//				mse.add(this.getExon());
-//				
-//				return mse;
-//			}
-//
-//			public String getEffect() {
-//				return Effect;
-//			}
-//
-//			public String getEffect_impact() {
-//				return impact.name();
-//			}
-//
-//			public String getFunctional_class() {
-//				return effectFunctionalClass.name();
-//			}
-//
-//			public String getCodon_change() {
-//				return Codon_change;
-//			}
-//
-//			public String getAmino_acid_change() {
-//				return Amino_acid_change;
-//			}
-//
-//			public String getGene_name() {
-//				return Gene_name;
-//			}
-//
-//			public String getGene_bioType() {
-//				return Gene_bioType;
-//			}
-//
-//			public String getCoding() {
-//				return Coding;
-//			}
-//
-//			public String getTranscript() {
-//				return Transcript;
-//			}
-//
-//			public String getExon() {
-//				return Exon;
-//			}
-//        }   
+
     
 }
