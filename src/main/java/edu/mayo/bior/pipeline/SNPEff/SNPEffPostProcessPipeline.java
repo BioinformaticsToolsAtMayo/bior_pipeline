@@ -61,7 +61,7 @@ public class SNPEffPostProcessPipeline {
 	 
 	/**
 	 * 
-	 * @param input - the output file of snpeff
+	 * @param input - the output line/string of snpeff
 	 * @param exe
 	 * @param transform
 	 * @param output - formatted/parsed result file from snpeff
@@ -72,8 +72,8 @@ public class SNPEffPostProcessPipeline {
         Pipe<History,History> transform = new TransformFunctionPipe<History,History>(new SNPEffTransformPipe(this.summarizeEffect));
          
         Pipe pipe = new Pipeline(
-            input,//the input file
-            new GrepEPipe("#.*"),
+            input,
+            //new GrepEPipe("#.*"),
             new HistoryInPipe(),
             transform,            
             new HistoryOutPipe(),
