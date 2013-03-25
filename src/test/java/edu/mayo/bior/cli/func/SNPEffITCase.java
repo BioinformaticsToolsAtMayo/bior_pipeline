@@ -100,7 +100,7 @@ public class SNPEffITCase {
          * @throws IOException
          * @throws InterruptedException 
          */
-        //@Test
+        @Test
         public void testExecSNPEffPipe() throws IOException, InterruptedException{
             System.out.println("Test the raw output of a run on SNPEff");
         
@@ -169,18 +169,19 @@ public class SNPEffITCase {
 //
 //        }
         
-        @Test
+        //this sucker takes a long time to run, so we don't run it as common integration tests...
+        //@Test
         public void testSNPEFF() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
 
             final String[] snpeffCmdArray =
             	{
-            		"java", 
+            	    "java", 
                     "-Xmx4g", 
                      "-jar", 
-                     "/Applications/snpEff_2_0_5/snpEff.jar",
+                     snpeff,
                      "eff",
                      "-c",
-                     "/Applications/snpEff_2_0_5/snpEff.config",
+                     snpeffconfig,
                      "-v",
                      "GRCh37.64",
                      "-o",
