@@ -81,6 +81,9 @@ public class SNPEffHelper {
      * 
      * @param all effects returned by SNPEff
      * @return the most-significant-helper fromt he above effects
+     * Refer to 
+     * https://github.com/broadgsa/gatk/blob/master/public/java/src/org/broadinstitute/sting/gatk/walkers/annotator/SnpEff.java
+     * for the business-logic to get the most-significant-effect. Implemented the same here.
      * 
      */
     public static SNPEffectHolder getMostSignificantEffect ( List<SNPEffectHolder> effects ) {
