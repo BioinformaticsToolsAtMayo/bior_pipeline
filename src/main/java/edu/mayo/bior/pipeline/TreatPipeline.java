@@ -286,12 +286,12 @@ public class TreatPipeline implements Usage, Runnable
 	@SuppressWarnings ({"rawtypes", "unchecked"})
 	private static void writeFrequencies (String vcf, String baseDir, Properties theProperties) throws IOException
 	{
-		String		genesFile = theProperties.getProperty ("genesFile");
-		String		bgiFile = theProperties.getProperty ("bgiFile");
-		String		espFile = theProperties.getProperty ("espFile");
-		String		hapMapFile = theProperties.getProperty ("hapMapFile");
-		String		dbsnpFile = theProperties.getProperty ("dbsnpFile");
-		String		genomeFile = theProperties.getProperty ("genomeFile");
+		String		genesFile = baseDir + theProperties.getProperty ("genesFile");
+		String		bgiFile = baseDir + theProperties.getProperty ("bgiFile");
+		String		espFile = baseDir + theProperties.getProperty ("espFile");
+		String		hapMapFile = baseDir + theProperties.getProperty ("hapMapFile");
+		String		dbsnpFile = baseDir + theProperties.getProperty ("dbsnpFile");
+		String		genomeFile = baseDir + theProperties.getProperty ("genomeFile");
 		String[]	geneDrill = kGeneDrill;
 		String[]	dbSnpDrill = kDbSnpDrill;
 		String[]	bgiDrill = kBgiDrill;
@@ -302,16 +302,16 @@ public class TreatPipeline implements Usage, Runnable
 		int			posCol = -1;
 //		TransformFunctionPipe<History, History>	tPipe = new TransformFunctionPipe<History, History> (new TreatPipe ());
 		Pipeline	p = new Pipeline (new CatPipe (), new HistoryInPipe (), new VCF2VariantPipe (), 
-									  new OverlapPipe (baseDir + genesFile), new DrillPipe (false, geneDrill), 
-									  new SameVariantPipe (baseDir + dbsnpFile, posCol -= geneDrill.length), 
+									  new OverlapPipe (genesFile), new DrillPipe (false, geneDrill), 
+									  new SameVariantPipe (dbsnpFile, posCol -= geneDrill.length), 
 									  new DrillPipe (false, dbSnpDrill), 
-									  new SameVariantPipe (baseDir + bgiFile, posCol -= dbSnpDrill.length), 
+									  new SameVariantPipe (bgiFile, posCol -= dbSnpDrill.length), 
 									  new DrillPipe (false, bgiDrill), 
-									  new SameVariantPipe (baseDir + espFile, posCol -= bgiDrill.length), 
+									  new SameVariantPipe (espFile, posCol -= bgiDrill.length), 
 									  new DrillPipe (false, espDrill), 
-									  new SameVariantPipe (baseDir + hapMapFile, posCol -= espDrill.length), 
+									  new SameVariantPipe (hapMapFile, posCol -= espDrill.length), 
 									  new DrillPipe (false, hapMapDrill), 
-									  new SameVariantPipe (baseDir + genomeFile, posCol -= hapMapDrill.length), 
+									  new SameVariantPipe (genomeFile, posCol -= hapMapDrill.length), 
 									  new DrillPipe (false, genomeDrill));
 //									  new HCutPipe (cut), tPipe, new HistoryOutPipe (), new PrintPipe ());
 		p.setStarts (Arrays.asList (vcf));
@@ -456,12 +456,12 @@ public class TreatPipeline implements Usage, Runnable
 		if (baseDir == null)
 			baseDir = "";
 		
-		String		genesFile = theProperties.getProperty ("genesFile");
-		String		bgiFile = theProperties.getProperty ("bgiFile");
-		String		espFile = theProperties.getProperty ("espFile");
-		String		hapMapFile = theProperties.getProperty ("hapMapFile");
-		String		dbsnpFile = theProperties.getProperty ("dbsnpFile");
-		String		genomeFile = theProperties.getProperty ("genomeFile");
+		String		genesFile = baseDir + theProperties.getProperty ("genesFile");
+		String		bgiFile = baseDir + theProperties.getProperty ("bgiFile");
+		String		espFile = baseDir + theProperties.getProperty ("espFile");
+		String		hapMapFile = baseDir + theProperties.getProperty ("hapMapFile");
+		String		dbsnpFile = baseDir + theProperties.getProperty ("dbsnpFile");
+		String		genomeFile = baseDir + theProperties.getProperty ("genomeFile");
 		String[]	geneDrill = kGeneDrill;
 		String[]	dbSnpDrill = kDbSnpDrill;
 		String[]	bgiDrill = kBgiDrill;
@@ -473,16 +473,16 @@ public class TreatPipeline implements Usage, Runnable
 		try
 		{
 			Pipeline	p = new Pipeline (new CatPipe (), new HistoryInPipe (), new VCF2VariantPipe (), 
-										  new OverlapPipe (baseDir + genesFile), new DrillPipe (false, geneDrill), 
-										  new SameVariantPipe (baseDir + dbsnpFile, posCol -= geneDrill.length), 
+										  new OverlapPipe (genesFile), new DrillPipe (false, geneDrill), 
+										  new SameVariantPipe (dbsnpFile, posCol -= geneDrill.length), 
 										  new DrillPipe (false, dbSnpDrill), 
-										  new SameVariantPipe (baseDir + bgiFile, posCol -= dbSnpDrill.length), 
+										  new SameVariantPipe (bgiFile, posCol -= dbSnpDrill.length), 
 										  new DrillPipe (false, bgiDrill), 
-										  new SameVariantPipe (baseDir + espFile, posCol -= bgiDrill.length), 
+										  new SameVariantPipe (espFile, posCol -= bgiDrill.length), 
 										  new DrillPipe (false, espDrill), 
-										  new SameVariantPipe (baseDir + hapMapFile, posCol -= espDrill.length), 
+										  new SameVariantPipe (hapMapFile, posCol -= espDrill.length), 
 										  new DrillPipe (false, hapMapDrill), 
-										  new SameVariantPipe (baseDir + genomeFile, posCol -= hapMapDrill.length), 
+										  new SameVariantPipe (genomeFile, posCol -= hapMapDrill.length), 
 										  new DrillPipe (false, genomeDrill));
 			p.setStarts (Arrays.asList (vcfFile));
 			
@@ -511,20 +511,20 @@ public class TreatPipeline implements Usage, Runnable
 		if (baseDir == null)
 			baseDir = "";
 		
-		String		genesFile = theProperties.getProperty ("genesFile");
-		String		hgncFile = theProperties.getProperty ("hgncFile");
-		String		dbsnpFile = theProperties.getProperty ("dbsnpFile");
-		String		hgncIndexFile = theProperties.getProperty ("hgncIndexFile");
-		String		omimFile = theProperties.getProperty ("omimFile");
-		String		omimIndexFile = theProperties.getProperty ("omimIndexFile");
-		String		conservationFile = theProperties.getProperty ("conservationFile");
-		String		repeatFile = theProperties.getProperty ("repeatFile");
-		String		regulationFile = theProperties.getProperty ("regulationFile");
-		String		uniqueFile = theProperties.getProperty ("uniqueFile");
-		String		tssFile = theProperties.getProperty ("tssFile");
-		String		tfbsFile = theProperties.getProperty ("tfbsFile");
-		String		enhancerFile = theProperties.getProperty ("enhancerFile");
-		String		blacklistedFile = theProperties.getProperty ("blacklistedFile");
+		String		genesFile = baseDir + theProperties.getProperty ("genesFile");
+		String		hgncFile = baseDir + theProperties.getProperty ("hgncFile");
+		String		dbsnpFile = baseDir + theProperties.getProperty ("dbsnpFile");
+		String		hgncIndexFile = baseDir + theProperties.getProperty ("hgncIndexFile");
+		String		omimFile = baseDir + theProperties.getProperty ("omimFile");
+		String		omimIndexFile = baseDir + theProperties.getProperty ("omimIndexFile");
+		String		conservationFile = baseDir + theProperties.getProperty ("conservationFile");
+		String		repeatFile = baseDir + theProperties.getProperty ("repeatFile");
+		String		regulationFile = baseDir + theProperties.getProperty ("regulationFile");
+		String		uniqueFile = baseDir + theProperties.getProperty ("uniqueFile");
+		String		tssFile = baseDir + theProperties.getProperty ("tssFile");
+		String		tfbsFile = baseDir + theProperties.getProperty ("tfbsFile");
+		String		enhancerFile = baseDir + theProperties.getProperty ("enhancerFile");
+		String		blacklistedFile = baseDir + theProperties.getProperty ("blacklistedFile");
 		String[]	geneDrill = kGeneDrill;
 		String[]	hgncDrill = kHGNCDrill;
 		String[]	dbSnpDrill = kDbSnpDrill;
@@ -542,28 +542,28 @@ public class TreatPipeline implements Usage, Runnable
 		try
 		{
 			Pipeline	p = new Pipeline (new CatPipe (), new HistoryInPipe (), new VCF2VariantPipe (), 
-										  new OverlapPipe (baseDir + genesFile), new DrillPipe (false, geneDrill), 
+										  new OverlapPipe (genesFile), new DrillPipe (false, geneDrill), 
 										  new LookupPipe (hgncFile, hgncIndexFile, (posCol -= geneDrill.length) + 1), 
 										  new DrillPipe (false, hgncDrill), 
-										  new SameVariantPipe (baseDir + dbsnpFile, posCol -= hgncDrill.length), 
+										  new SameVariantPipe (dbsnpFile, posCol -= hgncDrill.length), 
 										  new DrillPipe (false, dbSnpDrill), 
 										  new LookupPipe (omimFile, omimIndexFile, (posCol -= dbSnpDrill.length) + 1), 
 										  new DrillPipe (false, omimDrill), 
-										  new OverlapPipe (baseDir + blacklistedFile, posCol -= omimDrill.length), 
+										  new OverlapPipe (blacklistedFile, posCol -= omimDrill.length), 
 										  new DrillPipe (false, blacklistDrill), 
-										  new OverlapPipe (baseDir + conservationFile, posCol -= blacklistDrill.length), 
+										  new OverlapPipe (conservationFile, posCol -= blacklistDrill.length), 
 										  new DrillPipe (false, conservationDrill), 
-										  new OverlapPipe (baseDir + enhancerFile, posCol -= conservationDrill.length), 
+										  new OverlapPipe (enhancerFile, posCol -= conservationDrill.length), 
 										  new DrillPipe (false, enhancerDrill), 
-										  new OverlapPipe (baseDir + tfbsFile, posCol -= enhancerDrill.length), 
+										  new OverlapPipe (tfbsFile, posCol -= enhancerDrill.length), 
 										  new DrillPipe (false, tfbsDrill), 
-										  new OverlapPipe (baseDir + tssFile, posCol -= tfbsDrill.length), 
+										  new OverlapPipe (tssFile, posCol -= tfbsDrill.length), 
 										  new DrillPipe (false, tssDrill), 
-										  new OverlapPipe (baseDir + uniqueFile, posCol -= tssDrill.length), 
+										  new OverlapPipe (uniqueFile, posCol -= tssDrill.length), 
 										  new DrillPipe (false, uniqueDrill), 
-										  new OverlapPipe (baseDir + repeatFile, posCol -= uniqueDrill.length), 
+										  new OverlapPipe (repeatFile, posCol -= uniqueDrill.length), 
 										  new DrillPipe (false, repeatDrill), 
-										  new OverlapPipe (baseDir + regulationFile, posCol -= repeatDrill.length), 
+										  new OverlapPipe (regulationFile, posCol -= repeatDrill.length), 
 										  new DrillPipe (false, regulationDrill));
 			p.setStarts (Arrays.asList (vcfFile));
 			
@@ -720,8 +720,8 @@ public class TreatPipeline implements Usage, Runnable
 			String	ref = history.get (refPos);
 			String	alt = history.get (altPos);
 			int		endPos = getEndPos (pos, ref, alt);
-			String	geneName = history.get (startCol + kGeneName);
-			int		ncbiEntrezGeneID = parseInt (history.get (startCol + kNCBIEntrezGeneID));
+//			String	geneName = history.get (startCol + kGeneName);
+//			int		ncbiEntrezGeneID = parseInt (history.get (startCol + kNCBIEntrezGeneID));
 			startCol += kNCBICols;
 			String	geneSymbol = history.get (startCol + kHGNCSymbol);
 			int		entrezGeneID = parseInt (history.get (startCol + kHGNCEntrezGeneID));
