@@ -64,7 +64,6 @@ public class RSync{
   // For:  "Thu Mar 14 10:15:09.0000000000 2013"
   private SimpleDateFormat mDateFormat2= new SimpleDateFormat("EEE MMM d HH:mm:ss.SSS yyyy");
 
-  
   public static void main(String[] arg){
 	  try {
 		  Properties props = Ssh.getTempProperties();
@@ -92,17 +91,19 @@ public class RSync{
 	  System.out.println("Get local project files...");
       String startPathLocal  = new File(".").getCanonicalPath();
       ArrayList<FileInfo> localFiles  = getLocalFiles(startPathLocal);
-	  double endLocal = (double)(new Date().getTime());
+      removeTargetDir(localFiles, startPathLocal);
+	  double endLocal = System.currentTimeMillis();
 	  System.out.println("  local fetch time: " + (endLocal-endConn)/1000.0);
 
 	  System.out.println("Get remote project files (quickly)...");
-	  ArrayList<FileInfo> remoteFiles2 = getRemoteFilesQuick(sftpChannel.getSession(), startPathRemote);
-	  double endRemote2 = (double)(new Date().getTime());
+	  ArrayList<FileInfo> remoteFiles = getRemoteFilesQuick(sftpChannel.getSession(), startPathRemote);
+      removeTargetDir(remoteFiles, startPathRemote);
+	  double endRemote2 = System.currentTimeMillis();
 	  System.out.println("  remote fetch time: " + (endRemote2-endLocal)/1000.0);
 
 	  System.out.println("Sync'ing files:");
-      syncFiles(sftpChannel, localFiles, remoteFiles2, startPathRemote);
-	  double endSync = (double)(new Date().getTime());
+      syncFiles(sftpChannel, localFiles, remoteFiles, startPathRemote);
+	  double endSync = System.currentTimeMillis();
 	  System.out.println("  sync time: " + (endSync-endRemote2)/1000.0);
 
 	  uploadMavenSettingsIfNeeded(sftpChannel);
@@ -154,6 +155,7 @@ public class RSync{
 
   /** A slow way of getting the remote files (each file is a separate call to get its stats)
    *  This takes about 10 seconds per 1000 files.
+   *  This uses recursion to get all of the files, starting with the main project path
    * @param sftpChannel
    * @param fullPathToDirectory
    * @return
@@ -185,7 +187,9 @@ public class RSync{
   }
   
   /** Uses the find and printf commands to get a directory listing quickly. 
-   *  This takes only a fraction of a second per 1000 files. */
+   *  This takes only a fraction of a second per 1000 files. 
+   *  This uses recursion to get all of the files, starting with the main project path
+   */
   private ArrayList<FileInfo> getRemoteFilesQuick(Session sshSession, String fullPathToDirectory) throws JSchException, IOException, ParseException {
 	  // Prints: 
 	  //	%p = relative path  (ex: "./src/assemble/distribution.xml")
@@ -209,6 +213,17 @@ public class RSync{
 	  // subdirectories as children to each directory's FileInfo.dirContents
 	  ArrayList<FileInfo> fileList = getAllFilesInSameDir(fullPathToDirectory, lines);
 	  return fileList;
+  }
+  
+  /** Remove the target directory and all subdirectories and files from the FileInfo list so they won't get sync'd
+   *  (they get wiped out by a "mvn clean" command anyway, and would have to be updated again, so no use sync'ing them)
+   *  NOTE: This will modify the original fileInfoList that is passed in and return it */
+  private ArrayList<FileInfo> removeTargetDir(ArrayList<FileInfo> fileInfoList, String fullPathToDirectory) {
+	  for(int i=0; i < fileInfoList.size(); i++) {
+		  if( fileInfoList.get(i).path.equals(fullPathToDirectory + "/target") )
+			  fileInfoList.remove(i);
+	  }
+	  return fileInfoList;
   }
 
   private void uploadMavenSettingsIfNeeded(ChannelSftp sftpChannel) throws SftpException {
@@ -293,7 +308,7 @@ public class RSync{
 	  for(FileInfo remoteFile : remoteFiles) {
 		  FileInfo localFileMatch = getMatching(remoteFile, localFiles);
 		  if(localFileMatch == null) {
-			  //System.out.println("XXX " + remoteFile.path);
+			  print("    XXX " + remoteFile.path);
 			  mNumRemoteFilesRemoved++;
 			  removeRemoteFileOrDir(remoteFile, sftpChannel);
 		  }
@@ -308,7 +323,7 @@ public class RSync{
 			  // If doesn't exist on remote server, or the file has a different timestamp, then upload
 			  if( remoteFileMatch == null  ||  ! isSameTimestampAndSize(localFile, remoteFileMatch) ) {
 				  String remotePath = remoteParentDir + "/" + new File(localFile.path).getName();
-				  //System.out.println("+++ " + remotePath);
+				  print("    +++ " + remotePath);
 				  mNumFilesUpdated++;
 				  sftpChannel.put(localFile.path, remoteParentDir);
 				  // Set the last mod time so it matches the local file (otherwise all uploaded files will have a date of now)
@@ -317,7 +332,7 @@ public class RSync{
 				  attrs.setACMODTIME(lastModLocal, lastModLocal);
 				  sftpChannel.setStat(remotePath, attrs);
 			  } else {
-				  //System.out.println("=   " + remoteFileMatch.path);
+				  print("    =   " + remoteFileMatch.path);
 				  mNumFileEqual++;
 				  // Do nothing
 			  }
@@ -328,7 +343,7 @@ public class RSync{
 			  ArrayList<FileInfo> remoteDirListing = new ArrayList<FileInfo>();
 			  // Create remote dir if it didn't already exist
 			  if( remoteFileMatch == null ) {
-				  //System.out.println("+++ " + remoteDir + "/");
+				  print("    +++ " + remoteDir + "/");
 				  mNumFilesUpdated++;
 				  sftpChannel.mkdir(remoteDir);
 			  }

@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assume;
@@ -13,6 +15,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 
 import edu.mayo.bior.cli.func.BaseFunctionalTest;
@@ -53,6 +56,18 @@ public class VEPITCase extends RemoteFunctionalTest {
 //	public void afterEachVep() {
 //		System.out.println("AfterEach - VEP");
 //	}
+	
+	@Test
+	public void testCatalogLocationDbSnp() {
+		System.out.println("Verify that the dbSNP catalog file exists and is > 2GB...");
+		File dbSnp = new File("/data/catalogs/dbSNP/137/00-All_GRCh37.tsv.bgz");
+		Assert.assertTrue(dbSnp.exists());
+		long twoGB = (2L * 1024L * 1024L * 1024L);
+		Assert.assertTrue(dbSnp.length() > twoGB);
+		System.out.println("  Verified.");
+	}
+	
+
 	
 	@Test
     public void test() throws IOException, InterruptedException {

@@ -9,6 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.management.BadAttributeValueExpException;
@@ -41,17 +42,20 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	private static boolean mIsSharedDevServer  = false;
 	private static boolean mIsHostVerified	   = false;
 	
-
+	private Properties mDevServerProperties = null;
 
 	@BeforeClass
 	public static void beforeAll() throws Exception {
 		System.out.println("RemoteFunctionalTest.beforeAll()................");
+		System.out.println("Functional tests started at: " + new Date());
 		mIsSharedDevServer = new RemoteFunctionalTest().isOnBiorDevServer();
 
 		// If we are on the biordev server, then just return as the JUnit tests will be run individually.
 		// Else, we need to upload them to the server and execute them
-		if( mIsSharedDevServer )
+		if( mIsSharedDevServer ) {
+			System.out.println("Running on bior development server - all tests will be run locally (NOT remotely)");
 			return;
+		}
 		
 		System.out.println("Running tests remotely...");
 		new RemoteFunctionalTest().runTestsRemotely();
@@ -86,8 +90,14 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		
 		if( ! mIsHostVerified ) {
 			// Check if this is the dev server
-			String localHostname = java.net.InetAddress.getLocalHost().getHostName();
-			mIsSharedDevServer = localHostname.equalsIgnoreCase(BIOR_DEV_SERVER);
+			// Ex: hostnameShort = "biordev"
+			String hostnameShort     = java.net.InetAddress.getLocalHost().getHostName();
+			// Ex: hostnameCanonical = "biordev.mayo.edu"
+			String hostnameCanonical = java.net.InetAddress.getLocalHost().getCanonicalHostName();
+			System.out.println("Hostname:  " + hostnameShort);
+			System.out.println("Canonical: " + hostnameCanonical);
+			mIsSharedDevServer = hostnameCanonical.equalsIgnoreCase(BIOR_DEV_SERVER);
+			System.out.println("Is running on dev server?: " + mIsSharedDevServer);
 		}
 		
 		// Only run the testcase if on local system
@@ -100,16 +110,17 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	private void runTestsRemotely() throws Exception  {
 		try {
 			// Get properties for connecting to dev system (use specific user directory)
-			Properties devServerProperties = loadProperties();
+			if(mDevServerProperties == null)
+				loadProperties();
 			
-			warnUserIfFirstSync(devServerProperties);
+			warnUserIfFirstSync();
 			
 			Ssh ssh = new Ssh();
-			Session session = ssh.openSession(devServerProperties);
+			Session session = ssh.openSession(mDevServerProperties);
 	
 			// scp latest files to server  (only update files that have changed)
 			System.out.println("Sync local project to biordev server...");
-			copyProjectToServer(session, devServerProperties);
+			copyProjectToServer(session);
 			
 			System.out.println("Run the Maven build on biordev server...");
 			ArrayList<String> resultLines = runMavenBuild(session);
@@ -133,12 +144,12 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	
 	
 
-	private void warnUserIfFirstSync(Properties devServerProperties) throws BadAttributeValueExpException, IOException {
-		boolean isFirstSync = ! "false".equalsIgnoreCase(devServerProperties.getProperty(DevServerUserPropKeys.isFirstSync.toString()));
+	private void warnUserIfFirstSync() throws BadAttributeValueExpException, IOException {
+		boolean isFirstSync = ! "false".equalsIgnoreCase(mDevServerProperties.getProperty(DevServerUserPropKeys.isFirstSync.toString()));
 		if( ! isFirstSync )
 			return;
 
-		String remoteDir = devServerProperties.getProperty(DevServerUserPropKeys.devServerPath.toString());
+		String remoteDir = mDevServerProperties.getProperty(DevServerUserPropKeys.devServerPath.toString());
 		int choice = JOptionPane.showConfirmDialog(null, 
 				"WARNING!  This is the first time you have sync'd up with the biordev server!\n"
 				+ "If you continue, the remote directory " + remoteDir + "\n"
@@ -150,8 +161,8 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 			throw new BadAttributeValueExpException("User chose to cancel sync operation");
 		
 		// Update the properties so it will NOT be the firstSync
-		devServerProperties.setProperty(DevServerUserPropKeys.isFirstSync.toString(), "false");
-		saveProperties(devServerProperties);
+		mDevServerProperties.setProperty(DevServerUserPropKeys.isFirstSync.toString(), "false");
+		saveProperties();
 	}
 
 
@@ -159,9 +170,11 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	private void verifyTests(Session session, ArrayList<RemoteTestResult> testResults) throws JSchException, IOException {
 		System.out.println("\n================================================================================");
 		System.out.println("Verify test cases...");
+//      These are only run on the client side (laptop), NOT on biordev
+//		System.out.println("Java version: " + System.getProperty("java.version"));
+//		System.out.println("BIOR_LITE_HOME = " + System.getenv("BIOR_LITE_HOME"));
 		System.out.println("================================================================================");
 
-		// Verify that at least one test ran
 		int numTestsRun = 0;
 		int numErrors = 0;
 		int numSkipped = 0;
@@ -170,7 +183,21 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 			numErrors += testResult.numErrors + testResult.numFailures;
 			numSkipped += testResult.numSkipped;
 		}
-		Assert.assertTrue(numTestsRun > 0);
+		
+		// Print out the number of tests run, skipped, errored
+		System.out.println();
+		System.out.println("# tests run:     " + numTestsRun);
+		System.out.println("# test errors:   " + numErrors);
+		System.out.println("# tests skipped: " + numSkipped);
+		System.out.println();
+		
+		// Verify that at least one test ran
+		if( numTestsRun == 0 ) {
+			System.out.println("\n============================================================================");
+			System.out.println("WARNING: Zero functional tests were run!  **********************************");
+			System.out.println("============================================================================");
+			Assert.fail();
+		}
 		
 		// Verify that no tests had errors
 		if( numErrors > 0 ) {
@@ -198,9 +225,9 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	}
 
 
-	private void copyProjectToServer(Session session, Properties devServerProperties) throws JSchException, IOException, ParseException, SftpException  {
+	private void copyProjectToServer(Session session) throws JSchException, IOException, ParseException, SftpException  {
 		RSync rsync = new RSync();
-		rsync.syncSftp(session, devServerProperties);
+		rsync.syncSftp(session, mDevServerProperties);
 		
 		
 		//File projectDir = new File(".").getCanonicalFile();
@@ -210,13 +237,26 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	}
 
 
-	/** Run the "mvn clean install" command on the biordev server and return result lines
+	/** Run the "mvn clean integration-test" command on the biordev server and return result lines
 	 * @throws IOException 
-	 * @throws JSchException */
-	public ArrayList<String> runMavenBuild(Session session) throws JSchException, IOException  {
-		Properties props = Ssh.getTempProperties();
-		String projectDir = props.getProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPath.toString());
-		String cmd = "cd " + projectDir + "; mvn clean install";
+	 * @throws JSchException 
+	 * @throws MissingArgumentException */
+	public ArrayList<String> runMavenBuild(Session session) throws JSchException, IOException, MissingArgumentException  {
+		String projectDir = mDevServerProperties.getProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPath.toString());
+		// NOTE: We should remove the -X flag from the mvn command when we are done verifying 
+		//       the initial remote functional tests, since it prints out a LOT of lines
+		//       but is useful for verifying the Java version 
+		//       (Java 7 should be required to avoid the issue with Double.toString() that for "0.001" prints
+		//       "0.001" in Java 6.24, "0.0010" in Java 6.35, and "0.001" again in Java 7)
+		// BUT:  Java version is also being printed in the code at the end of the tests
+		String cmd = "source /home/mmeiners/.bashrc; "
+				+ "JAVA_HOME=/home/bior/tools/jdk1.7.0_07/; "
+				+ "PATH=/home/bior/tools/jdk1.7.0_07/bin:$PATH; "
+				+ "echo \"User dir: $HOME\"; "
+				+ "cd " + projectDir + "; "
+				+ "java -version; " 
+				+ "echo \"BIOR_LITE_HOME = $BIOR_LITE_HOME\"; "
+				+ "mvn clean integration-test";
 		ArrayList<String> output = new Ssh().runRemoteCommand(session, cmd, true);
 		return output;
 	}
@@ -225,8 +265,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	 * @throws IOException 
 	 * @throws JSchException */
 	public ArrayList<RemoteTestResult> getTestResults(Session session) throws JSchException, IOException {
-		Properties tempProps = Ssh.getTempProperties();
-		String xmlDir = tempProps.getProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPath.toString()) + "/target/surefire-reports";
+		String xmlDir = mDevServerProperties.getProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPath.toString()) + "/target/surefire-reports";
 		String cmd = "grep -R \"<testsuite\" " + xmlDir + "/*.xml";
 		ArrayList<String> output = new Ssh().runRemoteCommand(session, cmd, false);
 		ArrayList<RemoteTestResult> testResults = new ArrayList<RemoteTestResult>();
@@ -257,7 +296,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		return fullStr.substring(idx,  fullStr.indexOf(post, idx));
 	}
 	
-	private Properties loadProperties() throws MissingArgumentException, IOException {
+	private void loadProperties() throws MissingArgumentException, IOException {
 		// Check if properties file exists, if not then print a warning message about how to create it, but continue to run tests
 		if( ! new File(DEV_SERVER_PROPS_FILE).exists() ) {
 			System.err.println("ERROR:   Properties file does not exist: " + DEV_SERVER_PROPS_FILE);
@@ -271,21 +310,19 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		}
 		
 		FileInputStream fin = new FileInputStream(new File(DEV_SERVER_PROPS_FILE)); 
-		Properties devServerProps = new Properties();
-		devServerProps.load(fin);
+		mDevServerProperties = new Properties();
+		mDevServerProperties.load(fin);
 		fin.close();
 		
 		// Throw error if doesn't have all keys or values
-		ArrayList<String> missingKeys = getMissingKeys(devServerProps);
+		ArrayList<String> missingKeys = getMissingKeys();
 		if( missingKeys.size() > 0 )
 			throw new MissingArgumentException("Keys or values missing in dev server properties: " + missingKeys.toString());
-
-		return devServerProps;
 	}
 	
-	private void saveProperties(Properties devServerProperties) throws IOException {
+	private void saveProperties() throws IOException {
 		FileOutputStream fout = new FileOutputStream(DEV_SERVER_PROPS_FILE);
-		devServerProperties.store(fout, "Connection and SVN info for running remote tests on biordev development server");
+		mDevServerProperties.store(fout, "Connection and SVN info for running remote tests on biordev development server");
 		fout.close();
 	}
 
@@ -294,10 +331,10 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 
 	
 	/** Find any missing keys in the properties file that the user should add */
-	private ArrayList<String> getMissingKeys(Properties props) throws MissingArgumentException {
+	private ArrayList<String> getMissingKeys() throws MissingArgumentException {
 		ArrayList<String> missingKeys = new ArrayList<String>();
 		for(DevServerUserPropKeys key : DevServerUserPropKeys.values()) {
-			if( ! props.containsKey(key.toString()) ||  props.getProperty(key.toString()) == null )
+			if( ! mDevServerProperties.containsKey(key.toString()) ||  mDevServerProperties.getProperty(key.toString()) == null )
 				missingKeys.add(key.toString());
 		}
 		return missingKeys;
