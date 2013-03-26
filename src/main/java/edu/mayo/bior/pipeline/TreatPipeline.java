@@ -14,6 +14,7 @@ import edu.mayo.bsi.genomics.exometablebrowser.server.Usage;
 import edu.mayo.bsi.genomics.exometablebrowser.server.GetOpts.ArgType;
 import edu.mayo.bsi.genomics.exometablebrowser.server.GetOpts.OptType;
 import edu.mayo.pipes.JSON.DrillPipe;
+import edu.mayo.pipes.JSON.lookup.LookupPipe;
 import edu.mayo.pipes.JSON.tabix.*;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
@@ -32,10 +33,12 @@ public class TreatPipeline implements Usage, Runnable
 	private String				aVcfFile;
 	private String				aBaseDir;
 	private List<AlleleFreq>	theFreqs;
+	private List<VariantInfo>	theInfo;
 	
 	private static final int	kGeneName = 0;
-	private static final int	kNCBICols = kGeneName + 1;
-	private static final String[]	kGeneDrill = {"gene"}; // , "note"
+	private static final int	kNCBIEntrezGeneID = kGeneName + 1;
+	private static final int	kNCBICols = kNCBIEntrezGeneID + 1;
+	private static final String[]	kGeneDrill = {"gene", "GeneID"}; // , "note"
 	private static final int	kdbSNPBuild = 0;
 	private static final int	kdbSNPID = kdbSNPBuild + 1;
 	private static final int	kdbSNPCols = kdbSNPID + 1;
@@ -82,6 +85,38 @@ public class TreatPipeline implements Usage, Runnable
 	protected static final int	k1kGenomeCols = k1kGenomeAlt + 1;
 	private static final String[]	k1kGenomeDrill = {"INFO.AF", "INFO.EUR_AF", "INFO.ASN_AF", "INFO.AFR_AF", "INFO.AMR_AF", 
 	                             	                  "_refAllele", "_altAlleles"};
+	private static final int	kHGNCSymbol = 0;
+	private static final int	kHGNCEntrezGeneID = kHGNCSymbol + 1;
+	private static final int	kHGNCEnsemblGeneID = kHGNCEntrezGeneID + 1;
+	protected static final int	kHGNCCols = kHGNCEnsemblGeneID + 1;
+	private static final String[]	kHGNCDrill = {"Approved_Symbol", "Entrez_Gene_ID", "Ensembl_Gene_ID"};
+	private static final int	kOMIMDisorder = 0;
+	protected static final int	kOMIMCols = kOMIMDisorder + 1;
+	private static final String[]	kOMIMDrill = {"Disorders"};
+	private static final int	kBlacklistScore = 0;
+	protected static final int	kBlacklistCols = kBlacklistScore + 1;
+	private static final String[]	kBlacklistDrill = {"score"};
+	private static final int	kConservationScore = 0;
+	protected static final int	kConservationCols = kConservationScore + 1;
+	private static final String[]	kConservationDrill = {"score"};
+	private static final int	kEnhancerScore = 0;
+	protected static final int	kEnhancerCols = kEnhancerScore + 1;
+	private static final String[]	kEnhancerDrill = {"score"};
+	private static final int	kTFBSScore = 0;
+	protected static final int	kTFBSCols = kTFBSScore + 1;
+	private static final String[]	kTFBSDrill = {"score"};
+	private static final int	kTSSScore = 0;
+	protected static final int	kTSSCols = kTSSScore + 1;
+	private static final String[]	kTSSDrill = {"score"};
+	private static final int	kUniqueScore = 0;
+	protected static final int	kUniqueCols = kUniqueScore + 1;
+	private static final String[]	kUniqueDrill = {"score"};
+	private static final int	kRegulationName = 0;
+	protected static final int	kRegulationCols = kRegulationName + 1;
+	private static final String[]	kRegulationDrill = {"name"};
+	private static final int	kRepeatName = 0;
+	protected static final int	kRepeatCols = kRepeatName + 1;
+	private static final String[]	kRepeatDrill = {"repName"};
 	private static final int	kRefOffset = 0;
 	private static final int	kAltOffset = kRefOffset + 1;
 	private static final int	kTotalOffset = kAltOffset + 1;
@@ -90,9 +125,9 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	kCeuPop = 0;
 	private static final int	kYriPop = kCeuPop + 1;
 	private static final int	kAsnPop = kYriPop + 1;
-	private static final String	kRestOfHeader = "	Gene	FirstDBSNPSBuild	BGIMajorAllele	BGIMinorAllele	" +
-												"BGIMajorFrequency	BGIMinorFrequency	ESP6500CEUMAF	ESP6500AFRMAF	" +
-												"HapMapRefAllele	HapMapAltAllele	HapMapCEURefFrequency	" +
+	private static final String	kRestOfHeader = "	Gene	EntrezGeneID	FirstDBSNPSBuild	BGIMajorAllele	" +
+												"BGIMinorAllele	BGIMajorFrequency	BGIMinorFrequency	ESP6500CEUMAF	" +
+												"ESP6500AFRMAF	HapMapRefAllele	HapMapAltAllele	HapMapCEURefFrequency	" +
 												"HapMapCEUAltFrequency	HapMapYRIRefFrequency	HapMapYRIAltFrequency	" +
 												"HapMapJPT+CHBRefFrequency	HapMapJPT+CHBAltFrequency	1kGenome_allele_freq" +
 												"	1kGenome_EUR_allele_freq	1kGenome_ASN_allele_freq	" +
@@ -118,10 +153,13 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	kVersionParam = 0;
 	private static final int	kVCFParam = kVersionParam + 1;
 	private static final int	kBaseDirParam = kVCFParam + 1;
+	private static final int	kWhichDataParam = kBaseDirParam + 1;
 	private static final boolean	kConvertFromPercent = true;
 	private static final boolean	kDoNotConvert = false;
 	private static final boolean	kIsFirst = true;
 	private static final boolean	kIsNotFirst = false;
+	private static final int	kInvalidID = -1;
+	private static final int	kScoreCutoff = 500;
 	
 	
 	/**
@@ -141,6 +179,22 @@ public class TreatPipeline implements Usage, Runnable
 	
 	
 	/**
+	 * Create a Pipeline to process a VCF file with all the information BioR has to offer, and write the results to freqs
+	 * 
+	 * @param vcfFile	Path to the VCF file.  May not be null, empty, or point to a non-existent file
+	 * @param baseDir	Path to the BioR Catalog files.  If null, will use the default: /data4/bsi/refdata-new/catalogs/v1/BioR/
+	 * @param info		Synchronized List where we'll place any VariantInfo results found, must not be null.  
+	 * Will add the AlleleFreqs at the end of the List, and a null at the end when done processing the VCF file
+	 */
+	public TreatPipeline (String vcfFile, List<VariantInfo> info, String baseDir)
+	{
+		aVcfFile = vcfFile;
+		aBaseDir = baseDir;
+		theInfo = info;
+	}
+	
+	
+	/**
 	 * Normal Constructor
 	 */
 	public TreatPipeline ()
@@ -154,11 +208,19 @@ public class TreatPipeline implements Usage, Runnable
 	 */
 	public void run ()
 	{
-		getAlleleFrequencies (aVcfFile, aBaseDir, theFreqs);
+		if (theFreqs != null)
+			getAlleleFrequencies (aVcfFile, aBaseDir, theFreqs);
+		else if (theInfo != null)
+			getVariantData (aVcfFile, aBaseDir, theInfo);
 	}
 	
 	
-	@SuppressWarnings ({"javadoc", "rawtypes", "unchecked"})
+	/**
+	 * Handle a command line invocation
+	 * 
+	 * @param args	The arguments
+	 * @throws IOException
+	 */
 	public static void main (String[] args) throws IOException
 	{
 		String[]	parameters = getParameters (args);
@@ -167,6 +229,8 @@ public class TreatPipeline implements Usage, Runnable
 		
 		String	vcf = parameters[kVCFParam];
 		String	baseDir = parameters[kBaseDirParam];
+		String	whichData = parameters[kWhichDataParam];
+		boolean	doFreqs = (whichData == null);
 		File	theFile = new File (vcf);
 		if (!theFile.exists ())
 		{
@@ -186,6 +250,42 @@ public class TreatPipeline implements Usage, Runnable
 		if (baseDir == null)
 			baseDir = "";
 		
+		if (doFreqs)
+			writeFrequencies (vcf, baseDir, theProperties);
+		else
+			writeVariantInfo (vcf, baseDir, theProperties);
+	}
+	
+	
+	/**
+	 * Get the frequency information for the variants in vcf, and write it to stdout
+	 * 
+	 * @param vcf			Path to VCF file holding the variants of interest
+	 * @param baseDir		Base directory for the catalog files
+	 * @param theProperties	The properties from the Properties file
+	 * @throws IOException
+	 */
+	private static void writeVariantInfo (String vcf, String baseDir, Properties theProperties) throws IOException
+	{
+		List<VariantInfo>	info = new ArrayList<VariantInfo> ();
+		getVariantData (vcf, baseDir, theProperties, info);
+		
+		for (VariantInfo theVariant : info)
+			System.out.println (theVariant.toString ());
+	}
+	
+	
+	/**
+	 * Get the frequency information for the variants in vcf, and write it to stdout
+	 * 
+	 * @param vcf			Path to VCF file holding the variants of interest
+	 * @param baseDir		Base directory for the catalog files
+	 * @param theProperties	The properties from the Properties file
+	 * @throws IOException
+	 */
+	@SuppressWarnings ({"rawtypes", "unchecked"})
+	private static void writeFrequencies (String vcf, String baseDir, Properties theProperties) throws IOException
+	{
 		String		genesFile = theProperties.getProperty ("genesFile");
 		String		bgiFile = theProperties.getProperty ("bgiFile");
 		String		espFile = theProperties.getProperty ("espFile");
@@ -250,11 +350,6 @@ public class TreatPipeline implements Usage, Runnable
 			return;
 		}
 		
-		if (baseDir == null)
-			baseDir = theProperties.getProperty ("fileBase");
-		if (baseDir == null)
-			baseDir = "";
-		
 		getAlleleFrequencies (vcfFile, baseDir, theProperties, freqs);
 		freqs.add (null);	// Tell caller we're done
 	}
@@ -279,16 +374,44 @@ public class TreatPipeline implements Usage, Runnable
 			return null;
 		}
 		
-		if (baseDir == null)
-			baseDir = theProperties.getProperty ("fileBase");
-		if (baseDir == null)
-			baseDir = "";
-		
 		List<AlleleFreq>	freqs = new ArrayList<AlleleFreq> ();
 		getAlleleFrequencies (vcfFile, baseDir, theProperties, freqs);
 		return freqs;
 	}
 	
+	
+	/**
+	 * Get all the information that BioR has for the variants specified in the passed in VCF File, and 
+	 * put them into the passed in Synchronized List (so a different thread can extract them and do something 
+	 * with them)
+	 * 
+	 * @param vcfFile	Path to the VCF file.  May not be null, empty, or point to a non-existent file
+	 * @param baseDir	Path to the BioR Catalog files.  If null, will use the default: /data4/bsi/refdata-new/catalogs/v1/BioR/
+	 * @param info		Synchronized List where we'll place any VariantInfo results found, must not be null.  
+	 * Will add the VariantInfo at the end of the List, and a null at the end when done processing the VCF file
+	 */
+	public static void getVariantData (String vcfFile, String baseDir, List<VariantInfo> info)
+	{
+		if (info == null)
+			return;
+		
+		if ((vcfFile == null) || vcfFile.isEmpty () || !new File (vcfFile).exists ())
+		{
+			info.add (null);	// Tell caller we're done
+			return;
+		}
+		
+		Properties	theProperties = getProperties ();
+		if (theProperties == null)
+		{
+			System.out.println ("Could not load properties");
+			info.add (null);	// Tell caller we're done
+			return;
+		}
+		
+		getVariantData (vcfFile, baseDir, theProperties, info);
+		info.add (null);	// Tell caller we're done
+	}
 	
 	/**
 	 * Parse the arguments into usable parameters, returning null if there's a problem, or nothing to do
@@ -301,6 +424,7 @@ public class TreatPipeline implements Usage, Runnable
 		GetOpts.addOption ('V', "--version", ArgType.kNoArgument, kOnly);
 		GetOpts.addOption ('v', "--vcfFile", ArgType.kRequiredArgument, kRequired);
 		GetOpts.addOption ('b', "--baseDir", ArgType.kRequiredArgument, kOptional);
+		GetOpts.addOption ('i', "--variantInfo", ArgType.kNoArgument, kOptional);
 		
 		String[]	parameters = GetOpts.parseArgs (args, new TreatPipeline ());
 		if (parameters == null)
@@ -327,6 +451,11 @@ public class TreatPipeline implements Usage, Runnable
 	@SuppressWarnings ({"rawtypes", "unchecked"})
 	private static void getAlleleFrequencies (String vcfFile, String baseDir, Properties theProperties, List<AlleleFreq> freqs)
 	{
+		if (baseDir == null)
+			baseDir = theProperties.getProperty ("fileBase");
+		if (baseDir == null)
+			baseDir = "";
+		
 		String		genesFile = theProperties.getProperty ("genesFile");
 		String		bgiFile = theProperties.getProperty ("bgiFile");
 		String		espFile = theProperties.getProperty ("espFile");
@@ -367,11 +496,93 @@ public class TreatPipeline implements Usage, Runnable
 	
 	
 	/**
+	 * Get all the information that BioR has for the variants specified in the passed in VCF File
+	 * 
+	 * @param vcfFile		Path to the VCF file.  May not be null, empty, or point to a non-existent file
+	 * @param baseDir		Path to the BioR Catalog files
+	 * @param theProperties	Properties to use to get catalog names
+	 * @param info			List to fill in with the results found
+	 */
+	@SuppressWarnings ({"rawtypes", "unchecked"})
+	private static void getVariantData (String vcfFile, String baseDir, Properties theProperties, List<VariantInfo> info)
+	{
+		if (baseDir == null)
+			baseDir = theProperties.getProperty ("fileBase");
+		if (baseDir == null)
+			baseDir = "";
+		
+		String		genesFile = theProperties.getProperty ("genesFile");
+		String		hgncFile = theProperties.getProperty ("hgncFile");
+		String		dbsnpFile = theProperties.getProperty ("dbsnpFile");
+		String		hgncIndexFile = theProperties.getProperty ("hgncIndexFile");
+		String		omimFile = theProperties.getProperty ("omimFile");
+		String		omimIndexFile = theProperties.getProperty ("omimIndexFile");
+		String		conservationFile = theProperties.getProperty ("conservationFile");
+		String		repeatFile = theProperties.getProperty ("repeatFile");
+		String		regulationFile = theProperties.getProperty ("regulationFile");
+		String		uniqueFile = theProperties.getProperty ("uniqueFile");
+		String		tssFile = theProperties.getProperty ("tssFile");
+		String		tfbsFile = theProperties.getProperty ("tfbsFile");
+		String		enhancerFile = theProperties.getProperty ("enhancerFile");
+		String		blacklistedFile = theProperties.getProperty ("blacklistedFile");
+		String[]	geneDrill = kGeneDrill;
+		String[]	hgncDrill = kHGNCDrill;
+		String[]	dbSnpDrill = kDbSnpDrill;
+		String[]	omimDrill = kOMIMDrill;
+		String[]	blacklistDrill = kBlacklistDrill;
+		String[]	conservationDrill = kConservationDrill;
+		String[]	enhancerDrill = kEnhancerDrill;
+		String[]	tfbsDrill = kTFBSDrill;
+		String[]	tssDrill = kTSSDrill;
+		String[]	uniqueDrill = kUniqueDrill;
+		String[]	repeatDrill = kRepeatDrill;
+		String[]	regulationDrill = kRegulationDrill;
+		int			posCol = -1;
+		
+		try
+		{
+			Pipeline	p = new Pipeline (new CatPipe (), new HistoryInPipe (), new VCF2VariantPipe (), 
+										  new OverlapPipe (baseDir + genesFile), new DrillPipe (false, geneDrill), 
+										  new LookupPipe (hgncFile, hgncIndexFile, (posCol -= geneDrill.length) + 1), 
+										  new DrillPipe (false, hgncDrill), 
+										  new SameVariantPipe (baseDir + dbsnpFile, posCol -= hgncDrill.length), 
+										  new DrillPipe (false, dbSnpDrill), 
+										  new LookupPipe (omimFile, omimIndexFile, (posCol -= dbSnpDrill.length) + 1), 
+										  new DrillPipe (false, omimDrill), 
+										  new OverlapPipe (baseDir + blacklistedFile, posCol -= omimDrill.length), 
+										  new DrillPipe (false, blacklistDrill), 
+										  new OverlapPipe (baseDir + conservationFile, posCol -= blacklistDrill.length), 
+										  new DrillPipe (false, conservationDrill), 
+										  new OverlapPipe (baseDir + enhancerFile, posCol -= conservationDrill.length), 
+										  new DrillPipe (false, enhancerDrill), 
+										  new OverlapPipe (baseDir + tfbsFile, posCol -= enhancerDrill.length), 
+										  new DrillPipe (false, tfbsDrill), 
+										  new OverlapPipe (baseDir + tssFile, posCol -= tfbsDrill.length), 
+										  new DrillPipe (false, tssDrill), 
+										  new OverlapPipe (baseDir + uniqueFile, posCol -= tssDrill.length), 
+										  new DrillPipe (false, uniqueDrill), 
+										  new OverlapPipe (baseDir + repeatFile, posCol -= uniqueDrill.length), 
+										  new DrillPipe (false, repeatDrill), 
+										  new OverlapPipe (baseDir + regulationFile, posCol -= repeatDrill.length), 
+										  new DrillPipe (false, regulationDrill));
+			p.setStarts (Arrays.asList (vcfFile));
+			
+			parseVariants (p, posCol, regulationDrill.length, info);
+		}
+		catch (IOException oops)
+		{
+			oops.printStackTrace ();
+		}
+	}
+	
+	
+	/**
 	 * Parse the contents of the pipeline one row at a time
 	 * 
 	 * @param pipeline		Pipeline that is parsing the VCF file
 	 * @param posCol		Column before the start of the last set of data added
 	 * @param lastColCount	Count of columns added in the last set
+	 * @param freqs			List to fill in with the results found
 	 */
 	@SuppressWarnings ("rawtypes")
 	protected static void parseRows (Pipeline pipeline, int posCol, int lastColCount, List<AlleleFreq> freqs)
@@ -407,6 +618,7 @@ public class TreatPipeline implements Usage, Runnable
 			String	ref = history.get (refPos);
 			String	alt = history.get (altPos);
 //			String	geneName = history.get (startCol + kGeneName);
+//			int		entrezGeneID = parseInt (history.get (startCol + kNCBIEntrezGeneID));
 			startCol += kNCBICols;
 //			int		dbSNPBuild = parseInt (history.get (startCol + kdbSNPBuild));
 			startCol += kdbSNPCols;
@@ -472,6 +684,86 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param pipeline		Pipeline that is parsing the VCF file
 	 * @param posCol		Column before the start of the last set of data added
 	 * @param lastColCount	Count of columns added in the last set
+	 * @param info			List to fill in with the results found
+	 */
+	@SuppressWarnings ("rawtypes")
+	protected static void parseVariants (Pipeline pipeline, int posCol, int lastColCount, List<VariantInfo> info)
+	{
+		boolean	header = true;
+		int		numCols = -1;
+		int		firstCol = -1;
+		int		chromPos = -1;
+		int		positionPos = -1;
+		int		refPos = -1;
+		int		altPos = -1;
+		
+		while (pipeline.hasNext ())
+		{
+			History	history = (History) pipeline.next ();
+			if (header)
+			{
+				header = false;
+				numCols = history.size ();
+				firstCol = numCols - (lastColCount - posCol) + 1;	// Skip the history column
+				
+				int[]	poses = getPositions (kBaseStrs);
+				
+				chromPos = poses[kChromPos];
+				positionPos = poses[kPositionPos];
+				refPos = poses[kRefPos];
+				altPos = poses[kAltPos];
+			}
+			
+			int		startCol = firstCol;
+			String	chromosome = history.get (chromPos);
+			int		pos = parseInt (history.get (positionPos));
+			String	ref = history.get (refPos);
+			String	alt = history.get (altPos);
+			int		endPos = getEndPos (pos, ref, alt);
+			String	geneName = history.get (startCol + kGeneName);
+			int		ncbiEntrezGeneID = parseInt (history.get (startCol + kNCBIEntrezGeneID));
+			startCol += kNCBICols;
+			String	geneSymbol = history.get (startCol + kHGNCSymbol);
+			int		entrezGeneID = parseInt (history.get (startCol + kHGNCEntrezGeneID));
+			String	ensemblGeneID = history.get (startCol + kHGNCEnsemblGeneID);
+			startCol += kHGNCCols;
+			int		firstBuild = parseInt (history.get (startCol + kdbSNPBuild));
+			String	dbSNPsID = history.get (startCol + kdbSNPID);
+			startCol += kdbSNPCols;
+			String	omimDisease = history.get (startCol + kOMIMDisorder);
+			startCol += kOMIMCols;
+			boolean	blacklisted = isAboveCutoff (history.get (startCol + kBlacklistScore));
+			startCol += kBlacklistCols;
+			boolean	conserved = isAboveCutoff (history.get (startCol + kConservationScore));
+			startCol += kConservationCols;
+			boolean	enhancer = isAboveCutoff (history.get (startCol + kEnhancerScore));
+			startCol += kEnhancerCols;
+			boolean	tfbs = isAboveCutoff (history.get (startCol + kTFBSScore));
+			startCol += kTFBSCols;
+			boolean	tss = isAboveCutoff (history.get (startCol + kTSSScore));
+			startCol += kTSSCols;
+			boolean	unique = isAboveCutoff (history.get (startCol + kUniqueScore));
+			startCol += kUniqueCols;
+			String	name = history.get (startCol + kRepeatName);
+			boolean	repeat = !name.isEmpty ();
+			startCol += kRepeatCols;
+			name = history.get (startCol + kRegulationName);
+			boolean	regulatory = !name.isEmpty ();
+			startCol += kRegulationCols;
+			
+			info.add (new VariantInfo (chromosome, pos, endPos, ref, alt, entrezGeneID, firstBuild, geneSymbol, 
+										dbSNPsID, ensemblGeneID, omimDisease, blacklisted, conserved, enhancer, 
+										tfbs, tss, unique, repeat, regulatory));
+		}
+	}
+	
+
+	/**
+	 * Parse the contents of the pipeline one row at a time
+	 * 
+	 * @param pipeline		Pipeline that is parsing the VCF file
+	 * @param posCol		Column before the start of the last set of data added
+	 * @param lastColCount	Count of columns added in the last set
 	 */
 	@SuppressWarnings ("rawtypes")
 	protected static void writeRows (Pipeline pipeline, int posCol, int lastColCount)
@@ -517,6 +809,7 @@ public class TreatPipeline implements Usage, Runnable
 			
 			++startCol;	// Skip over the history
 			String	geneName = history.get (startCol + kGeneName);
+			int		entrezGeneID = parseInt (history.get (startCol + kNCBIEntrezGeneID));
 			startCol += kNCBICols;
 			int		dbSNPBuild = parseInt (history.get (startCol + kdbSNPBuild));
 			startCol += kdbSNPCols;
@@ -542,6 +835,7 @@ public class TreatPipeline implements Usage, Runnable
 			double	kGenomeAMRFreq = parseDouble (history.get (startCol + k1kGenomeAMR), kDoNotConvert);
 			
 			printString (geneName);
+			printInt (entrezGeneID);
 			printInt (dbSNPBuild);
 			printBGI (bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq);
 			printESPMAFs (espMafs);
@@ -606,6 +900,42 @@ public class TreatPipeline implements Usage, Runnable
 		return results;
 	}
 	
+	
+	/**
+	 * Test to see if a string is an int greater than or equal to the cutoff score
+	 * 
+	 * @param testStr	String to test
+	 * @return	True if it is, false if it isn't a valid int, or the int is too small
+	 */
+	private static final boolean isAboveCutoff (String testStr)
+	{
+		int	score = parseInt (testStr);
+		return score >= kScoreCutoff;
+	}
+
+
+	/**
+	 * Calculate the end position given the starting position and the alt and ref bases
+	 * 
+	 * @param pos	Starting position
+	 * @param ref	Reference base(s).  May be empty if an insertion, or may have one base
+	 * @param alt	Alternate base(s).  May be empty if a deletion, or may have one base
+	 * @return	-1 if an SNV, pos if a deletion, pos + mount inserted if an insertion
+	 */
+	private static int getEndPos (int pos, String ref, String alt)
+	{
+		int	refLen = ref.length ();
+		int	altLen = alt.length ();
+		
+		if (refLen == altLen)
+			return kInvalidID;
+		
+		if (refLen > altLen)	// Deletion
+			return pos;
+		
+		return pos + altLen - refLen;	// insertion size is the number of excess characters in alt
+	}
+		
 	
 	/**
 	 * Get the Ref and Alt frequencies for HapMap JPT+CHB populations
@@ -746,6 +1076,7 @@ public class TreatPipeline implements Usage, Runnable
 			}
 			
 			String	geneName = cols[startCol + kGeneName];
+			int		entrezGeneID = parseInt (cols[startCol + kNCBIEntrezGeneID]);
 			startCol += kNCBICols;
 			int		dbSNPBuild = parseInt (cols[startCol + kdbSNPBuild]);
 			startCol += kdbSNPCols;
@@ -765,6 +1096,7 @@ public class TreatPipeline implements Usage, Runnable
 			double[]	hapJptChbFreq = getCombinedFreq (cols, startCol);
 			
 			printString (geneName);
+			printInt (entrezGeneID);
 			printInt (dbSNPBuild);
 			printBGI (bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq);
 			printESPMAFs (espMafs);
@@ -1215,8 +1547,6 @@ public class TreatPipeline implements Usage, Runnable
 	 * Writes Usage information to a String.  Exists so don't have to create an object just to print Usage
 	 * 
 	 * @return	How to use this app
-		GetOpts.addOption ('v', "--vcfFile", ArgType.kRequiredArgument, kRequired);
-		GetOpts.addOption ('b', "--baseDir", ArgType.kRequiredArgument, kOptional);
 	 */
 	private static String Usage ()
 	{
@@ -1227,6 +1557,7 @@ public class TreatPipeline implements Usage, Runnable
 		usage.append ("\t-v | --vcfFile: <path to vcf file>: Path of the vcf file to parse.  Required\n");
 		usage.append ("\t-b | --baseDir: <Path to BioR Catalogs>: Path to the BioR Catalog bse directory.\n\t\t");
 		usage.append ("Optional, the default is '/data4/bsi/refdata-new/catalogs/v1/BioR/'\n");
+		usage.append ("\t-i | --variantInfo: If specified, get Variant Info.  If not, get Frequency Info\n");
 		usage.append ("\t-V | --version: Prints name and version string, then exits\n");
 		
 		return usage.toString ();
