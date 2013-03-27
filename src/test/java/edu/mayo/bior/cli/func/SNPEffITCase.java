@@ -28,6 +28,7 @@ import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFEXE;
+import edu.mayo.bior.pipeline.SNPEff.SNPEFFMerge;
 
 import edu.mayo.bior.pipeline.SNPEff.SNPEffPreProcessPipe;
 import edu.mayo.bior.pipeline.SNPEff.VCFProgram2HistoryPipe;
@@ -36,8 +37,12 @@ import edu.mayo.exec.UnixStreamCommand;
 import edu.mayo.pipes.ExecPipe;
 import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
+import edu.mayo.pipes.SplitPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.meta.BridgeOverPipe;
+import edu.mayo.pipes.pipeFunctions.StitchPipeFunction;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,8 +58,30 @@ public class SNPEffITCase {
 
         @Test
         public void testBridge(){
-            
+            System.out.println("testBridge");
+            String appendMe = "D";
+            Pipeline superviseMe = new Pipeline(new IdentityPipe());
+            BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new SNPEFFMerge());
+            Pipeline p = new Pipeline(
+                    new CatPipe(),
+                    new HistoryInPipe(),
+                    bridge, //the BridgeOverPipe
+                    new PrintPipe()
+            );
+            p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/snpEffOutput205.vcf"));
+            for(int i=0; p.hasNext(); i++){
+                History h = (History) p.next();
+                if(i==0){
+                    //assertEquals("A", r.get(0));
+
+                }
+                if(i==1){
+
+                }
+            }
         }
+    
+        
         
         
         //@Test
