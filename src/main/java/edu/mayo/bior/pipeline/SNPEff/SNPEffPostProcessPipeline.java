@@ -21,6 +21,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.pipeline.SNPEff.SNPEffHelper.InfoFieldKey;
 import edu.mayo.pipes.HeaderPipe;
+import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.JSON.DrillPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.UNIX.GrepEPipe;
@@ -73,10 +74,8 @@ public class SNPEffPostProcessPipeline {
          
         Pipe pipe = new Pipeline(
             input,
-            //new GrepEPipe("#.*"),
-            new HistoryInPipe(),
+            new VCFProgram2HistoryPipe(), //used to remove all header lines from the input 
             transform,            
-            new HistoryOutPipe(),
             output
         );
         
@@ -130,7 +129,6 @@ public class SNPEffPostProcessPipeline {
         	if (history.size() >= 7) {
         		if (history.get(7)!=null && !history.get(7).equals("")) {        			
         			rawEff = history.get(7); //last column has EFF
-        			
         			String rawEffValue = rawEff.substring(rawEff.indexOf("EFF=")+4, rawEff.length());
         			
         			List<String> allEffects = Arrays.asList(rawEffValue.split(",")); //EXON(|||), NON(|||), etc
