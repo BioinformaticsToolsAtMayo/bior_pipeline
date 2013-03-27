@@ -4,6 +4,7 @@
  */
 package edu.mayo.bior.cli.func;
 
+import com.tinkerpop.pipes.Pipe;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
@@ -24,7 +25,9 @@ import org.junit.Test;
 
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.transform.IdentityPipe;
+import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
+import edu.mayo.bior.pipeline.SNPEff.SNPEFFEXE;
 
 import edu.mayo.bior.pipeline.SNPEff.SNPEffPreProcessPipe;
 import edu.mayo.bior.pipeline.SNPEff.VCFProgram2HistoryPipe;
@@ -35,55 +38,40 @@ import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
+import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author m102417
  */
 public class SNPEffITCase {
-        private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
         private static final String SEP = System.getProperty("line.separator");
-
         public final String treatvcf = "src/test/resources/tools/treat/treatInput.vcf";
-        public final String snpeff = "/data/snpEff/snpEff_2_0_5/snpEff.jar";
-        public final String snpeffconfig = "/data/snpEff/snpEff_2_0_5/snpEff.config";
+        private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
+
+        @Test
+        public void testBridge(){
+            
+        }
         
-           //java -Xmx4g -jar /data/snpEff/snpEff_3_1/snpEff.jar eff -c /data/snpEff/snpEff_3_1/snpEff.config -v GRCh37.68 example.vcf > output.vcf
-           final String[] command = {"java", 
-               "-Xmx4g", 
-                "-jar", 
-                snpeff,
-                "eff",
-                "-c",
-                snpeffconfig,
-                "-v",
-                "GRCh37.64",
-                "-o",
-                "vcf",
-                "-noLog",
-                "-noStats"
-                //">",
-                //"/tmp/treatSNPEff.vcf"
-                //"/dev/stdout"
-           };
-
-
+        
         //@Test
         public void testExecSNPEff() throws IOException, InterruptedException{
             System.out.println("Test the raw output of a run on SNPEff");
             
            //first test to see if SNPEff is in the path and can be run..
-                String[] cmdarray = {"cat", "-n"}; //number all output lines
 		boolean useParentEnv = true;
-		Command c = new Command(command, NO_CUSTOM_ENV, useParentEnv);
-		
+		Command c = new Command(SNPEFFEXE.command, NO_CUSTOM_ENV, useParentEnv);		
 		List<String> inLines = Arrays.asList("foobar", "test"); 
 		c.execute(inLines);
-		assertEquals(1159175, c.getStdout().length());
+		//assertEquals(1159175, c.getStdout().length());
 
-                //System.out.println(c.getStderr());
+                System.out.println(c.getStderr());
                 //System.out.println(c.getStdout());
         }
+        
         
         /**
          * note: if you want to dig deep and debug this code, you probably want to set your log4j properties to:
@@ -101,28 +89,23 @@ public class SNPEffITCase {
          * @throws IOException
          * @throws InterruptedException 
          */
-        @Test
-        public void testExecSNPEffPipe() throws IOException, InterruptedException{
-            System.out.println("Test the raw output of a run on SNPEff");
-        
-            ExecPipe exe = new ExecPipe(command, true);
-            //BridgeOverPipe b = new BridgeOverPipe();
-            
+        //@Test
+        public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+            System.out.println("Test the raw output of a run on SNPEff versus the expected output (w/o header)");
+            SNPEFFEXE snp = new SNPEFFEXE();
+            Pipe t = new TransformFunctionPipe(snp);
             Pipeline p = new Pipeline(
                     new CatPipe(),               //raw file
                     new HistoryInPipe(),         //get rid of the header
-                    new SNPEffPreProcessPipe(),
-                    //new PrintPipe(),
-                    exe,
-                    new VCFProgram2HistoryPipe(),//a post process pipeline
                     new MergePipe("\t"),
+                    t,
                     //new PrintPipe()
                     new IdentityPipe()
                     );
             p.setStarts(Arrays.asList(treatvcf));
             //expected results
             BufferedReader br = new BufferedReader(new FileReader("src/test/resources/tools/snpeff/snpEffOutput205.vcf"));
-            p.next(); p.next(); p.next(); p.next();
+            //p.next(); p.next(); p.next(); p.next();
             for(int i=1;p.hasNext();i++){
                 System.out.println(i);
                 String o = (String) p.next();       //result from the pipeline
@@ -132,70 +115,18 @@ public class SNPEffITCase {
                 }
                 System.out.println("CALCULATED: " + o);
                 System.out.println("OUTPUT    : " + res);
-                //assertEquals(res,o);                           
+                assertEquals(res,o);   
+                //if(i==10) break;
             }
-            exe.shutdown();
+            snp.terminate();
         }
         
+       
         
-        //@Test
-//        public void testExecSNPEffWOPipe() throws IOException, InterruptedException{
-//            System.out.println("Test the raw output of a run on SNPEff");
-//            
-//            UnixStreamCommand cmd = new UnixStreamCommand(command, NO_CUSTOM_ENV, true,  UnixStreamCommand.StdoutBufferingMode.LINE_BUFFERED, 0);
-//            cmd.launch();
-//            
-//            BufferedReader br = new BufferedReader(new FileReader("src/test/resources/tools/snpeff/snpEffOutput205.vcf"));
-//            BufferedReader br2 = new BufferedReader(new FileReader("src/test/resources/tools/treat/treatInput.vcf"));
-//            String line;
-//            List<String> output;
-//            int count = 0;
-//            br.readLine();
-//            br.readLine();
-//            br.readLine();
-//            br2.readLine();
-//            br2.readLine();
-//            while((line = br.readLine()) != null){
-//                count++;
-//                System.out.println(line);
-//                String input = br2.readLine();
-//                if(!input.startsWith("#")){
-//                    if(count==1){
-//                        cmd.send(Arrays.asList("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" + input));
-//                    }else{
-//                        cmd.send(Arrays.asList(input));
-//                        output = cmd.receive();
-//                        System.out.println(output.get(0));
-//                        if(count >2){
-//                            assertEquals(line,output.get(0));
-//                        }
-//                    }
-//                }
-//            }
-//
-//        }
-        
-        //this sucker takes a long time to run, so we don't run it as common integration tests...
+        //this takes a long time to run, so we don't run it as common task in integration tests...
         //@Test
         public void testSNPEFF() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-
-            final String[] snpeffCmdArray =
-            	{
-            	    "java", 
-                    "-Xmx4g", 
-                     "-jar", 
-                     snpeff,
-                     "eff",
-                     "-c",
-                     snpeffconfig,
-                     "-v",
-                     "GRCh37.64",
-                     "-o",
-                     "vcf",
-                     "-noLog",
-                     "-noStats"
-                };
-            UnixStreamCommand snpeff = new UnixStreamCommand(snpeffCmdArray, NO_CUSTOM_ENV, true, true);        	
+            UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.command, NO_CUSTOM_ENV, true, true);        	
         	
         	File inputFile    = new File("src/test/resources/tools/treat/treatInput.vcf");            
             File outputFile   = new File("/tmp/snpEffOutput.vcf");
