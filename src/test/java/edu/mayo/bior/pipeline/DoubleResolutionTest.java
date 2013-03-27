@@ -48,7 +48,7 @@ public class DoubleResolutionTest {
 	
 	@Test
 	public void testDouble() {
-		String[] valStrs = new String[] {
+		String[] inputStrs = new String[] {
 				"0.0",
 				"1.0",
 				"0.1",
@@ -100,11 +100,11 @@ public class DoubleResolutionTest {
 
 		System.out.println("=============================================");
 		System.out.println("Testing many decimal points...");
-		System.out.println("Expected (String)   Actual (Double.toString()) ");
-		System.out.println("------------------- --------------------");
-		for(int i=0; i < valStrs.length; i++) {
-			System.out.println(pad(valStrs[i], 18) + "  " + new Double(valStrs[i]));
-			Assert.assertEquals(expected[i], new Double(valStrs[i]).toString());
+		System.out.println("Input                        Expected (String)   Actual (Double.toString()) ");
+		System.out.println("---------------------------- ------------------- ---------------------------");
+		for(int i=0; i < inputStrs.length; i++) {
+			System.out.println(pad(inputStrs[i], 27) + "  " + pad(expected[i], 18) + "  " + new Double(inputStrs[i]));
+			Assert.assertEquals(expected[i], new Double(inputStrs[i]).toString());
 		}
 	}
 	
