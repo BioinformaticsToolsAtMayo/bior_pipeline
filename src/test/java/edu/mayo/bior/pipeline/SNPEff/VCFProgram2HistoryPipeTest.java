@@ -63,7 +63,7 @@ public class VCFProgram2HistoryPipeTest {
                 //new PrintPipe()
                 new IdentityPipe()
                 );
-        p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/snpEffOutput205.vcf"));
+        p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/snpEffOutput205RAW.vcf"));
         for(int i=0; p.hasNext(); i++){
             String s = (String) p.next();
             if(i==0){
