@@ -54,34 +54,7 @@ import java.util.logging.Logger;
 public class SNPEffITCase {
         private static final String SEP = System.getProperty("line.separator");
         public final String treatvcf = "src/test/resources/tools/treat/treatInput.vcf";
-        private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
-
-        @Test
-        public void testBridge(){
-            System.out.println("testBridge");
-            String appendMe = "D";
-            Pipeline superviseMe = new Pipeline(new IdentityPipe());
-            BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new SNPEFFMerge());
-            Pipeline p = new Pipeline(
-                    new CatPipe(),
-                    new HistoryInPipe(),
-                    bridge, //the BridgeOverPipe
-                    new PrintPipe()
-            );
-            p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/snpEffOutput205.vcf"));
-            for(int i=0; p.hasNext(); i++){
-                History h = (History) p.next();
-                if(i==0){
-                    //assertEquals("A", r.get(0));
-
-                }
-                if(i==1){
-
-                }
-            }
-        }
-    
-        
+        private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();        
         
         
         //@Test
