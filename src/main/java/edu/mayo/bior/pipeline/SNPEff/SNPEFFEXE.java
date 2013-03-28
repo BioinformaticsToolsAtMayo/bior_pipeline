@@ -82,17 +82,13 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			throw runtimeExc;
 		} catch (Exception ex) {
 			log.error(ex);
-		} finally {
-			try {
-				terminate();
-			}catch(Exception e) {
-				log.error(e);
-			}
 		}
+		// If we make it hear, then throw a NoSuchElementException
+		// However, since this is not a normal pipe, it may not reach this point
 		throw new NoSuchElementException();
 	}
 	
-	private void terminate() throws InterruptedException{
+	public void terminate() throws InterruptedException{
 		this.snpeff.terminate();
 	}
 }

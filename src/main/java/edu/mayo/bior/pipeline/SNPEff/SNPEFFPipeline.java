@@ -31,9 +31,8 @@ public class SNPEFFPipeline extends Pipeline {
 		init(null, input, output);
 	}
 
+	private SNPEFFEXE snp;
 	public void init(String[] command, Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		SNPEFFEXE snp;
-
 		if(command == null){
 			snp = new SNPEFFEXE();
 		}else{
@@ -59,4 +58,10 @@ public class SNPEFFPipeline extends Pipeline {
 				);
 		this.setPipes(p.getPipes());
 	}
+	
+	
+	// NOTE: Make sure to call this terminate() method when the pipe is finished!!!!!
+    public void terminate() throws InterruptedException{
+        snp.terminate();
+    }
 }
