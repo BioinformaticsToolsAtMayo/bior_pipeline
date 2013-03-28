@@ -81,6 +81,10 @@ public class SNPEffPostProcessPipeline {
         
         return pipe;
 	}
+        
+        public TransformFunctionPipe getSNPEffTransformPipe(boolean showMostSignificantEffectOnly){
+            return new TransformFunctionPipe( new SNPEffTransformPipe(showMostSignificantEffectOnly) );
+        }
 	
 	/**
 	 * 
@@ -108,6 +112,7 @@ public class SNPEffPostProcessPipeline {
         	
         	return history;
         }
+        
         
         /**
          * 
