@@ -50,8 +50,7 @@ public class SNPEFFPipeline extends Pipeline {
 		BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new SNPEFFMerge());
 
 		Pipeline p = new Pipeline(
-				input,//filename-string
-				new HistoryInPipe(),//string-history
+				input,//??-history
 				bridge, //the BridgeOverPipe: history-history
 				output
 				//new PrintPipe()
