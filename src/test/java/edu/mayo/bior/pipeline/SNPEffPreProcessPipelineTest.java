@@ -27,6 +27,6 @@ public class SNPEffPreProcessPipelineTest {
 		ArrayList<String> actual = PipeTestUtils.pipeOutputToStrings2(pipe);
 		ArrayList<String> expected = (ArrayList<String>) FileCompareUtils.loadFile(
 				"src/test/resources/tools/snpeff/snpEff.preProcess.expected.1.vcf");
-		//PipeTestUtils.assertListsEqual(expected, actual);
+		PipeTestUtils.assertListsEqual(expected, actual);
 	}
 }
