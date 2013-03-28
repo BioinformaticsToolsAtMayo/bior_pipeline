@@ -128,7 +128,6 @@ public class SNPEffITCase {
 			assertEquals(res,o);   
 			//if(i==10) break;
 		}
-		snp.terminate();
 	}
 
 
