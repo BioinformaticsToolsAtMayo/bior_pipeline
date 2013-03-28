@@ -30,9 +30,10 @@ public class SNPEFFPipeline extends Pipeline {
     public SNPEFFPipeline(String[] command, Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
         init(null, input, output);
     }
-            
+           
+    private SNPEFFEXE snp;
     public void init(String[] command, Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-            SNPEFFEXE snp;
+            
             if(command == null){
                 snp = new SNPEFFEXE();
             }else{
@@ -57,6 +58,10 @@ public class SNPEFFPipeline extends Pipeline {
                     //new PrintPipe()
             );
             this.setPipes(p.getPipes());
+    }
+    
+    public void terminate() throws InterruptedException{
+        snp.terminate();
     }
     
 }
