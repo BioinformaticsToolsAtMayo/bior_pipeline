@@ -29,6 +29,7 @@ import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFEXE;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFMerge;
+import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 
 import edu.mayo.bior.pipeline.SNPEff.SNPEffPreProcessPipe;
 import edu.mayo.bior.pipeline.SNPEff.VCFProgram2HistoryPipe;
@@ -54,7 +55,16 @@ import java.util.logging.Logger;
 public class SNPEffITCase {
         private static final String SEP = System.getProperty("line.separator");
         public final String treatvcf = "src/test/resources/tools/treat/treatInput.vcf";
-        private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();        
+        private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();  
+        
+        @Test
+        public void testCompletePipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+            SNPEFFPipeline p = new SNPEFFPipeline(new CatPipe(), new PrintPipe());
+            p.setStarts(Arrays.asList(treatvcf));
+            for(int i=0; p.hasNext(); i++){
+                p.next();
+            }
+        }
         
         
         //@Test
