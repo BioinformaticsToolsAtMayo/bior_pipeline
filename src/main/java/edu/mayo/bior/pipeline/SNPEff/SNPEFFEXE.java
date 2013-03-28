@@ -77,18 +77,22 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		try {
 			snpeff.send(a);
 			return snpeff.receive();
-		} catch (IOException ex) {
+		} catch( RuntimeException runtimeExc) {
+			// Rethrow any runtime exceptions
+			throw runtimeExc;
+		} catch (Exception ex) {
 			log.error(ex);
-		} catch (InterruptedException ex) {
-			log.error(ex);
-		} catch (BrokenBarrierException ex) {
-			log.error(ex);
-		} catch (TimeoutException ex) {
-			log.error(ex);
+		} finally {
+			try {
+				terminate();
+			}catch(Exception e) {
+				log.error(e);
+			}
 		}
 		throw new NoSuchElementException();
 	}
-	public void terminate() throws InterruptedException{
+	
+	private void terminate() throws InterruptedException{
 		this.snpeff.terminate();
 	}
 }
