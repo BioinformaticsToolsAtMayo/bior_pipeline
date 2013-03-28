@@ -21,8 +21,23 @@ import java.util.concurrent.TimeoutException;
  * @author m102417
  */
 public class SNPEFFPipeline extends Pipeline {
+    public SNPEFFPipeline(String[] command) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+        init(command, new IdentityPipe(), new IdentityPipe());
+    }
     public SNPEFFPipeline(Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-            SNPEFFEXE snp = new SNPEFFEXE();
+        init(null, input, output);
+    }
+    public SNPEFFPipeline(String[] command, Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+        init(null, input, output);
+    }
+            
+    public void init(String[] command, Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+            SNPEFFEXE snp;
+            if(command == null){
+                snp = new SNPEFFEXE();
+            }else{
+                snp = new SNPEFFEXE(command);
+            }
             Pipe exe = new TransformFunctionPipe(snp);
             SNPEffPostProcessPipeline ppp = new SNPEffPostProcessPipeline(true);           
             Pipe post = ppp.getSNPEffTransformPipe(true);
