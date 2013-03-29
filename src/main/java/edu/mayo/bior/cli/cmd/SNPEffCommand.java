@@ -116,19 +116,19 @@ public class SNPEffCommand implements CommandPlugin{
 			cmdoptions.add(OPTION_NOUTR) ;
 		}
        
-		SNPEFFPipeline snpeffPipe = null;
+	
 		
-		if (cmdoptions != null) {
+		
 			
 		
-		System.out.println(cmdoptions.toString());  
+	/*	System.out.println(cmdoptions.toString());  
 		
 		String[] cmdops = (String[]) cmdoptions.toArray(new String[cmdoptions.size()]);
 		
-		snpeffPipe = new SNPEFFPipeline(cmdops);
+		snpeffPipe = new SNPEFFPipeline(cmdops); */
     
-		} else
-			snpeffPipe = new SNPEFFPipeline(null);
+
+		SNPEFFPipeline	snpeffPipe = new SNPEFFPipeline(null);
 		
 		mPipeline.execute(snpeffPipe);
 
