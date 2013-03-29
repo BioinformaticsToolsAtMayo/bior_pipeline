@@ -5,6 +5,8 @@
 package edu.mayo.bior.pipeline.SNPEff;
 
 import com.tinkerpop.pipes.AbstractPipe;
+
+import edu.mayo.pipes.exceptions.InvalidPipeInputException;
 import edu.mayo.pipes.history.History;
 import java.util.NoSuchElementException;
 
@@ -14,14 +16,14 @@ import java.util.NoSuchElementException;
  */
 public class SNPEffPreProcessPipe extends AbstractPipe<History, String> {
     
-    private int saveCol = 7;
+    private int mNumColsToSave = 7;
     
     public SNPEffPreProcessPipe(){
         
     }
     
     public SNPEffPreProcessPipe(int colsToSave){
-        saveCol = colsToSave;
+    	mNumColsToSave = colsToSave;
     }
 
     private boolean isFirst = true;
@@ -33,12 +35,15 @@ public class SNPEffPreProcessPipe extends AbstractPipe<History, String> {
     
 
 	private String getFirstSevenColumnsPlusDot(History history) {
-            //System.err.println(history.toString());
-            //if(history.size()<7){
-            //    System.err.println(history.toString());
-            //}
+		// Skip line if it has 0 cols - may be end line
+		if(history.size() == 0)
+			throw new NoSuchElementException("Blank line encountered - assuming end of input stream");
+		// Throw exception 
+		else if(history.size() < mNumColsToSave)
+			throw new InvalidPipeInputException("Number of columns in input file was less than " + mNumColsToSave, this);
+
 		StringBuilder sb = new StringBuilder();
-		for(int i=0; i<saveCol;i++){
+		for(int i=0; i<mNumColsToSave;i++){
 			sb.append(history.get(i));
 			sb.append("\t");
 	    }
