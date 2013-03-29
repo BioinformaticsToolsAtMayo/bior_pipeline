@@ -52,6 +52,7 @@ public class RSync{
   }
   
   private boolean mIsPrintSyncdFiles = true;
+  private boolean mIsPrintEqualFiles = false;
   
   private int mNumFilesTotal = 0;
   private int mNumFileEqual = 0;
@@ -332,7 +333,8 @@ public class RSync{
 				  attrs.setACMODTIME(lastModLocal, lastModLocal);
 				  sftpChannel.setStat(remotePath, attrs);
 			  } else {
-				  print("    =   " + remoteFileMatch.path);
+				  if(mIsPrintEqualFiles)
+					  print("    =   " + remoteFileMatch.path);
 				  mNumFileEqual++;
 				  // Do nothing
 			  }
