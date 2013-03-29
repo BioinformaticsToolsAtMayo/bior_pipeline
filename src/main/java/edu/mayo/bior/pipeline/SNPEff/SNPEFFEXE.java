@@ -76,13 +76,20 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 	public String compute(String a) {
 		try {
 			snpeff.send(a);
-			return snpeff.receive();
+			String result =  snpeff.receive();
+			return result;
 		} catch( RuntimeException runtimeExc) {
 			// Rethrow any runtime exceptions
+			try {
+				terminate(); 
+			} catch(Exception e) { 
+				log.error("Error terminating SNPEFFEXE pipe" + e);
+			}
 			throw runtimeExc;
 		} catch (Exception ex) {
 			log.error(ex);
 		}
+
 		// If we make it hear, then throw a NoSuchElementException
 		// However, since this is not a normal pipe, it may not reach this point
 		throw new NoSuchElementException();
