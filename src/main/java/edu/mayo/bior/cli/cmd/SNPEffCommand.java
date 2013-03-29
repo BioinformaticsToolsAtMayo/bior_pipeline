@@ -150,9 +150,9 @@ public class SNPEffCommand implements CommandPlugin{
 		
 		         
 		       System.out.println(cmdoptions.toString());  
-//		SNPEFFPipeline snpeffPipe = new SNPEFFPipeline(null);
+		SNPEFFPipeline snpeffPipe = new SNPEFFPipeline((String[]) cmdoptions.toArray());
 		
-//		mPipeline.execute(snpeffPipe);
+		mPipeline.execute(snpeffPipe);
 		
 	}
 	
