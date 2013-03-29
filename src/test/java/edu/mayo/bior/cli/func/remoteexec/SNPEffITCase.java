@@ -4,7 +4,6 @@
  */
 package edu.mayo.bior.cli.func.remoteexec;
 
-import com.tinkerpop.pipes.Pipe;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
@@ -13,7 +12,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,36 +21,27 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
-import com.tinkerpop.pipes.PipeFunction;
+import com.tinkerpop.pipes.AbstractPipe;
+import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
-import edu.mayo.bior.pipeline.SNPEff.SNPEFFEXE;
-import edu.mayo.bior.pipeline.SNPEff.SNPEFFMerge;
-import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 
-import edu.mayo.bior.pipeline.SNPEff.SNPEffPreProcessPipe;
-import edu.mayo.bior.pipeline.SNPEff.VCFProgram2HistoryPipe;
+import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
+import edu.mayo.bior.pipeline.SNPEff.SNPEFFEXE;
+import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 import edu.mayo.exec.Command;
 import edu.mayo.exec.UnixStreamCommand;
-import edu.mayo.pipes.ExecPipe;
 import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
-import edu.mayo.pipes.SplitPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
-import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
-import edu.mayo.pipes.meta.BridgeOverPipe;
-import edu.mayo.pipes.pipeFunctions.StitchPipeFunction;
-import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author m102417
  */
-public class SNPEffITCase {
+public class SNPEffITCase extends RemoteFunctionalTest {
 	private static final String SEP = System.getProperty("line.separator");
 	public final String treatvcf = "src/test/resources/tools/treat/treatInput.vcf";
 	private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();  
@@ -117,15 +106,15 @@ public class SNPEffITCase {
 		BufferedReader br = new BufferedReader(new FileReader("src/test/resources/tools/snpeff/snpEffOutput205.vcf"));
 		//p.next(); p.next(); p.next(); p.next();
 		for(int i=1;p.hasNext();i++){
-			System.out.println(i);
+			//System.out.println(i);
 			String o = (String) p.next();       //result from the pipeline
 			String res = (String) br.readLine();//result is the output file
 			while(res.startsWith("#")){//if it is a header line, skip it
 				res = (String) br.readLine();
 			}
-			System.out.println("CALCULATED: " + o);
-			System.out.println("OUTPUT    : " + res);
-			assertEquals(res,o);   
+			//System.out.println("CALCULATED: " + o);
+			//System.out.println("OUTPUT    : " + res);
+			assertEquals(res,o);
 			//if(i==10) break;
 		}
 	}
