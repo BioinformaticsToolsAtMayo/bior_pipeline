@@ -164,18 +164,26 @@ public class SNPEffPostProcessPipeline {
         					
         					if (splitValues.length > 2) {
         						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), splitValues[2]);
+        					} else {
+        						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), "");
         					}
         					
         					if (splitValues.length > 3) {
         						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), splitValues[3]);
+        					} else {
+        						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), "");
         					}
         					
         					if (splitValues.length > 4) {
         						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), splitValues[4]);
+        					} else {
+        						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), "");
         					}
         					
         					if (splitValues.length > 5) {
         						splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), splitValues[5]);
+        					} else {
+        						splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), "");
         					}
         					
         					if (splitValues.length > 6) {
@@ -232,13 +240,13 @@ public class SNPEffPostProcessPipeline {
         private String jsonize(List<String> eff){
             JsonObject jObj = new JsonObject();
             
-            for(int i=0; i<eff.size(); i++){
-            	
+            for(int i=0; i<eff.size(); i++){            	
                 if(eff.get(i).length() > 0 && headers.length >= i){
                 	//System.out.println(headers[i]);
                     jObj.addProperty(headers[i], eff.get(i));
                 }
             }
+            
             return jObj.toString();
         }
         
