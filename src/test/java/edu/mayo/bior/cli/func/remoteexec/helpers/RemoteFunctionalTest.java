@@ -169,7 +169,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 
 	private void verifyTests(Session session, ArrayList<RemoteTestResult> testResults) throws JSchException, IOException {
 		System.out.println("\n================================================================================");
-		System.out.println("Verify test cases...");
+		System.out.println("Verify functional test cases...");
 //      These are only run on the client side (laptop), NOT on biordev
 //		System.out.println("Java version: " + System.getProperty("java.version"));
 //		System.out.println("BIOR_LITE_HOME = " + System.getenv("BIOR_LITE_HOME"));
@@ -178,10 +178,12 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		int numTestsRun = 0;
 		int numErrors = 0;
 		int numSkipped = 0;
+		double runTime = 0.0;
 		for(RemoteTestResult testResult : testResults) {
 			numTestsRun += testResult.numTestsRun;
 			numErrors += testResult.numErrors + testResult.numFailures;
 			numSkipped += testResult.numSkipped;
+			runTime += testResult.runTime;
 		}
 		
 		// Print out the number of tests run, skipped, errored
@@ -189,6 +191,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		System.out.println("# tests run:     " + numTestsRun);
 		System.out.println("# test errors:   " + numErrors);
 		System.out.println("# tests skipped: " + numSkipped);
+		System.out.println("Total runtime:   " + runTime);
 		System.out.println();
 		
 		// Verify that at least one test ran
