@@ -79,14 +79,11 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			String result =  snpeff.receive();
 			return result;
 		} catch( RuntimeException runtimeExc) {
+			terminate();
 			// Rethrow any runtime exceptions
-			try {
-				terminate(); 
-			} catch(Exception e) { 
-				log.error("Error terminating SNPEFFEXE pipe" + e);
-			}
 			throw runtimeExc;
 		} catch (Exception ex) {
+			terminate();
 			log.error(ex);
 		}
 
@@ -95,7 +92,11 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		throw new NoSuchElementException();
 	}
 	
-	public void terminate() throws InterruptedException{
-		this.snpeff.terminate();
+	public void terminate() {
+		try {
+			this.snpeff.terminate();
+		} catch(Exception e) { 
+			log.error("Error terminating SNPEFFEXE pipe" + e);
+		}
 	}
 }
