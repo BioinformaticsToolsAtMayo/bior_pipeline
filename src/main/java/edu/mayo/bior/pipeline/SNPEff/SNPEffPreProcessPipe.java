@@ -46,7 +46,8 @@ public class SNPEffPreProcessPipe extends AbstractPipe<History, String> {
 		else if(history.size() < mNumColsToSave)
 			throw new InvalidPipeInputException("Line " + mLineNumber 
 					+ " (without headers): Number of columns in input file was less than " 
-					+ mNumColsToSave + ".  Actual # of columns: " + history.size(), this);
+					+ mNumColsToSave + ".\nActual # of columns: " + history.size() + "\n"
+					+ "Line: [" + history.getMergedData("\t") + "]", this);
 	}
 
 	private String getFirstXColumnsPlusDot(History history) {
