@@ -60,7 +60,7 @@ public class SNPEffCommand implements CommandPlugin{
 	public void execute(CommandLine line, Options opts) throws Exception {
 		
 		boolean onlyreg = true;
-		
+//		String[] cmdoption = new String[]; 
 		List<String> cmdoptions = new ArrayList<String>();
 		
 		        if (line.hasOption(OPTION_INPUTFORMAT)) 
@@ -149,10 +149,11 @@ public class SNPEffCommand implements CommandPlugin{
 		         }
 		
 		         
-		       System.out.println(cmdoptions.toString());  
-		SNPEFFPipeline snpeffPipe = new SNPEFFPipeline(null);
+		       System.out.println(cmdoptions.toString()); 
+		       String[] cmdops = (String[]) cmdoptions.toArray(new String[cmdoptions.size()]);
+		       SNPEFFPipeline snpeffPipe = new SNPEFFPipeline(cmdops);
 		
-		mPipeline.execute(snpeffPipe);
+		       mPipeline.execute(snpeffPipe);
 		
 	}
 	
