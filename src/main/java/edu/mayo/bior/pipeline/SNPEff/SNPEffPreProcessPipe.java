@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 public class SNPEffPreProcessPipe extends AbstractPipe<History, String> {
     
     private int mNumColsToSave = 7;
+    private int mLineNumber = 0;
     
     public SNPEffPreProcessPipe(){
         
@@ -30,18 +31,25 @@ public class SNPEffPreProcessPipe extends AbstractPipe<History, String> {
     @Override
     protected String processNextStart() throws NoSuchElementException {
     	History history = this.starts.next();
-        return getFirstSevenColumnsPlusDot(history);
+    	validateColumns(history);
+        return getFirstXColumnsPlusDot(history);
     }
     
 
-	private String getFirstSevenColumnsPlusDot(History history) {
+	private void validateColumns(History history) {
+		mLineNumber++;
+		
 		// Skip line if it has 0 cols - may be end line
 		if(history.size() == 0)
-			throw new NoSuchElementException("Blank line encountered - assuming end of input stream");
+			throw new NoSuchElementException("Line " + mLineNumber + ": Blank line encountered - assuming end of input stream");
 		// Throw exception 
 		else if(history.size() < mNumColsToSave)
-			throw new InvalidPipeInputException("Number of columns in input file was less than " + mNumColsToSave, this);
+			throw new InvalidPipeInputException("Line " + mLineNumber 
+					+ ": Number of columns in input file was less than " 
+					+ mNumColsToSave + ".  Actual # of columns: " + history.size(), this);
+	}
 
+	private String getFirstXColumnsPlusDot(History history) {
 		StringBuilder sb = new StringBuilder();
 		for(int i=0; i<mNumColsToSave;i++){
 			sb.append(history.get(i));
