@@ -21,25 +21,29 @@ import edu.mayo.pipes.meta.BridgeOverPipe;
  * @author m102417
  */
 public class SNPEFFPipeline extends Pipeline {
-	public SNPEFFPipeline(String[] command) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		init(command, new IdentityPipe(), new IdentityPipe());
+        public SNPEFFPipeline(String[] command) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+		init(command, new IdentityPipe(), new IdentityPipe(), true);
 	}
-	public SNPEFFPipeline(Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		init(null, input, output);
+    
+	public SNPEFFPipeline(String[] command, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+		init(command, new IdentityPipe(), new IdentityPipe(), pickworst);
 	}
-	public SNPEFFPipeline(String[] command, Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		init(null, input, output);
+	public SNPEFFPipeline(Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+		init(null, input, output, pickworst);
+	}
+	public SNPEFFPipeline(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+		init(null, input, output, pickworst);
 	}
 
 	private SNPEFFEXE snp;
-	public void init(String[] command, Pipe input, Pipe output) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public void init(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
 		if(command == null){
 			snp = new SNPEFFEXE();
 		}else{
 			snp = new SNPEFFEXE(command);
 		}
 		Pipe exe = new TransformFunctionPipe(snp);
-		SNPEffPostProcessPipeline ppp = new SNPEffPostProcessPipeline(true);           
+		SNPEffPostProcessPipeline ppp = new SNPEffPostProcessPipeline(pickworst);           
 		Pipe post = ppp.getSNPEffTransformPipe(true);
 		Pipeline superviseMe = new Pipeline(
 				new SNPEffPreProcessPipe(),//history-string 
