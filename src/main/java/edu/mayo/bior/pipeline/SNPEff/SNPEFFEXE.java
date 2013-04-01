@@ -60,6 +60,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			biorProps.get(Key.SnpEffConfig),
 			"-v",
 			"GRCh37.64",
+                        "-del",
 			"-o",
 			"vcf",
 			"-noLog",

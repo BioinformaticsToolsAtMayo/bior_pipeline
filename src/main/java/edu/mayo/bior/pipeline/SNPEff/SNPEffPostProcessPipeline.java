@@ -93,7 +93,7 @@ public class SNPEffPostProcessPipeline {
 	 */
 	public static class SNPEffTransformPipe implements PipeFunction<History, History> {
 
-		String parsedEffValue = null;
+		String parsedEffValue = "";
 		
 		boolean showMostSignificantEffectOnly = true;
 		
