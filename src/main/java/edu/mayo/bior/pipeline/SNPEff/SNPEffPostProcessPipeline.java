@@ -132,7 +132,7 @@ public class SNPEffPostProcessPipeline {
         	String attrib_effect = "";
         	
         	if (history.size() >= 7) {
-        		if (history.get(7)!=null && !history.get(7).equals("")) {        			
+        		if (history.get(7)!=null && !history.get(7).equals("") && history.get(7).contains("EFF=")) {        			
         			rawEff = history.get(7); //last column has EFF
         			String rawEffValue = rawEff.substring(rawEff.indexOf("EFF=")+4, rawEff.length());
         			
