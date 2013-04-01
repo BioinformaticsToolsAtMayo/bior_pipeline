@@ -4,6 +4,7 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
+import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.pipeFunctions.StitchPipeFunction;
 
@@ -12,6 +13,7 @@ import edu.mayo.pipes.pipeFunctions.StitchPipeFunction;
  * @author m102417
  */
 public class SNPEFFMerge implements StitchPipeFunction<History,History,History> {
+    private int count = 0;
     /**
      * Merge the two lists back together using whatever logic is needed (logic goes int the compute() method).
      * @param a - the array list coming out of the pipe
@@ -20,8 +22,12 @@ public class SNPEFFMerge implements StitchPipeFunction<History,History,History> 
      */
     @Override
     public History compute(History a, History b) {
+        if(count==0){
+            ColumnMetaData cmd = new ColumnMetaData("SNPEff");
+            History.getMetaData().getColumns().add(cmd);
+        }
+        count++;
         String r = a.get(a.size()-1);
-        //deal with metadata :(
         b.add(r);
         return b;
     }
