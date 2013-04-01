@@ -48,7 +48,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 
 	@Test
 	public void testCompletePipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe());
+		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),true);
 		p.setStarts(Arrays.asList(treatvcf));
 		for(int i=0; p.hasNext(); i++){
 			p.next();
