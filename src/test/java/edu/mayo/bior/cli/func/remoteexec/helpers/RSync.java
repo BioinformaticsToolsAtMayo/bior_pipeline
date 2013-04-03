@@ -237,11 +237,12 @@ public class RSync{
    * @return
    */
   private ArrayList<FileInfo> removeSvnFoldersFromList(ArrayList<FileInfo> fileInfoList) {
-	  for(int i=0; i < fileInfoList.size(); i++) {
-		  if( fileInfoList.get(i).path.endsWith("/.svn") )
+	  for(int i=fileInfoList.size()-1; i >= 0; i--) {
+		  FileInfo file = fileInfoList.get(i);
+		  if( file.path.endsWith("/.svn") )
 			  fileInfoList.remove(i);
-		  else if( fileInfoList.get(i).isDir )
-			  removeSvnFoldersFromList(fileInfoList.get(i).dirContents);
+		  else if( file.isDir )
+			  removeSvnFoldersFromList(file.dirContents);
 	  }
 	  return fileInfoList;
   }
