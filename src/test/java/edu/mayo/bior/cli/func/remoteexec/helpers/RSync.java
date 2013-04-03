@@ -92,16 +92,20 @@ public class RSync{
 	  System.out.println("Get local project files...");
       String startPathLocal  = new File(".").getCanonicalPath();
       ArrayList<FileInfo> localFiles  = getLocalFiles(startPathLocal);
-      removeTargetDir(localFiles, startPathLocal);
+      removeTargetDirFromList(localFiles, startPathLocal);
 	  double endLocal = System.currentTimeMillis();
 	  System.out.println("  local fetch time: " + (endLocal-endConn)/1000.0);
 
 	  System.out.println("Get remote project files (quickly)...");
 	  ArrayList<FileInfo> remoteFiles = getRemoteFilesQuick(sftpChannel.getSession(), startPathRemote);
-      removeTargetDir(remoteFiles, startPathRemote);
+      removeTargetDirFromList(remoteFiles, startPathRemote);
 	  double endRemote2 = System.currentTimeMillis();
 	  System.out.println("  remote fetch time: " + (endRemote2-endLocal)/1000.0);
 
+	  System.out.println("Remove .svn folders...");
+	  removeSvnFoldersFromList(localFiles);
+	  removeSvnFoldersFromList(remoteFiles);
+	  
 	  System.out.println("Sync'ing files:");
       syncFiles(sftpChannel, localFiles, remoteFiles, startPathRemote);
 	  double endSync = System.currentTimeMillis();
@@ -219,7 +223,7 @@ public class RSync{
   /** Remove the target directory and all subdirectories and files from the FileInfo list so they won't get sync'd
    *  (they get wiped out by a "mvn clean" command anyway, and would have to be updated again, so no use sync'ing them)
    *  NOTE: This will modify the original fileInfoList that is passed in and return it */
-  private ArrayList<FileInfo> removeTargetDir(ArrayList<FileInfo> fileInfoList, String fullPathToDirectory) {
+  private ArrayList<FileInfo> removeTargetDirFromList(ArrayList<FileInfo> fileInfoList, String fullPathToDirectory) {
 	  for(int i=0; i < fileInfoList.size(); i++) {
 		  if( fileInfoList.get(i).path.equals(fullPathToDirectory + "/target") )
 			  fileInfoList.remove(i);
@@ -227,6 +231,21 @@ public class RSync{
 	  return fileInfoList;
   }
 
+  /** Remove all .svn folders from the list of files (since these are not necessary to upload,
+   *  and may encounter errors because the permissions are set to "dr--r--r--")
+   * @param fileInfoList
+   * @return
+   */
+  private ArrayList<FileInfo> removeSvnFoldersFromList(ArrayList<FileInfo> fileInfoList) {
+	  for(int i=0; i < fileInfoList.size(); i++) {
+		  if( fileInfoList.get(i).path.endsWith("/.svn") )
+			  fileInfoList.remove(i);
+		  else if( fileInfoList.get(i).isDir )
+			  removeSvnFoldersFromList(fileInfoList.get(i).dirContents);
+	  }
+	  return fileInfoList;
+  }
+  
   private void uploadMavenSettingsIfNeeded(ChannelSftp sftpChannel) throws SftpException {
 	  // Get the user's home directory
 	  String settingsXmlPath = sftpChannel.getHome() + "/.m2/settings.xml";
