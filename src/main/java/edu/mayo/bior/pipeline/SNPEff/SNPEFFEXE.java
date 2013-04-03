@@ -5,7 +5,10 @@
 package edu.mayo.bior.pipeline.SNPEff;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BrokenBarrierException;
@@ -29,7 +32,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 
 	public SNPEFFEXE(String[] snpEffCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
-		snpeff = new UnixStreamCommand(snpEffCmd, NO_CUSTOM_ENV, true, true); 
+		snpeff = new UnixStreamCommand(getSnpEffCommand(snpEffCmd), NO_CUSTOM_ENV, true, true); 
 		snpeff.launch();
 		snpeff.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		//send some fake data to get the ball rolling...
@@ -43,10 +46,10 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 	}
 	
 	public SNPEFFEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		this(getSnpEffCommand());
+		this(getSnpEffCommand(null));
 	}
 	
-	public static String[] getSnpEffCommand() throws IOException {
+	public static String[] getSnpEffCommand(String[] userCmd) throws IOException {
 		// See src/main/resources/bior.properties for example file to put into your user home directory
 		BiorProperties biorProps = new BiorProperties();
 		
@@ -60,7 +63,6 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			biorProps.get(Key.SnpEffConfig),
 			"-v",
 			"GRCh37.64",
-                        "-del",
 			"-o",
 			"vcf",
 			"-noLog",
@@ -69,11 +71,24 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			//"/tmp/treatSNPEff.vcf"
 			//"/dev/stdout"
 		};
-		return command;
+		
+		if (userCmd != null) {
+			
+			return concat(command,userCmd);
+		} else {
+		
+		     return command;
+		}     
 	}
 
+	public static String[] concat(String[] A, String[] B) {
+		   List<String> list = new ArrayList<String>();
+		   list.addAll(Arrays.asList(A));
+		   list.addAll(Arrays.asList(B));
+		   return list.toArray(new String[list.size()]);
+		}
 	
-	@Override
+	
 	public String compute(String a) {
 		try {
 			snpeff.send(a);

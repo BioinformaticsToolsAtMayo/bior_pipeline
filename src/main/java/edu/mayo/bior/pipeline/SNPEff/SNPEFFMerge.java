@@ -20,7 +20,7 @@ public class SNPEFFMerge implements StitchPipeFunction<History,History,History> 
      * @param b - the array list before it went into the pipe
      * @return 
      */
-    @Override
+    
     public History compute(History a, History b) {
         if(count==0){
             ColumnMetaData cmd = new ColumnMetaData("SNPEff");

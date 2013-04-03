@@ -29,6 +29,7 @@ public class VCFProgram2HistoryPipe extends AbstractPipe<String, History> {
         StringBuilder sb = new StringBuilder();
         String line = this.starts.next();
         History h = null;
+        if (line != null) {
         if(line.startsWith("#")){
             //there is header intermingled with data...
             if(line.contains("\n")){
@@ -44,6 +45,8 @@ public class VCFProgram2HistoryPipe extends AbstractPipe<String, History> {
             }
         }else{//no newlines... create the history out of the line directly
                 h = histAppend(line.split("\t"));
+        }
+        
         }
         if(h == null){
             return processNextStart();

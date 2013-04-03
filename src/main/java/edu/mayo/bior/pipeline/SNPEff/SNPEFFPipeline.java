@@ -37,11 +37,11 @@ public class SNPEFFPipeline extends Pipeline {
 
 	private SNPEFFEXE snp;
 	public void init(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		if(command == null){
-			snp = new SNPEFFEXE();
-		}else{
+		//if(command == null){
+	//		snp = new SNPEFFEXE();
+		//}else{
 			snp = new SNPEFFEXE(command);
-		}
+	//	}
 		Pipe exe = new TransformFunctionPipe(snp);
 		SNPEffPostProcessPipeline ppp = new SNPEffPostProcessPipeline(pickworst);           
 		Pipe post = ppp.getSNPEffTransformPipe(true);
