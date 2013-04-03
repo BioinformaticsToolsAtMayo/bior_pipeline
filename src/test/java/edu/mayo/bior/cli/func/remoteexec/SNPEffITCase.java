@@ -62,7 +62,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 
 		//first test to see if SNPEff is in the path and can be run..
 		boolean useParentEnv = true;
-		Command c = new Command(SNPEFFEXE.getSnpEffCommand(), NO_CUSTOM_ENV, useParentEnv);		
+		Command c = new Command(SNPEFFEXE.getSnpEffCommand(null), NO_CUSTOM_ENV, useParentEnv);		
 		List<String> inLines = Arrays.asList("foobar", "test"); 
 		c.execute(inLines);
 		//assertEquals(1159175, c.getStdout().length());
@@ -124,7 +124,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	//this takes a long time to run, so we don't run it as common task in integration tests...
 	//@Test
 	public void testSNPEFF() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
-		UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(), NO_CUSTOM_ENV, true, true);        	
+		UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(null), NO_CUSTOM_ENV, true, true);        	
 
 		File inputFile    = new File("src/test/resources/tools/treat/treatInput.vcf");            
 		File outputFile   = new File("/tmp/snpEffOutput.vcf");
