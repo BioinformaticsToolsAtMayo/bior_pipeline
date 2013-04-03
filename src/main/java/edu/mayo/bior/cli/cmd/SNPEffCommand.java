@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.apache.log4j.Logger;
 
 import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
@@ -47,15 +48,34 @@ public class SNPEffCommand implements CommandPlugin{
 
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 
+	private static final Logger sLogger = Logger.getLogger(SNPEffCommand.class);
+
+	
 	public void init(Properties props) throws Exception {
 	}
 
 
 	public void execute(CommandLine line, Options opts) throws Exception {
+		SNPEFFPipeline snpEffPipe = null;
+		try {
+			//snpEffPipe = new SNPEFFPipeline(getCommandLineOptions(line));
+	    	snpEffPipe = new SNPEFFPipeline(null);
+			
+			mPipeline.execute(snpEffPipe);
+		} catch(Exception e) {
+			sLogger.error("Could not execute SNPEffCommand.  " + e.getMessage());
+			throw e;
+		} finally {
+			// tell SNPEFF we're done so it doesn't hang
+			if(snpEffPipe != null)
+				snpEffPipe.terminate();
+		}
+	}
+	
+	private String[] getCommandLineOptions(CommandLine line) {
+		List<String> cmdoptions = new ArrayList<String>();
 
 		boolean onlyreg = true;
-
-		List<String> cmdoptions = new ArrayList<String>();
 
 		if (line.hasOption(OPTION_INPUTFORMAT)) 
 		{
@@ -116,23 +136,7 @@ public class SNPEffCommand implements CommandPlugin{
 			cmdoptions.add(OPTION_NOUTR) ;
 		}
        
-	
-		
-		
-			
-		
-	/*	System.out.println(cmdoptions.toString());  
-		
-		String[] cmdops = (String[]) cmdoptions.toArray(new String[cmdoptions.size()]);
-		
-		snpeffPipe = new SNPEFFPipeline(cmdops); */
-    
-
-		SNPEFFPipeline	snpeffPipe = new SNPEFFPipeline(null);
-		
-		mPipeline.execute(snpeffPipe);
-
-		// tell SNPEFF we're done
-		snpeffPipe.terminate();
+		// System.out.println(cmdoptions.toString());  
+		return cmdoptions.toArray(new String[cmdoptions.size()]);
 	}
 }
