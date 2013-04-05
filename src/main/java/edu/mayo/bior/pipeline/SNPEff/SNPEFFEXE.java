@@ -273,7 +273,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 				// Get 'END' field and do some sanity check
 				end = (int) getInfoInt("END");
 				if (end < start){//throw new RuntimeException("INFO field 'END' is before varaint's 'POS'\n\tEND : " + end + "\n\tPOS : " + start);
-                                    return "INFO field 'END' is before varaint's 'POS'\n\tEND : " + end + "\n\tPOS : " + start;
+                                    return "SNPEFFERR=INFO field 'END' is before varaint's 'POS'\n\tEND : " + end + "\n\tPOS : " + start;
                                 }
                                 
 			}
@@ -319,7 +319,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			String ch = nw.getAlignment();
 			if (!ch.startsWith("-")){
                             //throw new RuntimeException("Deletion '" + ch + "' does not start with '-'. This should never happen!");
-                            return "Deletion '" + ch + "' does not start with '-'. This should never happen!";
+                            return "SNPEFFERR=Deletion '" + ch + "' does not start with '-'. This should never happen!";
                         }
 
 			return null;//new SeqChange(chromo, start + startDiff, ref, ch, strand, id, quality, coverage);
@@ -335,7 +335,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			String ref = "*";
 			if (!ch.startsWith("+")){
                             //throw new RuntimeException("Insertion '" + ch + "' does not start with '+'. This should never happen!");
-                            return "Insertion '" + ch + "' does not start with '+'. This should never happen!";
+                            return "SNPEFFERR=Insertion '" + ch + "' does not start with '+'. This should never happen!";
                         }
 
 			return null;//new SeqChange(chromo, start + startDiff, ref, ch, strand, id, quality, coverage);
@@ -343,7 +343,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 
 		// Other change type?
 		//throw new RuntimeException("Unsupported VCF change type '" + reference + "' => '" + alt + "'\nVcfEntry: " + this);
-                return "Unsupported VCF change type '" + reference + "' => '" + alt + "'\nVcfEntry: " + this.line;
+                return "SNPEFFERR=Unsupported VCF change type '" + reference + "' => '" + alt + "'\nVcfEntry: " + this.line;
 	}
         
         public String getInfo(String key) {
