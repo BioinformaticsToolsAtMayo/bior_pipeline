@@ -112,6 +112,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			String result =  snpeff.receive();
 			return result;
                     }else {
+                        log.error(error);
                         return a + "\t" + error;
                     }
 		} catch( RuntimeException runtimeExc) {
