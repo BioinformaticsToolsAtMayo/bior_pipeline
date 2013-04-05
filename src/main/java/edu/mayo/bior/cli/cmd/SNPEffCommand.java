@@ -41,6 +41,8 @@ public class SNPEffCommand implements CommandPlugin{
 	private static final String OPTION_INTERVALFILE = "interval";
 	private static final char OPTION_VERBOSE = 'v';
 	private static final char OPTION_QUIET = 'q';
+	private static final String OPTION_PICKWORST = "pickworst";
+	
 	/* BLACK LIST */
 	private static final String OPTION_BEDFILE = "fi" ;
 	private static final String OPTION_CHR = "chr";
@@ -64,8 +66,14 @@ public class SNPEffCommand implements CommandPlugin{
 
 	public void execute(CommandLine line, Options opts) throws Exception {
 		SNPEFFPipeline snpEffPipe = null;
+		boolean pickworst = Boolean.TRUE;
+		if(line.hasOption(OPTION_PICKWORST)){
+			 pickworst = Boolean.getBoolean(line.getOptionValue(OPTION_PICKWORST));
+		}
+		
 		try {
-			snpEffPipe = new SNPEFFPipeline(getCommandLineOptions(line));
+			
+			snpEffPipe = new SNPEFFPipeline(getCommandLineOptions(line),pickworst);
 	    //	snpEffPipe = new SNPEFFPipeline(null);
 			
 			mPipeline.execute(snpEffPipe);
@@ -82,15 +90,13 @@ public class SNPEffCommand implements CommandPlugin{
 	private String[] getCommandLineOptions(CommandLine line) {
 		List<String> cmdoptions = new ArrayList<String>();
 
-		boolean onlyreg = true;
-
 		if (line.hasOption(OPTION_INPUTFORMAT)) 
 		{
 			String value = line.getOptionValue(OPTION_INPUTFORMAT);
 			if(value == "vcf")  {
-				cmdoptions.add(OPTION_DASH + value);
+			//	cmdoptions.add(OPTION_DASH + value);
 			} else {
-				System.out.println("Does not support files other than VCF");	
+				sLogger.error("Does not support files other than VCF");	
 			}
 		}
 
@@ -98,9 +104,9 @@ public class SNPEffCommand implements CommandPlugin{
 			
 			String value = line.getOptionValue(OPTION_OUTPUTFORMAT);
 					if(value == "vcf")  {
-						cmdoptions.add(OPTION_DASH + value);
+				//		cmdoptions.add(OPTION_DASH + value);
 					} else {
-						System.out.println("Does not support files other than VCF");
+						sLogger.error("Does not support files other than VCF");
 						
 					}
 		}
@@ -151,43 +157,51 @@ public class SNPEffCommand implements CommandPlugin{
        
 		if (line.hasOption(OPTION_INTERVALFILE)) {
 			
-			cmdoptions.add(OPTION_DASH + OPTION_INTERVALFILE + " " + line.getOptionValue(OPTION_INTERVALFILE));
+			cmdoptions.add(OPTION_DASH + OPTION_INTERVALFILE);
+			cmdoptions.add(line.getOptionValue(OPTION_INTERVALFILE));
 		}
 		
 		if (line.hasOption(OPTION_MAXQ)) {
 			
-			cmdoptions.add(OPTION_DASH + OPTION_MAXQ + " " + Integer.parseInt(line.getOptionValue(OPTION_MAXQ)));
+			cmdoptions.add(OPTION_DASH + OPTION_MAXQ);
+			cmdoptions.add(line.getOptionValue(OPTION_MAXQ));
 		}
 	
          if (line.hasOption(OPTION_MINQ)) {
 			
-			cmdoptions.add(OPTION_DASH + OPTION_MINQ + " " + Integer.parseInt(line.getOptionValue(OPTION_MINQ)));
+			cmdoptions.add(OPTION_DASH + OPTION_MINQ);
+			cmdoptions.add(line.getOptionValue(OPTION_MINQ));
 		}
 	
          if (line.hasOption(OPTION_MAXC)) {
  			
- 			cmdoptions.add(OPTION_DASH + OPTION_MAXC + " " + Integer.parseInt(line.getOptionValue(OPTION_MAXC)));
+ 			cmdoptions.add(OPTION_DASH + OPTION_MAXC);
+ 			cmdoptions.add(line.getOptionValue(OPTION_MAXC));
  		}
  	
          if (line.hasOption(OPTION_MINC)) {
  			
- 			cmdoptions.add(OPTION_DASH + OPTION_MINC + " " + Integer.parseInt(line.getOptionValue(OPTION_MINC)));
+ 			cmdoptions.add(OPTION_DASH + OPTION_MINC);
+ 			cmdoptions.add(line.getOptionValue(OPTION_MINC));
  		}
  	
 			
            if (line.hasOption(OPTION_STATSFILE)) {
    			
-   			cmdoptions.add(OPTION_DASH + OPTION_STATSFILE + " " + line.getOptionValue(OPTION_STATSFILE));
+   			cmdoptions.add(OPTION_DASH + OPTION_STATSFILE);
+   			cmdoptions.add(line.getOptionValue(OPTION_STATSFILE));
    		}
            
            if ( line.hasOption(OPTION_UPDOWNSTREAMLENGTH)) {
           	 
-          	 cmdoptions.add(OPTION_DASH + OPTION_UPDOWNSTREAMLENGTH + " " + Integer.parseInt(line.getOptionValue(OPTION_UPDOWNSTREAMLENGTH)));
+          	 cmdoptions.add(OPTION_DASH + OPTION_UPDOWNSTREAMLENGTH);
+             cmdoptions.add(line.getOptionValue(OPTION_UPDOWNSTREAMLENGTH));
            }
    		
          if( line.hasOption(OPTION_ONLYCODING)) {
         	 
-        	 cmdoptions.add(OPTION_DASH + OPTION_ONLYCODING + " " + Boolean.getBoolean(OPTION_ONLYCODING)); 
+        	 cmdoptions.add(OPTION_DASH + OPTION_ONLYCODING ); 
+             cmdoptions.add(line.getOptionValue(OPTION_ONLYCODING));
          }
          
      /** Black List Options..There is no need for this documentation since bior says unrecognized paramater and redirects towards help  
@@ -236,18 +250,19 @@ public class SNPEffCommand implements CommandPlugin{
            **/
          
       	
-	    
+          
 	
 		
 		
-	    if (cmdoptions != null) {
-
-		       return cmdoptions.toArray(new String[cmdoptions.size()]);
-		
-		  } else {
-			
-			   return null;
-		  }
+	    if (cmdoptions != null){
+//	    	  System.out.println(cmdoptions.toString());
+	    	return cmdoptions.toArray(new String[cmdoptions.size()]);
+	    }
+	    else {
+			return null;
+	    }
+	   
+	    
 	}
 }
 
