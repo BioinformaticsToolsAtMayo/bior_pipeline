@@ -76,6 +76,11 @@
 
 
 	<dependencies>
+            <dependency>
+                    <groupId>ca.mcgill.mcb.pcingola</groupId>
+                    <artifactId>snpEff</artifactId>
+                    <version>3.1</version>
+                </dependency>
 		<dependency>
 			<groupId>edu.mayo</groupId>
 			<artifactId>pipes</artifactId>
