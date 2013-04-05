@@ -36,6 +36,9 @@ import java.util.LinkedList;
  * @author m102417
  */
 public class SNPEFFEXE implements PipeFunction<String,String>{
+    
+    //this will go in the last column of data that fails.
+    public final static String SNPEFFFAILSIGNAL = "SNPEFFFAILSIGNAL";
 
 	private static final Logger log = Logger.getLogger(UnixStreamCommand.class);
 	private UnixStreamCommand snpeff;
