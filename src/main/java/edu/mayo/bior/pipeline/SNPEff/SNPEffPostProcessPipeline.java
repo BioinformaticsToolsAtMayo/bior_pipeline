@@ -138,133 +138,132 @@ public class SNPEffPostProcessPipeline {
         	
         	try {
 	        	if (history.size() >= 7) {
-	        		if (history.get(7)!=null && !history.get(7).equals("") && history.get(7).contains("EFF=")) {        			
-	        			rawEff = history.get(7); //last column has EFF
-	        			String rawEffValue = rawEff.substring(rawEff.indexOf("EFF=")+4, rawEff.length());
+	        		if (history.get(7)!=null && !history.get(7).equals("")) {
+	        			if (history.get(7).contains("EFF=")) {        			
+	        		
+		        			rawEff = history.get(7); //last column has EFF
+		        			String rawEffValue = rawEff.substring(rawEff.indexOf("EFF=")+4, rawEff.length());
+		        			
+		        			List<String> allEffects = null;
+		        			
+		        			try {
+		        				allEffects = Arrays.asList(rawEffValue.split(",")); //EXON(|||), NON(|||), etc
+		        			} catch (Exception ex) {
+		                		log.error("SNPEffPostProcess Failed with message:: Effect values are not wellformed!!" + ex.getMessage());
+		                	}
+		        			
+		        			for (String effect : allEffects) {
+		        				attrib_effect = effect.substring(0, effect.indexOf("("));
+		        				//System.out.println("attrib_effect="+attrib_effect);
+		        				
+		        				splitEffectCoreValues = new HashMap<String, String>();
+		        				
+		        				//System.out.println(InfoFieldKey.EFFECT_KEY.getKeyName());
+		        				splitEffectCoreValues.put(InfoFieldKey.EFFECT_KEY.getKeyName(), attrib_effect);
+		        				
+		        				String effectCoreValues = effect.substring(effect.indexOf("(")+1, effect.indexOf(")"));
+		        				//System.out.println("core="+effectCoreValues);
+		        				
+		        				String[] splitValues = effectCoreValues.split(SNPEFF_EFFECT_METADATA_SUBFIELD_DELIMITER);
+		        				//System.out.println(Arrays.asList(splitValues));
+		        				
+		        				for(int i=0;i<=splitValues.length;i++) {
+		        					splitEffectCoreValues.put(InfoFieldKey.IMPACT_KEY.getKeyName(), splitValues[0]);
+		        					
+		        					if (splitValues.length > 1) {
+		        						splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), splitValues[1]);
+		        					} else {        						
+		        						splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), "");
+		        					}
+		        					
+		        					if (splitValues.length > 2) {
+		        						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), splitValues[2]);
+		        					} else {
+		        						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), "");
+		        					}
+		        					
+		        					if (splitValues.length > 3) {
+		        						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), splitValues[3]);
+		        					} else {
+		        						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), "");
+		        					}
+		        					
+		        					if (splitValues.length > 4) {
+		        						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), splitValues[4]);
+		        					} else {
+		        						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), "");
+		        					}
+		        					
+		        					if (splitValues.length > 5) {
+		        						splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), splitValues[5]);
+		        					} else {
+		        						splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), "");
+		        					}
+		        					
+		        					if (splitValues.length > 6) {
+		        						splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), splitValues[6]);
+		        					} else {        						
+		        						splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), "");
+		        					}        					
+		        					
+		        					if (splitValues.length > 7) {
+		        						splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), splitValues[7]);
+		        					} else {        						
+		        						splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), "");
+		        					}
+		        					
+		        					if (splitValues.length > 8) {        						
+		        						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), splitValues[8]);
+		        					} else {        						
+		        						//In the Effect, ExonId is the last column and is sometimes empty. In that case, add it explicitly 
+		        						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), "");
+		        					}
+		        				}
+		        				
+		        				snpEffectHolder = new SNPEffectHolder(splitEffectCoreValues);
+		        				snpEffectHolderObjs.add(snpEffectHolder);
+		        			}
+		        			
+		        			if (this.showMostSignificantEffectOnly) {
+		        				// Add only annotations for one of the most biologically-significant effect from this set:
+		        				SNPEffectHolder mostSignificantEffect = SNPEffHelper.getMostSignificantEffect(snpEffectHolderObjs);
+		        				//System.out.println("mostSignificantEffect="+mostSignificantEffect.toString());    
+		        				this.parsedEffValue = jsonize(mostSignificantEffect.getAnnotationAsList());
+		        			} else {
+		        				// get individual effects, add them to an array, build a json array (using jsonize below)
+		        				String outJson = "";
+		        				List<String> resultsJsonStrings = new ArrayList<String>();
+		        				for(SNPEffectHolder snpEffectHolderObj : snpEffectHolderObjs) {
+		        					outJson = jsonize(snpEffectHolderObj.getAnnotationAsList());
+		        					resultsJsonStrings.add(outJson);
+		        				}
+		        				
+		        				this.parsedEffValue = buildJsonArray(resultsJsonStrings);
+		        			}
+	        			} else if (history.get(7).contains("SNPEFFERR=")) {
+		        			// Parse the error message
+		        			String message = history.get(7).substring(history.get(7).indexOf("SNPEFFERR="), history.get(7).length());
+		        			//System.out.println(message);	
+		        			if (!message.equals("")) {
+		        				JsonObject jObj = new JsonObject();
+		        				jObj.addProperty("SNPEffMessage", message);
+		        				jObj.addProperty("Status", "SNPEff failed to assign function to this variant");
+		        				
+		        				//System.out.println(jObj.toString());
+		        				this.parsedEffValue = jObj.toString();
+		        			} else {
+		        				log.error("SNPEffPostProcess failed with message::Cannot retrieve error message from SNPEff results!");
+		        			}    			
 	        			
-	        			List<String> allEffects = null;
-	        			
-	        			try {
-	        				allEffects = Arrays.asList(rawEffValue.split(",")); //EXON(|||), NON(|||), etc
-	        			} catch (Exception ex) {
-	                		log.error("SNPEffPostProcess Failed with message:: Effect values are not wellformed!!");
-	                	}
-	        			
-	        			for (String effect : allEffects) {
-	        				attrib_effect = effect.substring(0, effect.indexOf("("));
-	        				//System.out.println("attrib_effect="+attrib_effect);
-	        				
-	        				splitEffectCoreValues = new HashMap<String, String>();
-	        				
-	        				//System.out.println(InfoFieldKey.EFFECT_KEY.getKeyName());
-	        				splitEffectCoreValues.put(InfoFieldKey.EFFECT_KEY.getKeyName(), attrib_effect);
-	        				
-	        				String effectCoreValues = effect.substring(effect.indexOf("(")+1, effect.indexOf(")"));
-	        				//System.out.println("core="+effectCoreValues);
-	        				
-	        				String[] splitValues = effectCoreValues.split(SNPEFF_EFFECT_METADATA_SUBFIELD_DELIMITER);
-	        				//System.out.println(Arrays.asList(splitValues));
-	        				
-	        				for(int i=0;i<=splitValues.length;i++) {
-	        					splitEffectCoreValues.put(InfoFieldKey.IMPACT_KEY.getKeyName(), splitValues[0]);
-	        					
-	        					if (splitValues.length > 1) {
-	        						splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), splitValues[1]);
-	        					} else {        						
-	        						splitEffectCoreValues.put(InfoFieldKey.FUNCTIONAL_CLASS_KEY.getKeyName(), "");
-	        					}
-	        					
-	        					if (splitValues.length > 2) {
-	        						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), splitValues[2]);
-	        					} else {
-	        						splitEffectCoreValues.put(InfoFieldKey.CODON_CHANGE_KEY.getKeyName(), "");
-	        					}
-	        					
-	        					if (splitValues.length > 3) {
-	        						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), splitValues[3]);
-	        					} else {
-	        						splitEffectCoreValues.put(InfoFieldKey.AMINO_ACID_CHANGE_KEY.getKeyName(), "");
-	        					}
-	        					
-	        					if (splitValues.length > 4) {
-	        						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), splitValues[4]);
-	        					} else {
-	        						splitEffectCoreValues.put(InfoFieldKey.GENE_NAME_KEY.getKeyName(), "");
-	        					}
-	        					
-	        					if (splitValues.length > 5) {
-	        						splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), splitValues[5]);
-	        					} else {
-	        						splitEffectCoreValues.put(InfoFieldKey.GENE_BIOTYPE_KEY.getKeyName(), "");
-	        					}
-	        					
-	        					if (splitValues.length > 6) {
-	        						splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), splitValues[6]);
-	        					} else {        						
-	        						splitEffectCoreValues.put(InfoFieldKey.CODING.getKeyName(), "");
-	        					}        					
-	        					
-	        					if (splitValues.length > 7) {
-	        						splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), splitValues[7]);
-	        					} else {        						
-	        						splitEffectCoreValues.put(InfoFieldKey.TRANSCRIPT_ID_KEY.getKeyName(), "");
-	        					}
-	        					
-	        					if (splitValues.length > 8) {        						
-	        						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), splitValues[8]);
-	        					} else {        						
-	        						//In the Effect, ExonId is the last column and is sometimes empty. In that case, add it explicitly 
-	        						splitEffectCoreValues.put(InfoFieldKey.EXON_ID_KEY.getKeyName(), "");
-	        					}
-	        				}
-	        				
-	        				snpEffectHolder = new SNPEffectHolder(splitEffectCoreValues);
-	        				snpEffectHolderObjs.add(snpEffectHolder);
-	        			}
-	        			
-	        			if (this.showMostSignificantEffectOnly) {
-	        				// Add only annotations for one of the most biologically-significant effect from this set:
-	        				SNPEffectHolder mostSignificantEffect = SNPEffHelper.getMostSignificantEffect(snpEffectHolderObjs);
-	        				//System.out.println("mostSignificantEffect="+mostSignificantEffect.toString());    
-	        				this.parsedEffValue = jsonize(mostSignificantEffect.getAnnotationAsList());
 	        			} else {
-	        				// get individual effects, add them to an array, build a json array (using jsonize below)
-	        				String outJson = "";
-	        				List<String> resultsJsonStrings = new ArrayList<String>();
-	        				for(SNPEffectHolder snpEffectHolderObj : snpEffectHolderObjs) {
-	        					outJson = jsonize(snpEffectHolderObj.getAnnotationAsList());
-	        					resultsJsonStrings.add(outJson);
-	        				}
-	        				
-	        				this.parsedEffValue = buildJsonArray(resultsJsonStrings);
+	        				log.error("SNPEffPostProcess failed with message::INFO column does not have valid EFF or SNPEFFERROR to parse!");
 	        			}
+	        			
 	        		} else {
-	        			// Parse the error message
-	        			//System.out.println("bad::"+history.get(7));
-	        			String infoColumnValue = history.get(7);
-	        			String message = "";
-	        			if (infoColumnValue.contains("Insertion")) {
-	        				message = infoColumnValue.substring(infoColumnValue.indexOf("Insertion"), infoColumnValue.length());
-	        			} else if (infoColumnValue.contains("Deletion")) {
-	        				message = infoColumnValue.substring(infoColumnValue.indexOf("Deletion"), infoColumnValue.length());
-	        			} else if (infoColumnValue.contains("Unsupported")) {
-	        				message = infoColumnValue.substring(infoColumnValue.indexOf("Unsupported"), infoColumnValue.length());
-	        			}
-	        				
-	        			if (!message.equals("")) {
-	        				JsonObject jObj = new JsonObject();
-	        				jObj.addProperty("SNPEffMessage", message);
-	        				jObj.addProperty("Status", "SNPEff failed to assign function to this variant");
-	        				
-	        				//System.out.println(jObj.toString());
-	        				this.parsedEffValue = jObj.toString();
-	        			} else {
-	        				log.error("SNPEffPostProcess failed with message::Cannot retrieve error message from SNPEff results!");
-	        			}    			
-	        			
+	        			log.error("SNPEffPostProcess failed with message::Cannot Process SNPEff Result, INFO column not found!");
 	        		}
 	        	} else {
-	        		log.error("SNPEffPostProcess::Cannot Process SNPEff Result, EFF column not found!");
+	        		log.error("SNPEffPostProcess failed with message::Cannot Process SNPEff Result, INFO column not found!");
 	        	}
 	        	
         	} catch (Exception ex) {
