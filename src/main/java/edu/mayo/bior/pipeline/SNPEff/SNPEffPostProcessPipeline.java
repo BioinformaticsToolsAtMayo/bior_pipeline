@@ -136,7 +136,7 @@ public class SNPEffPostProcessPipeline {
         	String attrib_effect = "";
         	
         	try {
-	        	if (history.size() >= 7) {
+	        	if (history.size() > 7) {
 	        		if (history.get(7)!=null && !history.get(7).equals("")) {
 	        			if (history.get(7).contains("EFF=")) {        			
 	        		
@@ -239,9 +239,9 @@ public class SNPEffPostProcessPipeline {
 		        				
 		        				parsedEff = buildJsonArray(resultsJsonStrings);
 		        			}
-	        			} else if (history.get(7).contains("SNPEFFERR=")) {
+	        			} else if (history.get(8).contains("SNPEFFERR=")) {
 		        			// Parse the error message
-		        			String message = history.get(7).substring(history.get(7).indexOf("SNPEFFERR="), history.get(7).length());
+		        			String message = history.get(8).substring(history.get(8).indexOf("SNPEFFERR="), history.get(8).length());
 		        			//System.out.println(message);	
 		        			if (!message.equals("")) {
 		        				JsonObject jObj = new JsonObject();
