@@ -58,7 +58,15 @@ public class VEPEXE implements PipeFunction<String,String>{
 	
         /**
          * e.g. 
-         * /usr/bin/perl variant_effect_predictor.pl -i /dev/stdin  -o STDOUT -dir cache -vcf --hgnc -polyphen b -sift b --offline --compress "gunzip Ðc"
+         *  /usr/bin/perl \
+         * variant_effect_predictor.pl \
+         * -i /dev/stdin  \
+         * -o STDOUT \
+         * -dir cache \
+         * -vcf --hgnc -polyphen b -sift b \
+         * --offline \
+         * --compress \
+         * "gunzip -c" 
          * @param bufferSize
          * @return 
          */
