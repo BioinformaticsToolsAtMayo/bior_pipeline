@@ -52,10 +52,10 @@ public class SNPEFFEXETest {
         String line = "";
         String s;
         boolean status;
-        while(line != null){
+        for(int i=0;line != null;i++){
             line = br.readLine();
             
-            if(line != null){
+            if(line != null && i > 1){
                 //System.out.println(line);
                 s = snp.canCreateSeqChange(line);
                 //System.out.println(s);
