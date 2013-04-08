@@ -59,7 +59,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	
 	@Test
 	public void testCatalogLocationDbSnp() {
-		System.out.println("Verify that the dbSNP catalog file exists and is > 2GB...");
+		System.out.println("VEPITCase.testCatalogLocationDbSnp(): Verify that the dbSNP catalog file exists and is > 2GB...");
 		File dbSnp = new File("/data/catalogs/dbSNP/137/00-All_GRCh37.tsv.bgz");
 		Assert.assertTrue(dbSnp.exists());
 		long twoGB = (2L * 1024L * 1024L * 1024L);
@@ -71,6 +71,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	
 	@Test
     public void test() throws IOException, InterruptedException {
+		System.out.println("VEPITCase.test(): testing sample VEP vcf file");
 		// NOTE:  This test case should only run on biordev - where it can run VEP
 		String stdin = loadFile(new File("src/test/resources/tools/vep/vepsample.vcf"));
 
