@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- *
+ *  Converts the raw output of some program that works on VCF to history objects
  * @author m102417
  */
 public class VCFProgram2HistoryPipe extends AbstractPipe<String, History> {
