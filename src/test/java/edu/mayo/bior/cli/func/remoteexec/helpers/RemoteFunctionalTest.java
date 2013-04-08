@@ -73,9 +73,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	public void beforeEach() {
 		// Only run individual JUnit tests if on biordev box
 		if(! mIsDevServer)
-			System.out.println("Not running on the biordev server, tests will be executed all at once by the beforeAll() method...");
-		else
-			System.out.println("Running on biordev server.  Tests executed normally()................");
+			System.out.println("    Not running on the biordev server, tests will be executed all at once by the beforeAll() method...");
 
 		// Testcase will only execute if on biordev server,
 		Assume.assumeTrue(mIsDevServer);
