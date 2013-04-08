@@ -87,7 +87,13 @@ public abstract class BaseFunctionalTest {
 		}
 		
 		if (homeFolder == null) {
-			throw new FileNotFoundException("Unable to locate target/bior_pipeline-<version> distribution folder");
+			String msg = "Error!  Unable to locate target/bior_pipeline-<version> distribution folder\n"
+					+ "Try running:\n"
+					+ "  cd bior_pipeline\n"
+					+ "  mvn clean package\n"
+					+ "  source setupEnv.sh";
+			System.err.println(msg);
+			throw new FileNotFoundException(msg);
 		}
 		
 		return homeFolder;
