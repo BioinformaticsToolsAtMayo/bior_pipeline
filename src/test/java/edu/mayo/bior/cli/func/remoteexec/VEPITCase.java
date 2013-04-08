@@ -17,10 +17,22 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
+import com.tinkerpop.pipes.transform.IdentityPipe;
+import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.cli.func.BaseFunctionalTest;
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
+import edu.mayo.bior.pipeline.VEP.VEPEXE;
+import edu.mayo.pipes.MergePipe;
+import edu.mayo.pipes.PrintPipe;
+import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.history.HistoryInPipe;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Arrays;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.TimeoutException;
 
 /** Required steps before being able to run these command:
  *  1) SSH to DragonRider dev server and setup the functestuser user
@@ -56,8 +68,59 @@ public class VEPITCase extends RemoteFunctionalTest {
 //	public void afterEachVep() {
 //		System.out.println("AfterEach - VEP");
 //	}
+    
+    	/**
+	 * note: if you want to dig deep and debug this code, you probably want to set your log4j properties to:
+	 * ##active
+           ## log4j configuration used during build and unit tests
+           #log4j.rootLogger=DEBUG, console
+           #log4j.threshhold=ALL
+
+           ## console appender logs to STDOUT
+           #log4j.appender.console=org.apache.log4j.ConsoleAppender
+           ##log4j.appender.console.layout=org.apache.log4j.PatternLayout
+           #log4j.appender.console.layout.ConversionPattern=%d [%t] %-5p %c - %m%n
+	 * 
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException 
+	 */
+	//@Test
+	public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+		System.out.println("Test the raw output of a run on SNPEff versus the expected output (w/o header)");
+		VEPEXE vep = new VEPEXE();
+		//Pipe t = new TransformFunctionPipe(snp);
+		Pipeline p = new Pipeline(
+				new CatPipe(),               //raw file
+				new HistoryInPipe(),         //get rid of the header
+				new MergePipe("\t"),
+				//t,
+				new PrintPipe()
+				//new IdentityPipe()
+				);
+		p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
+		//expected results
+		BufferedReader br = new BufferedReader(new FileReader("src/test/resources/tools/vep/example.vcf.vep"));
+                String expected = "";
+                while(expected != null){
+                    expected = br.readLine();
+                    System.out.println(expected);
+                }
+//		for(int i=1;p.hasNext();i++){
+//			//System.out.println(i);
+//			String o = (String) p.next();       //result from the pipeline
+//			String res = (String) br.readLine();//result is the output file
+//			while(res.startsWith("#")){//if it is a header line, skip it
+//				res = (String) br.readLine();
+//			}
+//			//System.out.println("CALCULATED: " + o);
+//			//System.out.println("OUTPUT    : " + res);
+//			assertEquals(res,o);
+//			//if(i==10) break;
+//		}
+	}
 	
-	@Test
+	//@Test
 	public void testCatalogLocationDbSnp() {
 		System.out.println("VEPITCase.testCatalogLocationDbSnp(): Verify that the dbSNP catalog file exists and is > 2GB...");
 		File dbSnp = new File("/data/catalogs/dbSNP/137/00-All_GRCh37.tsv.bgz");
@@ -69,7 +132,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	
 
 	
-	@Test
+    //@Test
     public void test() throws IOException, InterruptedException {
 		System.out.println("VEPITCase.test(): testing sample VEP vcf file");
 		// NOTE:  This test case should only run on biordev - where it can run VEP

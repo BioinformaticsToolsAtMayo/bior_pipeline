@@ -4,6 +4,7 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.pipes.MergePipe;

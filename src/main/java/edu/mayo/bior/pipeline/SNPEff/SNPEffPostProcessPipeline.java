@@ -4,6 +4,7 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

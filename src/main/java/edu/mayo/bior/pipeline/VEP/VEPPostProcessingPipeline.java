@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.mayo.bior.pipeline;
+package edu.mayo.bior.pipeline.VEP;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

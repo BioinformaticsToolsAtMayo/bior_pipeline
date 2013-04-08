@@ -4,6 +4,7 @@
  */
 package edu.mayo.bior.pipeline;
 
+import edu.mayo.bior.pipeline.VEP.VEPPostProcessingPipeline;
 import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.tinkerpop.pipes.Pipe;
@@ -12,7 +13,7 @@ import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.pipeline.UnixStreamPipelineTest.AppendSuffixPipe;
-import edu.mayo.bior.pipeline.VEPPostProcessingPipeline.FixSiftandPolyphen;
+import edu.mayo.bior.pipeline.VEP.VEPPostProcessingPipeline.FixSiftandPolyphen;
 import edu.mayo.pipes.JSON.Delim2JSONPipe;
 import edu.mayo.pipes.JSON.DrillPipe;
 import edu.mayo.pipes.JSON.FanPipe;

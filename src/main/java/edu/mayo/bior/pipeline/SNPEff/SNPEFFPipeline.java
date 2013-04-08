@@ -4,6 +4,7 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import java.io.IOException;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
