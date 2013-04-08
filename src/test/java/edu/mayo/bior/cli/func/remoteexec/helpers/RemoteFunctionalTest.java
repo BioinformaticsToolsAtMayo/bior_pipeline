@@ -30,6 +30,12 @@ import com.jcraft.jsch.SftpException;
 import edu.mayo.bior.cli.func.BaseFunctionalTest;
 
 public class RemoteFunctionalTest extends BaseFunctionalTest {
+	
+	/** NOTE: All tests must be listed here if they are to be run!!!! */
+	private Class[] REMOTE_TESTS = {
+		edu.mayo.bior.cli.func.remoteexec.SNPEffITCase.class,
+		edu.mayo.bior.cli.func.remoteexec.VEPITCase.class
+	};
 
 	public enum DevServerUserPropKeys { 
 		devServerName, devServerUsername, devServerPassword, devServerPath, isFirstSync,
@@ -39,7 +45,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	public final String EXAMPLE_PROPS_FILE    = "src/test/resources/remoteexec/bior.devserver.example.properties";
 	public final String BIOR_DEV_SERVER		  = "biordev.mayo.edu";
 	
-	private static boolean mIsSharedDevServer  = false;
+	private static boolean mIsDevServer  = false;
 	private static boolean mIsHostVerified	   = false;
 	
 	private Properties mDevServerProperties = null;
@@ -48,11 +54,11 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	public static void beforeAll() throws Exception {
 		System.out.println("RemoteFunctionalTest.beforeAll()................");
 		System.out.println("Functional tests started at: " + new Date());
-		mIsSharedDevServer = new RemoteFunctionalTest().isOnBiorDevServer();
+		mIsDevServer = new RemoteFunctionalTest().isOnBiorDevServer();
 
 		// If we are on the biordev server, then just return as the JUnit tests will be run individually.
 		// Else, we need to upload them to the server and execute them
-		if( mIsSharedDevServer ) {
+		if( mIsDevServer ) {
 			System.out.println("Running on bior development server - all tests will be run locally (NOT remotely)");
 			return;
 		}
@@ -65,12 +71,14 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 
 	@Before
 	public void beforeEach() {
-		System.out.println("RemoteFunctionalTest.beforeEach()................");
 		// Only run individual JUnit tests if on biordev box
-		if(! mIsSharedDevServer)
-			System.out.println("Not running on the biordev server, so skipping test case for now...");
+		if(! mIsDevServer)
+			System.out.println("Not running on the biordev server, tests will be executed all at once by the beforeAll() method...");
+		else
+			System.out.println("Running on biordev server.  Tests executed normally()................");
+
 		// Testcase will only execute if on biordev server,
-		Assume.assumeTrue(mIsSharedDevServer);
+		Assume.assumeTrue(mIsDevServer);
 	}
 	
 //	@AfterClass
@@ -96,12 +104,12 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 			String hostnameCanonical = java.net.InetAddress.getLocalHost().getCanonicalHostName();
 			System.out.println("Hostname:  " + hostnameShort);
 			System.out.println("Canonical: " + hostnameCanonical);
-			mIsSharedDevServer = hostnameCanonical.equalsIgnoreCase(BIOR_DEV_SERVER);
-			System.out.println("Is running on dev server?: " + mIsSharedDevServer);
+			mIsDevServer = hostnameCanonical.equalsIgnoreCase(BIOR_DEV_SERVER);
+			System.out.println("Is running on dev server?: " + mIsDevServer);
 		}
 		
 		// Only run the testcase if on local system
-		return mIsSharedDevServer;
+		return mIsDevServer;
 	}
 
 	/** We are probably on a laptop or user system and thus need to copy all current
@@ -252,6 +260,8 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		//       (Java 7 should be required to avoid the issue with Double.toString() that for "0.001" prints
 		//       "0.001" in Java 6.24, "0.0010" in Java 6.35, and "0.001" again in Java 7)
 		// BUT:  Java version is also being printed in the code at the end of the tests
+		// NOTE: See this about running integration tests without unit tests:
+		//       http://stackoverflow.com/questions/6612344/prevent-unit-tests-in-maven-but-allow-integration-tests
 		String cmd = "source /home/mmeiners/.bashrc; "
 				+ "JAVA_HOME=/home/bior/tools/jdk1.7.0_07/; "
 				+ "PATH=/home/bior/tools/jdk1.7.0_07/bin:$PATH; "
@@ -259,10 +269,42 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 				+ "cd " + projectDir + "; "
 				+ "java -version; " 
 				+ "echo \"BIOR_LITE_HOME = $BIOR_LITE_HOME\"; "
-				+ "mvn clean integration-test";
+				+ "mvn clean package -DskipTests=true; "
+				+ "source setupEnv.sh; "
+				+ "mvn test " + getAllRemoteFunctionalTestsStr() + "; "
+				//+ "mvn clean integration-test -Dtest=SomePatternThatDoesntMatchAnything -DfailIfNoTests=false";
+				//+ "mvn clean integration-test";
+				;
 		ArrayList<String> output = new Ssh().runRemoteCommand(session, cmd, true);
 		return output;
 	}
+	
+	/** Ex:  "-Dtest=SNPEffITCase,VEPITCase"
+	 *  If you want to execute just a single test method, you can change the return string to:
+	 *  "-Dtest=SNPEffITCase#testBadVariants"
+	 * @return
+	 */
+	private String getAllRemoteFunctionalTestsStr() {
+		String remoteTests = "-Dtest=";
+		for(Class testClass : REMOTE_TESTS) {
+			remoteTests += testClass.getName() + ",";
+		}
+		if(remoteTests.endsWith(","))
+			remoteTests.substring(0, remoteTests.length()-1);
+		
+		//ArrayList<String> remoteTests = new ArrayList<String>();
+		
+		//this.getClass().getResource("edu.mayo.bior.cli.func.remoteexec");
+		
+//		ClassPath clsPath = new ClassPath();
+//		
+//		Reflections reflections = new Reflections("my.project.prefix");
+//
+//		 Set<Class<? extends Object>> allClasses = 
+//		     reflections.getSubTypesOf(Object.class);
+		return remoteTests;
+	}
+	
 	
 	/** Get the results from running "mvn clean install" on biordev 
 	 * @throws IOException 
