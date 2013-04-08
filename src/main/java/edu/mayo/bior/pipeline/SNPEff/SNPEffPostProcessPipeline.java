@@ -98,8 +98,6 @@ public class SNPEffPostProcessPipeline {
 	 */
 	public static class SNPEffTransformPipe implements PipeFunction<History, History> {
 
-		String parsedEffValue = "";
-		
 		boolean showMostSignificantEffectOnly = true;
 		
 		public SNPEffTransformPipe(boolean showMostSignificantEffectOnly) {
@@ -110,7 +108,7 @@ public class SNPEffPostProcessPipeline {
         public History compute(History history) {
             //throw new UnsupportedOperationException("Not supported yet.");
         	
-        	this.parseEFFColumnData(history);
+        	String parsedEffValue = this.parseEFFColumnData(history);
         	
         	//add the parsed-effect-value as a json string to the end of history
         	history.add(parsedEffValue);
@@ -125,9 +123,10 @@ public class SNPEffPostProcessPipeline {
          * @return parses the EFF column data from the SNPEff output file and returns either 
          * the 'most-significant-effect-as-a-json-string or all-effects-as-a-string-of-json-arrays 
          */
-        private void parseEFFColumnData(History history) {
+        private String parseEFFColumnData(History history) {
         	
         	String rawEff="";
+        	String parsedEff="";
         	
         	Map<String, String> splitEffectCoreValues;
         	List<SNPEffectHolder> snpEffectHolderObjs = new ArrayList<SNPEffectHolder>();
@@ -228,7 +227,7 @@ public class SNPEffPostProcessPipeline {
 		        				// Add only annotations for one of the most biologically-significant effect from this set:
 		        				SNPEffectHolder mostSignificantEffect = SNPEffHelper.getMostSignificantEffect(snpEffectHolderObjs);
 		        				//System.out.println("mostSignificantEffect="+mostSignificantEffect.toString());    
-		        				this.parsedEffValue = jsonize(mostSignificantEffect.getAnnotationAsList());
+		        				parsedEff = jsonize(mostSignificantEffect.getAnnotationAsList());
 		        			} else {
 		        				// get individual effects, add them to an array, build a json array (using jsonize below)
 		        				String outJson = "";
@@ -238,7 +237,7 @@ public class SNPEffPostProcessPipeline {
 		        					resultsJsonStrings.add(outJson);
 		        				}
 		        				
-		        				this.parsedEffValue = buildJsonArray(resultsJsonStrings);
+		        				parsedEff = buildJsonArray(resultsJsonStrings);
 		        			}
 	        			} else if (history.get(7).contains("SNPEFFERR=")) {
 		        			// Parse the error message
@@ -250,7 +249,7 @@ public class SNPEffPostProcessPipeline {
 		        				jObj.addProperty("Status", "SNPEff failed to assign function to this variant");
 		        				
 		        				//System.out.println(jObj.toString());
-		        				this.parsedEffValue = jObj.toString();
+		        				parsedEff = jObj.toString();
 		        			} else {
 		        				log.error("SNPEffPostProcess failed with message::Cannot retrieve error message from SNPEff results!");
 		        			}    			
@@ -269,6 +268,8 @@ public class SNPEffPostProcessPipeline {
         	} catch (Exception ex) {
         		log.error("SNPEffPostProcess Failed with message::" + ex.getMessage());
         	}
+        	
+        	return parsedEff;
         }
        
 
