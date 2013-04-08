@@ -97,6 +97,10 @@ public class BiorProperties {
         return prop.getProperty(key.toString());
     }
     
+    public String get(String key){
+        return prop.getProperty(key);
+    }
+    
     public Set<String> keySet(){
         return this.prop.stringPropertyNames();
     }
