@@ -45,7 +45,7 @@ public class SNPEFFPipeline extends Pipeline {
 	//	}
 		Pipe exe = new TransformFunctionPipe(snp);
 		SNPEffPostProcessPipeline ppp = new SNPEffPostProcessPipeline(pickworst);           
-		Pipe post = ppp.getSNPEffTransformPipe(true);
+		Pipe post = ppp.getSNPEffTransformPipe(pickworst);
 		Pipeline superviseMe = new Pipeline(
 				new SNPEffPreProcessPipe(),//history-string 
 				exe,//string-string
