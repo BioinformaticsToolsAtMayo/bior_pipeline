@@ -128,7 +128,6 @@ public class VEPEXE implements PipeFunction<String,String>{
 	}
 
 	
-	@Override
 	public String compute(String a) {
 		try {
 			vep.send(a);
