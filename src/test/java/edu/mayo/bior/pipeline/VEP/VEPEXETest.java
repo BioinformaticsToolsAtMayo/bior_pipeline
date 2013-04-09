@@ -55,6 +55,7 @@ public class VEPEXETest {
      * Test of getVEPCommand method, of class VEPEXE.
      */
     //@Test
+    // TODO: Disabled until Dan can refactor
     public void testGetVEPCommand() throws Exception {
         System.out.println("getVEPCommand");
         String bufferSize = "";
@@ -83,7 +84,8 @@ public class VEPEXETest {
 	 * @throws IOException
 	 * @throws InterruptedException 
 	 */
-	@Test
+	//@Test
+    // TODO: Disabled until Dan can refactor
 	public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
 		System.out.println("Test the raw output of a run on SNPEff versus the expected output (w/o header)");
 		VEPEXE vep = new VEPEXE(VEPEXE.getVEPMac("1"));
