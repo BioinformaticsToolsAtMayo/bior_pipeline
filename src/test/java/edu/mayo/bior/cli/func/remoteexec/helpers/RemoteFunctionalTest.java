@@ -260,7 +260,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		// BUT:  Java version is also being printed in the code at the end of the tests
 		// NOTE: See this about running integration tests without unit tests:
 		//       http://stackoverflow.com/questions/6612344/prevent-unit-tests-in-maven-but-allow-integration-tests
-		String cmd = "source /home/mmeiners/.bashrc; "
+		String cmd = "source ~/.bashrc; "
 				+ "JAVA_HOME=/home/bior/tools/jdk1.7.0_07/; "
 				+ "PATH=/home/bior/tools/jdk1.7.0_07/bin:$PATH; "
 				+ "echo \"User dir: $HOME\"; "
