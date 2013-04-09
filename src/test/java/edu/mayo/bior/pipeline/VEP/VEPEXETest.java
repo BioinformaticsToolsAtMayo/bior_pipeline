@@ -102,23 +102,23 @@ public class VEPEXETest {
 		//expected results
 		BufferedReader br = new BufferedReader(new FileReader("src/test/resources/tools/vep/example.vcf.vep.correct"));
                                                                         
-                String expected = "";
-                String res = "";
-                
-                //remove the header
-                br.readLine();
-                br.readLine();
-                br.readLine();
-                
-                while(expected != null){
-                    expected = br.readLine();
-                    if(expected == null) break;
-                    System.out.println("Expected: " + expected);
-                    res = (String) p.next();
-                    System.out.println("Result: " + res);
-                    assertEquals(expected, res);
-                }
-                
+		String expected = "";
+		String res = "";
+
+		//remove the header
+		br.readLine();
+		br.readLine();
+		br.readLine();
+
+		while(expected != null){
+			expected = br.readLine();
+			if(expected == null) break;
+			System.out.println("Expected: " + expected);
+			res = (String) p.next();
+			System.out.println("Result: " + res);
+			assertEquals(expected, res);
+		}
+
 	}
 
 
