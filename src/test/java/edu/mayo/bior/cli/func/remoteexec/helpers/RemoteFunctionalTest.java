@@ -350,9 +350,8 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	}
 	
 	public ArrayList<String> getTestErrors(Session session) throws JSchException, IOException {
-		Properties tempProps = Ssh.getTempProperties();
-		String xmlDir = tempProps.getProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPath.toString()) + "/target/surefire-reports";
-		String cmd = "grep -B 1 -A 5 \"<failure\" " + xmlDir + "/*.xml";
+		String xmlDir = mDevServerProperties.getProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPath.toString()) + "/target/surefire-reports";
+		String cmd = "egrep  -B 1 -A 10 \"<failure|<error\" " + xmlDir + "/*.xml";
 		ArrayList<String> output = new Ssh().runRemoteCommand(session, cmd, false);
 		return output;
 	}
