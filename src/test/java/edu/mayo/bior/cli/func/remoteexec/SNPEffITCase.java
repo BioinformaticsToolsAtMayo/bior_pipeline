@@ -29,6 +29,7 @@ import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFEXE;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
+import edu.mayo.bior.pipeline.SNPEff.SNPEffOutputTest;
 import edu.mayo.exec.UnixStreamCommand;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.exceptions.InvalidPipeInputException;
@@ -68,15 +69,27 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	public void treatVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.treatVcf(): standard/simple treat vcf file...");
-		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),true);
+		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), true);
 		p.setStarts(Arrays.asList("src/test/resources/tools/treat/treatInput.vcf"));
 		List<String> actual = PipeTestUtils.pipeOutputToStrings(p);
 		//List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/treat/snpEffOutput.vcf");
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/treat.expected.vcf");
-		printOutput(actual);
+		//printOutput(actual);
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
 
+	// PASSED!!!
+	@Test
+	public void blackListedFlag() throws IOException, InterruptedException {
+		System.out.println("\n-----------------------------------------------------");
+		System.out.println("SNPEffITCase.blackListedFlag(): testing SnpEff by command line...");
+		// NOTE:  This test case should only run on biordev - where it can run VEP
+		String stdin = loadFile(new File("src/test/resources/tools/snpeff/variantsSingleAndMultiChange.vcf"));
+
+		CommandOutput out = executeScript("bior_snpeff", stdin, "-fi");
+		Assert.assertTrue(out.stderr.contains("Unrecognized option: -fi"));
+	}
+	
 	// PASSED!!!
 	@Test
 	/** Test the command line for SNPEff */
@@ -90,7 +103,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 
 		assertEquals(out.stderr, 0, out.exit);
 
-		printOutput(Arrays.asList(out.stdout));
+		//printOutput(Arrays.asList(out.stdout));
 
 		String expected = loadFile(new File("src/test/resources/tools/snpeff/variantsSingleAndMultiChange.expected.vcf"));
 		assertEquals(expected, out.stdout);
@@ -148,7 +161,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 
 		// Compare the output
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/exeOnly_noMultiIndels.expected.vcf");
-		printOutput(actualOutput);
+		//printOutput(actualOutput);
 		PipeTestUtils.assertListsEqual(expected, actualOutput);
 	}
 	
@@ -164,17 +177,17 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	public void significantEffects() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.significantEffects(): testing variants that have more rare outputs so we can tell if lines match up between bior_snpeff output and the expected output from the jar command...");
-		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),false);
-		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/funcClassNotNone.input.vcf"));
+		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), false);
+		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/significantEffects.input.vcf"));
 		List<String> biorActualOutput = PipeTestUtils.pipeOutputToStrings(p);
-		List<String> expectedFromCmdJar = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/funcClassNotNone_cmdJar.expected.vcf");
-		printOutput(biorActualOutput);
+		List<String> expectedFromCmdJar = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/significantEffects_cmdJar.expected.vcf");
+		//printOutput(biorActualOutput);
 		assertCommandJarOutputEquivalentToBiorOutput(expectedFromCmdJar, biorActualOutput);
 	}
 	
 
 
-	
+	// PASSED!!!
 	@Test
 	/** Test a series of bad (or potentially bad) variants.
 	 *  These shouldn't stop the pipeline, but may give odd or unexpected results */
@@ -185,7 +198,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/badVariants.vcf"));
 		List<String> actual = PipeTestUtils.pipeOutputToStrings(p);
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/badVariants.expected.vcf");
-		printOutput(actual);
+		//printOutput(actual);
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
 	
@@ -219,12 +232,12 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 			EFF=DOWNSTREAM(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000393691|),DOWNSTREAM(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000461221|),DOWNSTREAM(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000468300|),DOWNSTREAM(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000471181|),DOWNSTREAM(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000491747|),DOWNSTREAM(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000493795|),UTR_3_PRIME(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000309486|),UTR_3_PRIME(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000346315|),UTR_3_PRIME(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000351666|),UTR_3_PRIME(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000352993|),UTR_3_PRIME(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000354071|),UTR_3_PRIME(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000357654|),UTR_3_PRIME(MODIFIER||||BRCA1|protein_coding|CODING|ENST00000412061|)
 	    to
 			{"Effect":"DOWNSTREAM","Effect_impact":"MODIFIER","Functional_class":"NONE","Gene_name":"BRCA1","Gene_bioType":"protein_coding","Coding":"CODING","Transcript":"ENST00000393691"}
+	 * @throws IOException 
 	*/
-	private void assertCommandJarOutputEquivalentToBiorOutput(List<String> cmdJarExpectedOutput, List<String> biorActualOutput) {
-
-		// TODO: Phani was working on this part.....
-		
-		Assert.fail("Comparison not yet implemented");
+	private void assertCommandJarOutputEquivalentToBiorOutput(List<String> cmdJarExpectedOutput, List<String> biorActualOutput) throws IOException {
+		SNPEffOutputTest compare = new SNPEffOutputTest();
+		boolean isSame = compare.testOutput(cmdJarExpectedOutput, biorActualOutput);
+		Assert.assertTrue(isSame);
 	}
 	
 	private void printOutput(List<String> output) {
