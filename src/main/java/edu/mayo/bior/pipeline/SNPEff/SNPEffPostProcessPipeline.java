@@ -127,7 +127,7 @@ public class SNPEffPostProcessPipeline {
         private String parseEFFColumnData(History history) {
         	
         	String rawEff="";
-        	String parsedEff="";
+        	String parsedEff="{}"; //default the cloumn with empty JSON
         	
         	Map<String, String> splitEffectCoreValues;
         	List<SNPEffectHolder> snpEffectHolderObjs = new ArrayList<SNPEffectHolder>();
