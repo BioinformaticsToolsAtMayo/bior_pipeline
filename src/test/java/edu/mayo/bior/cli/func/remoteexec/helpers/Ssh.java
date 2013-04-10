@@ -50,7 +50,7 @@ public class Ssh {
 		Properties props = new Properties();
 		props.setProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerName.toString(),     "biordev.mayo.edu");
 		props.setProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerUsername.toString(), "mmeiners");
-		props.setProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPassword.toString(), "bior$pass");
+		props.setProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPassword.toString(), "");
 		props.setProperty(RemoteFunctionalTest.DevServerUserPropKeys.devServerPath.toString(), 	   "/home/mmeiners/biorLite/bior_pipeline");
 		props.setProperty(RemoteFunctionalTest.DevServerUserPropKeys.isFirstSync.toString(), 	   "true");
 		return props;
