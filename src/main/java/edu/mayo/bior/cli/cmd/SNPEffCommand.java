@@ -41,7 +41,7 @@ public class SNPEffCommand implements CommandPlugin{
 	private static final String OPTION_INTERVALFILE = "interval";
 	private static final char OPTION_VERBOSE = 'v';
 	private static final char OPTION_QUIET = 'q';
-	private static final String OPTION_PICKWORST = "pickworst";
+	private static final String OPTION_PICKALL = "all";
 	
 	/* BLACK LIST */
 	private static final String OPTION_BEDFILE = "fi" ;
@@ -67,12 +67,13 @@ public class SNPEffCommand implements CommandPlugin{
 	public void execute(CommandLine line, Options opts) throws Exception {
 		SNPEFFPipeline snpEffPipe = null;
 		boolean pickworst = Boolean.TRUE;
-		if(line.hasOption(OPTION_PICKWORST)){
-			 pickworst = Boolean.getBoolean(line.getOptionValue(OPTION_PICKWORST));
+		if(line.hasOption(OPTION_PICKALL)){
+			 pickworst = Boolean.FALSE;
+			 
 		}
 		
 		try {
-			
+		
 			snpEffPipe = new SNPEFFPipeline(getCommandLineOptions(line),pickworst);
 	    //	snpEffPipe = new SNPEFFPipeline(null);
 			
@@ -116,7 +117,7 @@ public class SNPEffCommand implements CommandPlugin{
 		}
 
 		if (line.hasOption(OPTION_NMP)) {
-			System.out.println(" -nmp flag is not supported on current SNPEff Version");
+			sLogger.error(" -nmp flag is not supported on current SNPEff Version");
 		}
 		
 		if (line.hasOption(OPTION_HET)) {
@@ -208,43 +209,43 @@ public class SNPEffCommand implements CommandPlugin{
         
          if (line.hasOption(OPTION_BEDFILE)) {
         	 
-        	 System.out.println(" -fi Currently bed file is not supported for filtering"); 
+        	 sLogger.error(" -fi Currently bed file is not supported for filtering"); 
          }
          
          if(line.hasOption(OPTION_CHR)) {
         	 
-        	 System.out.println("-chr Currently not supported");
+        	 sLogger.error("-chr Currently not supported");
          }
          
          if (line.hasOption(OPTION_ONLYREG)) {
         	 
-        	 System.out.println("-onlyReg filter is not supported");
+        	 sLogger.error("-onlyReg filter is not supported");
         	 
          }
          
          if(line.hasOption(OPTION_REGULATION)) {
         	 
-        	 System.out.println("-reg <name> Option is not supported");
+        	 sLogger.error("-reg <name> Option is not supported");
          }
          
         if (line.hasOption(String.valueOf(OPTION_OFFSET0))) {
         	 
-        	 System.out.println("Offset options are not supported");
+        	 sLogger.error("Offset options are not supported");
          }
 		
           if (line.hasOption(String.valueOf(OPTION_OFFSET1))) {
         	 
-        	 System.out.println("Offfset options are not supported");
+        	sLogger.error("Offfset options are not supported");
          }
           
          if ( line.hasOption(OPTION_INOFFSET)) {
         	 
-        	System.out.println("Offset options are not supported");
+        	sLogger.error("Offset options are not supported");
          }
 		
            if ( line.hasOption(OPTION_OUTOFFSET)) {
         	 
-        	 System.out.println("Offset options are not supported");
+        	 sLogger.error("Offset options are not supported");
          } 
       
            **/
