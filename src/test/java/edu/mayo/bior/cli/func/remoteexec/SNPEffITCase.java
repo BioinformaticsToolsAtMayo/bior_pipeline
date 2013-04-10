@@ -63,7 +63,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();  
 
 	// PASSED!!!
-	//@Test
+	@Test
 	/** Test the treat input VCF */
 	public void treatVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
 		System.out.println("\n-----------------------------------------------------");
@@ -78,7 +78,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	}
 
 	// PASSED!!!
-	//@Test
+	@Test
 	/** Test the command line for SNPEff */
 	public void cmdLineWithMultiIndels() throws IOException, InterruptedException {
 		System.out.println("\n-----------------------------------------------------");
@@ -98,7 +98,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	
 	
 	// PASSED!!!
-	//@Test
+	@Test
 	/** This can be useful when trying to isolate what SnpEff is trying to do, without all the 
 	 *  extra junk coming from the pre and post pipeline elements.
 	 *  NOTE: We can only take clean variants ONLY (none with multiple insertions/deletions, else it will hang)!!	 */
@@ -155,7 +155,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	
 
 
-//	@Test 
+	@Test 
 	/** Test a bunch of good variants where the Functional_Class is NOT equal to "NONE"
 	 *  (since most have "NONE", it's good to check the more rare cases to validate the 
 	 *  output from each variant matches expected which we should know because they are fairly unique)
@@ -164,7 +164,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	public void significantEffects() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.significantEffects(): testing variants that have more rare outputs so we can tell if lines match up between bior_snpeff output and the expected output from the jar command...");
-		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),true);
+		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),false);
 		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/funcClassNotNone.input.vcf"));
 		List<String> biorActualOutput = PipeTestUtils.pipeOutputToStrings(p);
 		List<String> expectedFromCmdJar = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/funcClassNotNone_cmdJar.expected.vcf");
@@ -176,7 +176,8 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 
 	
 	@Test
-	/** Test a series of bad (or potentially bad) variants */
+	/** Test a series of bad (or potentially bad) variants.
+	 *  These shouldn't stop the pipeline, but may give odd or unexpected results */
 	public void badVariants() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.badVariants(): test a vcf file that contains poorly formatted variants...");
@@ -189,7 +190,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	}
 	
 	// PASSED!!!
-	//@Test  (expected = InvalidPipeInputException.class)
+	@Test  (expected = InvalidPipeInputException.class)
 	/** Test a bad VCF (that it has less than 7 columns), 
 	 *  which would most like occur because of spaces instead of tabs */
 	public void badVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
