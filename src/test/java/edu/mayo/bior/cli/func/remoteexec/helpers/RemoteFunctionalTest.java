@@ -45,15 +45,16 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	public final String EXAMPLE_PROPS_FILE    = "src/test/resources/remoteexec/bior.devserver.example.properties";
 	public final String BIOR_DEV_SERVER		  = "biordev.mayo.edu";
 	
-	private static boolean mIsDevServer  = false;
-	private static boolean mIsHostVerified	   = false;
+	private static boolean mIsDevServer  		= false;
+	private static boolean mIsHostVerified	   	= false;
+	// Do NOT run the remote tests more than once!
+	private static boolean mIsFirstRemoteTest	= true; 
 	
 	private Properties mDevServerProperties = null;
+	
 
 	@BeforeClass
 	public static void beforeAll() throws Exception {
-		System.out.println("RemoteFunctionalTest.beforeAll()................");
-		System.out.println("Functional tests started at: " + new Date());
 		mIsDevServer = new RemoteFunctionalTest().isOnBiorDevServer();
 
 		// If we are on the biordev server, then just return as the JUnit tests will be run individually.
@@ -63,8 +64,30 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 			return;
 		}
 		
+		// If we have already run the remote tests once, do NOT run them again for each subsequent class!
+		if(! mIsFirstRemoteTest) {
+			System.out.println("Remote functional tests have already been run - skipping.");
+			return;
+		}
+		mIsFirstRemoteTest = false;
+	
+		System.out.println("=============================================================================");
+		System.out.println("-----------------------------------------------------------------------------");
+		System.out.println("Running remote functional tests on biordev.mayo.edu");
+		System.out.println("  (this output is coming from DragonRider)");
+		System.out.println("Functional tests started at: " + new Date());
+		System.out.println("-----------------------------------------------------------------------------");
+		System.out.println("=============================================================================");
+
 		System.out.println("Running tests remotely...");
 		new RemoteFunctionalTest().runTestsRemotely();
+		
+		System.out.println("=============================================================================");
+		System.out.println("-----------------------------------------------------------------------------");
+		System.out.println("Done running remote functional tests.");
+		System.out.println("-----------------------------------------------------------------------------");
+		System.out.println("=============================================================================");
+
 	}
 	
 
