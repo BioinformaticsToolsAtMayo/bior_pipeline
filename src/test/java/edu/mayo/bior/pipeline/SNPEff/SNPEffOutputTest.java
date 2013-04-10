@@ -21,6 +21,17 @@ import com.google.gson.JsonParser;
  * It assumes standard 8 column header for SNPEFF jar output
  * and 9 column header output with 9th column (SNPeffect in JSON) from bior_snpeffpipeline
  * @author m106573
+ * 
+ * Examples of how output files should look.
+ * 
+ * BiorSNPEFF Output 
+ * #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	SNPEff
+ * 21	26960070	rs116645811	G	A	.	.	A	{"EFF":[{"Effect":"INTRON","Effect_impact":"MODIFIER","Functional_class":"NONE","Gene_name":"MRPL39","Gene_bioType":"protein_coding","Coding":"CODING","Transcript":"ENST00000352957"},{"Effect":"NON_SYNONYMOUS_CODING","Effect_impact":"MODERATE","Functional_class":"MISSENSE","Codon_change":"aCg/aTg","Amino_acid_change":"T334M","Gene_name":"MRPL39","Gene_bioType":"protein_coding","Coding":"CODING","Transcript":"ENST00000307301","Exon":"exon_21_26960013_26960101"}]}
+ *
+ *SNPEff Jar Output
+ *
+ *#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+ *21	26960070	rs116645811	G	A	0.0	.	A;EFF=INTRON(MODIFIER||||MRPL39|protein_coding|CODING|ENST00000352957|),NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|aCg/aTg|T334M|MRPL39|protein_coding|CODING|ENST00000307301|exon_21_26960013_26960101)
  *
  */
 public class SNPEffOutputTest {
