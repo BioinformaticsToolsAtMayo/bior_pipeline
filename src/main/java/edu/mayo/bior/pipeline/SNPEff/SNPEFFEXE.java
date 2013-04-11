@@ -37,7 +37,7 @@ import java.util.LinkedList;
  */
 public class SNPEFFEXE implements PipeFunction<String,String>{
 
-	private static final Logger log = Logger.getLogger(UnixStreamCommand.class);
+	private static final Logger log = Logger.getLogger(SNPEFFEXE.class);
 	private UnixStreamCommand snpeff;
 
 	public SNPEFFEXE(String[] snpEffCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
@@ -54,67 +54,64 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		snpeff.receive();
 		snpeff.receive();
 	}
-	
+
 	public SNPEFFEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
 		this(getSnpEffCommand(null));
 	}
-        
-        //a back door constructor that lets us access methods for testing without starting SNPEFF
-        public SNPEFFEXE(boolean silent){
-            
-        }
-	
+
+	//a back door constructor that lets us access methods for testing without starting SNPEFF
+	public SNPEFFEXE(boolean silent){
+	}
+
 	public static String[] getSnpEffCommand(String[] userCmd) throws IOException {
 		// See src/main/resources/bior.properties for example file to put into your user home directory
 		BiorProperties biorProps = new BiorProperties();
-		
+
 		//java -Xmx4g -jar /data/snpEff/snpEff_3_1/snpEff.jar eff -c /data/snpEff/snpEff_3_1/snpEff.config -v GRCh37.68 example.vcf > output.vcf
 		final String[] command = {"java", 
-			"-Xmx4g", 
-			"-jar", 
-			biorProps.get(Key.SnpEffJar),
-			"eff",
-			"-c",
-			biorProps.get(Key.SnpEffConfig),
-			"-v",
-			"GRCh37.64",
-			"-o",
-			"vcf",
-			"-noLog",
-			"-noStats"
-			//">",
-			//"/tmp/treatSNPEff.vcf"
-			//"/dev/stdout"
+				"-Xmx4g", 
+				"-jar", 
+				biorProps.get(Key.SnpEffJar),
+				"eff",
+				"-c",
+				biorProps.get(Key.SnpEffConfig),
+				"-v",
+				"GRCh37.64",
+				"-o",
+				"vcf",
+				"-noLog",
+				"-noStats"
+				//">",
+				//"/tmp/treatSNPEff.vcf"
+				//"/dev/stdout"
 		};
-		
+
 		if (userCmd != null) {
-			
 			return concat(command,userCmd);
 		} else {
-		
-		     return command;
+			return command;
 		}     
 	}
 
 	public static String[] concat(String[] A, String[] B) {
-		   List<String> list = new ArrayList<String>();
-		   list.addAll(Arrays.asList(A));
-		   list.addAll(Arrays.asList(B));
-		   return list.toArray(new String[list.size()]);
-		}
-	
-	
+		List<String> list = new ArrayList<String>();
+		list.addAll(Arrays.asList(A));
+		list.addAll(Arrays.asList(B));
+		return list.toArray(new String[list.size()]);
+	}
+
+
 	public String compute(String a) {
 		try {
-                    String error = canCreateSeqChange(a);
-                    if(error == null){
-						snpeff.send(a);
-						String result =  snpeff.receive();
-						return result;
-                    } else {
-                        log.warn("SNPEff failed at line:"+a + "\nWith message:" + error);
-                        return a + "\t" + error;
-                    }
+			String error = canCreateSeqChange(a);
+			if(error == null){
+				snpeff.send(a);
+				String result =  snpeff.receive();
+				return result;
+			}else {
+                log.warn("SNPEff failed at line:"+a + "\nWith message:" + error);
+				return a + "\t" + error;
+			}
 		} catch( RuntimeException runtimeExc) {
 			terminate();
 			// Rethrow any runtime exceptions
@@ -129,7 +126,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		// However, since this is not a normal pipe, it may not reach this point
 		throw new NoSuchElementException();
 	}
-	
+
 	public void terminate() {
 		try {
 			this.snpeff.terminate();
@@ -137,12 +134,12 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			log.error("Error terminating SNPEFFEXE pipe" + e);
 		}
 	}
-        
-        
-        ////
-        //  BELOW THIS LINE WE ARE PULLING FORWARD THE INFORMATION FROM SNPEFF
-        ////
-        private static final long serialVersionUID = 4226374412681243433L;
+
+
+	////
+	//  BELOW THIS LINE WE ARE PULLING FORWARD THE INFORMATION FROM SNPEFF
+	////
+	private static final long serialVersionUID = 4226374412681243433L;
 
 	private String line; // Line from VCF file
 	private int lineNum; // Line number
@@ -158,105 +155,105 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 	private ChangeType changeType;
 	private String genotypeFields[]; // Raw fields from VCF file
 	private String genotypeFieldsStr; // Raw fields from VCF file (one string, tab separated)
-        private Marker parent;
-        protected Genome genome = new Genome();
-        /**
-         * This method was 
-         * Find chromosome 'chromoName'. If it does not exists and 'createChromos' is true, the chromosome is created
-         * @param chromoName
-         * @return
-         */
-        public Chromosome getChromosome(String chromoName) {
-                //if (createChromos) return genome.getOrCreateChromosome(chromoName);
-                return genome.getChromosome(chromoName);
-        }
-        
-        /**
+	private Marker parent;
+	protected Genome genome = new Genome();
+	/**
+	 * This method was 
+	 * Find chromosome 'chromoName'. If it does not exists and 'createChromos' is true, the chromosome is created
+	 * @param chromoName
+	 * @return
+	 */
+	public Chromosome getChromosome(String chromoName) {
+		//if (createChromos) return genome.getOrCreateChromosome(chromoName);
+		return genome.getChromosome(chromoName);
+	}
+
+	/**
 	 * Create a list of seqChanges frmo this VcfEntry
 	 * @return
 	 */
-//        public List<SeqChange> seqChanges() {
-//            LinkedList<SeqChange> list = new LinkedList<SeqChange>();
-//
-//            // Coverage
-//            int coverage = Gpr.parseIntSafe(getInfo("DP"));
-//
-//            // Is it heterozygous, homozygous or undefined?
-//            Boolean isHetero = calcHetero();
-//
-//            // Create one SeqChange for each alt
-//            for (String alt : alts) {
-//                Chromosome chr = (Chromosome) parent;
-//                SeqChange seqChange = createSeqChange(chr, start, ref, alt, strand, id, getQuality(), coverage);
-//                seqChange.setHeterozygous(isHetero);
-//                list.add(seqChange);
-//            }
-//
-//            return list;
-//        }
+	//        public List<SeqChange> seqChanges() {
+	//            LinkedList<SeqChange> list = new LinkedList<SeqChange>();
+	//
+	//            // Coverage
+	//            int coverage = Gpr.parseIntSafe(getInfo("DP"));
+	//
+	//            // Is it heterozygous, homozygous or undefined?
+	//            Boolean isHetero = calcHetero();
+	//
+	//            // Create one SeqChange for each alt
+	//            for (String alt : alts) {
+	//                Chromosome chr = (Chromosome) parent;
+	//                SeqChange seqChange = createSeqChange(chr, start, ref, alt, strand, id, getQuality(), coverage);
+	//                seqChange.setHeterozygous(isHetero);
+	//                list.add(seqChange);
+	//            }
+	//
+	//            return list;
+	//        }
 
-        private int parsepos(String posStr){
-            return Gpr.parseIntSafe(posStr) - 1;
-        }
-        //takes a line of VCF input and returns if the line can be processed by SNPEFF
-        public String canCreateSeqChange(String line){
-            // Parse line
+	private int parsepos(String posStr){
+		return Gpr.parseIntSafe(posStr) - 1;
+	}
+	//takes a line of VCF input and returns if the line can be processed by SNPEFF
+	public String canCreateSeqChange(String line){
+		// Parse line
 		String fields[] = line.split("\t", 10); // Only pare the fist 9 fields (i.e. do not parse genotypes)
-                // Is line OK?
+		// Is line OK?
 		if (fields.length >= 4) {
-                    // Chromosome and position. VCF files are one-base, so inOffset should be 1.
-                    chromosomeName = fields[0].trim();
-                    Chromosome chromo = getChromosome(chromosomeName);
-                    parent = chromo;
+			// Chromosome and position. VCF files are one-base, so inOffset should be 1.
+			chromosomeName = fields[0].trim();
+			Chromosome chromo = getChromosome(chromosomeName);
+			parent = chromo;
 
-                    int start = parsepos(fields[1]);
-                    ref = fields[3].toUpperCase(); // Reference
-                    String altsStr = fields[4].toUpperCase();
-                    parseAlts(altsStr);
-                    
-                    // ID (e.g. might indicate dbSnp)
-                    String id = fields[2];
-                        
-                    int strand = 1;
-                    
-                    // Quality
-                    String qStr = fields[5];
-                    if (!qStr.isEmpty()) quality = Gpr.parseDoubleSafe(qStr);
-                    else quality = null;
+			int start = parsepos(fields[1]);
+			ref = fields[3].toUpperCase(); // Reference
+			String altsStr = fields[4].toUpperCase();
+			parseAlts(altsStr);
 
-                    filterPass = fields[6]; // Filter parameters
+			// ID (e.g. might indicate dbSnp)
+			String id = fields[2];
 
-                    // INFO fields
-                    if(fields.length>7){
-                        infoStr = fields[7];
-                        info = null;
-                    }
-                    
-                    //coverage 
-                    int coverage = Gpr.parseIntSafe(getInfo("DP"));
+			int strand = 1;
 
-                    //Don't need this, we stripped it off in the step before
-                    // Add genotype fields (lazy parse) 
-                    //if (fields.length > 9) genotypeFieldsStr = fields[9];
-                    
-                    String error = null;
-                    for (String altN : alts) {
-                        error = canCreateSeqChange(chromo, start, ref, altN, strand, id, quality, coverage);
-                        if(error != null){//if the alt is null, then it is ok, check the other ones, if it is not null, we have an error, return it!
-                            return error;
-                        }
-                    }
-                    
-                    return error;
-                }
-                
-            return null;
-        }
-        
-        /**
+			// Quality
+			String qStr = fields[5];
+			if (!qStr.isEmpty()) quality = Gpr.parseDoubleSafe(qStr);
+			else quality = null;
+
+			filterPass = fields[6]; // Filter parameters
+
+			// INFO fields
+			if(fields.length>7){
+				infoStr = fields[7];
+				info = null;
+			}
+
+			//coverage 
+			int coverage = Gpr.parseIntSafe(getInfo("DP"));
+
+			//Don't need this, we stripped it off in the step before
+			// Add genotype fields (lazy parse) 
+			//if (fields.length > 9) genotypeFieldsStr = fields[9];
+
+			String error = null;
+			for (String altN : alts) {
+				error = canCreateSeqChange(chromo, start, ref, altN, strand, id, quality, coverage);
+				if(error != null){//if the alt is null, then it is ok, check the other ones, if it is not null, we have an error, return it!
+					return error;
+				}
+			}
+
+			return error;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Create a seqChange 
 	 * @return A string, null if true - SNPEff can process the variant
-         *                 , message if false -SNPEff can not process the variant and the message contains the reason why
+	 *                 , message if false -SNPEff can not process the variant and the message contains the reason why
 	 */
 	private String canCreateSeqChange(Chromosome chromo, int start, String reference, String alt, int strand, String id, double quality, int coverage) {
 		// No change?
@@ -274,9 +271,9 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 				// Get 'END' field and do some sanity check
 				end = (int) getInfoInt("END");
 				if (end < start){//throw new RuntimeException("INFO field 'END' is before varaint's 'POS'\n\tEND : " + end + "\n\tPOS : " + start);
-                                    return "SNPEFFERR=INFO field 'END' is before varaint's 'POS'\n\tEND : " + end + "\n\tPOS : " + start;
-                                }
-                                
+					return "SNPEFFERR=INFO field 'END' is before varaint's 'POS'\n\tEND : " + end + "\n\tPOS : " + start;
+				}
+
 			}
 
 			// Create deletion string
@@ -285,10 +282,10 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			char change[] = new char[size];
 			for (int i = 0; i < change.length; i++)
 				change[i] = reference.length() > i ? reference.charAt(i) : 'N';
-			String ch = "-" + new String(change);
+				String ch = "-" + new String(change);
 
-			// Create SeqChange
-			return null;//new SeqChange(chromo, start, reference, ch, strand, id, quality, coverage);
+				// Create SeqChange
+				return null;//new SeqChange(chromo, start, reference, ch, strand, id, quality, coverage);
 		}
 
 		// Case: SNP, MNP
@@ -319,9 +316,9 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			String ref = "*";
 			String ch = nw.getAlignment();
 			if (!ch.startsWith("-")){
-                            //throw new RuntimeException("Deletion '" + ch + "' does not start with '-'. This should never happen!");
-                            return "SNPEFFERR=Deletion '" + ch + "' does not start with '-'. This should never happen!";
-                        }
+				//throw new RuntimeException("Deletion '" + ch + "' does not start with '-'. This should never happen!");
+				return "SNPEFFERR=Deletion '" + ch + "' does not start with '-'. This should never happen!";
+			}
 
 			return null;//new SeqChange(chromo, start + startDiff, ref, ch, strand, id, quality, coverage);
 		}
@@ -335,25 +332,25 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			String ch = nw.getAlignment();
 			String ref = "*";
 			if (!ch.startsWith("+")){
-                            //throw new RuntimeException("Insertion '" + ch + "' does not start with '+'. This should never happen!");
-                            return "SNPEFFERR=Insertion '" + ch + "' does not start with '+'. This should never happen!";
-                        }
+				//throw new RuntimeException("Insertion '" + ch + "' does not start with '+'. This should never happen!");
+				return "SNPEFFERR=Insertion '" + ch + "' does not start with '+'. This should never happen!";
+			}
 
 			return null;//new SeqChange(chromo, start + startDiff, ref, ch, strand, id, quality, coverage);
 		}
 
 		// Other change type?
 		//throw new RuntimeException("Unsupported VCF change type '" + reference + "' => '" + alt + "'\nVcfEntry: " + this);
-                return "SNPEFFERR=Unsupported VCF change type '" + reference + "' => '" + alt + "'\nVcfEntry: " + this.line;
+		return "SNPEFFERR=Unsupported VCF change type '" + reference + "' => '" + alt + "'\nVcfEntry: " + this.line;
 	}
-        
-        public String getInfo(String key) {
+
+	public String getInfo(String key) {
 		if (info == null) parseInfo();
 		return info.get(key);
 	}
-        
 
-        /**
+
+	/**
 	 * Parse INFO fields
 	 */
 	void parseInfo() {
@@ -366,8 +363,8 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			else info.put(vp[0], "true"); // A property that is present, but has no value (e.g. "INDEL")
 		}
 	}
-        
-        /**
+
+	/**
 	 * Get info field as an long number
 	 * The norm specifies data type as 'INT', that is why the name of this method might be not intuitive
 	 * @param key
@@ -377,8 +374,8 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		if (info == null) parseInfo();
 		return Gpr.parseLongSafe(info.get(key));
 	}
-        
-        /**
+
+	/**
 	 * Is this entry heterozygous?
 	 * 
 	 * 		Infer Hom/Her if there is only one sample in the file.
@@ -386,96 +383,66 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 	 * 
 	 * @return
 	 */
-//	public Boolean calcHetero() {
-//		// No genotyping information? => Use number of ALT fielsd
-//		if (genotypeFieldsStr == null) return isHeterozygous();
-//
-//		Boolean isHetero = null;
-//
-//		// If there is only one genotype field => parse fields
-//		if (genotypeFields == null) {
-//
-//			// Are there more than two tabs? (i.e. more than one format field + one genotype field)  
-//			int countFields, fromIndex;
-//			for (countFields = 0, fromIndex = 0; (fromIndex >= 0) && (countFields < 1); countFields++, fromIndex++)
-//				fromIndex = genotypeFieldsStr.indexOf('\t', fromIndex);
-//
-//			// OK only one genotype field => Parse it in order to extract homo info.
-//			if (countFields == 1) parseGenotypes();
-//		}
-//
-//		// OK only one genotype field => calculate if it is heterozygous
-//		if ((genotypeFields != null) && (genotypeFields.length == 1)) isHetero = getVcfGenotype(0).isHeterozygous();
-//
-//		return isHetero;
-//	}
-        
-        	/**
+	//	public Boolean calcHetero() {
+	//		// No genotyping information? => Use number of ALT fielsd
+	//		if (genotypeFieldsStr == null) return isHeterozygous();
+	//
+	//		Boolean isHetero = null;
+	//
+	//		// If there is only one genotype field => parse fields
+	//		if (genotypeFields == null) {
+	//
+	//			// Are there more than two tabs? (i.e. more than one format field + one genotype field)  
+	//			int countFields, fromIndex;
+	//			for (countFields = 0, fromIndex = 0; (fromIndex >= 0) && (countFields < 1); countFields++, fromIndex++)
+	//				fromIndex = genotypeFieldsStr.indexOf('\t', fromIndex);
+	//
+	//			// OK only one genotype field => Parse it in order to extract homo info.
+	//			if (countFields == 1) parseGenotypes();
+	//		}
+	//
+	//		// OK only one genotype field => calculate if it is heterozygous
+	//		if ((genotypeFields != null) && (genotypeFields.length == 1)) isHetero = getVcfGenotype(0).isHeterozygous();
+	//
+	//		return isHetero;
+	//	}
+
+	/**
 	 * Parse ALT field
 	 * @param altsStr
 	 */
 	private void parseAlts(String altsStr) {
 		if (altsStr.length() == 1) {
 			if (altsStr.equals("A") || altsStr.equals("C") || altsStr.equals("G") || altsStr.equals("T") || altsStr.equals(".")) {
-				alts = new String[1];
-				alts[0] = altsStr;
-			} else if (altsStr.equals("N")) { // aNy base
-				alts = new String[4];
-				alts[0] = "A";
-				alts[1] = "C";
-				alts[2] = "G";
-				alts[3] = "T";
-			} else if (altsStr.equals("B")) { // B: not A
-				alts = new String[3];
-				alts[0] = "C";
-				alts[1] = "G";
-				alts[2] = "T";
-			} else if (altsStr.equals("D")) { // D: not C
-				alts = new String[3];
-				alts[0] = "A";
-				alts[1] = "G";
-				alts[2] = "T";
-			} else if (altsStr.equals("H")) { // H: not G
-				alts = new String[3];
-				alts[0] = "A";
-				alts[1] = "C";
-				alts[2] = "T";
-			} else if (altsStr.equals("V")) { // V: not T
-				alts = new String[3];
-				alts[0] = "A";
-				alts[1] = "C";
-				alts[2] = "G";
-			} else if (altsStr.equals("M")) {
-				alts = new String[2];
-				alts[0] = "A";
-				alts[1] = "C";
-			} else if (altsStr.equals("R")) {
-				alts = new String[2];
-				alts[0] = "A";
-				alts[1] = "G";
-			} else if (altsStr.equals("W")) { // Weak
-				alts = new String[2];
-				alts[0] = "A";
-				alts[1] = "T";
-			} else if (altsStr.equals("S")) { // Strong
-				alts = new String[2];
-				alts[0] = "C";
-				alts[1] = "G";
-			} else if (altsStr.equals("Y")) {
-				alts = new String[2];
-				alts[0] = "C";
-				alts[1] = "T";
-			} else if (altsStr.equals("K")) {
-				alts = new String[2];
-				alts[0] = "G";
-				alts[1] = "T";
-			} else if (altsStr.equals(".")) { // No alternative (same as reference)
-				alts = new String[1];
-				alts[0] = ref;
+				alts = new String[] { altsStr };
+			} else if ("N".equals(altsStr)) { // aNy base
+				alts = new String[] {"A", "C", "G", "T"};
+			} else if ("B".equals(altsStr)) { // B: not A
+				alts = new String[] {"C", "G", "T"};
+			} else if ("D".equals(altsStr)) { // D: not C
+				alts = new String[] {"A", "G", "T"};
+			} else if ("H".equals(altsStr)) { // H: not G
+				alts = new String[] {"A", "C", "T"};
+			} else if ("V".equals(altsStr)) { // V: not T
+				alts = new String[] {"A", "C", "G"};
+			} else if ("M".equals(altsStr)) {
+				alts = new String[] {"A", "C"};
+			} else if ("R".equals(altsStr)) {
+				alts = new String[] {"A", "G"};
+			} else if ("W".equals(altsStr)) { // Weak
+				alts = new String[] {"A", "T"};
+			} else if ("S".equals(altsStr)) { // Strong
+				alts = new String[] {"C", "G"};
+			} else if ("Y".equals(altsStr)) {
+				alts = new String[] {"C", "T"};
+			} else if ("K".equals(altsStr)) {
+				alts = new String[] {"G", "T"};
+			} else if (".".equals(altsStr)) { // No alternative (same as reference)
+				alts = new String[] {ref};
 			} else {
-				throw new RuntimeException("WARNING: Unkown IUB code for SNP '" + altsStr + "'");
+				throw new RuntimeException("WARNING: Unknown IUB code for SNP '" + altsStr + "'");
 			}
-		} else alts = altsStr.split(",");
+		} else  alts = altsStr.split(",");
 
 		// What type of change do we have?
 		int maxAltLen = Integer.MIN_VALUE, minAltLen = Integer.MAX_VALUE;
@@ -492,7 +459,4 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		else if (ref.length() < maxAltLen) changeType = ChangeType.INS;
 		else changeType = ChangeType.MIXED;
 	}
-
-
-
 }
