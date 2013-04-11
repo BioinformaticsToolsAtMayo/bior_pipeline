@@ -64,12 +64,8 @@ public class SNPEFFEXETest {
                 }else{
                     status = true;
                 }
-                assertEquals(true, status);
+                assertEquals(s, true, status);
             }
-            
         }
-
     }
-
-
 }
