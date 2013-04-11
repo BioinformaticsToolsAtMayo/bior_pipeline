@@ -109,7 +109,8 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 				String result =  snpeff.receive();
 				return result;
 			}else {
-                log.warn("SNPEff failed at line:"+a + "\nWith message:" + error);
+                log.warn("SnpEff could not process line: " + a);
+                log.warn("    " + error);
 				return a + "\t" + error;
 			}
 		} catch( RuntimeException runtimeExc) {
@@ -459,4 +460,5 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		else if (ref.length() < maxAltLen) changeType = ChangeType.INS;
 		else changeType = ChangeType.MIXED;
 	}
+	
 }
