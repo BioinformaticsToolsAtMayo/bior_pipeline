@@ -108,20 +108,21 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		try {
                     String error = canCreateSeqChange(a);
                     if(error == null){
-			snpeff.send(a);
-			String result =  snpeff.receive();
-			return result;
-                    }else {
-                        log.error(error);
+						snpeff.send(a);
+						String result =  snpeff.receive();
+						return result;
+                    } else {
+                        log.warn("SNPEff failed at line:"+a + "\nWith message:" + error);
                         return a + "\t" + error;
                     }
 		} catch( RuntimeException runtimeExc) {
 			terminate();
 			// Rethrow any runtime exceptions
+			log.error("SNPEff failed at line:"+a);
 			throw runtimeExc;
 		} catch (Exception ex) {
 			terminate();
-			log.error(ex);
+			log.error("SNPEff failed at line:"+a + "\n" + ex);
 		}
 
 		// If we make it hear, then throw a NoSuchElementException
