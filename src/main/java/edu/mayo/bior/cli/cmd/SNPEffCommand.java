@@ -98,6 +98,7 @@ public class SNPEffCommand implements CommandPlugin{
 			//	cmdoptions.add(OPTION_DASH + value);
 			} else {
 				sLogger.error("Does not support files other than VCF");	
+				System.exit(-1);
 			}
 		}
 
@@ -108,6 +109,7 @@ public class SNPEffCommand implements CommandPlugin{
 				//		cmdoptions.add(OPTION_DASH + value);
 					} else {
 						sLogger.error("Does not support files other than VCF");
+						System.exit(-1);
 						
 					}
 		}
