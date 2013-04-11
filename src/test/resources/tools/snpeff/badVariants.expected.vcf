@@ -1,0 +1,11 @@
+1	X	rs70954422	G	A	.	.	RSPOS=922306;RV;dbSNPBuildID=130;SSR=0;SAO=0;VP=050100000009000102000800;WGT=1;VC=MNV;SLO;CFL;GNO;OTHERKG	{"Effect":"NONE","Effect_impact":"MODIFIER","Functional_class":"NONE"}
+2	727460	rs3890738	.	A	.	.	.	{"Effect":"DOWNSTREAM","Effect_impact":"MODIFIER","Functional_class":"NONE","Gene_name":"AC116609.1","Gene_bioType":"lincRNA","Coding":"NON_CODING","Transcript":"ENST00000456255"}
+2	727460	rs3890738	A	.	.	.	.	{}
+2	727460	rs3890738	.	.	.	.	.	{}
+M	727460	rs3890738	T	C	.	.	RSPOS=727460;RV;GMAF=0.0353;dbSNPBuildID=108;SSR=0;SAO=0;VP=05010000000107011e000100;WGT=1;VC=SNV;SLO;VLD;G5A;G5;GNO;KGP	{"Effect":"NONE","Effect_impact":"MODIFIER","Functional_class":"NONE"}
+4	1013645	rs187488573	C	G	.	.		{"Effect":"INTRON","Effect_impact":"MODIFIER","Functional_class":"NONE","Gene_name":"FGFRL1","Gene_bioType":"processed_transcript","Coding":"CODING","Transcript":"ENST00000264748"}
+5	1118295	rs148230125	C	G	.	.	.	{"Effect":"INTERGENIC","Effect_impact":"MODIFIER","Functional_class":"NONE"}
+9	1595584	rs55890733	TGACC	AAAATGAT	.	.	RSPOS=1595610;dbSNPBuildID=129;SSR=0;SAO=0;VP=050000000011000002000700;WGT=1;VC=MIXED;OTH;OTHERKG	{"Effect":"INTERGENIC","Effect_impact":"MODIFIER","Functional_class":"NONE"}
+10	10000	rs000000010	AA	AC,AT,AG,CA,GA,TA	.	.	RSPOS=10000;	{"Effect":"INTERGENIC","Effect_impact":"MODIFIER","Functional_class":"NONE"}
+11	11000	.	A	C	.	.	RSPOS=11000;	{"Effect":"INTERGENIC","Effect_impact":"MODIFIER","Functional_class":"NONE"}
+11	11500	-	A	C	.	.	RSPOS=11000;	{"Effect":"INTERGENIC","Effect_impact":"MODIFIER","Functional_class":"NONE"}
