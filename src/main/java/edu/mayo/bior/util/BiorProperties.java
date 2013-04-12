@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class is an extension of the java Properties class. The additional
@@ -23,6 +23,8 @@ import java.util.logging.Logger;
  */
 public class BiorProperties {
 
+	private static final Logger sLogger = Logger.getLogger(BiorProperties.class);
+	
 	public enum Key { SnpEffJar, SnpEffConfig };
 	
     private static final String BIOR_PROP = "BIOR_PROP";
@@ -50,8 +52,7 @@ public class BiorProperties {
         	file = url.getFile();
         }
 
-        Logger.getLogger(BiorProperties.class.getName()).log(Level.INFO,
-                "using " + file + " for " + DEFAULT_PROP_FILE_NAME);
+        Logger.getLogger(BiorProperties.class).info("using " + file + " for " + DEFAULT_PROP_FILE_NAME);
     }
 
     /**
@@ -73,7 +74,7 @@ public class BiorProperties {
             prop = new Properties();
             prop.load(inStream);
         } catch (IOException ex) {
-            Logger.getLogger(BiorProperties.class.getName()).log(Level.SEVERE, null, ex);
+        	sLogger.error(ex.getMessage(), ex);
             throw ex;
         } finally {
             try {
@@ -81,7 +82,7 @@ public class BiorProperties {
                     inStream.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(BiorProperties.class.getName()).log(Level.SEVERE, null, ex);
+            	sLogger.error(ex.getMessage(), ex);
                 throw ex;
             }
         }
