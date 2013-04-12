@@ -33,6 +33,7 @@ public class SNPEffCommand implements CommandPlugin{
 	private static final char OPTION_STATSFILE      = 's';   
 	private static final String OPTION_INTERVALFILE = "interval";
 	private static final String OPTION_PICKALL      = "all";
+	private static final String OPTION_GENOME_VERSION = "genome_version";
 	
 	/* BLACK LIST */
 //	private static final char OPTION_INPUTFORMAT= 'i';
@@ -92,9 +93,16 @@ public class SNPEffCommand implements CommandPlugin{
 		
 		List<String> cmdoptions = new ArrayList<String>();
 
-		// get GENOME_VERSION argument
-		String genomeVersion = line.getArgs()[0];		
-		cmdoptions.add(genomeVersion);
+		String genomeDatabase;
+		if (line.hasOption(OPTION_GENOME_VERSION)) {
+			genomeDatabase = line.getOptionValue(OPTION_GENOME_VERSION);			
+		} else {
+			// default
+			genomeDatabase = "GRCh37.64";
+		}
+		// add as an argument, not an option
+		sLogger.debug(String.format("Using genome database version %s", genomeDatabase));
+		cmdoptions.add(genomeDatabase);
 		
 		if (line.hasOption(OPTION_SNP)) {
 			cmdoptions.add(OPTION_DASH + OPTION_SNP);

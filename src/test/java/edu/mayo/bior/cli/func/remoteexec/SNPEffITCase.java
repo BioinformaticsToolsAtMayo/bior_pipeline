@@ -35,7 +35,6 @@ import edu.mayo.exec.UnixStreamCommand;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.exceptions.InvalidPipeInputException;
 import edu.mayo.pipes.history.HistoryInPipe;
-import edu.mayo.pipes.history.HistoryOutPipe;
 import edu.mayo.pipes.util.test.FileCompareUtils;
 import edu.mayo.pipes.util.test.PipeTestUtils;
 
@@ -63,9 +62,6 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	
 	private static final String EOL = System.getProperty("line.separator");
 	private static final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();  
-
-	// Specify any options for the SnpEff command.  Note: the genomeVersion is a required argument (ex: "GRCh37.64" or "hg19")
-	private final String[] SNPEFF_OPTS = { "GRCh37.64" };
 	
 	// PASSED!!!
 	@Test
@@ -73,7 +69,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	public void treatVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.treatVcf(): standard/simple treat vcf file...");
-		SNPEFFPipeline p = new SNPEFFPipeline(SNPEFF_OPTS, new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), true);
+		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), true);
 		p.setStarts(Arrays.asList("src/test/resources/tools/treat/treatInput.vcf"));
 		List<String> actual = PipeTestUtils.pipeOutputToStrings(p);
 		//List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/treat/snpEffOutput.vcf");
@@ -90,10 +86,8 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 		// NOTE:  This test case should only run on biordev - where it can run VEP
 		String stdin = loadFile(new File("src/test/resources/tools/snpeff/variantsSingleAndMultiChange.vcf"));
 
-		// Add the "-fi" flag to the SNPEFF_OPTS
-		String[] opts = Arrays.copyOf(SNPEFF_OPTS, SNPEFF_OPTS.length + 1);
-		opts[opts.length - 1] = "-fi";
-		CommandOutput out = executeScript("bior_snpeff", stdin, opts);
+		// Add the "-fi" flag
+		CommandOutput out = executeScript("bior_snpeff", stdin, "-genome_version", "GRCh37.64", "-fi");
 		Assert.assertTrue(out.stderr.contains("Unrecognized option: -fi"));
 	}
 	
@@ -106,7 +100,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 		// NOTE:  This test case should only run on biordev - where it can run VEP
 		String stdin = loadFile(new File("src/test/resources/tools/snpeff/variantsSingleAndMultiChange.vcf"));
 
-		CommandOutput out = executeScript("bior_snpeff", stdin, SNPEFF_OPTS);
+		CommandOutput out = executeScript("bior_snpeff", stdin, "-genome_version", "GRCh37.64");
 
 		assertEquals(out.stderr, 0, out.exit);
 
@@ -126,7 +120,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.snpEffExeOnly(): run only the exec part of the pipeline to isolate and test it...");
 
-		UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(SNPEFF_OPTS), NO_CUSTOM_ENV, true, true);        	
+		UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(new String[] {"GRCh37.64"}), NO_CUSTOM_ENV, true, true);        	
 
 		BufferedReader br = new BufferedReader(new FileReader("src/test/resources/tools/snpeff/exeOnly_noMultiIndels.vcf"));
 
@@ -184,7 +178,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	public void significantEffects() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.significantEffects(): testing variants that have more rare outputs so we can tell if lines match up between bior_snpeff output and the expected output from the jar command...");
-		SNPEFFPipeline p = new SNPEFFPipeline(SNPEFF_OPTS, new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), false);
+		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), false);
 		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/significantEffects.input.vcf"));
 		List<String> biorActualOutput = PipeTestUtils.pipeOutputToStrings(p);
 		List<String> expectedFromCmdJar = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/significantEffects_cmdJar.expected.vcf");
@@ -201,7 +195,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	public void badVariants() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.badVariants(): test a vcf file that contains poorly formatted variants...");
-		SNPEFFPipeline p = new SNPEFFPipeline(SNPEFF_OPTS, new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),true);
+		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),true);
 		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/badVariants.vcf"));
 		List<String> actual = PipeTestUtils.pipeOutputToStrings(p);
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/badVariants.expected.vcf");
@@ -216,7 +210,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	public void badVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.badVcf(): test a vcf file that has contains poorly formatted variants...");
-		SNPEFFPipeline p = new SNPEFFPipeline(SNPEFF_OPTS, new Pipeline(new HistoryInPipe()), new IdentityPipe(),true);
+		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new HistoryInPipe()), new IdentityPipe(),true);
 
 		// Vcf file containing only 1 column because tabs are treated as spaces (min required is 7)
 		// NOTE: Spaces instead of tabs!!!
