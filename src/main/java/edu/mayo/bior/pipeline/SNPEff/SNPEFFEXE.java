@@ -4,25 +4,25 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
-import ca.mcgill.mcb.pcingola.fileIterator.NeedlemanWunsch;
-import ca.mcgill.mcb.pcingola.interval.Chromosome;
-import ca.mcgill.mcb.pcingola.interval.Genome;
-import ca.mcgill.mcb.pcingola.interval.Marker;
-import ca.mcgill.mcb.pcingola.interval.SeqChange;
-import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
-import ca.mcgill.mcb.pcingola.util.Gpr;
-import ca.mcgill.mcb.pcingola.vcf.VcfGenotype;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.log4j.Logger;
+
+import ca.mcgill.mcb.pcingola.fileIterator.NeedlemanWunsch;
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
+import ca.mcgill.mcb.pcingola.interval.Genome;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
+import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.vcf.VcfGenotype;
 
 import com.tinkerpop.pipes.PipeFunction;
 
@@ -30,8 +30,6 @@ import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.bior.util.BiorProperties.Key;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.exec.UnixStreamCommand;
-import java.util.HashMap;
-import java.util.LinkedList;
 
 /**
  * @author m102417
@@ -109,23 +107,18 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 				String result =  snpeff.receive();
 				return result;
 			}else {
+				System.err.println("SnpEff could not process line: " + a);
+				System.err.println("    " + error);
                 log.warn("SnpEff could not process line: " + a);
                 log.warn("    " + error);
 				return a + "\t" + error;
 			}
-		} catch( RuntimeException runtimeExc) {
-			terminate();
-			// Rethrow any runtime exceptions
-			log.error("SNPEff failed at line:"+a);
-			throw runtimeExc;
 		} catch (Exception ex) {
 			terminate();
 			log.error("SNPEff failed at line:"+a + "\n" + ex);
+			// Rethrow any runtime exceptions
+			throw new RuntimeException("SNPEff failed at line:"+a + "\n" + ex);
 		}
-
-		// If we make it hear, then throw a NoSuchElementException
-		// However, since this is not a normal pipe, it may not reach this point
-		throw new NoSuchElementException();
 	}
 
 	public void terminate() {
