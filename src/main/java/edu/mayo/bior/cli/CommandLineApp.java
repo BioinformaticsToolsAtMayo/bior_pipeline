@@ -420,7 +420,10 @@ public class CommandLineApp {
 			System.out.println();
 			for (Object optObj: opts.getOptions()) {
 				Option opt = (Option) optObj;
-				String optStr = "-" + opt.getOpt() +", --" + opt.getLongOpt();  
+				String optStr = "-" + opt.getOpt();
+				if (opt.hasLongOpt()) {
+					optStr += ", --" + opt.getLongOpt();
+				}
 				if (opt.hasArg()) {
 					optStr += " <" + opt.getArgName() + ">";
 				}
@@ -460,7 +463,12 @@ public class CommandLineApp {
 				sb.append("[");
 			}
 			
-			sb.append("--"+opt.getLongOpt());
+			if (opt.hasLongOpt()) {
+				sb.append("--"+opt.getLongOpt());
+			} else {
+				sb.append("-"+opt.getOpt());
+			}
+			
 			if (opt.hasArg()) {
 				sb.append(" ");
 				sb.append("<"+opt.getArgName()+">");

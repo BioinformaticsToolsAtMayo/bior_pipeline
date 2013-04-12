@@ -1,7 +1,6 @@
 package edu.mayo.bior.cli.cmd;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,44 +14,45 @@ import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 
 public class SNPEffCommand implements CommandPlugin{
 
-	private static final char OPTION_INPUTFORMAT= 'i';
-	private static final String OPTION_HOMO = "hom";
-	private static final String OPTION_SNP = "snp";
-	private static final String OPTION_HET = "het";
-	private static final String OPTION_DELETIONS = "del";
-	private static final String OPTION_INSERTIONS = "ins";
-	private static final String OPTION_MINQ = "minQ";
-	private static final String OPTION_MAXQ = "maxQ" ;
-	private static final String OPTION_MINC = "minC";
-	private static final String OPTION_MAXC = "maxC";
-	private static final String OPTION_NODOWNSTREAM = "no-downstream";
-	private static final String OPTION_NOINTERGENIC = "no-integenic";
-	private static final String OPTION_NOINTRON = "no-intron";
-	private static final String OPTION_NOUPSTREAM = "no-upstream";
-	private static final String OPTION_NOUTR = "no-utr";
-	private static final String OPTION_ONLYCODING = "onlyCoding";
-	private static final int OPTION_OFFSET0 = 0;
-	private static final int OPTION_OFFSET1 = 1;
-	private static final char OPTION_OUTPUTFORMAT = 'o';
+	private static final String OPTION_HOMO         = "hom";
+	private static final String OPTION_SNP          = "snp";
+	private static final String OPTION_HET          = "het";
+	private static final String OPTION_DELETIONS    = "del";
+	private static final String OPTION_INSERTIONS   = "ins";
+	private static final String OPTION_MINQ         = "minQ";
+	private static final String OPTION_MAXQ         = "maxQ" ;
+	private static final String OPTION_MINC         = "minC";
+	private static final String OPTION_MAXC         = "maxC";
+	private static final String OPTION_NODOWNSTREAM = "no_downstream";
+	private static final String OPTION_NOINTERGENIC = "no_integenic";
+	private static final String OPTION_NOINTRON     = "no_intron";
+	private static final String OPTION_NOUPSTREAM   = "no_upstream";
+	private static final String OPTION_NOUTR        = "no_utr";
+	private static final String OPTION_ONLYCODING   = "onlyCoding";
 	private static final String OPTION_UPDOWNSTREAMLENGTH = "ud" ;
-	private static final String OPTION_INOFFSET = "if";
-	private static final String OPTION_OUTOFFSET = "of" ;
-	private static final char OPTION_STATSFILE = 's';   
+	private static final char OPTION_STATSFILE      = 's';   
 	private static final String OPTION_INTERVALFILE = "interval";
-	private static final char OPTION_VERBOSE = 'v';
-	private static final char OPTION_QUIET = 'q';
-	private static final String OPTION_PICKALL = "all";
+	private static final String OPTION_PICKALL      = "all";
 	
 	/* BLACK LIST */
-	private static final String OPTION_BEDFILE = "fi" ;
-	private static final String OPTION_CHR = "chr";
-	private static final String OPTION_ONLYREG = "onlyReg";
-	private static final String OPTION_NMP = "nmp";
-	private static final String OPTION_REGULATION = "reg" ;
-	private static final char OPTION_CONFIG = 'c';
-	private static final char OPTION_HELP = 'h';
-	private static final String OPTION_NOLOGS = "noLogs";
-	private static final String OPTION_NOSTATS = "noStats";
+//	private static final char OPTION_INPUTFORMAT= 'i';
+//	private static final char OPTION_OUTPUTFORMAT = 'o';
+//	private static final String OPTION_BEDFILE = "fi" ;
+//	private static final String OPTION_CHR = "chr";
+//	private static final String OPTION_ONLYREG = "onlyReg";
+//	private static final String OPTION_NMP = "nmp";
+//	private static final String OPTION_REGULATION = "reg" ;
+//	private static final char OPTION_CONFIG = 'c';
+//	private static final char OPTION_HELP = 'h';
+//	private static final String OPTION_NOLOGS = "noLogs";
+//	private static final String OPTION_NOSTATS = "noStats";
+//	private static final int OPTION_OFFSET0 = 0;
+//	private static final int OPTION_OFFSET1 = 1;
+//	private static final String OPTION_INOFFSET = "if";
+//	private static final String OPTION_OUTOFFSET = "of" ;
+//	private static final char OPTION_VERBOSE = 'v';
+//	private static final char OPTION_QUIET = 'q';
+	
 	private static final  String OPTION_DASH = "-";
 
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
@@ -68,8 +68,7 @@ public class SNPEffCommand implements CommandPlugin{
 		SNPEFFPipeline snpEffPipe = null;
 		boolean pickworst = Boolean.TRUE;
 		if(line.hasOption(OPTION_PICKALL)){
-			 pickworst = Boolean.FALSE;
-			 
+			 pickworst = Boolean.FALSE;			 
 		}
 		
 		try {
@@ -91,37 +90,10 @@ public class SNPEffCommand implements CommandPlugin{
 	private String[] getCommandLineOptions(CommandLine line) {
 		List<String> cmdoptions = new ArrayList<String>();
 
-		if (line.hasOption(OPTION_INPUTFORMAT)) 
-		{
-			String value = line.getOptionValue(OPTION_INPUTFORMAT);
-			if(value == "vcf")  {
-			//	cmdoptions.add(OPTION_DASH + value);
-			} else {
-				sLogger.error("Does not support files other than VCF");	
-				System.exit(-1);
-			}
-		}
-
-		if (line.hasOption(OPTION_OUTPUTFORMAT))  {
-			
-			String value = line.getOptionValue(OPTION_OUTPUTFORMAT);
-					if(value == "vcf")  {
-				//		cmdoptions.add(OPTION_DASH + value);
-					} else {
-						sLogger.error("Does not support files other than VCF");
-						System.exit(-1);
-						
-					}
-		}
-
 		if (line.hasOption(OPTION_SNP)) {
 			cmdoptions.add(OPTION_DASH + OPTION_SNP);
 		}
 
-		if (line.hasOption(OPTION_NMP)) {
-			sLogger.error(" -nmp flag is not supported on current SNPEff Version");
-		}
-		
 		if (line.hasOption(OPTION_HET)) {
 			cmdoptions.add(OPTION_DASH + OPTION_HET);
 		}
@@ -139,23 +111,23 @@ public class SNPEffCommand implements CommandPlugin{
 		}
 
 		if (line.hasOption(OPTION_NODOWNSTREAM)) {
-			cmdoptions.add(OPTION_DASH + OPTION_NODOWNSTREAM);
+			cmdoptions.add(OPTION_DASH + OPTION_NODOWNSTREAM.replace("_", "-"));
 		}
 
 		if (line.hasOption(OPTION_NOINTERGENIC)) {
-			cmdoptions.add(OPTION_DASH + OPTION_NOINTERGENIC);
+			cmdoptions.add(OPTION_DASH + OPTION_NOINTERGENIC.replace("_", "-"));
 		}
 
 		if (line.hasOption(OPTION_NOINTRON)) {
-			cmdoptions.add(OPTION_DASH + OPTION_NOINTRON) ;
+			cmdoptions.add(OPTION_DASH + OPTION_NOINTRON.replace("_", "-")) ;
 		}
 
 		if (line.hasOption(OPTION_NOUPSTREAM)) {
-			cmdoptions.add(OPTION_DASH + OPTION_NOUPSTREAM);
+			cmdoptions.add(OPTION_DASH + OPTION_NOUPSTREAM.replace("_", "-"));
 		}
 
 		if (line.hasOption(OPTION_NOUTR)) {
-			cmdoptions.add(OPTION_DASH + OPTION_NOUTR) ;
+			cmdoptions.add(OPTION_DASH + OPTION_NOUTR.replace("_", "-")) ;
 		}
        
 		if (line.hasOption(OPTION_INTERVALFILE)) {
@@ -206,66 +178,8 @@ public class SNPEffCommand implements CommandPlugin{
         	 cmdoptions.add(OPTION_DASH + OPTION_ONLYCODING ); 
              cmdoptions.add(line.getOptionValue(OPTION_ONLYCODING));
          }
-         
-     /** Black List Options..There is no need for this documentation since bior says unrecognized paramater and redirects towards help  
-        
-         if (line.hasOption(OPTION_BEDFILE)) {
-        	 
-        	 sLogger.error(" -fi Currently bed file is not supported for filtering"); 
-         }
-         
-         if(line.hasOption(OPTION_CHR)) {
-        	 
-        	 sLogger.error("-chr Currently not supported");
-         }
-         
-         if (line.hasOption(OPTION_ONLYREG)) {
-        	 
-        	 sLogger.error("-onlyReg filter is not supported");
-        	 
-         }
-         
-         if(line.hasOption(OPTION_REGULATION)) {
-        	 
-        	 sLogger.error("-reg <name> Option is not supported");
-         }
-         
-        if (line.hasOption(String.valueOf(OPTION_OFFSET0))) {
-        	 
-        	 sLogger.error("Offset options are not supported");
-         }
-		
-          if (line.hasOption(String.valueOf(OPTION_OFFSET1))) {
-        	 
-        	sLogger.error("Offfset options are not supported");
-         }
-          
-         if ( line.hasOption(OPTION_INOFFSET)) {
-        	 
-        	sLogger.error("Offset options are not supported");
-         }
-		
-           if ( line.hasOption(OPTION_OUTOFFSET)) {
-        	 
-        	 sLogger.error("Offset options are not supported");
-         } 
-      
-           **/
-         
-      	
-          
-	
-		
-		
-	    if (cmdoptions != null){
-//	    	  System.out.println(cmdoptions.toString());
-	    	return cmdoptions.toArray(new String[cmdoptions.size()]);
-	    }
-	    else {
-			return null;
-	    }
-	   
-	    
+         		
+    	return cmdoptions.toArray(new String[cmdoptions.size()]);
 	}
 }
 
