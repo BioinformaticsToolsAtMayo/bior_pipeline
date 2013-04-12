@@ -21,9 +21,17 @@ public class VariantInfo
 	private int		endPos;
 	private int		entrezGeneID;
 	private int		firstBuild;
-	private String	geneSymbol;
 	private String	dbSNPsID;
+	private String	suspectRegion;
+	private String	clinicalSig;
+	private String	alleleOrigin;
+	private boolean	diseaseVariant;
+	private String	geneSymbol;
 	private String	ensemblGeneID;
+	private int		mutationID;
+	private String	cosmicCDS;
+	private String	cosmicAA;
+	private boolean	strand;
 	private String	omimDisease;
 	private boolean	blacklisted;
 	private boolean	conserved;
@@ -45,9 +53,17 @@ public class VariantInfo
 	 * @param alt			The alternate base(s)
 	 * @param entrezGeneID	The EntrezGeneID, or -1 if none
 	 * @param firstBuild	First time it appeared in dbSNPs, -1 if not in
-	 * @param geneSymbol	HGNC Approved Gene Symbol of the gene the Variant is in, null if not in one
 	 * @param dbSNPsID		dbSNPs ID if it has one, or null if it doesn't
+	 * @param suspectRegion	String giving one of 6 possible regions
+	 * @param clinicalSig	String giving one of 9 possible clinical significance values
+	 * @param alleleOrigin	String giving one of 4 (to be 7) possible allelic origin values
+	 * @param diseaseVariant	True if variant is know to cause a disease, else false
+	 * @param geneSymbol	HGNC Approved Gene Symbol of the gene the Variant is in, null if not in one
 	 * @param ensemblGeneID	EnsemblGeneID if it has one, or null if it doesn't
+	 * @param mutationID	Cosmic mutation ID, or -1
+	 * @param cosmicCDS		Cosmic: nucleotide sequence change
+	 * @param cosmicAA		Cosmic: Peptide sequence change
+	 * @param strand		Cosmic: NCBI provided + (true) or - (false) strand
 	 * @param omimDisease	OMIM disease if it has one, or null if it doesn't
 	 * @param blacklisted	True if blacklist score is above the cutoff, false otherwise
 	 * @param conserved		True if conserved score is above the cutoff, false otherwise
@@ -58,10 +74,12 @@ public class VariantInfo
 	 * @param repeat		True if repeat score is above the cutoff, false otherwise
 	 * @param regulatory	True if regulatory score is above the cutoff, false otherwise
 	 */
-	public VariantInfo (String chromosome, int startPos, int endPos, String ref, String alt, int entrezGeneID, int firstBuild, 
-						String geneSymbol, String dbSNPsID, String ensemblGeneID, String omimDisease, boolean blacklisted, 
-						boolean conserved, boolean enhancer, boolean tfbs, boolean tss, boolean unique, boolean repeat, 
-						boolean regulatory)
+	public VariantInfo (String chromosome, int startPos, int endPos, String ref, String alt, int entrezGeneID, 
+						int firstBuild, String dbSNPsID, String suspectRegion, String clinicalSig, 
+						String alleleOrigin, boolean diseaseVariant, String geneSymbol, String ensemblGeneID, 
+						int mutationID, String cosmicCDS, String cosmicAA, boolean strand, String omimDisease, 
+						boolean blacklisted, boolean conserved, boolean enhancer, boolean tfbs, 
+						boolean tss, boolean unique, boolean repeat, boolean regulatory)
 	{
 		this.chromosome = chromosome;
 		this.startPos = startPos;
@@ -73,6 +91,10 @@ public class VariantInfo
 		this.geneSymbol = geneSymbol;
 		this.dbSNPsID = dbSNPsID;
 		this.ensemblGeneID = ensemblGeneID;
+		this.mutationID = mutationID;
+		this.cosmicCDS = cosmicCDS;
+		this.cosmicAA = cosmicAA;
+		this.strand = strand;
 		this.omimDisease = omimDisease;
 		this.blacklisted = blacklisted;
 		this.conserved = conserved;
@@ -149,20 +171,56 @@ public class VariantInfo
 	
 	
 	/**
-	 * @return the geneSymbol
-	 */
-	public final String getGeneSymbol ()
-	{
-		return geneSymbol;
-	}
-	
-	
-	/**
 	 * @return the dbSNPsID
 	 */
 	public final String getDbSNPsID ()
 	{
 		return dbSNPsID;
+	}
+	
+	
+	/**
+	 * @return the suspectRegion
+	 */
+	public final String getSuspectRegion ()
+	{
+		return suspectRegion;
+	}
+	
+	
+	/**
+	 * @return the clinicalSig
+	 */
+	public final String getClinicalSig ()
+	{
+		return clinicalSig;
+	}
+	
+	
+	/**
+	 * @return the alleleOrigin
+	 */
+	public final String getAlleleOrigin ()
+	{
+		return alleleOrigin;
+	}
+	
+	
+	/**
+	 * @return the diseaseVariant
+	 */
+	public final boolean isDiseaseVariant ()
+	{
+		return diseaseVariant;
+	}
+	
+	
+	/**
+	 * @return the geneSymbol
+	 */
+	public final String getGeneSymbol ()
+	{
+		return geneSymbol;
 	}
 	
 	
@@ -176,9 +234,45 @@ public class VariantInfo
 	
 	
 	/**
+	 * @return the mutationID
+	 */
+	public final int getMutationID ()
+	{
+		return mutationID;
+	}
+	
+	
+	/**
+	 * @return the cosmicCDS
+	 */
+	public final String getCosmicCDS ()
+	{
+		return cosmicCDS;
+	}
+	
+	
+	/**
+	 * @return the cosmicAA
+	 */
+	public final String getCosmicAA ()
+	{
+		return cosmicAA;
+	}
+	
+	
+	/**
+	 * @return the strand
+	 */
+	public final boolean isStrand ()
+	{
+		return strand;
+	}
+	
+	
+	/**
 	 * @return the omimDisease
 	 */
-	public final String getOmimDisease ()
+	public final String getOMIMDisease ()
 	{
 		return omimDisease;
 	}
@@ -270,6 +364,10 @@ public class VariantInfo
 		result = prime * result + ((alt == null) ? 0 : alt.hashCode ());
 		result = prime * result + (conserved ? 1231 : 1237);
 		result = prime * result + ((dbSNPsID == null) ? 0 : dbSNPsID.hashCode ());
+		result = prime * result + ((suspectRegion == null) ? 0 : suspectRegion.hashCode ());
+		result = prime * result + ((clinicalSig == null) ? 0 : clinicalSig.hashCode ());
+		result = prime * result + ((alleleOrigin == null) ? 0 : alleleOrigin.hashCode ());
+		result = prime * result + (diseaseVariant ? 1231 : 1237);
 		result = prime * result + endPos;
 		result = prime * result + (enhancer ? 1231 : 1237);
 		result = prime * result + ((ensemblGeneID == null) ? 0 : ensemblGeneID.hashCode ());
@@ -283,6 +381,7 @@ public class VariantInfo
 		result = prime * result + (tfbs ? 1231 : 1237);
 		result = prime * result + (tss ? 1231 : 1237);
 		result = prime * result + (unique ? 1231 : 1237);
+		result = prime * result + mutationID;	// Ignore rest of Cosmic, they all key on mutationID
 		return result;
 	}
 	
@@ -304,6 +403,9 @@ public class VariantInfo
 		
 		VariantInfo other = (VariantInfo) obj;
 		if (blacklisted != other.blacklisted)
+			return false;
+		
+		if (diseaseVariant != other.diseaseVariant)
 			return false;
 		
 		if (conserved != other.conserved)
@@ -337,6 +439,9 @@ public class VariantInfo
 			return false;
 		
 		if (unique != other.unique)
+			return false;
+		
+		if (mutationID != other.mutationID)	// Ignore rest of Cosmic, they all key on mutationID
 			return false;
 		
 		if (chromosome == null)
@@ -395,10 +500,128 @@ public class VariantInfo
 		else if (!omimDisease.equals (other.omimDisease))
 			return false;
 		
+		if (suspectRegion == null)
+		{
+			if (other.suspectRegion != null)
+				return false;
+		}
+		else if (!suspectRegion.equals (other.suspectRegion))
+			return false;
+		
+		if (clinicalSig == null)
+		{
+			if (other.clinicalSig != null)
+				return false;
+		}
+		else if (!clinicalSig.equals (other.clinicalSig))
+			return false;
+		
+		if (alleleOrigin == null)
+		{
+			if (other.alleleOrigin != null)
+				return false;
+		}
+		else if (!alleleOrigin.equals (other.alleleOrigin))
+			return false;
+		
 		return true;
 	}
-
-
+	
+	
+	/**
+	 * Return a tab delimited string with the columns in the order of {@link #toTabString ()} 
+	 * 
+	 * @return	Tab delimited string, no tab at beginning or end
+	 */
+	public static String tabHeader ()
+	{
+		StringBuilder builder = new StringBuilder ();
+		
+		builder.append ("chromosome\tref\talt\tstartPos\tendPos\tentrezGeneID\tdbSNPsID\tfirstBuild\t");
+		builder.append ("alleleOrigin\tclinicalSig\tsuspectRegion\tdiseaseVariant\t");
+		builder.append ("geneSymbol\tensemblGeneID\tmutationID\tcosmicCDS\tcosmicAA\tstrand\tOMIMDisease\t");
+		builder.append ("blacklisted\tconserved\tenhancer\ttfbs\ttss\tunique\trepeat\tregulatory");
+		
+		return builder.toString ();
+	}
+	
+	
+	/**
+	 * Return a tab delimited string with the columns in the order of {@link #tabHeader ()} 
+	 * 
+	 * @return	Tab delimited string, no tab at beginning or end
+	 */
+	public String toTabString ()
+	{
+		StringBuilder builder = new StringBuilder ();
+		
+		builder.append (chromosome);
+		builder.append ("\t");
+		builder.append (ref);
+		builder.append ("\t");
+		builder.append (alt);
+		builder.append ("\t");
+		builder.append (startPos);
+		builder.append ("\t");
+		builder.append (endPos);
+		builder.append ("\t");
+		builder.append (entrezGeneID);
+		builder.append ("\t");
+		builder.append (dbSNPsID);
+		builder.append ("\t");
+		builder.append (firstBuild);
+		builder.append ("\t");
+		builder.append (alleleOrigin);
+		builder.append ("\t");
+		builder.append (clinicalSig);
+		builder.append ("\t");
+		builder.append (suspectRegion);
+		builder.append ("\t");
+		builder.append (diseaseVariant);
+		builder.append ("\t");
+		builder.append (geneSymbol);
+		builder.append ("\t");
+		builder.append (ensemblGeneID);
+		builder.append ("\t");
+		if (mutationID > 0)
+		{
+			builder.append (mutationID);
+			builder.append ("\t");
+			builder.append (cosmicCDS);
+			builder.append ("\t");
+			builder.append (cosmicAA);
+			builder.append ("\t");
+			if (strand)
+				builder.append ("+");
+			else
+				builder.append ("-");
+		}
+		else
+			builder.append ("-1\t\t\t");
+		
+		builder.append ("\t");
+		builder.append (omimDisease);
+		builder.append ("\t");
+		builder.append (blacklisted);
+		builder.append ("\t");
+		builder.append (conserved);
+		builder.append ("\t");
+		builder.append (enhancer);
+		builder.append ("\t");
+		builder.append (tfbs);
+		builder.append ("\t");
+		builder.append (tss);
+		builder.append ("\t");
+		builder.append (unique);
+		builder.append ("\t");
+		builder.append (repeat);
+		builder.append ("\t");
+		builder.append (regulatory);
+		
+		return builder.toString ();
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -422,14 +645,38 @@ public class VariantInfo
 		}
 		builder.append ("], entrezGeneID = ");
 		builder.append (entrezGeneID);
-		builder.append (", firstBuild = ");
-		builder.append (firstBuild);
-		builder.append (", geneSymbol = ");
-		builder.append (geneSymbol);
 		builder.append (", dbSNPsID = ");
 		builder.append (dbSNPsID);
+		builder.append (", firstBuild = ");
+		builder.append (firstBuild);
+		builder.append (", alleleOrigin = ");
+		builder.append (alleleOrigin);
+		builder.append (", clinicalSig = ");
+		builder.append (clinicalSig);
+		builder.append (", suspectRegion = ");
+		builder.append (suspectRegion);
+		builder.append (", diseaseVariant = ");
+		builder.append (diseaseVariant);
+		builder.append (", geneSymbol = ");
+		builder.append (geneSymbol);
 		builder.append (", ensemblGeneID = ");
 		builder.append (ensemblGeneID);
+		builder.append (", mutationID = ");
+		if (mutationID > 0)
+		{
+			builder.append (mutationID);
+			builder.append (", cosmicCDS = ");
+			builder.append (cosmicCDS);
+			builder.append (", cosmicAA = ");
+			builder.append (cosmicAA);
+			builder.append (", strand = ");
+			if (strand)
+				builder.append ("+");
+			else
+				builder.append ("-");
+		}
+		else
+			builder.append ("-1");
 		builder.append (", omimDisease = ");
 		builder.append (omimDisease);
 		builder.append (", blacklisted = ");

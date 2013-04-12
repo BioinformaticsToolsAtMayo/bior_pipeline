@@ -22,6 +22,7 @@ import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryMetaData;
+import edu.mayo.pipes.iterators.Compressor;
 
 
 /**
@@ -40,9 +41,19 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	kNCBICols = kNCBIEntrezGeneID + 1;
 	private static final String[]	kGeneDrill = {"gene", "GeneID"}; // , "note"
 	private static final int	kdbSNPBuild = 0;
-	private static final int	kdbSNPID = kdbSNPBuild + 1;
+	private static final int	kdbSNPSuspect = kdbSNPBuild + 1;
+	private static final int	kdbSNPClinical = kdbSNPSuspect + 1;
+	private static final int	kdbSNPDisease = kdbSNPClinical + 1;
+	private static final int	kdbSNPAllele = kdbSNPDisease + 1;
+	private static final int	kdbSNPID = kdbSNPAllele + 1;
 	private static final int	kdbSNPCols = kdbSNPID + 1;
-	private static final String[]	kDbSnpDrill = {"INFO.dbSNPBuildID", "_id"};
+	private static final String[]	kDbSnpDrill = {"INFO.dbSNPBuildID", "INFO.SSR", "INFO.SCS", "INFO.CLN", "INFO.SAO", "_id"};
+	private static final String[]	kDbSnpSuspectLookup = {"unspecified", "Paralog", "byEST", "Para_EST", "oldAlign", "other"};
+	private static final String[]	kDbSnpClinicalLookup = {"unknown", "untested", "non-pathogenic", "probable-non-pathogenic", 
+	                             	                        "probable-pathogenic", "pathogenic", "drug-response", 
+	                             	                        "histocompatibility", "other"};
+	private static final String[]	kDbSnpAlleleLookup = {"unspecified", "Germline", "Somatic", "Both", "not-tested", 
+	                             	                      "tested-inconclusive", "other"};
 	private static final int	kBGIMajorAllele = 0;
 	private static final int	kBGIMinorAllele = kBGIMajorAllele + 1;
 	private static final int	kBGIMajorFreq = kBGIMinorAllele + 1;
@@ -70,7 +81,7 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	kHapMapChbRefCount = kHapMapJptTotalCount + 1;
 	private static final int	kHapMapChbAltCount = kHapMapChbRefCount + 1;
 	private static final int	kHapMapChbTotalCount = kHapMapChbAltCount + 1;
-	protected static final int	kHapMapCols = kHapMapChbTotalCount + 1;
+	private static final int	kHapMapCols = kHapMapChbTotalCount + 1;
 	private static final String[]	kHapMapDrill = {"refallele", "otherallele", "CEU.refallele_freq", "CEU.otherallele_freq", 
               			        	                "YRI.refallele_freq", "YRI.otherallele_freq", "JPT.refallele_count", 
              			        	                "JPT.otherallele_count", "JPT.totalcount", "CHB.refallele_count", 
@@ -82,40 +93,46 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	k1kGenomeAMR = k1kGenomeAFR + 1;
 	private static final int	k1kGenomeRef = k1kGenomeAMR + 1;
 	private static final int	k1kGenomeAlt = k1kGenomeRef + 1;
-	protected static final int	k1kGenomeCols = k1kGenomeAlt + 1;
+	private static final int	k1kGenomeCols = k1kGenomeAlt + 1;
 	private static final String[]	k1kGenomeDrill = {"INFO.AF", "INFO.EUR_AF", "INFO.ASN_AF", "INFO.AFR_AF", "INFO.AMR_AF", 
 	                             	                  "_refAllele", "_altAlleles"};
 	private static final int	kHGNCSymbol = 0;
 	private static final int	kHGNCEntrezGeneID = kHGNCSymbol + 1;
 	private static final int	kHGNCEnsemblGeneID = kHGNCEntrezGeneID + 1;
-	protected static final int	kHGNCCols = kHGNCEnsemblGeneID + 1;
+	private static final int	kHGNCCols = kHGNCEnsemblGeneID + 1;
 	private static final String[]	kHGNCDrill = {"Approved_Symbol", "Entrez_Gene_ID", "Ensembl_Gene_ID"};
+	private static final int	kCosmicID = 0;
+	private static final int	kCosmicCDS = kCosmicID + 1;
+	private static final int	kCosmicAA = kCosmicCDS + 1;
+	private static final int	kCosmicStrand = kCosmicAA + 1;
+	private static final int	kCosmicCols = kCosmicStrand + 1;
+	private static final String[]	kCosmicDrill = {"Mutation_ID", "Mutation_CDS", "Mutation_AA", "Mutation_GRCh37_strand"};
 	private static final int	kOMIMDisorder = 0;
-	protected static final int	kOMIMCols = kOMIMDisorder + 1;
+	private static final int	kOMIMCols = kOMIMDisorder + 1;
 	private static final String[]	kOMIMDrill = {"Disorders"};
 	private static final int	kBlacklistScore = 0;
-	protected static final int	kBlacklistCols = kBlacklistScore + 1;
+	private static final int	kBlacklistCols = kBlacklistScore + 1;
 	private static final String[]	kBlacklistDrill = {"score"};
 	private static final int	kConservationScore = 0;
-	protected static final int	kConservationCols = kConservationScore + 1;
+	private static final int	kConservationCols = kConservationScore + 1;
 	private static final String[]	kConservationDrill = {"score"};
 	private static final int	kEnhancerScore = 0;
-	protected static final int	kEnhancerCols = kEnhancerScore + 1;
+	private static final int	kEnhancerCols = kEnhancerScore + 1;
 	private static final String[]	kEnhancerDrill = {"score"};
 	private static final int	kTFBSScore = 0;
-	protected static final int	kTFBSCols = kTFBSScore + 1;
+	private static final int	kTFBSCols = kTFBSScore + 1;
 	private static final String[]	kTFBSDrill = {"score"};
 	private static final int	kTSSScore = 0;
-	protected static final int	kTSSCols = kTSSScore + 1;
+	private static final int	kTSSCols = kTSSScore + 1;
 	private static final String[]	kTSSDrill = {"score"};
 	private static final int	kUniqueScore = 0;
-	protected static final int	kUniqueCols = kUniqueScore + 1;
+	private static final int	kUniqueCols = kUniqueScore + 1;
 	private static final String[]	kUniqueDrill = {"score"};
 	private static final int	kRegulationName = 0;
-	protected static final int	kRegulationCols = kRegulationName + 1;
+	private static final int	kRegulationCols = kRegulationName + 1;
 	private static final String[]	kRegulationDrill = {"name"};
 	private static final int	kRepeatName = 0;
-	protected static final int	kRepeatCols = kRepeatName + 1;
+	private static final int	kRepeatCols = kRepeatName + 1;
 	private static final String[]	kRepeatDrill = {"repName"};
 	private static final int	kRefOffset = 0;
 	private static final int	kAltOffset = kRefOffset + 1;
@@ -154,12 +171,15 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	kVCFParam = kVersionParam + 1;
 	private static final int	kBaseDirParam = kVCFParam + 1;
 	private static final int	kWhichDataParam = kBaseDirParam + 1;
+	private static final int	kOutFileParam = kWhichDataParam + 1;
 	private static final boolean	kConvertFromPercent = true;
 	private static final boolean	kDoNotConvert = false;
 	private static final boolean	kIsFirst = true;
 	private static final boolean	kIsNotFirst = false;
 	private static final int	kInvalidID = -1;
 	private static final int	kScoreCutoff = 500;
+	private static final String	kPlusStrand = "+";
+	private static final int	kSleepTime = 50;	// 1/20th of a second
 	
 	
 	/**
@@ -230,13 +250,18 @@ public class TreatPipeline implements Usage, Runnable
 		String	vcf = parameters[kVCFParam];
 		String	baseDir = parameters[kBaseDirParam];
 		String	whichData = parameters[kWhichDataParam];
+		String	outFileName = parameters[kOutFileParam];
 		boolean	doFreqs = (whichData == null);
 		File	theFile = new File (vcf);
+		File	outFile = null;
 		if (!theFile.exists ())
 		{
 			System.out.println ("Can't find the vcf file");
 			return;
 		}
+		
+		if ((outFileName != null) && !outFileName.isEmpty () && !outFileName.equals ("-"))
+			outFile = new File (outFileName);
 		
 		Properties	theProperties = getProperties ();
 		if (theProperties == null)
@@ -251,27 +276,90 @@ public class TreatPipeline implements Usage, Runnable
 			baseDir = "";
 		
 		if (doFreqs)
-			writeFrequencies (vcf, baseDir, theProperties);
+			writeFrequencies (vcf, baseDir, outFile, theProperties);
 		else
-			writeVariantInfo (vcf, baseDir, theProperties);
+			writeVariantInfo (vcf, baseDir, outFile, theProperties);
 	}
 	
 	
 	/**
-	 * Get the frequency information for the variants in vcf, and write it to stdout
+	 * Get the frequency information for the variants in vcf, and write it to outFile
 	 * 
 	 * @param vcf			Path to VCF file holding the variants of interest
 	 * @param baseDir		Base directory for the catalog files
 	 * @param theProperties	The properties from the Properties file
 	 * @throws IOException
 	 */
-	private static void writeVariantInfo (String vcf, String baseDir, Properties theProperties) throws IOException
+	private static void writeVariantInfo (String vcf, String baseDir, File outFile, Properties theProperties) throws IOException
 	{
-		List<VariantInfo>	info = new ArrayList<VariantInfo> ();
-		getVariantData (vcf, baseDir, theProperties, info);
+		BufferedWriter		dataWriter = getWriteTarget (outFile);
+		List<VariantInfo>	info = Collections.synchronizedList (new ArrayList<VariantInfo> ());
+		TreatPipeline		parser = new TreatPipeline (vcf, info, baseDir);
+		Thread				parseThread = new Thread (parser, "VCF Parser");
+		VariantInfo			treatResult = null;
 		
-		for (VariantInfo theVariant : info)
-			System.out.println (theVariant.toString ());
+//		getVariantData (vcf, baseDir, theProperties, info);
+		
+		parseThread.run ();	// Start parsing
+		dataWriter.write (VariantInfo.tabHeader ());
+		dataWriter.newLine ();
+		do
+		{
+			try
+			{
+				while (info.isEmpty ())
+					Thread.sleep (kSleepTime);
+			}
+			catch (InterruptedException oops)
+			{
+				// Ignore
+			}
+			
+			while (!info.isEmpty ())
+			{
+				treatResult = info.remove (0);
+				if (treatResult != null)
+				{
+					dataWriter.write (treatResult.toTabString ());
+					dataWriter.newLine ();
+				}
+			}
+		}
+		while (treatResult != null);
+//		for (VariantInfo theVariant : info)
+//		{
+//			dataWriter.write (theVariant.toString ());
+//			dataWriter.newLine ();
+////			System.out.println (theVariant.toString ());
+//		}
+	}
+	
+	
+	/**
+	 * Get a BufferedWriter either to the specified file (possibly compressed), or to System.out (if outFile is null)
+	 * 
+	 * @param outFile	File to write to, or null to say write to System.out
+	 * @return	BufferedWriter to the file (compressed if the file ends with .bz2, .bgz, etc.), or else to 
+	 * System.out.  If can't write to file, will write to System.out
+	 */
+	private static final BufferedWriter getWriteTarget (File outFile)
+	{
+		if (outFile != null)
+		{
+			try
+			{
+				Compressor		comp = new Compressor (null, outFile);
+				BufferedWriter	result = comp.getWriter ();
+				if (result != null)
+					return result;
+			}
+			catch (IOException oops)
+			{
+				oops.printStackTrace ();
+			}
+		}
+		
+		return new BufferedWriter (new OutputStreamWriter (System.out));
 	}
 	
 	
@@ -284,7 +372,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @throws IOException
 	 */
 	@SuppressWarnings ({"rawtypes", "unchecked"})
-	private static void writeFrequencies (String vcf, String baseDir, Properties theProperties) throws IOException
+	private static void writeFrequencies (String vcf, String baseDir, File outFile, Properties theProperties) throws IOException
 	{
 		String		genesFile = baseDir + theProperties.getProperty ("genesFile");
 		String		bgiFile = baseDir + theProperties.getProperty ("bgiFile");
@@ -425,6 +513,7 @@ public class TreatPipeline implements Usage, Runnable
 		GetOpts.addOption ('v', "--vcfFile", ArgType.kRequiredArgument, kRequired);
 		GetOpts.addOption ('b', "--baseDir", ArgType.kRequiredArgument, kOptional);
 		GetOpts.addOption ('i', "--variantInfo", ArgType.kNoArgument, kOptional);
+		GetOpts.addOption ('o', "--outFile", ArgType.kRequiredArgument, kOptional);
 		
 		String[]	parameters = GetOpts.parseArgs (args, new TreatPipeline ());
 		if (parameters == null)
@@ -514,6 +603,7 @@ public class TreatPipeline implements Usage, Runnable
 		String		genesFile = baseDir + theProperties.getProperty ("genesFile");
 		String		hgncFile = baseDir + theProperties.getProperty ("hgncFile");
 		String		dbsnpFile = baseDir + theProperties.getProperty ("dbsnpFile");
+		String		cosmicFile = baseDir + theProperties.getProperty ("cosmicFile");
 		String		hgncIndexFile = baseDir + theProperties.getProperty ("hgncIndexFile");
 		String		omimFile = baseDir + theProperties.getProperty ("omimFile");
 		String		omimIndexFile = baseDir + theProperties.getProperty ("omimIndexFile");
@@ -528,6 +618,7 @@ public class TreatPipeline implements Usage, Runnable
 		String[]	geneDrill = kGeneDrill;
 		String[]	hgncDrill = kHGNCDrill;
 		String[]	dbSnpDrill = kDbSnpDrill;
+		String[]	cosmicDrill = kCosmicDrill;
 		String[]	omimDrill = kOMIMDrill;
 		String[]	blacklistDrill = kBlacklistDrill;
 		String[]	conservationDrill = kConservationDrill;
@@ -547,7 +638,9 @@ public class TreatPipeline implements Usage, Runnable
 										  new DrillPipe (false, hgncDrill), 
 										  new SameVariantPipe (dbsnpFile, posCol -= hgncDrill.length), 
 										  new DrillPipe (false, dbSnpDrill), 
-										  new LookupPipe (omimFile, omimIndexFile, (posCol -= dbSnpDrill.length) + 1), 
+										  new SameVariantPipe (cosmicFile, posCol -= dbSnpDrill.length), 
+										  new DrillPipe (false, cosmicDrill), 
+										  new LookupPipe (omimFile, omimIndexFile, (posCol -= cosmicDrill.length) + 1), 
 										  new DrillPipe (false, omimDrill), 
 										  new OverlapPipe (blacklistedFile, posCol -= omimDrill.length), 
 										  new DrillPipe (false, blacklistDrill), 
@@ -617,10 +710,14 @@ public class TreatPipeline implements Usage, Runnable
 			int		pos = parseInt (history.get (positionPos));
 			String	ref = history.get (refPos);
 			String	alt = history.get (altPos);
-//			String	geneName = history.get (startCol + kGeneName);
+//			String	geneName = getString (history.get (startCol + kGeneName));
 //			int		entrezGeneID = parseInt (history.get (startCol + kNCBIEntrezGeneID));
 			startCol += kNCBICols;
 //			int		dbSNPBuild = parseInt (history.get (startCol + kdbSNPBuild));
+//			String	suspectRegion = lookupString (history.get (startCol + kdbSNPSuspect), kDbSnpSuspectLookup);
+//			String	clinicalSig = lookupString (history.get (startCol + kdbSNPClinical), kDbSnpClinicalLookup);
+//			String	alleleOrigin = lookupString (history.get (startCol + kdbSNPAllele), kDbSnpAlleleLookup);
+//			boolean	diseaseVariant = Boolean.parseBoolean (history.get (startCol + kdbSNPDisease));
 			startCol += kdbSNPCols;
 			String	bgiMajAllele = history.get (startCol + kBGIMajorAllele);
 			String	bgiMinAllele = history.get (startCol + kBGIMinorAllele);
@@ -643,6 +740,7 @@ public class TreatPipeline implements Usage, Runnable
 			double	kGenomeAMRFreq = parseDouble (history.get (startCol + k1kGenomeAMR), kDoNotConvert);
 			String	genomeRefAllele = history.get (startCol + k1kGenomeRef);
 			String	genomeAltAllele = history.get (startCol + k1kGenomeAlt);
+			startCol += k1kGenomeCols;
 			
 			List<AlleleFreq>	results;
 			
@@ -723,14 +821,23 @@ public class TreatPipeline implements Usage, Runnable
 //			String	geneName = history.get (startCol + kGeneName);
 //			int		ncbiEntrezGeneID = parseInt (history.get (startCol + kNCBIEntrezGeneID));
 			startCol += kNCBICols;
-			String	geneSymbol = history.get (startCol + kHGNCSymbol);
+			String	geneSymbol = getString (history.get (startCol + kHGNCSymbol));
 			int		entrezGeneID = parseInt (history.get (startCol + kHGNCEntrezGeneID));
-			String	ensemblGeneID = history.get (startCol + kHGNCEnsemblGeneID);
+			String	ensemblGeneID = getString (history.get (startCol + kHGNCEnsemblGeneID));
 			startCol += kHGNCCols;
 			int		firstBuild = parseInt (history.get (startCol + kdbSNPBuild));
-			String	dbSNPsID = history.get (startCol + kdbSNPID);
+			String	suspectRegion = lookupString (history.get (startCol + kdbSNPSuspect), kDbSnpSuspectLookup);
+			String	clinicalSig = lookupString (history.get (startCol + kdbSNPClinical), kDbSnpClinicalLookup);
+			String	alleleOrigin = lookupString (history.get (startCol + kdbSNPAllele), kDbSnpAlleleLookup);
+			boolean	diseaseVariant = Boolean.parseBoolean (history.get (startCol + kdbSNPDisease));
+			String	dbSNPsID = getString (history.get (startCol + kdbSNPID));
 			startCol += kdbSNPCols;
-			String	omimDisease = history.get (startCol + kOMIMDisorder);
+			int		mutationID = parseInt (history.get (startCol + kCosmicID));
+			String	cosmicCDS = history.get (startCol + kCosmicCDS);
+			String	cosmicAA = history.get (startCol + kCosmicAA);
+			boolean	strand = kPlusStrand.equals (history.get (startCol + kCosmicStrand));
+			startCol += kCosmicCols;
+			String	omimDisease = getString (history.get (startCol + kOMIMDisorder));
 			startCol += kOMIMCols;
 			boolean	blacklisted = isAboveCutoff (history.get (startCol + kBlacklistScore));
 			startCol += kBlacklistCols;
@@ -744,16 +851,17 @@ public class TreatPipeline implements Usage, Runnable
 			startCol += kTSSCols;
 			boolean	unique = isAboveCutoff (history.get (startCol + kUniqueScore));
 			startCol += kUniqueCols;
-			String	name = history.get (startCol + kRepeatName);
-			boolean	repeat = !name.isEmpty ();
+			String	name = getString (history.get (startCol + kRepeatName));
+			boolean	repeat = !isEmpty (name);
 			startCol += kRepeatCols;
-			name = history.get (startCol + kRegulationName);
-			boolean	regulatory = !name.isEmpty ();
+			name = getString (history.get (startCol + kRegulationName));
+			boolean	regulatory = !isEmpty (name);
 			startCol += kRegulationCols;
 			
-			info.add (new VariantInfo (chromosome, pos, endPos, ref, alt, entrezGeneID, firstBuild, geneSymbol, 
-										dbSNPsID, ensemblGeneID, omimDisease, blacklisted, conserved, enhancer, 
-										tfbs, tss, unique, repeat, regulatory));
+			info.add (new VariantInfo (chromosome, pos, endPos, ref, alt, entrezGeneID, firstBuild, dbSNPsID, suspectRegion, 
+										clinicalSig, alleleOrigin, diseaseVariant, geneSymbol, ensemblGeneID, 
+										mutationID, cosmicCDS, cosmicAA, strand, omimDisease, blacklisted, conserved, 
+										enhancer, tfbs, tss, unique, repeat, regulatory));
 		}
 	}
 	
@@ -833,6 +941,7 @@ public class TreatPipeline implements Usage, Runnable
 			double	kGenomeASNFreq = parseDouble (history.get (startCol + k1kGenomeASN), kDoNotConvert);
 			double	kGenomeAFRFreq = parseDouble (history.get (startCol + k1kGenomeAFR), kDoNotConvert);
 			double	kGenomeAMRFreq = parseDouble (history.get (startCol + k1kGenomeAMR), kDoNotConvert);
+			startCol += k1kGenomeCols;
 			
 			printString (geneName);
 			printInt (entrezGeneID);
@@ -859,7 +968,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param startCol	Where to start looking in the History
 	 * @return	Array of two doubles.  Both might be NaN, or double between 0 and 1
 	 */
-	private static double[] getCombinedFreq (History history, int startCol)
+	private static final double[] getCombinedFreq (History history, int startCol)
 	{
 		int[]	jptCounts = getCounts (history, startCol + kHapMapJptRefCount);
 		int[]	chbCounts = getCounts (history, startCol + kHapMapChbRefCount);
@@ -889,7 +998,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @return	An array of three ints.  It will have all 0s if there are no value, but it will 
 	 * always exist and have three entries
 	 */
-	private static int[] getCounts (History history, int startCol)
+	private static final int[] getCounts (History history, int startCol)
 	{
 		int[]	results = new int[kNumOffsets];
 		
@@ -922,7 +1031,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param alt	Alternate base(s).  May be empty if a deletion, or may have one base
 	 * @return	-1 if an SNV, pos if a deletion, pos + mount inserted if an insertion
 	 */
-	private static int getEndPos (int pos, String ref, String alt)
+	private static final int getEndPos (int pos, String ref, String alt)
 	{
 		int	refLen = ref.length ();
 		int	altLen = alt.length ();
@@ -944,7 +1053,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param startCol	Where to start looking in the History
 	 * @return	Array of two doubles.  Both might be NaN, or double between 0 and 1
 	 */
-	private static double[] getCombinedFreq (String[] cols, int startCol)
+	private static final double[] getCombinedFreq (String[] cols, int startCol)
 	{
 		int[]	jptCounts = getCounts (cols, startCol + kHapMapJptRefCount);
 		int[]	chbCounts = getCounts (cols, startCol + kHapMapChbRefCount);
@@ -974,7 +1083,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @return	An array of three ints.  It will have all 0s if there are no value, but it will 
 	 * always exist and have three entries
 	 */
-	private static int[] getCounts (String[] cols, int startCol)
+	private static final int[] getCounts (String[] cols, int startCol)
 	{
 		int[]	results = new int[kNumOffsets];
 		
@@ -992,7 +1101,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param baseStrs	Strings to look for matches for
 	 * @return	Array of ints, same size as baseStrs, holding the matches, or -1 if not matched
 	 */
-	private static int[] getPositions (String[] baseStrs)
+	private static final int[] getPositions (String[] baseStrs)
 	{
 		HistoryMetaData			metaData = History.getMetaData ();
 		List<ColumnMetaData>	columns = metaData.getColumns ();
@@ -1119,7 +1228,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * 
 	 * @param theStr	String to print out, if not blank
 	 */
-	private static void printString (String theStr)
+	private static final void printString (String theStr)
 	{
 		System.out.print ('\t');
 		if (!theStr.equals (kBlank))
@@ -1133,7 +1242,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * 
 	 * @param theInt	Integer to print out, if not 0
 	 */
-	private static void printInt (int theInt)
+	private static final void printInt (int theInt)
 	{
 		System.out.print ('\t');
 		if (theInt > 0)
@@ -1178,7 +1287,8 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param hapRefFreq	Major / Ref Frequency
 	 * @param hapAltFreq	Minor / Alt Frequency
 	 */
-	private static void printHapMap (String hapRefAllele, String hapAltAllele, boolean isFirst, double hapRefFreq, double hapAltFreq)
+	private static void printHapMap (String hapRefAllele, String hapAltAllele, boolean isFirst, 
+									 double hapRefFreq, double hapAltFreq)
 	{
 		if (!hapRefAllele.equals (kBlank) && !hapAltAllele.equals (kBlank))
 		{
@@ -1441,12 +1551,42 @@ public class TreatPipeline implements Usage, Runnable
 	
 	
 	/**
+	 * Test a String, if it's not empty, and not ".", return it, otherwise return null
+	 * 
+	 * @param theString	String to test
+	 * @return	A String, or null
+	 */
+	private static final boolean isEmpty (String theString)
+	{
+		return ((theString == null) || theString.isEmpty ());
+	}
+	
+	
+	/**
+	 * Test a String, if it's not empty, and not ".", return it, otherwise return null
+	 * 
+	 * @param theString	String to test
+	 * @return	A String, or null
+	 */
+	private static final String getString (String theString)
+	{
+		if ((theString == null) || theString.isEmpty ())
+			return null;
+		
+		if (theString.equals (kBlank))
+			return null;
+		
+		return theString;
+	}
+	
+	
+	/**
 	 * Parse a String, returning the int represented, or 0 if not an int
 	 * 
 	 * @param theInt	String to parse.  Must not be null
 	 * @return	An integer, 0 if parsing failed
 	 */
-	private static int parseInt (String theInt)
+	private static final int parseInt (String theInt)
 	{
 		int	result = 0;
 		if (!theInt.equals (kBlank))
@@ -1471,7 +1611,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param theDouble	String to parse.  Must not be null
 	 * @return	An double, NaN if parsing failed
 	 */
-	private static double parseDouble (String theDouble, boolean convertFromPercent)
+	private static final double parseDouble (String theDouble, boolean convertFromPercent)
 	{
 		double	result = Double.NaN;
 		if (!theDouble.equals (kBlank))
@@ -1493,11 +1633,41 @@ public class TreatPipeline implements Usage, Runnable
 	
 	
 	/**
+	 * Parse a String, getting an int.  If that int gives a String from theLookup, will return it.  If 
+	 * String doesn't parse to an int, or the int is negative or >= theLookup.length (), returns theLookup[0]
+	 * 
+	 * @param theInt	String to parse.  Must not be null
+	 * @param theLookup	Array to get strings from.  Must not be null or of length 0
+	 * @return	A string from theLookup
+	 */
+	private static final String lookupString (String theInt, String[] theLookup)
+	{
+		int	result = 0;
+		if (!theInt.equals (kBlank))
+		{
+			try
+			{
+				result = Integer.parseInt (theInt);
+			}
+			catch (NumberFormatException oops)
+			{
+				// Do nothing
+			}
+		}
+		
+		if (result > theLookup.length)
+			return theLookup[0];
+		
+		return theLookup[result];
+	}
+	
+	
+	/**
 	 * Get the properties from the properties file
 	 * 
 	 * @return	The properties, or null if coulnd't load them
 	 */
-	private static Properties getProperties ()
+	private static final Properties getProperties ()
 	{
 		Properties	theProperties = new Properties ();
 		InputStream is = TreatPipeline.class.getResourceAsStream ("TreatPipeline.properties");
@@ -1554,10 +1724,12 @@ public class TreatPipeline implements Usage, Runnable
 		
 		usage.append ("Usage: java -jar " + kAppName + ".jar <Options>\n");
 		
-		usage.append ("\t-v | --vcfFile: <path to vcf file>: Path of the vcf file to parse.  Required\n");
-		usage.append ("\t-b | --baseDir: <Path to BioR Catalogs>: Path to the BioR Catalog bse directory.\n\t\t");
+		usage.append ("\t-v | --vcfFile: <Name and Path of vcf file>: Path of the vcf file to parse.  Required\n");
+		usage.append ("\t-b | --baseDir: <Path to BioR Catalogs>: Path to the BioR Catalog base directory.\n\t\t");
 		usage.append ("Optional, the default is '/data4/bsi/refdata-new/catalogs/v1/BioR/'\n");
 		usage.append ("\t-i | --variantInfo: If specified, get Variant Info.  If not, get Frequency Info\n");
+		usage.append ("\t-o | --outFile: <Name and Path for results>: Where to write the results (a VCF file).\n\t\t");
+		usage.append ("Optional, the default is to write to - (stdout)\n");
 		usage.append ("\t-V | --version: Prints name and version string, then exits\n");
 		
 		return usage.toString ();
