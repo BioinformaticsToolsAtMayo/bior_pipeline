@@ -23,14 +23,14 @@ import org.apache.log4j.Logger;
  */
 public class BiorProperties {
 
-	private static final Logger sLogger = Logger.getLogger(BiorProperties.class);
-	
 	public enum Key { SnpEffJar, SnpEffConfig };
 	
     private static final String BIOR_PROP = "BIOR_PROP";
     private static String file = null;
     private Properties prop = null;
 
+    private static Logger sLogger = Logger.getLogger(BiorProperties.class); 
+    
     /**
      * We are going to run this code once, the first time the class is
      * referenced.
@@ -52,7 +52,7 @@ public class BiorProperties {
         	file = url.getFile();
         }
 
-        Logger.getLogger(BiorProperties.class).info("using " + file + " for " + DEFAULT_PROP_FILE_NAME);
+        sLogger.info("using " + file + " for " + DEFAULT_PROP_FILE_NAME);
     }
 
     /**
@@ -74,7 +74,7 @@ public class BiorProperties {
             prop = new Properties();
             prop.load(inStream);
         } catch (IOException ex) {
-        	sLogger.error(ex.getMessage(), ex);
+            sLogger.error("Error loading properties file: " + file, ex);
             throw ex;
         } finally {
             try {
@@ -82,7 +82,7 @@ public class BiorProperties {
                     inStream.close();
                 }
             } catch (IOException ex) {
-            	sLogger.error(ex.getMessage(), ex);
+                sLogger.error("Error closing properties file: " + file, ex);
                 throw ex;
             }
         }
