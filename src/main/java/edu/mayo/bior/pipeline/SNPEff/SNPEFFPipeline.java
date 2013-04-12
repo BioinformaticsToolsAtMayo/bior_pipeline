@@ -31,15 +31,12 @@ public class SNPEFFPipeline extends Pipeline {
 	public SNPEFFPipeline(String[] command, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		init(command, new IdentityPipe(), new IdentityPipe(), pickworst);
 	}
-	public SNPEFFPipeline(Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
-		init(null, input, output, pickworst);
-	}
 	public SNPEFFPipeline(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
-		init(null, input, output, pickworst);
+		init(command, input, output, pickworst);
 	}
 
 	private SNPEFFEXE snp;
-	public void init(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
+	private void init(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		//if(command == null){
 	//		snp = new SNPEFFEXE();
 		//}else{

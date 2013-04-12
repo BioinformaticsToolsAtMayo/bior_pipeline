@@ -65,6 +65,7 @@ public class SNPEffCommand implements CommandPlugin{
 
 
 	public void execute(CommandLine line, Options opts) throws Exception {
+		
 		SNPEFFPipeline snpEffPipe = null;
 		boolean pickworst = Boolean.TRUE;
 		if(line.hasOption(OPTION_PICKALL)){
@@ -88,8 +89,13 @@ public class SNPEffCommand implements CommandPlugin{
 	}
 	
 	private String[] getCommandLineOptions(CommandLine line) {
+		
 		List<String> cmdoptions = new ArrayList<String>();
 
+		// get GENOME_VERSION argument
+		String genomeVersion = line.getArgs()[0];		
+		cmdoptions.add(genomeVersion);
+		
 		if (line.hasOption(OPTION_SNP)) {
 			cmdoptions.add(OPTION_DASH + OPTION_SNP);
 		}
