@@ -41,4 +41,4 @@ if test `uname` = "Darwin"; then
 	VEP_COMMAND="$VEP_COMMAND --compress \"gunzip -c\""
 fi
 
-eval $VEP_COMMAND | java -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.bior.pipeline.VEPPostProcessingPipeline $ALL 
+eval $VEP_COMMAND | java -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.bior.pipeline.VEP.VEPPostProcessingPipeline $ALL 
