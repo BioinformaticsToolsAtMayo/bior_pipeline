@@ -18,6 +18,7 @@ import com.tinkerpop.pipes.PipeFunction;
 
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.bior.util.BiorProperties.Key;
+import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.exec.UnixStreamCommand;
 
 /**
@@ -29,7 +30,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 	private UnixStreamCommand vep;
         private static final String bufferSize = "20";
 
-	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
+	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
 		vep = new UnixStreamCommand(vepCmd, NO_CUSTOM_ENV, true, true); 
 		vep.launch();
@@ -44,7 +45,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 		//vep.receive();
 	}
 	
-	public VEPEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public VEPEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		this(getVEPCommand(bufferSize, "LINUX"));
 	}
         

@@ -28,6 +28,7 @@ import com.tinkerpop.pipes.PipeFunction;
 
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.bior.util.BiorProperties.Key;
+import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.exec.UnixStreamCommand;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -40,9 +41,9 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 	private static final Logger log = Logger.getLogger(SNPEFFEXE.class);
 	private UnixStreamCommand snpeff;
 
-	public SNPEFFEXE(String[] snpEffCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
+	public SNPEFFEXE(String[] snpEffCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
-		snpeff = new UnixStreamCommand(getSnpEffCommand(snpEffCmd), NO_CUSTOM_ENV, true, true); 
+		snpeff = new UnixStreamCommand(getSnpEffCommand(snpEffCmd), NO_CUSTOM_ENV, true, false); 
 		snpeff.launch();
 		snpeff.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		//send some fake data to get the ball rolling...
@@ -55,7 +56,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		snpeff.receive();
 	}
 
-	public SNPEFFEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public SNPEFFEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		this(getSnpEffCommand(null));
 	}
 

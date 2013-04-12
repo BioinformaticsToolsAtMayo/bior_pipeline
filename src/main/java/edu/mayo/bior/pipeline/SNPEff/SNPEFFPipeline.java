@@ -5,6 +5,8 @@
 package edu.mayo.bior.pipeline.SNPEff;
 
 import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
+import edu.mayo.exec.AbnormalExitException;
+
 import java.io.IOException;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
@@ -22,22 +24,22 @@ import edu.mayo.pipes.meta.BridgeOverPipe;
  * @author m102417
  */
 public class SNPEFFPipeline extends Pipeline {
-        public SNPEFFPipeline(String[] command) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+        public SNPEFFPipeline(String[] command) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		init(command, new IdentityPipe(), new IdentityPipe(), true);
 	}
     
-	public SNPEFFPipeline(String[] command, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public SNPEFFPipeline(String[] command, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		init(command, new IdentityPipe(), new IdentityPipe(), pickworst);
 	}
-	public SNPEFFPipeline(Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public SNPEFFPipeline(Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		init(null, input, output, pickworst);
 	}
-	public SNPEFFPipeline(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public SNPEFFPipeline(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		init(null, input, output, pickworst);
 	}
 
 	private SNPEFFEXE snp;
-	public void init(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public void init(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		//if(command == null){
 	//		snp = new SNPEFFEXE();
 		//}else{
