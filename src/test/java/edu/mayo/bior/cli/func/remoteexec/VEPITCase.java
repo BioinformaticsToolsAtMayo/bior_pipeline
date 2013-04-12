@@ -24,6 +24,7 @@ import edu.mayo.bior.cli.func.BaseFunctionalTest;
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.VEP.VEPEXE;
+import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
@@ -84,9 +85,10 @@ public class VEPITCase extends RemoteFunctionalTest {
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException 
+    	 * @throws AbnormalExitException 
 	 */
 	//@Test
-	public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		System.out.println("Test the raw output of a run on SNPEff versus the expected output (w/o header)");
 		VEPEXE vep = new VEPEXE();
 		//Pipe t = new TransformFunctionPipe(snp);

@@ -8,6 +8,8 @@ import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
+
+import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
@@ -83,10 +85,11 @@ public class VEPEXETest {
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException 
+        	 * @throws AbnormalExitException 
 	 */
 	//@Test
     // TODO: Disabled until Dan can refactor
-	public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		System.out.println("Test the raw output of a run on SNPEff versus the expected output (w/o header)");
 		VEPEXE vep = new VEPEXE(VEPEXE.getVEPMac("1"));
 		Pipe t = new TransformFunctionPipe(vep);

@@ -30,6 +30,7 @@ import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFEXE;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEffOutputTest;
+import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.exec.UnixStreamCommand;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.exceptions.InvalidPipeInputException;
@@ -66,7 +67,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	// PASSED!!!
 	@Test
 	/** Test the treat input VCF */
-	public void treatVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
+	public void treatVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.treatVcf(): standard/simple treat vcf file...");
 		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), true);
@@ -115,7 +116,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	/** This can be useful when trying to isolate what SnpEff is trying to do, without all the 
 	 *  extra junk coming from the pre and post pipeline elements.
 	 *  NOTE: We can only take clean variants ONLY (none with multiple insertions/deletions, else it will hang)!!	 */
-	public void snpEffExeOnly() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException{
+	public void snpEffExeOnly() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.snpEffExeOnly(): run only the exec part of the pipeline to isolate and test it...");
 
@@ -174,7 +175,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	 *  output from each variant matches expected which we should know because they are fairly unique)
 	 *  Do a line-by-line comparison to validate that the input lines all match up with the output lines
 	 */
-	public void significantEffects() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
+	public void significantEffects() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.significantEffects(): testing variants that have more rare outputs so we can tell if lines match up between bior_snpeff output and the expected output from the jar command...");
 		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(), false);
@@ -191,7 +192,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	@Test
 	/** Test a series of bad (or potentially bad) variants.
 	 *  These shouldn't stop the pipeline, but may give odd or unexpected results */
-	public void badVariants() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
+	public void badVariants() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.badVariants(): test a vcf file that contains poorly formatted variants...");
 		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new CatPipe(),new HistoryInPipe()), new IdentityPipe(),true);
@@ -206,7 +207,7 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 	@Test  (expected = InvalidPipeInputException.class)
 	/** Test a bad VCF (that it has less than 7 columns), 
 	 *  which would most like occur because of spaces instead of tabs */
-	public void badVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException {
+	public void badVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.badVcf(): test a vcf file that has contains poorly formatted variants...");
 		SNPEFFPipeline p = new SNPEFFPipeline(new Pipeline(new HistoryInPipe()), new IdentityPipe(),true);
