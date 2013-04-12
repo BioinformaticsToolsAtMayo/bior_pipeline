@@ -1,5 +1,5 @@
 # log4j configuration used during build and unit tests
-log4j.rootLogger=WARN, rollingFile
+log4j.rootLogger=DEBUG, rollingFile
 log4j.threshhold=ALL
 
 # rolling file appender
