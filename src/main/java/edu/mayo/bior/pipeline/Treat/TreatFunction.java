@@ -115,7 +115,6 @@ public class TreatFunction implements PipeFunction<String,History>{
      * @param VCFLine
      * @return 
      */
-    @Override
     public History compute(String VCFLine) {
         
         History xlsLine = new History();
