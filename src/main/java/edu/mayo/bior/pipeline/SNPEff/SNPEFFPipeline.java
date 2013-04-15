@@ -4,6 +4,8 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgramMerge;
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgramPreProcessPipe;
 import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import edu.mayo.exec.AbnormalExitException;
 
@@ -46,12 +48,12 @@ public class SNPEFFPipeline extends Pipeline {
 		SNPEffPostProcessPipeline ppp = new SNPEffPostProcessPipeline(pickworst);           
 		Pipe post = ppp.getSNPEffTransformPipe(pickworst);
 		Pipeline superviseMe = new Pipeline(
-				new SNPEffPreProcessPipe(),//history-string 
+				new VCFProgramPreProcessPipe(),//history-string 
 				exe,//string-string
 				new VCFProgram2HistoryPipe(),//string-history
 				post //history-history
 				);
-		BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new SNPEFFMerge());
+		BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new VCFProgramMerge("SNPEff"));
 
 		Pipeline p = new Pipeline(
 				input,//??-history better convert it to a history comming into the pipeline e.g. HistoryInPipe
