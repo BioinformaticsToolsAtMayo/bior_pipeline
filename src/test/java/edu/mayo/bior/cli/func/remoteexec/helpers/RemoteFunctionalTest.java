@@ -52,6 +52,8 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	
 	private Properties mDevServerProperties = null;
 	
+	private static boolean mIsAllTestsSuccessful = false;
+	private static ArrayList<RemoteTestResult> mTestResults = new ArrayList<RemoteTestResult>();
 
 	@BeforeClass
 	public static void beforeAll() throws Exception {
@@ -151,9 +153,9 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 			System.out.println("Run the Maven build on biordev server...");
 			ArrayList<String> resultLines = runMavenBuild(session);
 			System.out.println("Get results from Maven's surefire-reports xml files...");
-			ArrayList<RemoteTestResult> testResults = getTestResults(session);
+			mTestResults = getTestResults(session);
 	
-			verifyTests(session, testResults);
+			verifyTests(session, mTestResults);
 			
 			session.disconnect();
 			System.out.println("Done.");
@@ -225,16 +227,17 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 			System.out.println("\n============================================================================");
 			System.out.println("WARNING: Zero functional tests were run!  **********************************");
 			System.out.println("============================================================================");
-			Assert.fail();
+			// Set flag to fail the build (this is hit in @After method)
+			mIsAllTestsSuccessful = false;
+			Assert.fail("FAILED: No tests were run");
 		}
-		
 		// Verify that no tests had errors
-		if( numErrors > 0 ) {
+		else if( numErrors > 0 ) {
 			printErrors(getTestErrors(session));
 			System.out.println("\n============================================================================");
 			System.out.println("Doh!  Some tests failed! ************************************************");
 			System.out.println("============================================================================");
-			Assert.fail();
+			Assert.fail("FAILED: There were some errors when running the tests!");
 		}
 
 		// Warn user if some tests skipped
