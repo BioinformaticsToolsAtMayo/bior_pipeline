@@ -54,14 +54,14 @@ public class VEPEXE implements PipeFunction<String,String>{
 		//VEP_COMMAND="$BIOR_VEP_PERL_HOME/perl $BIOR_VEP_HOME/variant_effect_predictor.pl -i /dev/stdin -o STDOUT -dir $BIOR_VEP_HOME/cache/ -vcf --hgnc -polyphen b -sift b --offline --buffer_size $VEP_BUFFER_SIZE"
 		final String[] command = {
 				// On Dan's Mac, first part of cmd: "/usr/bin/perl"
-				biorProps.get("BIOR_VEP_PERL"),
-				biorProps.get("BIOR_VEP"),
+				biorProps.get(BiorProperties.Key.BiorVepPerl),
+				biorProps.get(BiorProperties.Key.BiorVep),
 				"-i",
 				"/dev/stdin",
 				"-o",
 				"STDOUT",
 				"-dir",
-				biorProps.get("BIOR_VEP_CACHE"),
+				biorProps.get(BiorProperties.Key.BiorVepCache),
 				"-vcf",
 				"--hgnc",
 				"-polyphen",
