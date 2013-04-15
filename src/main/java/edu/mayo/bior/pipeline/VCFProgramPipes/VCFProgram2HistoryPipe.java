@@ -15,7 +15,30 @@ import java.util.NoSuchElementException;
  * @author m102417
  */
 public class VCFProgram2HistoryPipe extends AbstractPipe<String, History> {
+    
+    private String[] meta = null;
+    private int count = 0;
+    
+    //do nothing special constructor
+    public VCFProgram2HistoryPipe(){
+        
+    }
+    
+    /**
+     * Add header construction to metadata
+     * @param metadataLines - lines (prefixed with #
+     */ 
+    public VCFProgram2HistoryPipe(String[] metadataLines){
+        meta = metadataLines;
+    }
 
+    private void loadMeta(History h){
+        List<String> orgH = History.getMetaData().getOriginalHeader();
+        for(String line : meta){
+            orgH.add(line);
+        }
+    }
+    
     public History histAppend(String[] tokens){
         History h = new History();
         for(int i=0; i<tokens.length; i++){
@@ -51,7 +74,9 @@ public class VCFProgram2HistoryPipe extends AbstractPipe<String, History> {
         if(h == null){
             return processNextStart();
         }
-
+        //add a user injected header, if needed (mostly for pipes that follow as this will be thrown away in the VCFProgramMergePipe as of now
+        if((count==0) && meta != null){ loadMeta(h); }//on the first row only do this
+        count++;
         return h;
     }
     

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.mayo.bior.pipeline.SNPEff;
+package edu.mayo.bior.pipeline.VCFProgramPipes;
 
 import java.util.NoSuchElementException;
 
@@ -15,16 +15,16 @@ import edu.mayo.pipes.history.History;
  *
  * @author m102417
  */
-public class SNPEffPreProcessPipe extends AbstractPipe<History, String> {
+public class VCFProgramPreProcessPipe extends AbstractPipe<History, String> {
     
     private int mNumColsToSave = 7;
     private int mLineNumber = 0;
     
-    public SNPEffPreProcessPipe(){
+    public VCFProgramPreProcessPipe(){
         
     }
     
-    public SNPEffPreProcessPipe(int colsToSave){
+    public VCFProgramPreProcessPipe(int colsToSave){
     	mNumColsToSave = colsToSave;
     }
 
