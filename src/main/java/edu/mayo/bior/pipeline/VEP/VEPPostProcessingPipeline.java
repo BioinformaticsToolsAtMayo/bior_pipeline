@@ -57,19 +57,19 @@ public class VEPPostProcessingPipeline {
             this.whichPipeline = whichPipeline;
         }
         
-        public Pipe getPipeline(Pipe input, Pipe output){
-            return getPipeline(input, output, whichPipeline);
+        public Pipe getPipeline(Pipe input, Pipe output, boolean includeHistory){
+            return getPipeline(input, output, whichPipeline, includeHistory);
         }
         
-        public Pipe getPipeline(Pipe input, Pipe output, String whichPipeline1){
+        public Pipe getPipeline(Pipe input, Pipe output, String whichPipeline1, boolean includeHistory){
             this.whichPipeline = whichPipeline1;
             if(whichPipeline.equalsIgnoreCase("CartesianProduct")){
-                return getCartesianProductPipeline(input, output);
+                return getCartesianProductPipeline(input, output, includeHistory);
             }
             if(whichPipeline.equalsIgnoreCase("WorstScenario")){
-                return getWorstCasePipeline(input, output);
+                return getWorstCasePipeline(input, output, includeHistory);
             }
-            return getCartesianProductPipeline(input, output);
+            return getCartesianProductPipeline(input, output, includeHistory);
         }
         
     
@@ -77,14 +77,14 @@ public class VEPPostProcessingPipeline {
             VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
             InputStreamPipe	in 		= new InputStreamPipe();
             PrintPipe           out             = new PrintPipe();
-            Pipe p = vepp.getPipeline(in, out, "WorstScenario");
+            Pipe p = vepp.getPipeline(in, out, "WorstScenario", true);
             
             for(int i=0; i<args.length; i++){
                 if(args[i].contains("a") ||
                      args[i].contains("-a") ||
                      args[i].contains("-all") ||
                      args[i].contains("--all") ){
-                     p = vepp.getPipeline(in, out, "CartesianProduct");
+                     p = vepp.getPipeline(in, out, "CartesianProduct", true);
                 }
             }
             
@@ -104,7 +104,7 @@ public class VEPPostProcessingPipeline {
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
                 PrintPipe       out             = new PrintPipe();
-                Pipe            logic           = getPipeline(in, out, whichPipeline);
+                Pipe            logic           = getPipeline(in, out, whichPipeline, true);
 		HistoryOutPipe	historyOut      = new HistoryOutPipe();
 		PrintPipe	print           = new PrintPipe();
 		
@@ -126,7 +126,7 @@ public class VEPPostProcessingPipeline {
                 }		
 	}
         
-        private static String[] headers = {"Allele", 
+        public final static String[] headers = {"Allele", 
                                     "Gene", 
                                     "Feature",
                                     "Feature_type",
@@ -144,7 +144,20 @@ public class VEPPostProcessingPipeline {
                                     "CELL_TYPE"
                     };
         
-        public Pipe getCartesianProductPipeline(Pipe input, Pipe output){
+        /**
+         * 
+         * @param input
+         * @param output
+         * @param includeHistory - if you want historyInPipe and historyOutPipe on the pipeline
+         * @return 
+         */
+        public Pipe getCartesianProductPipeline(Pipe input, Pipe output, boolean includeHistory){
+                Pipe hIn = new HistoryInPipe();
+                Pipe hOut = new HistoryOutPipe();
+                if(includeHistory == false){
+                    hIn = new IdentityPipe();
+                    hOut = new IdentityPipe();
+                }
                 String[] drillPath = new String[1];
                 drillPath[0]= "INFO.CSQ";
                 DrillPipe drill = new DrillPipe(false, drillPath);
@@ -156,30 +169,43 @@ public class VEPPostProcessingPipeline {
                 Pipe fixSiftPoly = new TransformFunctionPipe<History,History>(new FixSiftandPolyphen());
 
                 Pipe p = new Pipeline(input,//the output of vep
-                                    new HistoryInPipe(),
+                                    hIn,
                                     new VCF2VariantPipe(), 
                                     new FindAndReplaceHPipe(8,"CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
                                     drill,
                                     new FanPipe(),
                                     pipes2json,
                                     fixSiftPoly,
-                                    new HistoryOutPipe(),
+                                    hOut,
                                     output);
                 return p;
         }
         
-        public Pipe getWorstCasePipeline(Pipe input, Pipe output){
+        /**
+         * 
+         * @param input
+         * @param output
+         * @param includeHistory - if you want historyInPipe and historyOutPipe on the pipeline
+         * @return 
+         */
+        public Pipe getWorstCasePipeline(Pipe input, Pipe output, boolean includeHistory){
+                Pipe hIn = new HistoryInPipe();
+                Pipe hOut = new HistoryOutPipe();
+                if(includeHistory == false){
+                    hIn = new IdentityPipe();
+                    hOut = new IdentityPipe();
+                }
                 String[] drillPath = new String[1];
                 drillPath[0]= "INFO.CSQ";
                 DrillPipe drill = new DrillPipe(false, drillPath);
                 Pipe worstvep = new TransformFunctionPipe<History,History>(new PickWorstVEP());
                 Pipe p = new Pipeline(input,//the output of vep
-                    new HistoryInPipe(),
+                    hIn,
                     new VCF2VariantPipe(), 
                     new FindAndReplaceHPipe(8,"CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
                     drill,
                     worstvep,
-                    new HistoryOutPipe(),
+                    hOut,
                     output
                         );
                 return p;
