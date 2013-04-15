@@ -36,7 +36,7 @@ public class TreatFunction implements PipeFunction<String,History>{
         columns.add(cmd("Ref"));                        //input VCF Standard
         columns.add(cmd("Alt"));                        //input VCF Standard
         columns.add(cmd("Quality"));                    //input
-        columns.add(cmd("dbSNP130/132/135"));           //dbSNP
+        columns.add(cmd("dbSNP130/132/135"));           //dbSNP - rsID
         columns.add(cmd("dbSNP130/132/135Alleles"));    //dbSNP
         columns.add(cmd("DiseaseVariant"));             //dbSNP
         columns.add(cmd("HapMap_CEU_allele_freq"));     //HapMap
