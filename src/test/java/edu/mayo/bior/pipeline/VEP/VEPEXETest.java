@@ -64,16 +64,25 @@ public class VEPEXETest {
     /**
      * Test of getVEPCommand method, of class VEPEXE.
      */
-    //@Test
+    @Test
     // TODO: Disabled until Dan can refactor
     public void testGetVEPCommand() throws Exception {
         System.out.println("getVEPCommand");
-        String bufferSize = "";
+        String bufferSize = "20";
         String[] result = VEPEXE.getVEPCommand(bufferSize);
         //result[0] is vep's perl, don't test that, it is configurable
         //result[1] is vep's path, don't test that, it is also configurable
         assertEquals("-i", result[2]);
-        //assertEquals("/dev/stdin", result[3]);
-
+        assertEquals("/dev/stdin", result[3]);
+        //result[4] is vep's cache path, don't test that, it is also configurable
+        assertEquals("-vcf", result[5]);
+        assertEquals("--hgnc", result[6]);
+        assertEquals("-polyphen", result[7]);
+        assertEquals("b", result[8]);
+        assertEquals("-sift", result[9]);
+        assertEquals("b", result[10]);
+        assertEquals("--offline", result[11]);
+        assertEquals("--buffer_size", result[12]);
+        assertEquals("20", result[13]);
     }
 }
