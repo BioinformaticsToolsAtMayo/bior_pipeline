@@ -96,6 +96,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	 */
 	//@Test
 	public void testExecVepPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
+		double start = System.currentTimeMillis();
 		System.out.println("Test the raw output of a run on SNPEff versus the expected output (w/o header)");
 		VEPEXE vep = new VEPEXE();
 		//Pipe t = new TransformFunctionPipe(snp);
@@ -127,13 +128,15 @@ public class VEPITCase extends RemoteFunctionalTest {
 		//			assertEquals(res,o);
 		//			//if(i==10) break;
 		//		}
+		double end = System.currentTimeMillis();
+		System.out.println("VEPITCase.testExecVepPipe() - Total runtime: " + (end-start)/1000.0);
 	}
 
 
 	/**
 	 * This pipeline will clean the input before passing it to vep, then stitch it back together
 	 */
-	@Test
+	//@Test
 	public void testVEPBridgePipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
 		//Pipeline p = new VEPPipeline(VEPEXE.getVEPMac("1"), input, new PrintPipe(), true);
@@ -174,7 +177,6 @@ public class VEPITCase extends RemoteFunctionalTest {
 		vep.terminate();
 	}
 
-	//moveMe -- a functional test that we need to move to the vepitcase
 	/**
 	 * note: if you want to dig deep and debug this code, you probably want to set your log4j properties to:
 	 * ##active
@@ -267,12 +269,6 @@ public class VEPITCase extends RemoteFunctionalTest {
 		assertEquals("tolerated(0.05)", JsonPath.compile("SIFT").read(json));
 		assertEquals("benign", JsonPath.compile("PolyPhen_TERM").read(json));
 		assertEquals("tolerated", JsonPath.compile("SIFT_TERM").read(json));
-
-	}
-
-
-	@Test
-	public void test2() {
 
 	}
 }
