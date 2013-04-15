@@ -8,12 +8,20 @@ import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
+import edu.mayo.pipes.JSON.Delim2JSONPipe;
+import edu.mayo.pipes.JSON.DrillPipe;
+import edu.mayo.pipes.JSON.FanPipe;
 
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
+import edu.mayo.pipes.history.FindAndReplaceHPipe;
+import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -67,6 +75,50 @@ public class VEPEXETest {
         assertEquals("-i", result[2]);
         //assertEquals("/dev/stdin", result[3]);
 
+    }
+    
+    /**
+     * This pipeline will clean the input before passing it to vep, then stitch it back together
+     */
+    @Test
+    public void testVEPBridgePipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
+        Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
+        //Pipeline p = new VEPPipeline(VEPEXE.getVEPMac("1"), input, new PrintPipe(), true);
+        Pipeline p = new VEPPipeline(VEPEXE.getVEPMac("1"), input, new PrintPipe(), false);
+        p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
+        while(p.hasNext()){
+            p.next();
+        }
+    }
+    
+    //moveMe - a functional test for the new VEP Pipeline
+    //This is a little test to make sure everything is working prior to integrating the bridgeover functions
+    //@Test
+    public void testVEPPipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
+        System.out.println("testVEPPipeline");
+        String[] vepHeader = new String[1];
+        vepHeader[0] = "##INFO=<ID=CSQ,Number=.,Type=String,Description=\"Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE\">";
+        VEPEXE vep = new VEPEXE(VEPEXE.getVEPMac("1"));
+	Pipe exe = new TransformFunctionPipe(vep);
+        VEPPostProcessingPipeline ppp = new VEPPostProcessingPipeline();
+        //Pipe post = ppp.getWorstCasePipeline(new IdentityPipe(), new IdentityPipe(), false);
+        Pipe post = ppp.getCartesianProductPipeline(new IdentityPipe(), new IdentityPipe(),false);
+
+        Pipeline p = new Pipeline(
+                new CatPipe(),
+                new HistoryInPipe(),         //get rid of the header
+		new MergePipe("\t"),
+                exe,
+                new VCFProgram2HistoryPipe(vepHeader),   
+                post,
+                new HistoryOutPipe(),
+                new PrintPipe()
+                );
+        p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
+        for(int i=0; p.hasNext(); i++){
+            p.next();
+        }
+        vep.terminate();
     }
     
     //moveMe -- a functional test that we need to move to the vepitcase
