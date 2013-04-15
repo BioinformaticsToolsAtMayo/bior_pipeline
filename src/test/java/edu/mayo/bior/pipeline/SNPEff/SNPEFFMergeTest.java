@@ -4,6 +4,8 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgramMerge;
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgramPreProcessPipe;
 import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.transform.IdentityPipe;
@@ -60,7 +62,7 @@ public class SNPEFFMergeTest {
                     new ReplaceAllPipe("EFF.*$", "foo"),
                     new HistoryInPipe()
                     );
-            BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new SNPEFFMerge());
+            BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new VCFProgramMerge());
             Pipeline p = new Pipeline(
                     new CatPipe(),
                     new HistoryInPipe(),
@@ -98,11 +100,11 @@ public class SNPEFFMergeTest {
             SNPEffPostProcessPipeline ppp = new SNPEffPostProcessPipeline(true);           
             Pipe post = ppp.getSNPEffTransformPipe(true);
             Pipeline superviseMe = new Pipeline(
-                    new SNPEffPreProcessPipe(8),//history-string //when not running this test, you will not want col 8, so use 7 here!
+                    new VCFProgramPreProcessPipe(8),//history-string //when not running this test, you will not want col 8, so use 7 here!
                     new VCFProgram2HistoryPipe(),//string-history
                     post //history-history
                     );
-            BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new SNPEFFMerge());
+            BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new VCFProgramMerge());
             Pipeline p = new Pipeline(
                     new CatPipe(),//filename-string
                     new GrepEPipe("^#"),//string-string
