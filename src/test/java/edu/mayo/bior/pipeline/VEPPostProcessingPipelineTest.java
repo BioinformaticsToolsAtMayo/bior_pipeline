@@ -74,8 +74,8 @@ public class VEPPostProcessingPipelineTest {
                                   new IdentityPipe()
                 );
         p = vepp.getPipeline(new CatPipe(), 
-                testP
-                );
+                testP,
+                true);
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/cancer.vcf.vep"));
         //CatalogUtils.saveToFile(CatalogUtils.pipeOutputToStrings(p), "src/test/resources/tempOutput/vepPostProc.vcf.vep");
         for(int i=0; p.hasNext(); i++){
@@ -99,7 +99,8 @@ public class VEPPostProcessingPipelineTest {
                                   new IdentityPipe()
                 );
         p = vepp.getPipeline(new CatPipe(), 
-                testP
+                testP,
+                true
                 );
         //p.setStarts(Arrays.asList("src/test/resources/tools/vep/vep.vcf"));
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/dbSNPS_overlap_BRCA1.vcf.vep"));
@@ -126,7 +127,7 @@ public class VEPPostProcessingPipelineTest {
         		new IdentityPipe()
         		);
         VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline("WorstScenario");
-        Pipe p = vepp.getPipeline(new CatPipe(), testP);
+        Pipe p = vepp.getPipeline(new CatPipe(), testP, true);
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf.vep"));
         verify.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf.vep.drill"));
         for(int i=0; p.hasNext(); i++){
@@ -198,7 +199,7 @@ public class VEPPostProcessingPipelineTest {
         System.out.println("Test GetPipeline: VEPPostProcessingPipeline...");
         VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
         Pipe p;
-		p = vepp.getPipeline(new CatPipe(), new IdentityPipe());
+		p = vepp.getPipeline(new CatPipe(), new IdentityPipe(), true);
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf.vep"));
         String s="";
         while(p.hasNext()){
@@ -223,7 +224,7 @@ public class VEPPostProcessingPipelineTest {
         String vcfsample = "21	26960070	rs116645811	G	A	.	.	CSQ=A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||,A|ENSG00000154719|ENST00000352957|Transcript|intron_variant||||||||||,A|ENSG00000154719|ENST00000307301|Transcript|missense_variant|1043|1001|334|T/M|aCg/aTg|||tolerated(0.05)|benign(0.001)|";
         
         VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
-        Pipe p = vepp.getPipeline(new IdentityPipe(), new IdentityPipe());
+        Pipe p = vepp.getPipeline(new IdentityPipe(), new IdentityPipe(), true);
         p.setStarts(Arrays.asList(csqHeader, colHeader, vcfsample));
         String result = "";
         while(p.hasNext()){
@@ -245,7 +246,7 @@ public class VEPPostProcessingPipelineTest {
         String vcfsample = "21	26960070	rs116645811	G	A	.	.	CSSQ=A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||,A|ENSG00000154719|ENST00000352957|Transcript|intron_variant||||||||||,A|ENSG00000154719|ENST00000307301|Transcript|missense_variant|1043|1001|334|T/M|aCg/aTg|||tolerated(0.05)|benign(0.001)|";
         
         VEPPostProcessingPipeline vepp = new VEPPostProcessingPipeline();
-        Pipe p = vepp.getPipeline(new IdentityPipe(), new IdentityPipe());
+        Pipe p = vepp.getPipeline(new IdentityPipe(), new IdentityPipe(), true);
         p.setStarts(Arrays.asList(vcfsample));
         String result = "";
         while(p.hasNext()){
@@ -256,7 +257,7 @@ public class VEPPostProcessingPipelineTest {
         assertFalse(arrResult[7].equals("."));  //cannot be ".", since "CSQ" will not be found              
 
         vcfsample = "21	26960070	rs116645811	G	A	.	.	";  // NO "CSQ"
-        p = vepp.getPipeline(new IdentityPipe(), new IdentityPipe());
+        p = vepp.getPipeline(new IdentityPipe(), new IdentityPipe(), true);
         p.setStarts(Arrays.asList(vcfsample));        
         while(p.hasNext()){
             result = (String) p.next();            
