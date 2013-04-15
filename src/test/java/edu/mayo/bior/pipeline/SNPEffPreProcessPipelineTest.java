@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import com.tinkerpop.pipes.util.Pipeline;
 
-import edu.mayo.bior.pipeline.SNPEff.SNPEffPreProcessPipe;
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgramPreProcessPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.util.test.FileCompareUtils;
@@ -21,7 +21,7 @@ public class SNPEffPreProcessPipelineTest {
 		Pipeline pipe = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe(),
-				new SNPEffPreProcessPipe()
+				new VCFProgramPreProcessPipe()
 				);
 		pipe.setStarts(Arrays.asList("src/test/resources/tools/snpeff/snpEff.preProcess.input.1.vcf"));
 		ArrayList<String> actual = PipeTestUtils.pipeOutputToStrings2(pipe);
