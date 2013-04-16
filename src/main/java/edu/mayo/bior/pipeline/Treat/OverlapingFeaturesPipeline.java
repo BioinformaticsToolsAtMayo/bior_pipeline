@@ -14,6 +14,7 @@ import edu.mayo.pipes.JSON.tabix.OverlapPipe;
 import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
+import edu.mayo.pipes.history.HCutPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
 import java.io.IOException;
 
@@ -115,6 +116,7 @@ public class OverlapingFeaturesPipeline extends Pipeline {
                     new DrillPipe (false, repeatDrill), 
                     new OverlapPipe (regulationFile, posCol -= repeatDrill.length), 
                     new DrillPipe (false, regulationDrill),
+                    new HCutPipe(new int[posCol]),
                     output
                     );
             this.setPipes(p.getPipes());
