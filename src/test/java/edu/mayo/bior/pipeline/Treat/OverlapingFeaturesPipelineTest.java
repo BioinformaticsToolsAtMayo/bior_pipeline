@@ -45,7 +45,7 @@ public class OverlapingFeaturesPipelineTest {
     /**
      * Test of init method, of class OverlapingFeaturesPipeline.
      */
-    @Test
+    //@Test
     public void testInit() throws Exception {
         System.out.println("Testing Overlap Features Pipeline");
         Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
