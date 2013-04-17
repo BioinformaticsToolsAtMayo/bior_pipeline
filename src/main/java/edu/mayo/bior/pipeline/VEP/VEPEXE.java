@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.tinkerpop.pipes.PipeFunction;
 
 import edu.mayo.bior.util.BiorProperties;
+import edu.mayo.bior.util.BiorProperties.Key;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.exec.UnixStreamCommand;
 
@@ -30,7 +31,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 
 	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
-		mVep = new UnixStreamCommand(vepCmd, NO_CUSTOM_ENV, true, true); 
+		mVep = new UnixStreamCommand(getVEPCommand("5000"), NO_CUSTOM_ENV, true, true); 
 		mVep.launch();
 		mVep.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		//send some fake data to get the ball rolling...
@@ -54,14 +55,14 @@ public class VEPEXE implements PipeFunction<String,String>{
 		//VEP_COMMAND="$BIOR_VEP_PERL_HOME/perl $BIOR_VEP_HOME/variant_effect_predictor.pl -i /dev/stdin -o STDOUT -dir $BIOR_VEP_HOME/cache/ -vcf --hgnc -polyphen b -sift b --offline --buffer_size $VEP_BUFFER_SIZE"
 		final String[] command = {
 				// On Dan's Mac, first part of cmd: "/usr/bin/perl"
-				biorProps.get(BiorProperties.Key.BiorVepPerl),
-				biorProps.get(BiorProperties.Key.BiorVep),
+				biorProps.get(Key.BiorVepPerl),
+				biorProps.get(Key.BiorVep),
 				"-i",
 				"/dev/stdin",
 				"-o",
 				"STDOUT",
 				"-dir",
-				biorProps.get(BiorProperties.Key.BiorVepCache),
+				biorProps.get(Key.BiorVepCache),
 				"-vcf",
 				"--hgnc",
 				"-polyphen",
@@ -74,6 +75,8 @@ public class VEPEXE implements PipeFunction<String,String>{
 				// These added on Dan's Mac:
 				//"--compress",
 				// "gunzip -c"
+				// "-i",
+				// "/dev/stdin",
 		};
 		return command;
 	}
