@@ -5,7 +5,7 @@
  * Copyright Mayo Clinic, 2011
  *
  */
-package edu.mayo.bior.pipeline;
+package edu.mayo.bior.pipeline.Treat;
 
 import java.util.List;
 import com.tinkerpop.pipes.PipeFunction;

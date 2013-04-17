@@ -5,7 +5,7 @@
  * Copyright Mayo Clinic, 2010
  *
  */
-package edu.mayo.bior.pipeline;
+package edu.mayo.bior.pipeline.Treat;
 
 
 /**

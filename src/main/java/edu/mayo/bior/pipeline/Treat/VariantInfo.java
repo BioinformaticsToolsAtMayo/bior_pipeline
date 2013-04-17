@@ -5,7 +5,7 @@
  * Copyright Mayo Clinic, 2011
  *
  */
-package edu.mayo.bior.pipeline;
+package edu.mayo.bior.pipeline.Treat;
 
 /**
  * Class to get non-Allele Frequency variant information from the TreatPipeline to the Table Browser

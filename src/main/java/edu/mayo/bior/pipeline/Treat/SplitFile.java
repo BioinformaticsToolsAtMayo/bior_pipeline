@@ -1,4 +1,4 @@
-package edu.mayo.bior.pipeline;
+package edu.mayo.bior.pipeline.Treat;
 /*
  * Split File
  * 

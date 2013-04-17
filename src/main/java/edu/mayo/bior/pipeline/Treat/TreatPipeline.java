@@ -3,9 +3,10 @@
  * and open the template in the editor.
  */
 
-package edu.mayo.bior.pipeline;
+package edu.mayo.bior.pipeline.Treat;
 
-import static edu.mayo.bior.pipeline.SplitFile.kReturnAll;
+import edu.mayo.bior.pipeline.Treat.SplitFile;
+import static edu.mayo.bior.pipeline.Treat.SplitFile.kReturnAll;
 import java.io.*;
 import java.util.*;
 import com.tinkerpop.pipes.util.Pipeline;
