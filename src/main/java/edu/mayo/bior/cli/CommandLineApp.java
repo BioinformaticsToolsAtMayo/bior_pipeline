@@ -1,7 +1,11 @@
 package edu.mayo.bior.cli;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,7 +26,6 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.helpers.Loader;
@@ -31,6 +34,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.ibm.icu.lang.UCharacter;
 
 import edu.mayo.bior.util.StringUtils;
 
@@ -53,7 +57,7 @@ public class CommandLineApp {
 	private static final char OPTION_ENABLELOG = 'l';
 
 	private CommandLineParser mParser = new PosixParser();
-	
+		
 	// by default, log is off
 	private static boolean sIsLogEnabled = false;
 	
@@ -70,6 +74,7 @@ public class CommandLineApp {
 					+ " <plugin classname> <script name> <arg1> <arg2> <arg3>...");
 			System.exit(1);
 		}
+				
 		String pluginClassname = args[0];
 
 		String scriptName = args[1];
@@ -91,6 +96,8 @@ public class CommandLineApp {
 			
 			argDefs = loadArgumentDefinitions(plugin);
 			
+			validateASCII(scriptName, cmdArgs);			
+			
 			CommandLineApp app = new CommandLineApp();
 			app.execute(plugin, cmdArgs, opts, argDefs, scriptName);
 
@@ -103,7 +110,56 @@ public class CommandLineApp {
 			System.exit(1);
 		}
 	}
+	
+	/**
+	 * Ensures that all characters in the cmdArgs contain only ASCII characters.
+	 * 
+	 * @param scriptName
+	 * @param cmdArgs
+	 * @throws InvalidCharactersException
+	 */
+	private static void validateASCII(String scriptName, String[] cmdArgs) throws InvalidCharactersException {
+		
+		CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+		
+		StringBuilder mesg = new StringBuilder();
+		List<Character> nonAsciiChars = new ArrayList<Character>();
 
+		mesg.append(getShortScriptName(scriptName));
+		mesg.append(' ');
+		
+		for (String cmdArg: cmdArgs) {
+			for (char c: cmdArg.toCharArray()) {
+				if (encoder.canEncode(c)) {
+					mesg.append(c);
+				} else {
+					mesg.append('[');
+					mesg.append(c);
+					mesg.append(']');
+					nonAsciiChars.add(new Character(c));
+				}
+			}
+			mesg.append(' ');
+		}
+		
+		if (nonAsciiChars.size() > 0) {
+			StringWriter sWtr = new StringWriter();
+			PrintWriter pWtr = new PrintWriter(sWtr);
+			
+			pWtr.println(String.format("Found non-ASCII characters.  Please correct the characters highlighted with [ ]:"));
+			pWtr.println();
+			pWtr.println('\t' + mesg.toString());
+			pWtr.println();
+			for (Character c: nonAsciiChars) {
+				String name = UCharacter.getName(c);
+				pWtr.println(String.format("\t[%s]  UTF-8 character \"%s\"", c.toString(), name));
+			}
+			pWtr.close();
+			
+			throw new InvalidCharactersException(sWtr.toString());
+		}
+	}
+	
 	/**
 	 * Loads zero or more ArgumentDefinition objects from the CommandPlugin's
 	 * corresponding ResourceBundle.
@@ -267,8 +323,9 @@ public class CommandLineApp {
 			System.err.println();
 			System.err.println("Execute the command with -h or --help to find out more information");
 			System.err.println();		
-		} 
-		else if (t instanceof InvalidDataException ) {
+		} else if (t instanceof InvalidCharactersException) {
+			System.err.println(t.getMessage());			
+		} else if (t instanceof InvalidDataException ) {
 			// alert user about invalid data and direct them to the log file
 			System.err.println(t.getMessage());
 			System.err.println();
