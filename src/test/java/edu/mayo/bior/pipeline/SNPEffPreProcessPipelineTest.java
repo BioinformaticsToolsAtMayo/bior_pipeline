@@ -3,6 +3,7 @@ package edu.mayo.bior.pipeline;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -24,7 +25,7 @@ public class SNPEffPreProcessPipelineTest {
 				new VCFProgramPreProcessPipe()
 				);
 		pipe.setStarts(Arrays.asList("src/test/resources/tools/snpeff/snpEff.preProcess.input.1.vcf"));
-		ArrayList<String> actual = PipeTestUtils.pipeOutputToStrings2(pipe);
+		List<String> actual = PipeTestUtils.getResults(pipe);
 		ArrayList<String> expected = (ArrayList<String>) FileCompareUtils.loadFile(
 				"src/test/resources/tools/snpeff/snpEff.preProcess.expected.1.vcf");
 		PipeTestUtils.assertListsEqual(expected, actual);
