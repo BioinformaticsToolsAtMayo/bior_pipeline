@@ -9,6 +9,7 @@ import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.pipes.JSON.DrillPipe;
+import edu.mayo.pipes.JSON.RemoveAllJSONPipe;
 import edu.mayo.pipes.JSON.lookup.LookupPipe;
 import edu.mayo.pipes.JSON.tabix.OverlapPipe;
 import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
@@ -116,7 +117,7 @@ public class OverlapingFeaturesPipeline extends Pipeline {
                     new DrillPipe (false, repeatDrill), 
                     new OverlapPipe (regulationFile, posCol -= repeatDrill.length), 
                     new DrillPipe (false, regulationDrill),
-                    new HCutPipe(new int[posCol]),
+                    new RemoveAllJSONPipe(),
                     output
                     );
             this.setPipes(p.getPipes());
