@@ -16,6 +16,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
 
 /**
  *
@@ -67,11 +68,11 @@ public class AlleleFrequenciesPipelineTest {
     /**
      * Test of init method, of class AlleleFrequenciesPipeline.
      */
-    //@Test
+    @Test
     public void testInit() throws Exception {
         System.out.println("Testing Allele Frequencies Pipeline");
         Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
-        Pipe output = new PrintPipe();
+        Pipe output = new Pipeline(new HistoryOutPipe(), new PrintPipe());
         AlleleFrequenciesPipeline p = new AlleleFrequenciesPipeline(input, output, false);
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
         while(p.hasNext()){
