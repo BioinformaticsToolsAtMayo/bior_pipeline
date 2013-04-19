@@ -19,6 +19,8 @@ import edu.mayo.pipes.history.HistoryMetaData;
  */
 public class TreatPipe implements PipeFunction<History,History>
 {
+	private Cleaner	theCleaner;
+	
 	private static final int	kGeneName = 0;
 	private static final int	kNCBICols = kGeneName + 1;
 	private static final int	kdbSNPBuild = 0;
@@ -44,11 +46,26 @@ public class TreatPipe implements PipeFunction<History,History>
 	private static final String	kBlank = ".";
 	private static boolean	header = true;	
 	
+	
+	/**
+	 * The Constructor.  Gets the cleaner so can call it later
+	 * 
+	 * @param theCleaner	Object that will clean the data
+	 */
+	public TreatPipe (Cleaner theCleaner)
+	{
+		super ();
+		this.theCleaner = theCleaner;
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see com.tinkerpop.pipes.PipeFunction#compute(java.lang.Object)
 	 */
 	public History compute (History history)
 	{
+		if (theCleaner != null)
+			return theCleaner.doClean (history);
 		
 		int	numCols = history.size ();
 		int	firstCol = numCols - (kdbSNPCols + kBGICols + kESPCols + kHapMapCols);
