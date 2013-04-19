@@ -54,7 +54,7 @@ public class AlleleFrequenciesPipelineTest {
 	public void gregTest () throws IOException
 	{
 		Pipe input = new Pipeline (new CatPipe (), new HistoryInPipe ());
-		Pipe output = new Pipeline (new PrintPipe ());
+		Pipe output = new Pipeline (new HistoryOutPipe (), new PrintPipe ());
 		
 		AlleleFrequenciesPipeline p = new AlleleFrequenciesPipeline (input, output, "/Users/m082166/Documents/BioR/", true);
 		p.setStarts (Arrays.asList ("src/test/resources/tools/vep/example.vcf"));

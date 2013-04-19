@@ -321,10 +321,10 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 			history.remove (i);
 		
 		addDbSNPs (dbSNPsID, dbSNPsRef, dbSNPsAlt, history);
-		history.add (ensemblGeneID);
-		history.add (geneSymbol);
+		addString (ensemblGeneID, history);
+		addString (geneSymbol, history);
 		addNonZeroInt (entrezGeneID, history);
-		history.add (omimDisease);
+		addString (omimDisease, history);
 		addCosmic (mutationID, cosmicCDS, cosmicAA, strand, history);
 		addBoolean (blacklisted, history);
 		addBoolean (unique, history);
@@ -332,10 +332,10 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 		addBoolean (diseaseVariant, history);
 		history.add (kBlank);	// TODO mirBase
 //		history.add ("" + theInt);	TODO mirBase
-		history.add (suspectRegion);
-		history.add (clinicalSig);
+		addString (suspectRegion, history);
+		addString (clinicalSig, history);
 		history.add (kBlank);	// TODO polyphen2
-		history.add (alleleOrigin);
+		addString (alleleOrigin, history);
 		addNonZeroInt (firstBuild, history);
 		history.add (kBlank);	// TODO UniprotID
 		
@@ -416,6 +416,21 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 	{
 		if (theInt > 0)
 			history.add ("" + theInt);
+		else
+			history.add (kBlank);
+	}
+	
+	
+	/**
+	 * Add aString if it's not null or empty, or a blank string if it is
+	 * 
+	 * @param theString	String to add
+	 * @param history	The history object to add to
+	 */
+	private void addString (String theString, History history)
+	{
+		if (!isEmpty (theString))
+			history.add (theString);
 		else
 			history.add (kBlank);
 	}

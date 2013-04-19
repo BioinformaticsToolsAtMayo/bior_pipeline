@@ -281,12 +281,7 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 		for (int i = startCol - 1; i >= firstCol; --i)
 			history.remove (i);
 		
-		List<String>	results;
-		
-		results = getESPMAFs (espMafs, ref, alt);
-		if (results != null)
-			history.addAll (results);
-		
+		history.addAll (getESPMAFs (espMafs, ref, alt));
 		history.add (getBGIMAFs (bgiMajAllele, bgiMinAllele, bgiMajFreq, bgiMinFreq));
 		
 		history.add (getHapMapMAFs (hapRefAllele, hapAltAllele, hapCeuRefFreq, hapCeuAltFreq));
@@ -363,12 +358,12 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 		if (hasCEU)
 			results.add (makeAlleleFrequency (majorBase, minorBase, ceuMaf, 1.0 - ceuMaf));
 		else
-			results.add ("");
+			results.add (kBlank);
 		
 		if (hasAFR)
 			results.add (makeAlleleFrequency (majorBase, minorBase, afrMaf, 1.0 - afrMaf));
 		else
-			results.add ("");
+			results.add (kBlank);
 		
 		return results;
 	}
@@ -388,12 +383,12 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 	private String getBGIMAFs (String bgiMajAllele, String bgiMinAllele, double bgiMajFreq, double bgiMinFreq)
 	{
 		if (bgiMajAllele.equals (kBlank) || bgiMinAllele.equals (kBlank))
-			return "";
+			return kBlank;
 		
 		boolean	hasRef = !((bgiMajFreq == 0.0) || (Double.isNaN (bgiMajFreq)));
 		boolean	hasAlt = !((bgiMinFreq == 0.0) || (Double.isNaN (bgiMinFreq)));
 		if (!hasRef || !hasAlt)
-			return "";
+			return kBlank;
 		
 		char	majorBase = bgiMajAllele.charAt (0);
 		char	minorBase = getFirstBase (bgiMinAllele);
@@ -414,12 +409,12 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 	private String getHapMapMAFs (String hapRefAllele, String hapAltAllele, double hapRefFreq, double hapAltFreq)
 	{
 		if (hapRefAllele.equals (kBlank) || hapAltAllele.equals (kBlank))
-			return "";
+			return kBlank;
 		
 		boolean	hasRef = !((hapRefFreq == 0.0) || (Double.isNaN (hapRefFreq)));
 		boolean	hasAlt = !((hapAltFreq == 0.0) || (Double.isNaN (hapAltFreq)));
 		if (!hasRef || !hasAlt)
-			return "";
+			return kBlank;
 		
 		char	majorBase = hapRefAllele.charAt (0);
 		char	minorBase = getFirstBase (hapAltAllele);
@@ -442,7 +437,7 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 	private String get1kGenomeMAFs (String ref, String alt, double altFreq)
 	{
 		if ((altFreq == 0.0) || (Double.isNaN (altFreq)))
-			return "";
+			return kBlank;
 		
 		char	majorBase = ref.charAt (0);
 		char	minorBase = getFirstBase (alt);
@@ -616,7 +611,7 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 		List<String>	results = new ArrayList<String> (count);
 		
 		for (int i = 0; i < count; ++i)
-			results.add ("");
+			results.add (kBlank);
 		
 		return results;
 	}

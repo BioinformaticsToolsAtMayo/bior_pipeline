@@ -10,6 +10,7 @@ import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
+import java.io.IOException;
 import java.util.Arrays;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -58,6 +59,28 @@ public class OverlapingFeaturesPipelineTest {
             p.next();
         }
     }
+	
+    
+    /**
+     * Test my code
+     * 
+     * @throws IOException
+     */
+	@SuppressWarnings ({"rawtypes", "unchecked"})
+    //@Test
+	public void gregTest () throws IOException
+	{
+		Pipe input = new Pipeline (new CatPipe (), new HistoryInPipe ());
+		Pipe output = new Pipeline (new HistoryOutPipe (), new PrintPipe ());
+		
+		OverlapingFeaturesPipeline p = new OverlapingFeaturesPipeline (input, output, "/Users/m082166/Documents/BioR/", true);
+		p.setStarts (Arrays.asList ("src/test/resources/tools/vep/example.vcf"));
+		while (p.hasNext ())
+		{
+			p.next ();
+		}
+	}
+
 
     /**
      * Test of init method, of class OverlapingFeaturesPipeline.
