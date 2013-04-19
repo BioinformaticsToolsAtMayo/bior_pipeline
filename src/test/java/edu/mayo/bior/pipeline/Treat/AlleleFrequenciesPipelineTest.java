@@ -72,7 +72,7 @@ public class AlleleFrequenciesPipelineTest {
         System.out.println("Testing Allele Frequencies Pipeline");
         Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
         Pipe output = new PrintPipe();
-        AlleleFrequenciesPipeline p = new AlleleFrequenciesPipeline(input, output);
+        AlleleFrequenciesPipeline p = new AlleleFrequenciesPipeline(input, output, false);
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
         while(p.hasNext()){
             p.next();
