@@ -31,7 +31,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 
 	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
-		mVep = new UnixStreamCommand(getVEPCommand("5000"), NO_CUSTOM_ENV, true, true); 
+		mVep = new UnixStreamCommand(vepCmd, NO_CUSTOM_ENV, true, true); 
 		mVep.launch();
 		mVep.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		//send some fake data to get the ball rolling...
