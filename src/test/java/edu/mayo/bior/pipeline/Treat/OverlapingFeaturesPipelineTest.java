@@ -9,6 +9,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
 import java.util.Arrays;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -41,6 +42,22 @@ public class OverlapingFeaturesPipelineTest {
     @After
     public void tearDown() {
     }
+    
+    /**
+     * Uses the TREAT summarization logic
+     * Test of init method, of class OverlapingFeaturesPipeline.
+     */
+    //@Test
+    public void testInitSummarize() throws Exception {
+        System.out.println("Testing Overlap Features Pipeline");
+        Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
+        Pipe output = new Pipeline(new HistoryOutPipe(), new PrintPipe());
+        OverlapingFeaturesPipeline p = new OverlapingFeaturesPipeline(input, output, false);
+        p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
+        while(p.hasNext()){
+            p.next();
+        }
+    }
 
     /**
      * Test of init method, of class OverlapingFeaturesPipeline.
@@ -50,7 +67,7 @@ public class OverlapingFeaturesPipelineTest {
         System.out.println("Testing Overlap Features Pipeline");
         Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
         Pipe output = new PrintPipe();
-        OverlapingFeaturesPipeline p = new OverlapingFeaturesPipeline(input, output);
+        OverlapingFeaturesPipeline p = new OverlapingFeaturesPipeline(input, output);//false
         p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
         while(p.hasNext()){
             p.next();
