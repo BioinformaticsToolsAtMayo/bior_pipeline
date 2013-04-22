@@ -5,7 +5,10 @@
 package edu.mayo.bior.pipeline.VEP;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BrokenBarrierException;
@@ -31,7 +34,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 
 	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
-		mVep = new UnixStreamCommand(vepCmd, NO_CUSTOM_ENV, true, true); 
+		mVep = new UnixStreamCommand(getVEPCommand(vepCmd), NO_CUSTOM_ENV, true, true); 
 		mVep.launch();
 		mVep.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		//send some fake data to get the ball rolling...
@@ -45,10 +48,10 @@ public class VEPEXE implements PipeFunction<String,String>{
 	}
 
 	public VEPEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
-		this(getVEPCommand(mVepBufferSize));
+		this(getVEPCommand(null));
 	}
 
-	public static String[] getVEPCommand(String bufferSize) throws IOException {
+	public static String[] getVEPCommand(String[] userCmd) throws IOException {
 		// See src/main/resources/bior.properties for example file to put into your user home directory
 		BiorProperties biorProps = new BiorProperties();
 
@@ -70,17 +73,27 @@ public class VEPEXE implements PipeFunction<String,String>{
 				"-sift",
 				"b",
 				"--offline",
-				"--buffer_size",
-				bufferSize
+			//	"--buffer_size",
+			//	bufferSize
 				// These added on Dan's Mac:
 				//"--compress",
 				// "gunzip -c"
 				// "-i",
 				// "/dev/stdin",
 		};
-		return command;
+		if (userCmd != null) {
+			return concat(command,userCmd);
+		} else {
+			return command;
+		}     
 	}
 
+	public static String[] concat(String[] A, String[] B) {
+		List<String> list = new ArrayList<String>();
+		list.addAll(Arrays.asList(A));
+		list.addAll(Arrays.asList(B));
+		return list.toArray(new String[list.size()]);
+	}
 
 	public String compute(String a) {
 		try {

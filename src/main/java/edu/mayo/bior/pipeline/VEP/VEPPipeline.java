@@ -37,7 +37,7 @@ public class VEPPipeline extends Pipeline {
 		init(command, new IdentityPipe(), new IdentityPipe(), pickworst);
 	}
 	public VEPPipeline(Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
-		init(VEPEXE.getVEPCommand("1"), input, output, pickworst);
+		init(VEPEXE.getVEPCommand(null), input, output, pickworst);
 	}
 	public VEPPipeline(String[] command, Pipe input, Pipe output, boolean pickworst) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		init(command, input, output, pickworst);
