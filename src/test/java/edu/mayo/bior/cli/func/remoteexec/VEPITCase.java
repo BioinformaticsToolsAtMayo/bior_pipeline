@@ -140,7 +140,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	public void testVEPBridgePipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
 		//Pipeline p = new VEPPipeline(VEPEXE.getVEPMac("1"), input, new PrintPipe(), true);
-		Pipeline p = new VEPPipeline(VEPEXE.getVEPCommand("1"), input, new PrintPipe(), false);
+		Pipeline p = new VEPPipeline(VEPEXE.getVEPCommand(null), input, new PrintPipe(), false);
 		p.setStarts(Arrays.asList("src/test/resources/tools/vep/example.vcf"));
 		while(p.hasNext()){
 			p.next();
@@ -154,7 +154,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		System.out.println("testVEPPipeline");
 		String[] vepHeader = new String[1];
 		vepHeader[0] = "##INFO=<ID=CSQ,Number=.,Type=String,Description=\"Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE\">";
-		VEPEXE vep = new VEPEXE(VEPEXE.getVEPCommand("1"));
+		VEPEXE vep = new VEPEXE(VEPEXE.getVEPCommand(null));
 		Pipe exe = new TransformFunctionPipe(vep);
 		VEPPostProcessingPipeline ppp = new VEPPostProcessingPipeline();
 		//Pipe post = ppp.getWorstCasePipeline(new IdentityPipe(), new IdentityPipe(), false);
@@ -198,7 +198,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	// TODO: Disabled until Dan can refactor
 	public void testExecSNPEffPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		System.out.println("Test the raw output of a run on SNPEff versus the expected output (w/o header)");
-		VEPEXE vep = new VEPEXE(VEPEXE.getVEPCommand("1"));
+		VEPEXE vep = new VEPEXE(VEPEXE.getVEPCommand(null));
 		Pipe t = new TransformFunctionPipe(vep);
 		Pipeline p = new Pipeline(
 				new CatPipe(),               //raw file

@@ -16,7 +16,7 @@ public class VEPEXETest {
     public void testGetVEPCommand() throws Exception {
         System.out.println("getVEPCommand");
         String bufferSize = "20";
-        String[] actual = VEPEXE.getVEPCommand(bufferSize);
+        String[] actual = VEPEXE.getVEPCommand(null);
         
         String[] expected = { 
         	"", "", "-i", "/dev/stdin", "-o",
