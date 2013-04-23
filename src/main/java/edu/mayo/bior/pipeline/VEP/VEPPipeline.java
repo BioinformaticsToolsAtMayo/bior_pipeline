@@ -29,7 +29,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class VEPPipeline extends Pipeline {
     
-        public VEPPipeline(String[] command) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
+    public VEPPipeline(String[] command) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		init(command, new IdentityPipe(), new IdentityPipe(), true);
 	}
     
@@ -50,7 +50,7 @@ public class VEPPipeline extends Pipeline {
             Pipe exe = new TransformFunctionPipe(vep);
             
             String[] vepHeader = new String[1];
-            vepHeader[0] = "##INFO=<ID=CSQ,Number=.,Type=String,Description=\"Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE\">";
+            vepHeader[0] = "##INFO=<ID=CSQ,Number=.,Type=String,Description=\"Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE\">";
 
             //post processing
             VEPPostProcessingPipeline ppp = new VEPPostProcessingPipeline();
