@@ -16,13 +16,13 @@ public class VEPEXETest {
     public void testGetVEPCommand() throws Exception {
         System.out.println("getVEPCommand");
         String bufferSize = "20";
-        String[] actual = VEPEXE.getVEPCommand(bufferSize);
+        String[] actual = VEPEXE.getVEPCommand(null);
         
         String[] expected = { 
         	"", "", "-i", "/dev/stdin", "-o",
         	"STDOUT", "-dir", "", "-vcf", "--hgnc", 
         	"-polyphen", "b", "-sift", "b", "--offline",
-        	"--buffer_size", bufferSize
+        	"--buffer_size", "20"
         };
         
         for(int i=0; i < expected.length; i++) {
