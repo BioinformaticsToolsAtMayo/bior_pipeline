@@ -5,15 +5,13 @@
 package edu.mayo.bior.pipeline.VEP;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import com.tinkerpop.pipes.PipeFunction;
@@ -30,7 +28,10 @@ public class VEPEXE implements PipeFunction<String,String>{
 
 	private static final Logger sLogger = Logger.getLogger(UnixStreamCommand.class);
 	private UnixStreamCommand mVep;
-	private static final String mVepBufferSize = "20";
+	// NOTE: A buffer size of "1" appears to be required when using streaming thru Java classes
+	//       else the call will hang.
+	//       (though when used separately on just the command line, 20-50 is most efficient)
+	private static final String VEP_BUFFER_SIZE = "1";
 
 	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
@@ -43,15 +44,13 @@ public class VEPEXE implements PipeFunction<String,String>{
 		mVep.receive();//#fileformat=VCFv4.0
 		mVep.receive();//##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
 		mVep.receive();//#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-		//mVep.receive();//fake data line
-		//mVep.receive();
 	}
 
 	public VEPEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		this(getVEPCommand(null));
 	}
 
-	public static String[] getVEPCommand(String[] userCmd) throws IOException {
+	public static String[] getVEPCommand(String[] userOptions) throws IOException {
 		// See src/main/resources/bior.properties for example file to put into your user home directory
 		BiorProperties biorProps = new BiorProperties();
 
@@ -74,26 +73,15 @@ public class VEPEXE implements PipeFunction<String,String>{
 				"b",
 				"--offline",
 				"--buffer_size",
-				"20"
-				// These added on Dan's Mac:
+				VEP_BUFFER_SIZE,
+				// Add these to run on a Mac!
 				//"--compress",
-				// "gunzip -c"
-				// "-i",
-				// "/dev/stdin",
+				//"gunzip -c"
 		};
-		if (userCmd != null) {
-			return concat(command,userCmd);
-		} else {
-			return command;
-		}     
+		String[] allCommands = (String[]) ArrayUtils.addAll(command, userOptions);
+		return allCommands;
 	}
 
-	public static String[] concat(String[] A, String[] B) {
-		List<String> list = new ArrayList<String>();
-		list.addAll(Arrays.asList(A));
-		list.addAll(Arrays.asList(B));
-		return list.toArray(new String[list.size()]);
-	}
 
 	public String compute(String a) {
 		try {
