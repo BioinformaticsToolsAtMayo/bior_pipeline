@@ -22,7 +22,7 @@ public class VEPEXETest {
         	"", "", "-i", "/dev/stdin", "-o",
         	"STDOUT", "-dir", "", "-vcf", "--hgnc", 
         	"-polyphen", "b", "-sift", "b", "--offline",
-        	"--buffer_size", bufferSize
+//        	"--buffer_size", bufferSize
         };
         
         for(int i=0; i < expected.length; i++) {
