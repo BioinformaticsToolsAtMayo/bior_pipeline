@@ -43,8 +43,8 @@ public class VEPEXE implements PipeFunction<String,String>{
 		mVep.receive();//#fileformat=VCFv4.0
 		mVep.receive();//##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
 		mVep.receive();//#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-		//vep.receive();//fake data line
-		//vep.receive();
+		mVep.receive();//fake data line
+		mVep.receive();
 	}
 
 	public VEPEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
