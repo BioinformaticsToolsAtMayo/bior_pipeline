@@ -137,7 +137,7 @@ private String[] getCommandLineOptions(CommandLine line) {
 		
 		if (line.hasOption(OPTION_BUFFER_SIZE)) {
 			
-			cmdoptions.add(OPTION_DOUBLEDASH + OPTION_BUFFER_SIZE + " " + line.getOptionValue(OPTION_BUFFER_SIZE));
+			cmdoptions.add(OPTION_DOUBLEDASH + "buffer_size" + " " + line.getOptionValue(OPTION_BUFFER_SIZE));
 			
 		}
 		
