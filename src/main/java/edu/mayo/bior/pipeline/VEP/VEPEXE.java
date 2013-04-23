@@ -43,8 +43,8 @@ public class VEPEXE implements PipeFunction<String,String>{
 		mVep.receive();//#fileformat=VCFv4.0
 		mVep.receive();//##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
 		mVep.receive();//#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-		mVep.receive();//fake data line
-		mVep.receive();
+		//mVep.receive();//fake data line
+		//mVep.receive();
 	}
 
 	public VEPEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
@@ -73,8 +73,8 @@ public class VEPEXE implements PipeFunction<String,String>{
 				"-sift",
 				"b",
 				"--offline",
-			//	"--buffer_size",
-			//	bufferSize
+				"--buffer_size",
+				"20"
 				// These added on Dan's Mac:
 				//"--compress",
 				// "gunzip -c"
@@ -118,7 +118,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 		try {
 			this.mVep.terminate();
 		} catch(Exception e) { 
-			sLogger.error("Error terminating SNPEFFEXE pipe" + e);
+			sLogger.error("Error terminating VEPEXE pipe" + e);
 		}
 	}
 }
