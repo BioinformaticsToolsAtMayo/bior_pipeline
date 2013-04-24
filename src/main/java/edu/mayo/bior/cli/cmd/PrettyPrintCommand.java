@@ -71,10 +71,14 @@ public class PrettyPrintCommand implements CommandPlugin {
 
 				if (selectedRow == rowNum) {
 					try {
+						
 						printDataRow(history);
-						System.exit(0);
+						
 					} catch (Exception e) {
 						throw new RuntimeException(e);
+					} finally {
+						// done, no more data
+						throw new NoSuchElementException();						
 					}
 				}
 			}
