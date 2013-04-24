@@ -8,9 +8,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
-import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
+import edu.mayo.cli.CommandPlugin;
 
 public class SNPEffCommand implements CommandPlugin{
 

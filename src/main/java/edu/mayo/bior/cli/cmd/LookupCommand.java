@@ -7,10 +7,10 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import edu.mayo.bior.cli.CommandPlugin;
-import edu.mayo.bior.cli.InvalidDataException;
-import edu.mayo.bior.cli.InvalidOptionArgValueException;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.cli.CommandPlugin;
+import edu.mayo.cli.InvalidDataException;
+import edu.mayo.cli.InvalidOptionArgValueException;
 import edu.mayo.pipes.JSON.lookup.LookupPipe;
 import edu.mayo.pipes.JSON.lookup.lookupUtils.IndexUtils;
 

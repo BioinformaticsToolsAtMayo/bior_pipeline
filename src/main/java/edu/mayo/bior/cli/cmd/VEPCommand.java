@@ -2,9 +2,7 @@ package edu.mayo.bior.cli.cmd;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
@@ -13,10 +11,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
-import edu.mayo.bior.cli.CommandPlugin;
-import edu.mayo.bior.cli.InvalidDataException;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.VEP.VEPPipeline;
+import edu.mayo.cli.CommandPlugin;
+import edu.mayo.cli.InvalidDataException;
 import edu.mayo.exec.AbnormalExitException;
 
 public class VEPCommand  implements CommandPlugin {

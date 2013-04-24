@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
-import edu.mayo.bior.cli.InvalidDataException;
+import edu.mayo.cli.InvalidDataException;
 import edu.mayo.pipes.InputStreamPipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.exceptions.InvalidPipeInputException;

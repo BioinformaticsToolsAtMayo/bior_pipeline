@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 
 import com.tinkerpop.pipes.Pipe;
@@ -18,13 +17,10 @@ import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
-import edu.mayo.bior.cli.InvalidDataException;
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
-import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import edu.mayo.bior.pipeline.VEP.VEPEXE;
-import edu.mayo.bior.pipeline.VEP.VEPPipeline;
 import edu.mayo.bior.pipeline.VEP.VEPPostProcessingPipeline;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.MergePipe;

@@ -15,8 +15,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.tinkerpop.pipes.AbstractPipe;
 
-import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.cli.CommandPlugin;
 import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.History;
 

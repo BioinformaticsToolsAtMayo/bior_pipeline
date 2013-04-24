@@ -12,8 +12,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
-import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.util.StreamConnector;
+import edu.mayo.cli.CommandPlugin;
 
 /**
  * Command that executes a script.  Since the script will run in a process

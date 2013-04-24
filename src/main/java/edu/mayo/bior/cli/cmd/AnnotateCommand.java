@@ -1,6 +1,5 @@
 package edu.mayo.bior.cli.cmd;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -11,11 +10,11 @@ import org.apache.log4j.Logger;
 
 import com.tinkerpop.pipes.util.Pipeline;
 
-import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 import edu.mayo.bior.pipeline.Treat.OverlapingFeaturesPipeline;
 import edu.mayo.bior.pipeline.VEP.VEPPipeline;
+import edu.mayo.cli.CommandPlugin;
 
 public class AnnotateCommand implements CommandPlugin {
 	

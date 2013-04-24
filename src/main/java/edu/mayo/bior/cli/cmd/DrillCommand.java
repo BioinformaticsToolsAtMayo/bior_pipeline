@@ -7,8 +7,8 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.cli.CommandPlugin;
 import edu.mayo.pipes.JSON.DrillPipe;
 
 public class DrillCommand implements CommandPlugin {

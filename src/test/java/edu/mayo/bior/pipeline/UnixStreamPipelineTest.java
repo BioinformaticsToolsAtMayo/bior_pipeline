@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.tinkerpop.pipes.AbstractPipe;
 import com.tinkerpop.pipes.Pipe;
 
-import edu.mayo.bior.cli.InvalidDataException;
+import edu.mayo.cli.InvalidDataException;
 import edu.mayo.pipes.exceptions.InvalidPipeInputException;
 import edu.mayo.pipes.history.History;
 

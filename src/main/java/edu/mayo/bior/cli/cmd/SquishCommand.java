@@ -1,15 +1,12 @@
 package edu.mayo.bior.cli.cmd;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import edu.mayo.bior.cli.CommandPlugin;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
-import edu.mayo.pipes.JSON.DrillPipe;
+import edu.mayo.cli.CommandPlugin;
 import edu.mayo.pipes.history.SquishPipe;
 
 public class SquishCommand implements CommandPlugin {
