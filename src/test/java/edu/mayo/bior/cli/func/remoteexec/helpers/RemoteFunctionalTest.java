@@ -130,6 +130,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		
 		// Only run the testcase if on local system
 		return mIsDevServer;
+		//return true; //TODO: TEMP - this is to run all remote tests on your local machine.  Change this back before checking in code!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	}
 
 	/** We are probably on a laptop or user system and thus need to copy all current
@@ -337,7 +338,9 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		ArrayList<RemoteTestResult> testResults = new ArrayList<RemoteTestResult>();
 		for(String line : output) {
 			RemoteTestResult test = new RemoteTestResult();
-			test.path = line.substring(0, line.indexOf(":<"));
+			int idxPathEnd = line.indexOf(":<");
+			if(idxPathEnd > 0)
+				test.path = line.substring(0, idxPathEnd);
 			test.numFailures = Integer.parseInt(getMidStr(line, "failures=\"", "\""));
 			test.runTime    =Double.parseDouble(getMidStr(line, "time=\"",     "\""));
 			test.numErrors 	 = Integer.parseInt(getMidStr(line, "errors=\"",   "\""));
