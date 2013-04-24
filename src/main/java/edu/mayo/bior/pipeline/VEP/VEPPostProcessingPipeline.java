@@ -159,7 +159,7 @@ public class VEPPostProcessingPipeline {
 	 * Date created: Apr 19, 2013
 	 */
 	public static class RemoveVepCsqFieldPipe implements PipeFunction<History, History> {
-		@Override
+
 		public History compute(History historyObj) {
 			History history = (History)historyObj;
 			sLogger.debug("RemoveVepCsqFieldPipe.compute: (before): " + history);
