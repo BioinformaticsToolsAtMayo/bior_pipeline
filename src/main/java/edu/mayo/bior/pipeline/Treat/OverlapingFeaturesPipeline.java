@@ -52,9 +52,9 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 	private static final int	kdbSNPID = kdbSNPAllele + 1;
 	private static final int	kdbSNPRef = kdbSNPID + 1;
 	private static final int	kdbSNPAlt = kdbSNPRef + 1;
-	private static final int	kdbSNPCols = kdbSNPAlt + 1;
+	private static final int	kdbSNPCols = kdbSNPAlt + 5;
 	private static final String[]	kDbSnpDrill = {"INFO.dbSNPBuildID", "INFO.SSR", "INFO.SCS", "INFO.CLN", "INFO.SAO", "_id", 
-	                             	               "REF", "ALT"};
+	                             	               "REF", "ALT", "INFO.SYN", "INFO.S3D", "INFO.U5", "INFO.NSF"};
 	private static final String[]	kDbSnpSuspectLookup = {"unspecified", "Paralog", "byEST", "Para_EST", "oldAlign", "other"};
 	private static final String[]	kDbSnpClinicalLookup = {"unknown", "untested", "non-pathogenic", "probable-non-pathogenic", 
 	                             	                        "probable-pathogenic", "pathogenic", "drug-response", 

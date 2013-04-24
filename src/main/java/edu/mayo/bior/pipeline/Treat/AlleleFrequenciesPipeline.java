@@ -106,7 +106,7 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 	private static final String[]	k1kGenomeFreq = {"1kGenome_EUR_allele_freq", "1kGenome_ASN_allele_freq", 
 	                             	                 "1kGenome_AFR_allele_freq", "1kGenome_AMR_allele_freq"};
 	private static final double	kPercentAdjust = 100.0;
-	private static final boolean	kConvertFromPercent = true;
+	protected static final boolean	kConvertFromPercent = true;
 	private static final boolean	kDoNotConvert = false;
 	private static final String	kMajorSplit = ",";
 	private static final String	kMinorSplit = "/";
@@ -269,10 +269,10 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 		double	hapYriAltFreq = parseDouble (history.get (startCol + kHapMapYriAltFreq), kDoNotConvert);
 		double[]	hapJptChbFreq = getCombinedFreq (history, startCol);
 		startCol += kHapMapCols;
-		double	kGenomeEURFreq = parseDouble (history.get (startCol + k1kGenomeEUR), kDoNotConvert);
-		double	kGenomeASNFreq = parseDouble (history.get (startCol + k1kGenomeASN), kDoNotConvert);
-		double	kGenomeAFRFreq = parseDouble (history.get (startCol + k1kGenomeAFR), kDoNotConvert);
-		double	kGenomeAMRFreq = parseDouble (history.get (startCol + k1kGenomeAMR), kDoNotConvert);
+		double	genomeEURFreq = parseDouble (history.get (startCol + k1kGenomeEUR), kDoNotConvert);
+		double	genomeASNFreq = parseDouble (history.get (startCol + k1kGenomeASN), kDoNotConvert);
+		double	genomeAFRFreq = parseDouble (history.get (startCol + k1kGenomeAFR), kDoNotConvert);
+		double	genomeAMRFreq = parseDouble (history.get (startCol + k1kGenomeAMR), kDoNotConvert);
 		String	genomeRefAllele = history.get (startCol + k1kGenomeRef);
 		String	genomeAltAllele = history.get (startCol + k1kGenomeAlt);
 		startCol += k1kGenomeCols;
@@ -288,10 +288,10 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 		history.add (getHapMapMAFs (hapRefAllele, hapAltAllele, hapYriRefFreq, hapYriAltFreq));
 		history.add (getHapMapMAFs (hapRefAllele, hapAltAllele, hapJptChbFreq[kRefOffset], hapJptChbFreq[kAltOffset]));
 		
-		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, kGenomeEURFreq));
-		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, kGenomeASNFreq));
-		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, kGenomeAFRFreq));
-		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, kGenomeAMRFreq));
+		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, genomeEURFreq));
+		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, genomeASNFreq));
+		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, genomeAFRFreq));
+		history.add (get1kGenomeMAFs (genomeRefAllele, genomeAltAllele, genomeAMRFreq));
 		
 		return history;
 	}
@@ -335,7 +335,7 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 		if (pos < 0)
 			return makeEmptiesList (2);
 		
-		double	ceuMaf = parseDouble (espMafs.substring (0, pos), kConvertFromPercent);
+		double	ceuMaf = parseDouble (espMafs.substring (0, pos), kDoNotConvert);
 		double	afrMaf = Double.NaN;
 		
 		pos = espMafs.indexOf ('"', pos + 1) + 1;
@@ -343,7 +343,7 @@ public class AlleleFrequenciesPipeline extends Pipeline implements Cleaner
 		{
 			int	end = espMafs.indexOf ('"', pos + 1);
 			if (end > 0)
-				afrMaf = parseDouble (espMafs.substring (pos, end), kConvertFromPercent);
+				afrMaf = parseDouble (espMafs.substring (pos, end), kDoNotConvert);
 		}
 		
 		// Make sure have something to report
