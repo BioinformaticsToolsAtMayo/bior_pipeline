@@ -40,7 +40,11 @@ public class VEPCommand  implements CommandPlugin {
     private static final String OPTION_FREQGT = 		"freq_gt_lt";
     private static final String OPTION_FREQFILTER = 	"freq_filter";
 
+
+	
+
     private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
+
 
 	private static final Logger sLogger = Logger.getLogger(VEPCommand.class);
         
@@ -88,8 +92,6 @@ public class VEPCommand  implements CommandPlugin {
 		
 		List<String> cmdoptions = new ArrayList<String>();
 		
-//		if (line.hasOption(OPTION_BUFFER_SIZE))
-//			cmdoptions.add(OPTION_DOUBLEDASH + OPTION_BUFFER_SIZE + " " + line.getOptionValue(OPTION_BUFFER_SIZE));
 
 		if (line.hasOption(OPTION_FORK))
 			cmdoptions.add(OPTION_DOUBLEDASH + OPTION_FORK + " " + line.getOptionValue(OPTION_FORK));
