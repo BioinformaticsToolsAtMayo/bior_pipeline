@@ -13,8 +13,8 @@ import edu.mayo.pipes.pipeFunctions.StitchPipeFunction;
  * @author m102417
  */
 public class VCFProgramMerge implements StitchPipeFunction<History,History,History> {
-    private int count = 0;
-    private String program = "UNKNOWN"; //SNPEff or vep or whatever
+    private int mCount = 0;
+    private String mProgram = "UNKNOWN"; //SNPEff or vep or whatever
     
     /**
      * default constructor will c
@@ -24,7 +24,7 @@ public class VCFProgramMerge implements StitchPipeFunction<History,History,Histo
     }
     
     public VCFProgramMerge(String programName){
-        program = programName;
+    	mProgram = programName;
     }
     /**
      * Merge the two lists back together using whatever logic is needed (logic goes int the compute() method).
@@ -34,13 +34,14 @@ public class VCFProgramMerge implements StitchPipeFunction<History,History,Histo
      */
     
     public History compute(History a, History b) {
-        if(count==0){
-            ColumnMetaData cmd = new ColumnMetaData(program);
-            History.getMetaData().getColumns().add(cmd);
-        }
-        count++;
-        String r = a.get(a.size()-1);
-        b.add(r);
+    	// NOTE: adding the "program" column on the metadata resulted in TWO "VEP" column names
+//        if(count==0){
+//            ColumnMetaData cmd = new ColumnMetaData(mProgram);
+//            History.getMetaData().getColumns().add(cmd);
+//        }
+        mCount++;
+        String lastFromA = a.get(a.size()-1);
+        b.add(lastFromA);
         return b;
     }
 }
