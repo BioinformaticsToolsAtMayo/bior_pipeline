@@ -162,15 +162,15 @@ public class VEPPostProcessingPipeline {
 		@Override
 		public History compute(History historyObj) {
 			History history = (History)historyObj;
-			sLogger.info("RemoveVepCsqFieldPipe.compute: (before): " + history);
-			sLogger.info("RemoveVepCsqFieldPipe.compute  (header): " + History.getMetaData().getColumnHeaderRow("\t"));
+			sLogger.debug("RemoveVepCsqFieldPipe.compute: (before): " + history);
+			sLogger.debug("RemoveVepCsqFieldPipe.compute  (header): " + History.getMetaData().getColumnHeaderRow("\t"));
 			String info = history.get(7);
 			if(info.contains(";CSQ="))
 				info = info.replaceAll(";CSQ=.*", "");
 			else if( info.contains("CSQ=") )
 				info = info.replaceAll("CSQ=.*", ".");
 			history.set(7, info);
-			sLogger.info("RemoveVepCsqFieldPipe.compute: (after): " + history);
+			sLogger.debug("RemoveVepCsqFieldPipe.compute: (after): " + history);
 			return history;
 		}
 	}
@@ -187,10 +187,6 @@ public class VEPPostProcessingPipeline {
 		//##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
 		//example:
 		//A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||4432|||
-
-		Delim2JSONPipe pipes2json = new Delim2JSONPipe(-1, false,  headers, "|");
-		Pipe fixSiftPoly = new TransformFunctionPipe<History,History>(new FixSiftandPolyphen());
-
 		Pipe p = new Pipeline(input,//the output of vep
 				isIncludeHistory ? new HistoryInPipe() : new IdentityPipe(),
 				new VCF2VariantPipe(), 
@@ -198,8 +194,8 @@ public class VEPPostProcessingPipeline {
 				//new FindAndReplaceHPipe(8,";CSQ=.*|CSQ=.*","."),//this is probably not the correct regular expression... I think it will modify the original INFO column if they had stuff in there
 				new DrillPipe(false, new String[] { "INFO.CSQ" } ),
 				new FanPipe(),
-				pipes2json,
-				fixSiftPoly,
+				new Delim2JSONPipe(-1, false,  headers, "|"),
+				new TransformFunctionPipe<History,History>(new FixSiftandPolyphen()),
 				isIncludeHistory ? new HistoryOutPipe() : new IdentityPipe(),
 				output);
 		return p;
@@ -215,7 +211,8 @@ public class VEPPostProcessingPipeline {
 	 */
 	public Pipe getWorstCasePipeline(Pipe input, Pipe output, boolean isIncludeHistory){
 		Pipe worstvep = new TransformFunctionPipe<History,History>(new PickWorstVEP());
-		Pipe p = new Pipeline(input,//the output of vep
+		Pipe p = new Pipeline(
+				input,//the output of vep
 				isIncludeHistory ? new HistoryInPipe() : new IdentityPipe(),
 				new VCF2VariantPipe(), 
 				new TransformFunctionPipe(new RemoveVepCsqFieldPipe()),
