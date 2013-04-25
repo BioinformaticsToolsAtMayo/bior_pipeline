@@ -47,8 +47,11 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	kdbSNPDisease = kdbSNPClinical + 1;
 	private static final int	kdbSNPAllele = kdbSNPDisease + 1;
 	private static final int	kdbSNPID = kdbSNPAllele + 1;
-	private static final int	kdbSNPCols = kdbSNPID + 1;
-	private static final String[]	kDbSnpDrill = {"INFO.dbSNPBuildID", "INFO.SSR", "INFO.SCS", "INFO.CLN", "INFO.SAO", "_id"};
+	private static final int	kdbSNPRef = kdbSNPID + 1;
+	private static final int	kdbSNPAlt = kdbSNPRef + 1;
+	private static final int	kdbSNPCols = kdbSNPAlt + 5;
+	private static final String[]	kDbSnpDrill = {"INFO.dbSNPBuildID", "INFO.SSR", "INFO.SCS", "INFO.CLN", "INFO.SAO", "_id", 
+	                             	               "REF", "ALT", "INFO.SYN", "INFO.S3D", "INFO.U5", "INFO.NSF"};
 	private static final String[]	kDbSnpSuspectLookup = {"unspecified", "Paralog", "byEST", "Para_EST", "oldAlign", "other"};
 	private static final String[]	kDbSnpClinicalLookup = {"unknown", "untested", "non-pathogenic", "probable-non-pathogenic", 
 	                             	                        "probable-pathogenic", "pathogenic", "drug-response", 
@@ -135,6 +138,15 @@ public class TreatPipeline implements Usage, Runnable
 	private static final int	kRepeatName = 0;
 	private static final int	kRepeatCols = kRepeatName + 1;
 	private static final String[]	kRepeatDrill = {"repName"};
+	private static final int	kMiRLandmark = 0;
+	private static final int	kMiRType = kMiRLandmark + 1;
+	private static final int	kMiRMinBP = kMiRType + 1;
+	private static final int	kMiRMaxBP = kMiRMinBP + 1;
+	private static final int	kMiRStrand = kMiRMaxBP + 1;
+	private static final int	kMiRAcc = kMiRStrand + 1;
+	private static final int	kMiRID = kMiRAcc + 1;
+	private static final int	kMiRCols = kMiRID + 1;
+	private static final String[]	kMiRBaseDrill = {"_landmark", "type", "_minBP", "_maxBP", "_strand", "ACC", "ID"};
 	private static final int	kRefOffset = 0;
 	private static final int	kAltOffset = kRefOffset + 1;
 	private static final int	kTotalOffset = kAltOffset + 1;
@@ -301,9 +313,10 @@ public class TreatPipeline implements Usage, Runnable
 		
 //		getVariantData (vcf, baseDir, theProperties, info);
 		
-		parseThread.run ();	// Start parsing
+		parseThread.start ();	// Start parsing
 		dataWriter.write (VariantInfo.tabHeader ());
 		dataWriter.newLine ();
+		dataWriter.flush ();
 		do
 		{
 			try
@@ -327,6 +340,8 @@ public class TreatPipeline implements Usage, Runnable
 			}
 		}
 		while (treatResult != null);
+		
+		dataWriter.close ();
 //		for (VariantInfo theVariant : info)
 //		{
 //			dataWriter.write (theVariant.toString ());
@@ -616,6 +631,7 @@ public class TreatPipeline implements Usage, Runnable
 		String		tfbsFile = baseDir + theProperties.getProperty ("tfbsFile");
 		String		enhancerFile = baseDir + theProperties.getProperty ("enhancerFile");
 		String		blacklistedFile = baseDir + theProperties.getProperty ("blacklistedFile");
+		String		mirBaseFile = baseDir + theProperties.getProperty ("mirBaseFile");
 		String[]	geneDrill = kGeneDrill;
 		String[]	hgncDrill = kHGNCDrill;
 		String[]	dbSnpDrill = kDbSnpDrill;
@@ -629,6 +645,7 @@ public class TreatPipeline implements Usage, Runnable
 		String[]	uniqueDrill = kUniqueDrill;
 		String[]	repeatDrill = kRepeatDrill;
 		String[]	regulationDrill = kRegulationDrill;
+		String[]	mirBaseDrill = kMiRBaseDrill;
 		int			posCol = -1;
 		
 		try
@@ -658,10 +675,12 @@ public class TreatPipeline implements Usage, Runnable
 										  new OverlapPipe (repeatFile, posCol -= uniqueDrill.length), 
 										  new DrillPipe (false, repeatDrill), 
 										  new OverlapPipe (regulationFile, posCol -= repeatDrill.length), 
-										  new DrillPipe (false, regulationDrill));
+										  new DrillPipe (false, regulationDrill), 
+										  new OverlapPipe (mirBaseFile, posCol -= regulationDrill.length), 
+										  new DrillPipe (false, mirBaseDrill));
 			p.setStarts (Arrays.asList (vcfFile));
 			
-			parseVariants (p, posCol, regulationDrill.length, info);
+			parseVariants (p, posCol, mirBaseDrill.length, info);
 		}
 		catch (IOException oops)
 		{
@@ -786,7 +805,7 @@ public class TreatPipeline implements Usage, Runnable
 	 * @param info			List to fill in with the results found
 	 */
 	@SuppressWarnings ("rawtypes")
-	protected static void parseVariants (Pipeline pipeline, int posCol, int lastColCount, List<VariantInfo> info)
+	private static void parseVariants (Pipeline pipeline, int posCol, int lastColCount, List<VariantInfo> info)
 	{
 		boolean	header = true;
 		int		numCols = -1;
@@ -832,6 +851,8 @@ public class TreatPipeline implements Usage, Runnable
 			String	alleleOrigin = lookupString (history.get (startCol + kdbSNPAllele), kDbSnpAlleleLookup);
 			boolean	diseaseVariant = Boolean.parseBoolean (history.get (startCol + kdbSNPDisease));
 			String	dbSNPsID = getString (history.get (startCol + kdbSNPID));
+//			String	dbSNPsRef = getString (history.get (startCol + kdbSNPRef));
+//			String	dbSNPsAlt = getString (history.get (startCol + kdbSNPAlt));
 			startCol += kdbSNPCols;
 			int		mutationID = parseInt (history.get (startCol + kCosmicID));
 			String	cosmicCDS = history.get (startCol + kCosmicCDS);
@@ -858,11 +879,20 @@ public class TreatPipeline implements Usage, Runnable
 			name = getString (history.get (startCol + kRegulationName));
 			boolean	regulatory = !isEmpty (name);
 			startCol += kRegulationCols;
+			String	landmark = getString (history.get (startCol + kMiRLandmark));
+			String	type = getString (history.get (startCol + kMiRType));
+			int		minBP = parseInt (history.get (startCol + kMiRMinBP));
+			int		maxBP = parseInt (history.get (startCol + kMiRMaxBP));
+			boolean	miRStrand = kPlusStrand.equals (history.get (startCol + kMiRStrand));
+			String	acc = getString (history.get (startCol + kMiRAcc));
+			String	id = getString (history.get (startCol + kMiRID));
+			startCol += kMiRCols;
 			
 			info.add (new VariantInfo (chromosome, pos, endPos, ref, alt, entrezGeneID, firstBuild, dbSNPsID, suspectRegion, 
 										clinicalSig, alleleOrigin, diseaseVariant, geneSymbol, ensemblGeneID, 
 										mutationID, cosmicCDS, cosmicAA, strand, omimDisease, blacklisted, conserved, 
-										enhancer, tfbs, tss, unique, repeat, regulatory));
+										enhancer, tfbs, tss, unique, repeat, regulatory, landmark, type, minBP, maxBP, 
+										miRStrand, acc, id));
 		}
 	}
 	

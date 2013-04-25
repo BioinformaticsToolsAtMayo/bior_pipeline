@@ -99,6 +99,15 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 	private static final int	kRepeatName = 0;
 	private static final int	kRepeatCols = kRepeatName + 1;
 	private static final String[]	kRepeatDrill = {"repName"};
+	private static final int	kMiRLandmark = 0;
+	private static final int	kMiRType = kMiRLandmark + 1;
+	private static final int	kMiRMinBP = kMiRType + 1;
+	private static final int	kMiRMaxBP = kMiRMinBP + 1;
+	private static final int	kMiRStrand = kMiRMaxBP + 1;
+	private static final int	kMiRAcc = kMiRStrand + 1;
+	private static final int	kMiRID = kMiRAcc + 1;
+	private static final int	kMiRCols = kMiRID + 1;
+	private static final String[]	kMiRBaseDrill = {"_landmark", "type", "_minBP", "_maxBP", "_strand", "ACC", "ID"};
 	private static final String	kBlank = ".";
 	private static final int	kScoreCutoff = 500;
 	private static final String	kPlusStrand = "+";
@@ -203,6 +212,7 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 		String		tfbsFile = baseDir + biorProps.get ("tfbsFile");
 		String		enhancerFile = baseDir + biorProps.get ("enhancerFile");
 		String		blacklistedFile = baseDir + biorProps.get ("blacklistedFile");
+		String		mirBaseFile = baseDir + biorProps.get ("mirBaseFile");
 		String[]	geneDrill = kGeneDrill;
 		String[]	hgncDrill = kHGNCDrill;
 		String[]	dbSnpDrill = kDbSnpDrill;
@@ -216,6 +226,7 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 		String[]	uniqueDrill = kUniqueDrill;
 		String[]	repeatDrill = kRepeatDrill;
 		String[]	regulationDrill = kRegulationDrill;
+		String[]	mirBaseDrill = kMiRBaseDrill;
 		int			posCol = -1;
 		
 		// requires history as input, history as output
@@ -245,10 +256,12 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 									  new DrillPipe (false, repeatDrill), 
 									  new OverlapPipe (regulationFile, posCol -= repeatDrill.length), 
 									  new DrillPipe (false, regulationDrill), 
+									  new OverlapPipe (mirBaseFile, posCol -= regulationDrill.length), 
+									  new DrillPipe (false, mirBaseDrill), 
 									  new RemoveAllJSONPipe (), cleaner, output);
 		
 		this.setPipes (p.getPipes ());
-		deleteColCount = repeatDrill.length - posCol;
+		deleteColCount = mirBaseDrill.length - posCol;
 	}
 	
 	
@@ -315,6 +328,14 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 		name = getString (history.get (startCol + kRegulationName));
 		boolean	regulatory = !isEmpty (name);
 		startCol += kRegulationCols;
+		String	landmark = getString (history.get (startCol + kMiRLandmark));
+		String	type = getString (history.get (startCol + kMiRType));
+		int		minBP = parseInt (history.get (startCol + kMiRMinBP));
+		int		maxBP = parseInt (history.get (startCol + kMiRMaxBP));
+		boolean	miRStrand = kPlusStrand.equals (history.get (startCol + kMiRStrand));
+		String	acc = getString (history.get (startCol + kMiRAcc));
+		String	id = getString (history.get (startCol + kMiRID));
+		startCol += kMiRCols;
 		
 		// Got the information we needed, now clear it all out
 		for (int i = startCol - 1; i >= firstCol; --i)
@@ -330,8 +351,7 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 		addBoolean (unique, history);
 		addBoolean (repeat, history);
 		addBoolean (diseaseVariant, history);
-		history.add (kBlank);	// TODO mirBase
-//		history.add ("" + theInt);	TODO mirBase
+		addmiRBase (landmark, type, minBP, maxBP, miRStrand, acc, id, history);
 		addString (suspectRegion, history);
 		addString (clinicalSig, history);
 		history.add (kBlank);	// TODO polyphen2
@@ -479,6 +499,48 @@ public class OverlapingFeaturesPipeline extends Pipeline implements Cleaner
 			result.append (";+");
 		else
 			result.append (";-");
+		
+		history.add (result.toString ());
+	}
+	
+	
+	/**
+	 * Add a miRBase entry, or else a blank string
+	 * 
+	 * @param landmark		miRBase Landmark, a Chromosome specifier
+	 * @param type			miRBase type, generally "miRNA"
+	 * @param minBP			Location on the Chromosome where the miRBase item starts
+	 * @param maxBP			Location on the Chromosome where the miRBase item ends
+	 * @param miRStrand		Which strand of the Chromosome where the miRBase item ends
+	 * @param acc			The accession for the entry in miRBase
+	 * @param id			The identifier for the entry in miRBase
+	 * @param history		The history object to add to
+	 */
+	private void addmiRBase (String landmark, String type, int minBP, int maxBP, boolean miRStrand, String acc, String id, 
+							 History history)
+	{
+		if (id == null)
+		{
+			history.add (kBlank);
+			return;
+		}
+		
+		StringBuilder	result = new StringBuilder ();
+		
+		result.append (landmark);
+		result.append ('/');
+		result.append (type);
+		result.append ('/');
+		result.append (minBP);
+		result.append ('/');
+		result.append (maxBP);
+		if (miRStrand)
+			result.append ("/+/");
+		else
+			result.append ("/-/");
+		result.append (acc);
+		result.append ('/');
+		result.append (id);
 		
 		history.add (result.toString ());
 	}

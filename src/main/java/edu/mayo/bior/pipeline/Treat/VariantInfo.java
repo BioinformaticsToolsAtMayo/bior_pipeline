@@ -41,6 +41,13 @@ public class VariantInfo
 	private boolean	unique;
 	private boolean	repeat;
 	private boolean	regulatory;
+	private String	landmark;
+	private String	type;
+	private int		minBP;
+	private int		maxBP;
+	private boolean	miRStrand;
+	private String	acc;
+	private String	miRBId;
 	
 	
 	/**
@@ -73,13 +80,21 @@ public class VariantInfo
 	 * @param unique		True if unique score is above the cutoff, false otherwise
 	 * @param repeat		True if repeat score is above the cutoff, false otherwise
 	 * @param regulatory	True if regulatory score is above the cutoff, false otherwise
+	 * @param landmark		miRBase Landmark, a Chromosome specifier
+	 * @param type			miRBase type, generally "miRNA"
+	 * @param minBP			Location on the Chromosome where the miRBase item starts
+	 * @param maxBP			Location on the Chromosome where the miRBase item ends
+	 * @param miRStrand		Which strand of the Chromosome where the miRBase item ends
+	 * @param acc			The accession for the entry in miRBase
+	 * @param id			The identifier for the entry in miRBase
 	 */
 	public VariantInfo (String chromosome, int startPos, int endPos, String ref, String alt, int entrezGeneID, 
 						int firstBuild, String dbSNPsID, String suspectRegion, String clinicalSig, 
 						String alleleOrigin, boolean diseaseVariant, String geneSymbol, String ensemblGeneID, 
 						int mutationID, String cosmicCDS, String cosmicAA, boolean strand, String omimDisease, 
 						boolean blacklisted, boolean conserved, boolean enhancer, boolean tfbs, 
-						boolean tss, boolean unique, boolean repeat, boolean regulatory)
+						boolean tss, boolean unique, boolean repeat, boolean regulatory, String landmark, 
+						String type, int minBP, int maxBP, boolean miRStrand, String acc, String id)
 	{
 		this.chromosome = chromosome;
 		this.startPos = startPos;
@@ -104,6 +119,13 @@ public class VariantInfo
 		this.unique = unique;
 		this.repeat = repeat;
 		this.regulatory = regulatory;
+		this.landmark = landmark;
+		this.type = type;
+		this.minBP = minBP;
+		this.maxBP = maxBP;
+		this.miRStrand = miRStrand;
+		this.acc = acc;
+		this.miRBId = id;
 	}
 	
 	
@@ -350,6 +372,78 @@ public class VariantInfo
 	}
 	
 	
+	/**
+	 * @return the omimDisease
+	 */
+	public final String getOmimDisease ()
+	{
+		return omimDisease;
+	}
+	
+	
+	/**
+	 * @return the landmark
+	 */
+	public final String getLandmark ()
+	{
+		return landmark;
+	}
+	
+	
+	/**
+	 * @return the type
+	 */
+	public final String getType ()
+	{
+		return type;
+	}
+	
+	
+	/**
+	 * @return the minBP
+	 */
+	public final int getMinBP ()
+	{
+		return minBP;
+	}
+	
+	
+	/**
+	 * @return the maxBP
+	 */
+	public final int getMaxBP ()
+	{
+		return maxBP;
+	}
+	
+	
+	/**
+	 * @return the miRStrand
+	 */
+	public final boolean isMiRStrand ()
+	{
+		return miRStrand;
+	}
+	
+	
+	/**
+	 * @return the acc
+	 */
+	public final String getAcc ()
+	{
+		return acc;
+	}
+	
+	
+	/**
+	 * @return the id
+	 */
+	public final String getId ()
+	{
+		return miRBId;
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -382,6 +476,7 @@ public class VariantInfo
 		result = prime * result + (tss ? 1231 : 1237);
 		result = prime * result + (unique ? 1231 : 1237);
 		result = prime * result + mutationID;	// Ignore rest of Cosmic, they all key on mutationID
+		result = prime * result + ((miRBId == null) ? 0 : miRBId.hashCode ());
 		return result;
 	}
 	
@@ -442,6 +537,14 @@ public class VariantInfo
 			return false;
 		
 		if (mutationID != other.mutationID)	// Ignore rest of Cosmic, they all key on mutationID
+			return false;
+		
+		if (miRBId == null)	// Ignore rest of miRBase, they all key on id
+		{
+			if (other.miRBId != null)
+				return false;
+		}
+		else if (!miRBId.equals (other.miRBId))
 			return false;
 		
 		if (chromosome == null)
@@ -540,7 +643,8 @@ public class VariantInfo
 		builder.append ("chromosome\tref\talt\tstartPos\tendPos\tentrezGeneID\tdbSNPsID\tfirstBuild\t");
 		builder.append ("alleleOrigin\tclinicalSig\tsuspectRegion\tdiseaseVariant\t");
 		builder.append ("geneSymbol\tensemblGeneID\tmutationID\tcosmicCDS\tcosmicAA\tstrand\tOMIMDisease\t");
-		builder.append ("blacklisted\tconserved\tenhancer\ttfbs\ttss\tunique\trepeat\tregulatory");
+		builder.append ("blacklisted\tconserved\tenhancer\ttfbs\ttss\tunique\trepeat\tregulatory\t");
+		builder.append ("landmark\ttype\tmnBP\tmaxBP\tstrand\tacc\tID");
 		
 		return builder.toString ();
 	}
@@ -590,16 +694,14 @@ public class VariantInfo
 			builder.append (cosmicCDS);
 			builder.append ("\t");
 			builder.append (cosmicAA);
-			builder.append ("\t");
 			if (strand)
-				builder.append ("+");
+				builder.append ("\t+\t");
 			else
-				builder.append ("-");
+				builder.append ("\t-\t");
 		}
 		else
-			builder.append ("-1\t\t\t");
+			builder.append ("-1\t\t\t\t");
 		
-		builder.append ("\t");
 		builder.append (omimDisease);
 		builder.append ("\t");
 		builder.append (blacklisted);
@@ -617,6 +719,26 @@ public class VariantInfo
 		builder.append (repeat);
 		builder.append ("\t");
 		builder.append (regulatory);
+		if (miRBId != null)
+		{
+			builder.append ("\t");
+			builder.append (landmark);
+			builder.append ("\t");
+			builder.append (type);
+			builder.append ("\t");
+			builder.append (minBP);
+			builder.append ("\t");
+			builder.append (maxBP);
+			if (miRStrand)
+				builder.append ("\t+\t");
+			else
+				builder.append ("\t-\t");
+			builder.append (acc);
+			builder.append ("\t");
+			builder.append (miRBId);
+		}
+		else
+			builder.append ("\t\t\t\t\t\t\t");
 		
 		return builder.toString ();
 	}
@@ -696,6 +818,28 @@ public class VariantInfo
 		builder.append (", regulatory = ");
 		builder.append (regulatory);
 		builder.append ("]");
+		if (miRBId != null)
+		{
+			builder.append (", landmark = ");
+			builder.append (landmark);
+			builder.append (", type = ");
+			builder.append (type);
+			builder.append (", minBP = ");
+			builder.append (minBP);
+			builder.append (", maxBP = ");
+			builder.append (maxBP);
+			if (miRStrand)
+				builder.append (", miRStrand = '+'");
+			else
+				builder.append (", miRStrand = '-'");
+			builder.append (", acc = ");
+			builder.append (acc);
+			builder.append (", miRBId = ");
+			builder.append (miRBId);
+		}
+		else
+			builder.append (", miRBId = Nothing");
+		
 		return builder.toString ();
 	}
 	

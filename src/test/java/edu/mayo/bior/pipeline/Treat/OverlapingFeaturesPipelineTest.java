@@ -67,7 +67,7 @@ public class OverlapingFeaturesPipelineTest {
      * @throws IOException
      */
 	@SuppressWarnings ({"rawtypes", "unchecked"})
-    //@Test
+    @Test
 	public void gregTest () throws IOException
 	{
 		Pipe input = new Pipeline (new CatPipe (), new HistoryInPipe ());

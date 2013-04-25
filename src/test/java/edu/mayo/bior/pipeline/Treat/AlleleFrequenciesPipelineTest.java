@@ -50,7 +50,7 @@ public class AlleleFrequenciesPipelineTest {
      * @throws IOException
      */
 	@SuppressWarnings ({"rawtypes", "unchecked"})
-    //@Test
+    @Test
 	public void gregTest () throws IOException
 	{
 		Pipe input = new Pipeline (new CatPipe (), new HistoryInPipe ());
@@ -68,7 +68,7 @@ public class AlleleFrequenciesPipelineTest {
     /**
      * Test of init method, of class AlleleFrequenciesPipeline.
      */
-    @Test
+    //@Test
     public void testInit() throws Exception {
         System.out.println("Testing Allele Frequencies Pipeline");
         Pipe input = new Pipeline(new CatPipe(), new HistoryInPipe());
