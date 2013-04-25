@@ -1,10 +1,10 @@
 ##fileformat=VCFv4.0
 ##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	INFO.CSQ	SIFT_TERM	SIFT_Score	PolyPhen_TERM	PolyPhen_Score
-21	26960070	rs116645811	G	A	.	.	A;.	tolerated	0.05	benign	0.001
-21	26965148	rs1135638	G	A	.	.	B;.	.	.	.	.
-21	26965172	rs0010576	T	C	.	.	C;.	.	.	.	.
-21	26965205	rs1057885	T	C	.	.	D;.	.	.	.	.
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	SIFT_TERM	SIFT_Score	PolyPhen_TERM	PolyPhen_Score
+21	26960070	rs116645811	G	A	.	.	A	tolerated	0.05	benign	0.001
+21	26965148	rs1135638	G	A	.	.	B	.	.	.	.
+21	26965172	rs0010576	T	C	.	.	C	.	.	.	.
+21	26965205	rs1057885	T	C	.	.	D	.	.	.	.
 21	26976144	rs116331755	A	G	.	.	.	.	.	.	.
 21	26976222	rs7278168	C	T	.	.	.	.	.	.	.
 21	26976237	rs7278284	C	T	.	.	.	.	.	.	.
