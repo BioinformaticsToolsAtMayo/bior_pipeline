@@ -51,7 +51,7 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 				"rsABCDEF",
 				"byEST",
 				"pathogenic",
-				"0"
+				"1"
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);
