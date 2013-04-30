@@ -8,12 +8,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
-import com.tinkerpop.pipes.util.Pipeline;
-
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
-import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
-import edu.mayo.bior.pipeline.Treat.OverlapingFeaturesPipeline;
-import edu.mayo.bior.pipeline.VEP.VEPPipeline;
+import edu.mayo.bior.pipeline.Treat.TreatPipeline;
 import edu.mayo.cli.CommandPlugin;
 
 public class AnnotateCommand implements CommandPlugin {
@@ -21,7 +17,7 @@ public class AnnotateCommand implements CommandPlugin {
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 
 	private static final Logger sLogger = Logger.getLogger(AnnotateCommand.class);
-	private static final String OPTION_PICKWORST = "all";
+
 	private static final String OPTION_GENOME_VERSION = "genome_version";
 
 	public void init(Properties props) throws Exception {
@@ -33,34 +29,8 @@ public class AnnotateCommand implements CommandPlugin {
 	 * 
 	 */
 	public void execute(CommandLine line, Options opts) throws Exception {
-		boolean pickworst = Boolean.TRUE;
 		
-		if (line.hasOption(OPTION_PICKWORST)){
-			pickworst = Boolean.FALSE;
-		}
-		
-		VEPPipeline vepPipeline = null;
-		SNPEFFPipeline snpEffPipeline = null;
-		
-		OverlapingFeaturesPipeline overlapingFeaturesPipeline = null;
-		Pipeline annotate = null; 
-		
-		try {
-			
-			//snpEffPipeline = new SNPEFFPipeline(getCommandLineOptions(line),pickworst);
-			//vepPipeline = new VEPPipeline(getCommandLineOptions(line),pickworst);
-			
-			
-			overlapingFeaturesPipeline = new OverlapingFeaturesPipeline();
-			
-			// TODO finalise all the pipelines
-			annotate = new Pipeline(overlapingFeaturesPipeline);
-			
-			mPipeline.execute(annotate);
-		} catch (Exception e) {
-			System.out.println("Error:"+e);
-			e.printStackTrace();
-		}
+		mPipeline.execute(new TreatPipeline());
 		
 	}
 	
