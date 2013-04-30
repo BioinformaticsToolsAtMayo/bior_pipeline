@@ -31,6 +31,7 @@ import edu.mayo.bior.pipeline.Treat.format.UcscTfbsFormatter;
 import edu.mayo.bior.pipeline.Treat.format.UcscTssFormatter;
 import edu.mayo.bior.pipeline.Treat.format.UcscUniqueFormatter;
 import edu.mayo.bior.pipeline.Treat.format.VEPFormatter;
+import edu.mayo.bior.pipeline.VEP.VEPPipeline;
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.JSON.DrillPipe;
@@ -137,7 +138,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		// tracks the order of the added JSON columns
 		List<JsonColumn> order = new ArrayList<JsonColumn>();
 
-//		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
+		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
 //		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));		
 				
 		order.add(JsonColumn.VARIANT);				pipes.add(new VCF2VariantPipe());
