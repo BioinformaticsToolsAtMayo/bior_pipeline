@@ -26,7 +26,7 @@ import edu.mayo.exec.UnixStreamCommand;
  */
 public class VEPEXE implements PipeFunction<String,String>{
 
-	private static final Logger sLogger = Logger.getLogger(UnixStreamCommand.class);
+	private static final Logger sLogger = Logger.getLogger(VEPEXE.class);
 	private UnixStreamCommand mVep;
 	// NOTE: A buffer size of "1" appears to be required when using streaming thru Java classes
 	//       else the call will hang.
@@ -74,11 +74,34 @@ public class VEPEXE implements PipeFunction<String,String>{
 				"--offline",
 				"--buffer_size",
 				VEP_BUFFER_SIZE,
-				// Add these to run on a Mac!
-				//"--compress",
-				//"gunzip -c"
 		};
 		String[] allCommands = (String[]) ArrayUtils.addAll(command, userOptions);
+
+		String os = System.getProperty("os.name"); 
+		if (os.equals("Mac OS X"))
+		{
+
+			// MAC ONLY
+			// @see https://github.com/arq5x/gemini/blob/master/docs/content/functional_annotation.rst
+			// 
+			// To use the cache, the gzip and zcat utilities are required. VEP uses zcat to 
+			// decompress cached files. For systems where zcat may not be installed or may
+			// not work, the following option needs to be added along with the --cache option:
+			// 
+			// "--compress gunzip -c"
+			// 
+
+			String[] macOptions = 
+				{
+					"--compress",
+					"gunzip -c"					
+				};
+
+			sLogger.info(String.format("Running on %s.  Adding Mac-specific options.", os));
+			
+			allCommands = (String[]) ArrayUtils.addAll(allCommands, macOptions);			
+		}
+		
 		return allCommands;
 	}
 
