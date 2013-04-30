@@ -1,0 +1,21 @@
+{
+	"CHROM": "1",
+	"POS": "55299",
+	"ID": "rsABCDEF",
+	"REF": "C",
+	"ALT": "T",
+	"QUAL": ".",
+	"FILTER": ".",
+	"INFO": {
+		"SSR": 2,
+		"SCS": 5,
+		"CLN": 1
+	},
+	"_id": "rs10399749",
+	"_type": "variant",
+	"_landmark": "1",
+	"_refAllele": "C",
+	"_altAlleles": ["T"],
+	"_minBP": 55299,
+	"_maxBP": 55299
+}

@@ -1,0 +1,18 @@
+{
+	"CHROM": "1",
+	"POS": "55299",
+	"ID": "rsWXYZ",
+	"REF": "C",
+	"ALT": "T",
+	"QUAL": ".",
+	"FILTER": ".",
+	"INFO": {
+	},
+	"_id": "rs10399749",
+	"_type": "variant",
+	"_landmark": "1",
+	"_refAllele": "C",
+	"_altAlleles": ["T"],
+	"_minBP": 55299,
+	"_maxBP": 55299
+}
