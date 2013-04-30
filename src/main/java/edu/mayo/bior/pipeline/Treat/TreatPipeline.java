@@ -7,8 +7,30 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
 import com.tinkerpop.pipes.Pipe;
+import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
+import edu.mayo.bior.pipeline.Treat.format.BgiFormatter;
+import edu.mayo.bior.pipeline.Treat.format.DbsnpFormatter;
+import edu.mayo.bior.pipeline.Treat.format.EspFormatter;
+import edu.mayo.bior.pipeline.Treat.format.Formatter;
+import edu.mayo.bior.pipeline.Treat.format.FormatterPipeFunction;
+import edu.mayo.bior.pipeline.Treat.format.HapmapFormatter;
+import edu.mayo.bior.pipeline.Treat.format.HgncFormatter;
+import edu.mayo.bior.pipeline.Treat.format.MirBaseFormatter;
+import edu.mayo.bior.pipeline.Treat.format.NcbiGeneFormatter;
+import edu.mayo.bior.pipeline.Treat.format.OmimFormatter;
+import edu.mayo.bior.pipeline.Treat.format.SNPEffFormatter;
+import edu.mayo.bior.pipeline.Treat.format.ThousandGenomesFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscBlacklistedFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscConservationFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscEnhancerFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscRegulationFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscRepeatFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscTfbsFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscTssFormatter;
+import edu.mayo.bior.pipeline.Treat.format.UcscUniqueFormatter;
+import edu.mayo.bior.pipeline.Treat.format.VEPFormatter;
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.JSON.DrillPipe;
@@ -16,6 +38,7 @@ import edu.mayo.pipes.JSON.lookup.LookupPipe;
 import edu.mayo.pipes.JSON.tabix.OverlapPipe;
 import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
+import edu.mayo.pipes.history.HCutPipe;
 import edu.mayo.pipes.history.History;
 
 /**
@@ -28,6 +51,8 @@ public class TreatPipeline extends Pipeline<History, History>
 {
 
 	private BiorProperties	mProps;	
+	
+	private List<Formatter> mFormatters = new ArrayList<Formatter>();
 	
 	/**
 	 * Constructor
@@ -42,7 +67,35 @@ public class TreatPipeline extends Pipeline<History, History>
 	{
 		mProps = new BiorProperties ();
 		
-		init();
+		initFormatters();
+		
+		initPipes();
+	}
+	/**
+	 * Initializes the formatters to transform the raw JSON annotation into the
+	 * final output format.  The order of the formatters is significant as this
+	 * carries over to the final output column order.
+	 */
+	private void initFormatters() {
+		mFormatters.add(new BgiFormatter());
+		mFormatters.add(new DbsnpFormatter());
+		mFormatters.add(new EspFormatter());
+		mFormatters.add(new HapmapFormatter());
+		mFormatters.add(new HgncFormatter());
+		mFormatters.add(new MirBaseFormatter());
+		mFormatters.add(new NcbiGeneFormatter());
+		mFormatters.add(new OmimFormatter());
+		mFormatters.add(new SNPEffFormatter());
+		mFormatters.add(new ThousandGenomesFormatter());
+		mFormatters.add(new UcscBlacklistedFormatter());
+		mFormatters.add(new UcscConservationFormatter());
+		mFormatters.add(new UcscEnhancerFormatter());
+		mFormatters.add(new UcscRegulationFormatter());
+		mFormatters.add(new UcscRepeatFormatter());
+		mFormatters.add(new UcscTfbsFormatter());
+		mFormatters.add(new UcscTssFormatter());
+		mFormatters.add(new UcscUniqueFormatter());
+		mFormatters.add(new VEPFormatter());
 	}
 	
 	/**
@@ -54,7 +107,7 @@ public class TreatPipeline extends Pipeline<History, History>
 	 * @throws BrokenBarrierException 
 	 * @throws InterruptedException 
 	 */
-	private void init() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
+	private void initPipes() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
 	{
 		// setup catalog paths
 		String baseDir 			= mProps.get ("fileBase");
@@ -80,37 +133,43 @@ public class TreatPipeline extends Pipeline<History, History>
 		String genomeFile		= baseDir + mProps.get("kGenomeFile");
 		
 		List<Pipe> pipes = new ArrayList<Pipe>();
+		
+		// tracks the order of the added JSON columns
+		List<JsonColumn> order = new ArrayList<JsonColumn>();
 
-//		/* ?.  VCF columns to Variant column */			pipes.add(new VEPPipeline   (new String[0], true));		
-//		/* ?.  VCF columns to Variant column */			pipes.add(new SNPEFFPipeline(new String[0], true));		
-
-		/* 1.  VCF columns to Variant column */			pipes.add(new VCF2VariantPipe());
-
-		/* 2.  same variant w/ dbSNP */					pipes.add(new SameVariantPipe(dbsnpFile,        pipes.size() * -1)); 		
-		/* 3.  same variant w/ COSMIC */				pipes.add(new SameVariantPipe(cosmicFile,       pipes.size() * -1)); 
-		/* 4.  overlap Variant w/ UCSC blacklist */		pipes.add(new OverlapPipe    (blacklistedFile,  pipes.size() * -1));
-		/* 5.  overlap Variant w/ UCSC conservation */	pipes.add(new OverlapPipe    (conservationFile, pipes.size() * -1));
-		/* 6.  overlap Variant w/ UCSC enhancer */		pipes.add(new OverlapPipe    (enhancerFile,     pipes.size() * -1));
-		/* 7.  overlap Variant w/ UCSC tfbs */			pipes.add(new OverlapPipe    (tfbsFile,         pipes.size() * -1));
-		/* 8.  overlap Variant w/ UCSC tss */			pipes.add(new OverlapPipe    (tssFile,          pipes.size() * -1));
-		/* 9.  overlap Variant w/ UCSC unique */		pipes.add(new OverlapPipe    (uniqueFile,       pipes.size() * -1));
-		/* 10. overlap Variant w/ UCSC repeat */		pipes.add(new OverlapPipe    (repeatFile,       pipes.size() * -1));
-		/* 11. overlap Variant w/ UCSC regulation */	pipes.add(new OverlapPipe    (regulationFile,   pipes.size() * -1));
-		/* 12. overlap Variant w/ miRBase */			pipes.add(new OverlapPipe    (mirBaseFile,      pipes.size() * -1));
+//		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
+//		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));		
+				
+		order.add(JsonColumn.VARIANT);				pipes.add(new VCF2VariantPipe());
+		order.add(JsonColumn.DBSNP);				pipes.add(new SameVariantPipe(dbsnpFile,        pipes.size() * -1)); 		
+		order.add(JsonColumn.COSMIC);				pipes.add(new SameVariantPipe(cosmicFile,       pipes.size() * -1)); 
+		order.add(JsonColumn.UCSC_BLACKLISTED);		pipes.add(new OverlapPipe    (blacklistedFile,  pipes.size() * -1));
+		order.add(JsonColumn.UCSC_CONSERVATION);	pipes.add(new OverlapPipe    (conservationFile, pipes.size() * -1));
+		order.add(JsonColumn.UCSC_ENHANCER);		pipes.add(new OverlapPipe    (enhancerFile,     pipes.size() * -1));
+		order.add(JsonColumn.UCSC_TFBS);			pipes.add(new OverlapPipe    (tfbsFile,         pipes.size() * -1));
+		order.add(JsonColumn.UCSC_TSS);				pipes.add(new OverlapPipe    (tssFile,          pipes.size() * -1));
+		order.add(JsonColumn.UCSC_UNIQUE);			pipes.add(new OverlapPipe    (uniqueFile,       pipes.size() * -1));
+		order.add(JsonColumn.UCSC_REPEAT);			pipes.add(new OverlapPipe    (repeatFile,       pipes.size() * -1));
+		order.add(JsonColumn.UCSC_REGULATION);		pipes.add(new OverlapPipe    (regulationFile,   pipes.size() * -1));
+		order.add(JsonColumn.MIRBASE);				pipes.add(new OverlapPipe    (mirBaseFile,      pipes.size() * -1));
 
 		// allele frequency annotation
-		/* 13. same variant w/ BGI */					pipes.add(new OverlapPipe    (bgiFile,          pipes.size() * -1));
-		/* 14. same variant w/ ESP */					pipes.add(new OverlapPipe    (espFile,          pipes.size() * -1));
-		/* 15. same variant w/ Hapmap */				pipes.add(new OverlapPipe    (hapmapFile,       pipes.size() * -1));
-		/* 16. same variant w/ 1k Genomes */			pipes.add(new OverlapPipe    (genomeFile,       pipes.size() * -1));
+		order.add(JsonColumn.BGI);					pipes.add(new OverlapPipe    (bgiFile,          pipes.size() * -1));
+		order.add(JsonColumn.ESP);					pipes.add(new OverlapPipe    (espFile,          pipes.size() * -1));
+		order.add(JsonColumn.HAPMAP);				pipes.add(new OverlapPipe    (hapmapFile,       pipes.size() * -1));
+		order.add(JsonColumn.THOUSAND_GENOMES);		pipes.add(new OverlapPipe    (genomeFile,       pipes.size() * -1));
 
-		// annotaiton requiring walking X-REFs
-		/* 17. overlap Variant w/ NCBI Gene */			pipes.add(new OverlapPipe    (genesFile,        pipes.size() * -1));		
-		/* 18. drill X-REF Entrez Gene ID */		 	pipes.add(new DrillPipe      (true, new String[] {"GeneID"})); 
-		/* 19. lookup HGNC using Entrez Gene ID */		pipes.add(new LookupPipe     (hgncFile, hgncIndexFile, -2));
-		/* 20. drill X-REF OMIM ID */					pipes.add(new DrillPipe      (true, new String[] {"mapped_OMIM_ID"}));
-		/* 21. lookup OMIM using OMIM ID */				pipes.add(new LookupPipe     (omimFile, omimIndexFile, -2));
+		// annotation requiring walking X-REFs
+		order.add(JsonColumn.NCBI_GENE);			pipes.add(new OverlapPipe    (genesFile,        pipes.size() * -1));		
+		/* extract Entrez GeneID X-REF */			pipes.add(new DrillPipe      (true, new String[] {"GeneID"})); 
+		order.add(JsonColumn.HGNC);					pipes.add(new LookupPipe     (hgncFile, hgncIndexFile, -2));
+		/* remove Entrez GeneID X-REF*/				pipes.add(new HCutPipe(new int[] {-3}));
+		/* extract OMIM ID X-REF */					pipes.add(new DrillPipe      (true, new String[] {"mapped_OMIM_ID"}));
+		order.add(JsonColumn.OMIM);					pipes.add(new LookupPipe     (omimFile, omimIndexFile, -2));
+		/* remove OMIM ID X-REF */					pipes.add(new HCutPipe(new int[] {-3}));
 		
+		/* transform JSON cols into final output */	pipes.add(new TransformFunctionPipe(new FormatterPipeFunction(order, mFormatters)));
+						
 		this.setPipes(pipes);		
 	}
 }
