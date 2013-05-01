@@ -1,0 +1,11 @@
+{
+	"bin": 585,
+	"chrom": "chr1",
+	"chromStart": 10468,
+	"chromEnd": 11447,
+	"name": "TAR1",
+	"score": 1000,
+	"_landmark": "1",
+	"_minBP": 10469,
+	"_maxBP": 11447
+}

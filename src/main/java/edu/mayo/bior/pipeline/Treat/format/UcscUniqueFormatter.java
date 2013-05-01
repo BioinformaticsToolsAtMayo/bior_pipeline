@@ -3,10 +3,15 @@ package edu.mayo.bior.pipeline.Treat.format;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jayway.jsonpath.JsonPath;
+
 import edu.mayo.bior.pipeline.Treat.JsonColumn;
 
 public class UcscUniqueFormatter implements Formatter
 {
+	// JSON paths
+	private static final JsonPath PATH_SCORE  = JsonPath.compile("score");	
+	
 	public JsonColumn getJSONColumn() {
 		return JsonColumn.UCSC_UNIQUE;
 	}
@@ -15,8 +20,7 @@ public class UcscUniqueFormatter implements Formatter
 	{
 		List<String> headers = new ArrayList<String>();
 		
-		// TODO implement
-		headers.add("TODO_" + getClass().getName());
+		headers.add("UCSC.Alignability/Uniquness");
 		
 		return headers;
 	}
@@ -25,8 +29,10 @@ public class UcscUniqueFormatter implements Formatter
 	{
 		List<String> values = new ArrayList<String>();
 		
-		// TODO: implement
-		values.add("TODO");
+		// execute drills
+		String score  = FormatUtils.drill(PATH_SCORE, json);
+				
+		values.add(score);
 
 		return values;
 	}
