@@ -31,6 +31,7 @@ import edu.mayo.bior.pipeline.Treat.format.UcscTfbsFormatter;
 import edu.mayo.bior.pipeline.Treat.format.UcscTssFormatter;
 import edu.mayo.bior.pipeline.Treat.format.UcscUniqueFormatter;
 import edu.mayo.bior.pipeline.Treat.format.VEPFormatter;
+import edu.mayo.bior.pipeline.Treat.format.VEPHgncFormatter;
 import edu.mayo.bior.pipeline.VEP.VEPPipeline;
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.exec.AbnormalExitException;
@@ -97,6 +98,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		mFormatters.add(new UcscTssFormatter());
 		mFormatters.add(new UcscUniqueFormatter());
 		mFormatters.add(new VEPFormatter());
+		mFormatters.add(new VEPHgncFormatter());
 	}
 	
 	/**
@@ -115,6 +117,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		String genesFile		= baseDir + mProps.get("genesFile");
 		String hgncFile			= baseDir + mProps.get("hgncFile");
 		String hgncIndexFile	= baseDir + mProps.get("hgncIndexFile");
+		String hgncEnsGeneIdx	= baseDir + mProps.get("hgncEnsemblGeneIndexFile");		
 		String omimFile			= baseDir + mProps.get("omimFile");
 		String omimIndexFile	= baseDir + mProps.get("omimIndexFile");
 		String dbsnpFile		= baseDir + mProps.get("dbsnpFile");
@@ -141,6 +144,9 @@ public class TreatPipeline extends Pipeline<History, History>
 				
 		order.add(JsonColumn.VARIANT);				pipes.add(new VCF2VariantPipe());
 		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
+		/* extract Ensembl Gene X-REF */			pipes.add(new DrillPipe      (true, new String[] {"Gene"})); 
+		order.add(JsonColumn.VEP_HGNC);				pipes.add(new LookupPipe     (hgncFile, hgncEnsGeneIdx, -2));
+		/* remove Ensembl Gene X-REF*/				pipes.add(new HCutPipe(new int[] {-3}));
 //		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));		
 		order.add(JsonColumn.DBSNP);				pipes.add(new SameVariantPipe(dbsnpFile,        pipes.size() * -1)); 		
 		order.add(JsonColumn.COSMIC);				pipes.add(new SameVariantPipe(cosmicFile,       pipes.size() * -1)); 

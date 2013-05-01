@@ -27,5 +27,6 @@ public enum JsonColumn {
 	UCSC_REPEAT,
 	UCSC_REGULATION,
 	VEP,
+	VEP_HGNC, // HGNC derived from VEP's Ensembl gene ID
 	SNPEFF
 }
