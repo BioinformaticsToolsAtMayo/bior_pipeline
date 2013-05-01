@@ -1,0 +1,6 @@
+##fileformat=VCFv4.0
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+21	26960070	rs116645811	G	A	.	.	.
+22	29138293	rs17885497	T	C	.	.	ThisColumnShouldNotBeAltered
+21	38439640	rs73901833	T	C	.	.	A column with spaces in it (this should not be passed to VEP, otherwise it will cause problems). This line has multiple sift and polyphen scores
+17	41209681	41209681	T	A	.	.	A variant within the BRCA1 gene 
