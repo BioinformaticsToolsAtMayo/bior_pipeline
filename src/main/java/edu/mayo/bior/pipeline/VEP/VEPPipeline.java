@@ -38,6 +38,7 @@ public class VEPPipeline  extends Pipeline {
 	}
 	
 	class VepPrePipe implements PipeFunction<History,String> {
+		@Override
 		/** Save the input line to a queue and strip off all columns after column 7 */
 		public String compute(History hist) {
 			mLastLineQ.add((History) hist.clone());
@@ -51,6 +52,7 @@ public class VEPPipeline  extends Pipeline {
 		private VepFunctions mVepFunctions = new VepFunctions();
 		private boolean isFirstLine = true;
 		
+		@Override
 		/** Create a json array from VEP output, convert it to array, and if mIsWorstCaseOnly is set, 
 		 *  then return the worst element from the array. 
 		 * 	If there are no scores to compare, then return empty json. */
