@@ -1,0 +1,17 @@
+{
+	"bin": 585,
+	"chrom": "chr1",
+	"chromStart": 10464,
+	"chromEnd": 10465,
+	"name": "CHR1_P0001_R1",
+	"score": 1000,
+	"strand": "+",
+	"confScore": 16,
+	"gmName": "CHR1_P0001",
+	"gmChromStart": 10464,
+	"gmChromEnd": 14409,
+	"isPseudo": 0,
+	"_landmark": "1",
+	"_minBP": 10465,
+	"_maxBP": 10465
+}
