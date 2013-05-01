@@ -1,0 +1,19 @@
+{
+	"Allele":"C",
+	"Gene":"ENSG00000012048",
+	"Feature":"ENST00000352993",
+	"Feature_type":"Transcript",
+	"Consequence":"missense_variant",
+	"cDNA_position":"768",
+	"CDS_position":"536",
+	"Protein_position":"179",
+	"Amino_acids":"Y/C",
+	"Codons":"tAc/tGc",
+	"HGNC":"BRCA1",
+	"SIFT":"deleterious(0.01)",
+	"PolyPhen":"probably_damaging(0.999)",
+	"SIFT_TERM":"deleterious",
+	"SIFT_Score":0.01,
+	"PolyPhen_TERM":"probably_damaging",
+	"PolyPhen_Score":0.999
+}
