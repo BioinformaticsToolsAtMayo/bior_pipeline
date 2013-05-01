@@ -1,0 +1,11 @@
+{"bin": 591,
+	"chrom": "chr1",
+	"chromStart": 873498,
+	"chromEnd": 873849,
+	"id": "OREG0012989",
+	"strand": "+",
+	"name": "OREG0012989",
+	"_landmark": "1",
+	"_minBP": 873499,
+	"_maxBP": 873849
+}
