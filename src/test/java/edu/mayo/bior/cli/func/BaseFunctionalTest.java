@@ -156,6 +156,73 @@ public abstract class BaseFunctionalTest {
 		return out;
 	}
 
+	
+	/**
+	 * Executes the specified shell script that may contain pipes.
+	 * Ex:  "cat myfile.vcf | bior_vcf_to_json | bior_drill -k -p CHROM" 
+	 * 
+	 * @param cmdWithPipes  Command to run (may contain pipes)
+	 * @return CommandOutput Output from command - contains ALL stderr lines, but only stdout from last pipe operation.
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	protected CommandOutput executeScriptWithPipes(String cmdWithPipes) throws IOException, InterruptedException {
+		// Split the command into the pipe-able pieces (ex: "cat junk.vcf | bior_vcf_to_json" 
+		// will be broken up into two commands and run as two separate commands)
+		// NOTE: leading and trailing spaces around the pipe char will be removed
+		String[] cmds = cmdWithPipes.split(" +\\| +");
+		
+		// Create the CommandOutput and set it's stderr to "" so we don't have a "null" in there
+		CommandOutput out = new CommandOutput();
+		out.stderr = "";
+		
+		String stdin = null;
+		
+		for(String cmd : cmds) {
+			// If the command is a bior command (begins with "bior_"), the prepend the path to the cmd
+			if(cmd.startsWith("bior_"))
+				cmd = sHomePath + "/bin/" + cmd;
+
+			
+			Process p = Runtime.getRuntime().exec(cmd, getEnvironmentVariables());
+	
+			// connect STDERR from script process and store in local memory
+			// STDERR [script process] ---> local byte array
+			ByteArrayOutputStream stderrData = new ByteArrayOutputStream();
+			StreamConnector stderrConnector = new StreamConnector(p.getErrorStream(), stderrData, 1024);
+			new Thread(stderrConnector).start();
+	
+			// connect STDOUT from script process and store in local memory
+			// STDOUT [script process] ---> local byte array
+			ByteArrayOutputStream stdoutData = new ByteArrayOutputStream();		
+			StreamConnector stdoutConnector = new StreamConnector(p.getInputStream(), stdoutData, 1024);
+			new Thread(stdoutConnector).start();
+	
+			// feed STDIN into process if necessary
+			if (stdin != null) {
+				p.getOutputStream().write(stdin.getBytes());
+				p.getOutputStream().close();
+			}
+			
+			// block until process ends
+			int exitCode = p.waitFor();
+			String stderr = stderrData.toString("UTF-8");
+			String stdout = stdoutData.toString("UTF-8");
+
+			out.stderr += stderr;
+			out.stdout = stdout;
+			out.exit = exitCode;
+			
+			if(exitCode != 0) {
+				return out;
+			}
+			
+			// Set the stdin for the next pipe to the output from the previous one
+			stdin = out.stdout;
+		}
+		return out;
+	}
+	
 	/**
 	 * Loads contents of a file into a String object.
 	 * 
