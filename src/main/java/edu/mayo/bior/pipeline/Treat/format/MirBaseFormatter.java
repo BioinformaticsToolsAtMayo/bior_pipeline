@@ -3,10 +3,14 @@ package edu.mayo.bior.pipeline.Treat.format;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jayway.jsonpath.JsonPath;
+
 import edu.mayo.bior.pipeline.Treat.JsonColumn;
 
 public class MirBaseFormatter implements Formatter
 {
+	private static final JsonPath PATH_MIRBASEID  = JsonPath.compile("ID");
+	
 	public JsonColumn getJSONColumn() {
 		return JsonColumn.MIRBASE;
 	}
@@ -16,7 +20,7 @@ public class MirBaseFormatter implements Formatter
 		List<String> headers = new ArrayList<String>();
 		
 		// TODO implement
-		headers.add("TODO_" + getClass().getName());
+		headers.add("miRBASE.ID");
 		
 		return headers;
 	}
@@ -25,8 +29,8 @@ public class MirBaseFormatter implements Formatter
 	{
 		List<String> values = new ArrayList<String>();
 		
-		// TODO: implement
-		values.add("TODO");
+		String mirBaseId = FormatUtils.drill(PATH_MIRBASEID, json);
+		values.add(mirBaseId);
 
 		return values;
 	}
