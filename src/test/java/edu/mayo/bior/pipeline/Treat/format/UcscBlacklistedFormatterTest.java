@@ -44,7 +44,7 @@ public class UcscBlacklistedFormatterTest extends BaseFormatterTest {
 		
 		String[] expectedValues =
 			{
-				"1000",
+				"1000"
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);
