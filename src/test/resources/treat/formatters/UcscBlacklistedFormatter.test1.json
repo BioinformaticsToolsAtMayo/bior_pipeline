@@ -1,0 +1,11 @@
+{
+	"bin": 589,
+	"chrom": "chr1",
+	"chromStart": 564449,
+	"chromEnd": 570371,
+	"name": "High_Mappability_island",
+	"score": 1000,
+	"_landmark": "1",
+	"_minBP": 564450,
+	"_maxBP": 570371
+}
