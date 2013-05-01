@@ -12,16 +12,13 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
-import com.tinkerpop.pipes.Pipe;
-import com.tinkerpop.pipes.transform.IdentityPipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
-import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import edu.mayo.bior.pipeline.VEP.VEPEXE;
-import edu.mayo.bior.pipeline.VEP.VEPPostProcessingPipeline;
+import edu.mayo.bior.pipeline.VEP.VEPPipeline;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.MergePipe;
 import edu.mayo.pipes.UNIX.CatPipe;
@@ -52,12 +49,12 @@ public class VEPITCase extends RemoteFunctionalTest {
 
 	private final String VEPDIR = "src/test/resources/tools/vep/";
 	
-	// PASSED - 2013-04-19, 9:25
 	@Test
 	/** Test only the output of VEP itself based on input (no JSON conversion, just the raw output) */
 	public void vepExeOnlyPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		System.out.println("-----------------------------------------");
 		System.out.println("VEPITCase.vepExeOnlyPipe()");
+
 		double start = System.currentTimeMillis();
 		String[] vepCmd = VEPEXE.getVEPCommand(null);
 		System.out.println("VEP Command: " + Arrays.asList(vepCmd));
@@ -66,123 +63,80 @@ public class VEPITCase extends RemoteFunctionalTest {
 				new CatPipe(),               //raw file
 				new HistoryInPipe(),         //get rid of the header
 				new MergePipe("\t"),
-				new TransformFunctionPipe(vepExe),
-				//new PrintPipe()
-				new IdentityPipe()
+				new TransformFunctionPipe(vepExe)
 				);
-		PipeTestUtils.walkPipeline(p, 0);
 		p.setStarts(Arrays.asList(VEPDIR + "example.vcf"));
 
 		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "example.vcf.vep.correct");
-		// Remove the header (first 3 lines)
+		// Remove the header (first 3 lines) from the expected output
 		while(expected.size() > 0 && expected.get(0).startsWith("#"))
 			expected.remove(0);
 		
 		List<String> actual = PipeTestUtils.getResults(p);
-
-//		System.out.println("Expected: -----------------");
-//		PipeTestUtils.printLines(expected);
-//		System.out.println("Actual: -------------------");
-//		PipeTestUtils.printLines(actual);
-//		System.out.println("---------------------------");
 		
 		vepExe.terminate();
+
+		printComparison(p, expected, actual);
 
 		PipeTestUtils.assertListsEqual(expected, actual);
 		
 		double end = System.currentTimeMillis();
-		System.out.println("VEPITCase.testExecVepPipe() - Total runtime: " + (end-start)/1000.0);
+		System.out.println("VEPITCase.vepExeOnlyPipe() - Total runtime: " + (end-start)/1000.0);
 	}
 	
+	
 	@Test
-	/** Verify everything is working using the pipeline */
-	public void pipelineWorstEffect() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
-		System.out.println("-----------------------------------------");
-		System.out.println("VEPITCase.pipelineWorstEffect()");
-
-		String[] vepHeader = new String[] { "##INFO=<ID=CSQ,Number=.,Type=String,Description=\"Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE\">" };
-		VEPEXE vep = new VEPEXE(VEPEXE.getVEPCommand(null));
-		VEPPostProcessingPipeline vepPostProcess = new VEPPostProcessingPipeline();
-		Pipe post = vepPostProcess.getWorstCasePipeline(new IdentityPipe(), new IdentityPipe(), false);
-		//Pipe post = vepPostProcess.getCartesianProductPipeline(new IdentityPipe(), new IdentityPipe(),false);
-
-		Pipeline p = new Pipeline(
-				new CatPipe(),
-				new HistoryInPipe(),  //get rid of the header
-				new MergePipe("\t"),
-				new TransformFunctionPipe(vep),
-				new VCFProgram2HistoryPipe(vepHeader),
-				//new String2HistoryPipe("\t"),
-				post,
-				new HistoryOutPipe()
-				);
-
-		PipeTestUtils.walkPipeline(p, 0);
-
-		p.setStarts(Arrays.asList(VEPDIR + "vepsample.vcf"));
-		
-		List<String> actual = PipeTestUtils.getResults(p);
-		vep.terminate();
-		
-		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.worstonly.vcf");
-		
-		System.out.println("Expected: -----------------");
-		PipeTestUtils.printLines(expected);
-		System.out.println("Actual: -------------------");
-		PipeTestUtils.printLines(actual);
-		System.out.println("---------------------------");
-
-		PipeTestUtils.assertListsEqual(expected, actual);
-	}
-
-	@Test
-	/** Verify everything is working using the pipeline and doing a fanout */
-	public void pipelineFanout() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
+	public void pipelineFanout() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("-----------------------------------------");
 		System.out.println("VEPITCase.pipelineFanout()");
 
-		String[] vepHeader = new String[] { "##INFO=<ID=CSQ,Number=.,Type=String,Description=\"Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE\">" };
-		VEPEXE vep = new VEPEXE(VEPEXE.getVEPCommand(null));
-		VEPPostProcessingPipeline vepPostProcess = new VEPPostProcessingPipeline();
-		Pipe post = vepPostProcess.getCartesianProductPipeline(new IdentityPipe(), new IdentityPipe(), false);
-		//Pipe post = vepPostProcess.getCartesianProductPipeline(new IdentityPipe(), new IdentityPipe(),false);
+		VEPPipeline vepPipe = new VEPPipeline(null, false);
+		Pipeline pipe = new Pipeline( new HistoryInPipe(), vepPipe, new HistoryOutPipe() );
+		List<String> input = FileCompareUtils.loadFile("src/test/resources/tools/vep/vepsample.vcf");
+		pipe.setStarts(input);
+		List<String> actual = PipeTestUtils.getResults(pipe);
+		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.fanout2.vcf");
 
-		Pipeline p = new Pipeline(
-				new CatPipe(),
-				new HistoryInPipe(),  //get rid of the header
-				new MergePipe("\t"),
-				new TransformFunctionPipe(vep),
-				new VCFProgram2HistoryPipe(vepHeader),
-				//new String2HistoryPipe("\t"),
-				post,
-				new HistoryOutPipe()
-				);
+		vepPipe.terminate();
 
-		PipeTestUtils.walkPipeline(p, 0);
-
-		p.setStarts(Arrays.asList(VEPDIR + "vepsample.vcf"));
+		printComparison(pipe, expected, actual);
 		
-		List<String> actual = PipeTestUtils.getResults(p);
-		vep.terminate();
-		
-		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.fanout.vcf");
-		
-		System.out.println("Expected: -----------------");
-		PipeTestUtils.printLines(expected);
-		System.out.println("Actual: -------------------");
-		PipeTestUtils.printLines(actual);
-		System.out.println("---------------------------");
-
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
+	
+	
+	@Test
+	public void pipelineWorst() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+		System.out.println("-----------------------------------------");
+		System.out.println("VEPITCase.pipelineWorst()");
+
+		List<String> input = FileCompareUtils.loadFile("src/test/resources/tools/vep/vepsample.vcf");
+		VEPPipeline vepPipe = new VEPPipeline(null, true);
+		Pipeline pipe = new Pipeline(
+				new HistoryInPipe(),
+				vepPipe,
+				new HistoryOutPipe()
+				);
+		pipe.setStarts(input);
+		List<String> actual = PipeTestUtils.getResults(pipe);
+		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.worstonly.vcf");
+
+		vepPipe.terminate();
+
+		printComparison(pipe, expected, actual);
+		
+		PipeTestUtils.assertListsEqual(expected, actual);
+	}
+	
 	
 	@Test
 	/** Test the whole bior_vep command with fanout of multiple effects
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void cmdWithFanout() throws IOException, InterruptedException {
-		System.out.println("VEPITCase.cmdWithFanout(): testing sample VEP vcf file");
+	public void cmdFanout() throws IOException, InterruptedException {
+		System.out.println("-----------------------------------------");
+		System.out.println("VEPITCase.cmdFanout(): testing sample VEP vcf file");
 		// NOTE:  This test case should only run on biordev - where it can run VEP
 		String vcfIn = loadFile(new File(VEPDIR + "vepsample.vcf"));
 
@@ -193,14 +147,10 @@ public class VEPITCase extends RemoteFunctionalTest {
 		
 		String actualStr = out.stdout;
 		List<String> actual = Arrays.asList(actualStr.split("\n"));
-		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.fanout.vcf");
+		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.fanout2.vcf");
 		
-		System.out.println("Expected: -----------------");
-		PipeTestUtils.printLines(expected);
-		System.out.println("Actual: -------------------");
-		PipeTestUtils.printLines(actual);
-		System.out.println("---------------------------");
-
+		printComparison(null, expected, actual);
+		
 		// The output should contain some sift and polyphen scores
 		assertTrue(actualStr.contains("\"PolyPhen\":\"benign(0.001)\""));
 		assertTrue(actualStr.contains("\"SIFT\":\"tolerated(0.05)\""));
@@ -229,12 +179,8 @@ public class VEPITCase extends RemoteFunctionalTest {
 		String actualStr = out.stdout;
 		List<String> actual = Arrays.asList(actualStr.split("\n"));
 		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.worstonly.vcf");
-		
-		System.out.println("Expected: -----------------");
-		PipeTestUtils.printLines(expected);
-		System.out.println("Actual: -------------------");
-		PipeTestUtils.printLines(actual);
-		System.out.println("---------------------------");
+
+		printComparison(null, expected, actual);
 
 		// The output should contain some sift and polyphen scores
 		assertTrue(actualStr.contains("\"PolyPhen\":\"benign(0.001)\""));
@@ -243,6 +189,17 @@ public class VEPITCase extends RemoteFunctionalTest {
 		assertTrue(actualStr.contains("\"SIFT_TERM\":\"tolerated\""));
 
 		PipeTestUtils.assertListsEqual(expected, actual);
+	}
+	
+	public static void printComparison(Pipeline pipeline, List<String> expected, List<String> actual) {
+		if(pipeline != null)
+			PipeTestUtils.walkPipeline(pipeline, 0);
+		
+		System.out.println("Expected: -----------------");
+		PipeTestUtils.printLines(expected);
+		System.out.println("Actual: -------------------");
+		PipeTestUtils.printLines(actual);
+		System.out.println("---------------------------");
 	}
 
 }
