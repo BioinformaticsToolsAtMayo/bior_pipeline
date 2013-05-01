@@ -1,0 +1,83 @@
+{
+  "HGNC_ID": "HGNC:1100",
+  "Approved_Symbol": "BRCA1",
+  "Approved_Name": "breast cancer 1, early onset",
+  "Status": "Approved",
+  "Locus_Type": "gene with protein product",
+  "Locus_Group": "protein-coding gene",
+  "Previous_Symbols": [],
+  "Previous_Names": [],
+  "Synonyms": [
+    "RNF53",
+    "BRCC1",
+    "PPP1R53"
+  ],
+  "Name_Synonyms": [
+    "\"BRCA1/BRCA2-containing complex",
+    "subunit 1\"",
+    "\"protein phosphatase 1",
+    "regulatory subunit 53\""
+  ],
+  "Chromosome": "17q21.31",
+  "Date_Approved": "1991-02-20",
+  "Date_Modified": "2012-09-20",
+  "Accession_Numbers": [
+    "U14680"
+  ],
+  "Enzyme_IDs": [],
+  "Entrez_Gene_ID": "672",
+  "Ensembl_Gene_ID": "ENSG00000012048",
+  "Mouse_Genome_Database_ID": "MGI:104537",
+  "Specialist_Database_Links": "\u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003ca href\u003d\"http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action\u003dgene\u0026amp;ln\u003dBRCA1\"\u003eCOSMIC\u003c/a\u003e\u003c!--,--\u003e \u003ca href\u003d\"http://www.orpha.net/consor/cgi-bin/OC_Exp.php?Lng\u003dGB\u0026Expert\u003d119068\"\u003eOrphanet\u003c/a\u003e\u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e ",
+  "Specialist_Database_IDs": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "BRCA1",
+    "119068",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "Pubmed_IDs": [
+    "1676470"
+  ],
+  "RefSeq_IDs": [],
+  "Gene_Family_Tag": "RNF, PPP1R",
+  "Gene_family_description": "\"RING-type zinc fingers\", \"Serine/threonine phosphatases / Protein phosphatase 1, regulatory subunits\"",
+  "Record_Type": "Standard",
+  "Primary_IDs": [],
+  "Secondary_IDs": [],
+  "CCDS_IDs": [
+    "CCDS11453.1",
+    "CCDS11454.1",
+    "CCDS11455.1",
+    "CCDS11456.1",
+    "CCDS11459.1",
+    "CCDS11455.2",
+    "CCDS11456.2",
+    "CCDS11459.2"
+  ],
+  "VEGA_IDs": [
+    "OTTHUMG00000157426"
+  ],
+  "Locus_Specific_Databases": "Breast Cancer|http://research.nhgri.nih.gov/bic/,BRCA1 database at LOVD-China|http://genomed.org/LOVD/BC/home.php?select_db\u003dBRCA1,LOVD - Leiden Open Variation Database|http://chromium.liacs.nl/LOVD2/cancer/home.php?select_db\u003dBRCA1,LOVD - Leiden Open Variation Database|https://australianhumanvariomedatabase.arcs.org.au/home.php?select_db\u003dBRCA1",
+  "mapped_GDB_ID": "GDB:126611",
+  "mapped_Entrez_Gene_ID": "672",
+  "mapped_OMIM_ID": "113705",
+  "mapped_RefSeq": "NM_007294",
+  "UniProt_ID": "P38398",
+  "mapped_Ensembl_ID": "ENSG00000012048",
+  "UCSC_ID": "uc002ict.3",
+  "mapped_Mouse_Genome_Database_ID": "MGI:104537",
+  "mapped_Rat_Genome_Database_ID": "RGD:2218"
+}
