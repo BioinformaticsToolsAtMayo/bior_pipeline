@@ -1,5 +1,4 @@
 ##fileformat=VCFv4.0
-##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence type as predicted by VEP. Format: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|HGNC|DISTANCE|SIFT|PolyPhen|CELL_TYPE">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	VEP
 21	26960070	rs116645811	G	A	.	.	.	{"Allele":"A","DISTANCE":4432,"Gene":"ENSG00000260583","cDNA_position":"","CDS_position":"","Existing_variation":"","Consequence":"upstream_gene_variant","Codons":"","HGNC":"LINC00515","Feature_type":"Transcript","Amino_acids":"","Protein_position":"","Feature":"ENST00000567517"}
 21	26960070	rs116645811	G	A	.	.	.	{"Allele":"A","Gene":"ENSG00000154719","cDNA_position":"","CDS_position":"","Existing_variation":"","Consequence":"intron_variant","Codons":"","HGNC":"MRPL39","Feature_type":"Transcript","Amino_acids":"","Protein_position":"","Feature":"ENST00000352957"}
