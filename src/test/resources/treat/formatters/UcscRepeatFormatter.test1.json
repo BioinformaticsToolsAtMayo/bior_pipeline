@@ -1,0 +1,22 @@
+{
+	"bin": 585,
+	"swScore": 1504,
+	"milliDiv": 13,
+	"milliDel": 4,
+	"milliIns": 13,
+	"genoName": "chr1",
+	"genoStart": 10000,
+	"genoEnd": 10468,
+	"genoLeft": -249240153,
+	"strand": "+",
+	"repName": "(CCCTAA)n",
+	"repClass": "Simple_repeat",
+	"repFamily": "Simple_repeat",
+	"repStart": 1,
+	"repEnd": 463,
+	"repLeft": 0,
+	"id": "1",
+	"_landmark": "1",
+	"_minBP": 10001,
+	"_maxBP": 10468
+}
