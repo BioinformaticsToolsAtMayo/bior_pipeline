@@ -35,10 +35,10 @@ public class VCFProgramMerge implements StitchPipeFunction<History,History,Histo
     
     public History compute(History a, History b) {
     	// NOTE: adding the "program" column on the metadata resulted in TWO "VEP" column names
-//        if(count==0){
-//            ColumnMetaData cmd = new ColumnMetaData(mProgram);
-//            History.getMetaData().getColumns().add(cmd);
-//        }
+        if(mCount==0){
+            ColumnMetaData cmd = new ColumnMetaData(mProgram);
+            History.getMetaData().getColumns().add(cmd);
+        }
         mCount++;
         String lastFromA = a.get(a.size()-1);
         b.add(lastFromA);
