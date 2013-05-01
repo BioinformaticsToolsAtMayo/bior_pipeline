@@ -1,0 +1,13 @@
+{
+	"bin": 591,
+	"chrom": "chr1",
+	"chromStart": 894640,
+	"chromEnd": 894654,
+	"name": "V$P300_01",
+	"score": 842,
+	"strand": "-",
+	"zScore": 1.68,
+	"_landmark": "1",
+	"_minBP": 894641,
+	"_maxBP": 894654
+}
