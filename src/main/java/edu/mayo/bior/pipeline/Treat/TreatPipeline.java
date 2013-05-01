@@ -141,37 +141,41 @@ public class TreatPipeline extends Pipeline<History, History>
 		// tracks the order of the added JSON columns
 		List<JsonColumn> order = new ArrayList<JsonColumn>();
 
-				
+
+		// 1ST JSON column is the original variant
 		order.add(JsonColumn.VARIANT);				pipes.add(new VCF2VariantPipe());
+		
 		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
-		/* extract Ensembl Gene X-REF */			pipes.add(new DrillPipe      (true, new String[] {"Gene"})); 
+		/* add Ensembl Gene X-REF */				pipes.add(new DrillPipe      (true, new String[] {"Gene"})); 
 		order.add(JsonColumn.VEP_HGNC);				pipes.add(new LookupPipe     (hgncFile, hgncEnsGeneIdx, -2));
 		/* remove Ensembl Gene X-REF*/				pipes.add(new HCutPipe(new int[] {-3}));
-//		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));		
-		order.add(JsonColumn.DBSNP);				pipes.add(new SameVariantPipe(dbsnpFile,        pipes.size() * -1)); 		
-		order.add(JsonColumn.COSMIC);				pipes.add(new SameVariantPipe(cosmicFile,       pipes.size() * -1)); 
-		order.add(JsonColumn.UCSC_BLACKLISTED);		pipes.add(new OverlapPipe    (blacklistedFile,  pipes.size() * -1));
-		order.add(JsonColumn.UCSC_CONSERVATION);	pipes.add(new OverlapPipe    (conservationFile, pipes.size() * -1));
-		order.add(JsonColumn.UCSC_ENHANCER);		pipes.add(new OverlapPipe    (enhancerFile,     pipes.size() * -1));
-		order.add(JsonColumn.UCSC_TFBS);			pipes.add(new OverlapPipe    (tfbsFile,         pipes.size() * -1));
-		order.add(JsonColumn.UCSC_TSS);				pipes.add(new OverlapPipe    (tssFile,          pipes.size() * -1));
-		order.add(JsonColumn.UCSC_UNIQUE);			pipes.add(new OverlapPipe    (uniqueFile,       pipes.size() * -1));
-		order.add(JsonColumn.UCSC_REPEAT);			pipes.add(new OverlapPipe    (repeatFile,       pipes.size() * -1));
-		order.add(JsonColumn.UCSC_REGULATION);		pipes.add(new OverlapPipe    (regulationFile,   pipes.size() * -1));
-		order.add(JsonColumn.MIRBASE);				pipes.add(new OverlapPipe    (mirBaseFile,      pipes.size() * -1));
+		
+//		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));
+		
+		order.add(JsonColumn.DBSNP);				pipes.add(new SameVariantPipe(dbsnpFile,        order.size() * -1 + 1)); 		
+		order.add(JsonColumn.COSMIC);				pipes.add(new SameVariantPipe(cosmicFile,       order.size() * -1 + 1)); 
+		order.add(JsonColumn.UCSC_BLACKLISTED);		pipes.add(new OverlapPipe    (blacklistedFile,  order.size() * -1 + 1));
+		order.add(JsonColumn.UCSC_CONSERVATION);	pipes.add(new OverlapPipe    (conservationFile, order.size() * -1 + 1));
+		order.add(JsonColumn.UCSC_ENHANCER);		pipes.add(new OverlapPipe    (enhancerFile,     order.size() * -1 + 1));
+		order.add(JsonColumn.UCSC_TFBS);			pipes.add(new OverlapPipe    (tfbsFile,         order.size() * -1 + 1));
+		order.add(JsonColumn.UCSC_TSS);				pipes.add(new OverlapPipe    (tssFile,          order.size() * -1 + 1));
+		order.add(JsonColumn.UCSC_UNIQUE);			pipes.add(new OverlapPipe    (uniqueFile,       order.size() * -1 + 1));
+		order.add(JsonColumn.UCSC_REPEAT);			pipes.add(new OverlapPipe    (repeatFile,       order.size() * -1 + 1));
+		order.add(JsonColumn.UCSC_REGULATION);		pipes.add(new OverlapPipe    (regulationFile,   order.size() * -1 + 1));
+		order.add(JsonColumn.MIRBASE);				pipes.add(new OverlapPipe    (mirBaseFile,      order.size() * -1 + 1));
 
 		// allele frequency annotation
-		order.add(JsonColumn.BGI);					pipes.add(new OverlapPipe    (bgiFile,          pipes.size() * -1));
-		order.add(JsonColumn.ESP);					pipes.add(new OverlapPipe    (espFile,          pipes.size() * -1));
-		order.add(JsonColumn.HAPMAP);				pipes.add(new OverlapPipe    (hapmapFile,       pipes.size() * -1));
-		order.add(JsonColumn.THOUSAND_GENOMES);		pipes.add(new OverlapPipe    (genomeFile,       pipes.size() * -1));
+		order.add(JsonColumn.BGI);					pipes.add(new OverlapPipe    (bgiFile,          order.size() * -1 + 1));
+		order.add(JsonColumn.ESP);					pipes.add(new OverlapPipe    (espFile,          order.size() * -1 + 1));
+		order.add(JsonColumn.HAPMAP);				pipes.add(new OverlapPipe    (hapmapFile,       order.size() * -1 + 1));
+		order.add(JsonColumn.THOUSAND_GENOMES);		pipes.add(new OverlapPipe    (genomeFile,       order.size() * -1 + 1));
 
 		// annotation requiring walking X-REFs
-		order.add(JsonColumn.NCBI_GENE);			pipes.add(new OverlapPipe    (genesFile,        pipes.size() * -1));		
-		/* extract Entrez GeneID X-REF */			pipes.add(new DrillPipe      (true, new String[] {"GeneID"})); 
+		order.add(JsonColumn.NCBI_GENE);			pipes.add(new OverlapPipe    (genesFile,        order.size() * -1 + 1));		
+		/* add Entrez GeneID X-REF */				pipes.add(new DrillPipe      (true, new String[] {"GeneID"})); 
 		order.add(JsonColumn.HGNC);					pipes.add(new LookupPipe     (hgncFile, hgncIndexFile, -2));
 		/* remove Entrez GeneID X-REF*/				pipes.add(new HCutPipe(new int[] {-3}));
-		/* extract OMIM ID X-REF */					pipes.add(new DrillPipe      (true, new String[] {"mapped_OMIM_ID"}));
+		/* add OMIM ID X-REF */						pipes.add(new DrillPipe      (true, new String[] {"mapped_OMIM_ID"}));
 		order.add(JsonColumn.OMIM);					pipes.add(new LookupPipe     (omimFile, omimIndexFile, -2));
 		/* remove OMIM ID X-REF */					pipes.add(new HCutPipe(new int[] {-3}));
 		
