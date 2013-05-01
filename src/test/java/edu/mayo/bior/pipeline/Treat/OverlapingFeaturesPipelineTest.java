@@ -73,7 +73,7 @@ public class OverlapingFeaturesPipelineTest {
 		Pipe input = new Pipeline (new CatPipe (), new HistoryInPipe ());
 		Pipe output = new Pipeline (new HistoryOutPipe (), new PrintPipe ());
 		
-		OverlapingFeaturesPipeline p = new OverlapingFeaturesPipeline (input, output, "/Users/m082166/Documents/BioR/", true);
+		OverlapingFeaturesPipeline p = new OverlapingFeaturesPipeline (input, output, true);
 		p.setStarts (Arrays.asList ("src/test/resources/tools/vep/example.vcf"));
 		while (p.hasNext ())
 		{
