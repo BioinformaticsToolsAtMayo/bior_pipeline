@@ -1,0 +1,61 @@
+     {
+             "HGNC_ID": "HGNC:5",
+                  "Approved_Symbol": "A1BG",
+                  "Approved_Name": "alpha-1-B glycoprotein",
+                  "Status": "Approved",
+                  "Locus_Type": "gene with protein product",
+                  "Locus_Group": "protein-coding gene",
+                  "Previous_Symbols": [],
+                  "Previous_Names": [],
+                  "Synonyms": [],
+                  "Name_Synonyms": [],
+                  "Chromosome": "19q",
+                  "Date_Approved": "1989-06-30",
+                  "Date_Modified": "2010-07-08",
+                  "Accession_Numbers": [],
+                  "Enzyme_IDs": [],
+                  "Entrez_Gene_ID": "1",
+                  "Ensembl_Gene_ID": ,
+                  "Specialist_Database_Links": "\u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003ca href\u003d\"http://merops.sanger.ac.uk/cgi-bin/merops.cgi?id\u003dI43.950\"\u003eMEROPS\u003c/a\u003e\u003c!--,--\u003e \u003ca href\u003d\"http://www.sanger.ac.uk/perl/genetics/CGP/cosmic?action\u003dgene\u0026amp;ln\u003dA1BG\"\u003eCOSMIC\u003c/a\u003e\u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e \u003c!--,--\u003e ",
+                  "Specialist_Database_IDs": [
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "I43.950",
+                    "A1BG",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""
+                  ],
+                  "Pubmed_IDs": [
+                    "2591067"
+                  ],
+                  "RefSeq_IDs": [
+                    "NM_130786"
+                  ],
+                  "Record_Type": "Standard",
+                  "Primary_IDs": [],
+                  "Secondary_IDs": [],
+                  "CCDS_IDs": [
+                    "CCDS12976.1"
+                  ],
+                  "VEGA_IDs": [],
+                  "mapped_GDB_ID": "GDB:119638",
+                  "mapped_Entrez_Gene_ID": "1",
+                  "mapped_OMIM_ID": "138670",
+                  "mapped_RefSeq": "NM_130786",
+                  "UniProt_ID": "P04217",
+                  "mapped_Ensembl_ID": "ENSG00000121410",
+                  "UCSC_ID": "uc002qsd.4",
+                  "mapped_Mouse_Genome_Database_ID": "MGI:2152878",
+                  "mapped_Rat_Genome_Database_ID": "RGD:69417"
+                }

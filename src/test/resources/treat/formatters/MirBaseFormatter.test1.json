@@ -1,0 +1,9 @@
+ {
+                  "_landmark": "1",
+                  "type": "miRNA",
+                  "_minBP": "30366",
+                  "_maxBP": "30503",
+                  "_strand": "+",
+                  "ACC": "MI0006363",
+                  "ID": "hsa-mir-1302-2"
+                }

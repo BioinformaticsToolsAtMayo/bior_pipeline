@@ -1,0 +1,24 @@
+ {
+                  "chromosome_id": "chr1",
+                  "genomic_position": 59291,
+                  "index_of_major_allele": 3,
+                  "major_allele": "T",
+                  "index_of_minor_allele": 2,
+                  "minor_allele": "G",
+                  "number_A": 0,
+                  "number_C": 7,
+                  "number_G": 86,
+                  "number_T": 1871,
+                  "estimated_minor_allele_freq": ,
+                  "estimated_major_allele_freq": 0.926979,
+                  "is_in_dbSNP": 0,
+                  "_landmark": "1",
+                  "_refAllele": "T",
+                  "_altAlleles": [
+                    "G"
+                  ],
+                  "_minBP": 69428,
+                  "_maxBP": 69428,
+                  "_type": "variant",
+                  "_id": "."
+                }

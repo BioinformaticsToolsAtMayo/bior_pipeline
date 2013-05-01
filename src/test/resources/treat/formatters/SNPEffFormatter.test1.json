@@ -1,0 +1,12 @@
+{
+"Effect":"STOP_GAINED",
+"Effect_impact":"HIGH",
+"Functional_class":"NONSENSE",
+"Codon_change":"Cga/Tga",
+"Amino_acid_change":"R191*",
+"Gene_name":"TPTE",
+"Gene_bioType":"protein_coding",
+"Coding":"CODING",
+"Transcript":"ENST00000342420",
+"Exon":"exon_21_10942711_10942774"
+}
