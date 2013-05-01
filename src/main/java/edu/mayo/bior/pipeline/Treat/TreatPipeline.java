@@ -10,6 +10,8 @@ import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
+import edu.mayo.bior.cli.cmd.SNPEffCommand;
+import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 import edu.mayo.bior.pipeline.Treat.format.BgiFormatter;
 import edu.mayo.bior.pipeline.Treat.format.DbsnpFormatter;
 import edu.mayo.bior.pipeline.Treat.format.EspFormatter;
@@ -145,12 +147,12 @@ public class TreatPipeline extends Pipeline<History, History>
 		// 1ST JSON column is the original variant
 		order.add(JsonColumn.VARIANT);				pipes.add(new VCF2VariantPipe());
 		
-		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
+		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline    (new String[0], true));		
 		/* add Ensembl Gene X-REF */				pipes.add(new DrillPipe      (true, new String[] {"Gene"})); 
 		order.add(JsonColumn.VEP_HGNC);				pipes.add(new LookupPipe     (hgncFile, hgncEnsGeneIdx, -2));
-		/* remove Ensembl Gene X-REF*/				pipes.add(new HCutPipe(new int[] {-3}));
+		/* remove Ensembl Gene X-REF*/				pipes.add(new HCutPipe       (new int[] {-3}));
 		
-//		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));
+		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline (new String[]{SNPEffCommand.DEFAULT_GENOME_VERSION}, true));
 		
 		order.add(JsonColumn.DBSNP);				pipes.add(new SameVariantPipe(dbsnpFile,        order.size() * -1 + 1)); 		
 		order.add(JsonColumn.COSMIC);				pipes.add(new SameVariantPipe(cosmicFile,       order.size() * -1 + 1)); 
@@ -174,10 +176,10 @@ public class TreatPipeline extends Pipeline<History, History>
 		order.add(JsonColumn.NCBI_GENE);			pipes.add(new OverlapPipe    (genesFile,        order.size() * -1 + 1));		
 		/* add Entrez GeneID X-REF */				pipes.add(new DrillPipe      (true, new String[] {"GeneID"})); 
 		order.add(JsonColumn.HGNC);					pipes.add(new LookupPipe     (hgncFile, hgncIndexFile, -2));
-		/* remove Entrez GeneID X-REF*/				pipes.add(new HCutPipe(new int[] {-3}));
+		/* remove Entrez GeneID X-REF*/				pipes.add(new HCutPipe       (new int[] {-3}));
 		/* add OMIM ID X-REF */						pipes.add(new DrillPipe      (true, new String[] {"mapped_OMIM_ID"}));
 		order.add(JsonColumn.OMIM);					pipes.add(new LookupPipe     (omimFile, omimIndexFile, -2));
-		/* remove OMIM ID X-REF */					pipes.add(new HCutPipe(new int[] {-3}));
+		/* remove OMIM ID X-REF */					pipes.add(new HCutPipe       (new int[] {-3}));
 		
 		/* transform JSON cols into final output */	pipes.add(new TransformFunctionPipe(new FormatterPipeFunction(order, mFormatters)));
 						

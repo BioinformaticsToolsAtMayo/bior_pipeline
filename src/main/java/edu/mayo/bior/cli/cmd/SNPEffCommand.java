@@ -14,6 +14,8 @@ import edu.mayo.cli.CommandPlugin;
 
 public class SNPEffCommand implements CommandPlugin{
 
+	public static final String DEFAULT_GENOME_VERSION = "GRCh37.64";
+	
 	private static final String OPTION_HOMO         = "hom";
 	private static final String OPTION_SNP          = "snp";
 	private static final String OPTION_HET          = "het";
@@ -98,7 +100,7 @@ public class SNPEffCommand implements CommandPlugin{
 			genomeDatabase = line.getOptionValue(OPTION_GENOME_VERSION);			
 		} else {
 			// default
-			genomeDatabase = "GRCh37.64";
+			genomeDatabase = DEFAULT_GENOME_VERSION;
 		}
 		// add as an argument, not an option
 		sLogger.debug(String.format("Using genome database version %s", genomeDatabase));
