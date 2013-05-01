@@ -2,6 +2,8 @@ package edu.mayo.bior.pipeline.VEP;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 /**
@@ -34,15 +36,32 @@ public class VEPEXETest {
         String[] actual = VEPEXE.getVEPCommand( new String[] { "--fork", "4", "-all"} );
         
         String[] expected = { 
-        	"", "", "-i", "/dev/stdin", "-o",
-        	"STDOUT", "-dir", "", "-vcf", "--hgnc", 
+        	"xxxx", "xxxx", "-i", "/dev/stdin", "-o",
+        	"STDOUT", "-dir", "xxxx", "-vcf", "--hgnc", 
         	"-polyphen", "b", "-sift", "b", "--offline",
         	"--buffer_size", "1",
         	"--fork", "4",
         	"-all"
         };
         
-        assertVepCmd(expected, actual);
+        String[] expectedOnMac = { 
+            	"xxxx", "xxxx", "-i", "/dev/stdin", "-o",
+            	"STDOUT", "-dir", "xxxx", "-vcf", "--hgnc", 
+            	"-polyphen", "b", "-sift", "b", "--offline",
+            	"--buffer_size", "1",
+            	"--compress", "gunzip -c",
+            	"--fork", "4",
+            	"-all"
+            };
+
+        System.out.println("Actual: " + actual.toString());
+        
+        // If running on the Mac or local system, then command may contain  "--compress "gunzip -c""
+        // to be able to run VEP on your local system.  If so, don't fail the test
+        if(Arrays.asList(actual).contains("--compress"))
+        	assertVepCmd(expectedOnMac, actual);
+        else	
+        	assertVepCmd(expected, actual);
     }
 
     
