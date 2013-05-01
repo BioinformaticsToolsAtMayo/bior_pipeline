@@ -138,10 +138,10 @@ public class TreatPipeline extends Pipeline<History, History>
 		// tracks the order of the added JSON columns
 		List<JsonColumn> order = new ArrayList<JsonColumn>();
 
-		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
-//		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));		
 				
 		order.add(JsonColumn.VARIANT);				pipes.add(new VCF2VariantPipe());
+		order.add(JsonColumn.VEP);					pipes.add(new VEPPipeline   (new String[0], true));		
+//		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline(new String[0], true));		
 		order.add(JsonColumn.DBSNP);				pipes.add(new SameVariantPipe(dbsnpFile,        pipes.size() * -1)); 		
 		order.add(JsonColumn.COSMIC);				pipes.add(new SameVariantPipe(cosmicFile,       pipes.size() * -1)); 
 		order.add(JsonColumn.UCSC_BLACKLISTED);		pipes.add(new OverlapPipe    (blacklistedFile,  pipes.size() * -1));
