@@ -1,0 +1,31 @@
+ {
+                  "Gene_name": "OR4F5",
+                  "Accession_Number": "ENST00000326183",
+                  "HGNC_ID": "14825",
+                  "Sample_name": "TCGA-05-4396-01A-21D-1855-08",
+                  "ID_sample": "1780058",
+                  "ID_tumour": "1684057",
+                  "Primary_site": "lung",
+                  "Site_subtype": "NS",
+                  "Primary_histology": "carcinoma",
+                  "Histology_subtype": "adenocarcinoma",
+                  "Genome-wide_screen": "y",
+                  "Mutation_ID": "536198",
+                  "Mutation_CDS": "c.447G\u003eT",
+                  "Mutation_AA": "p.S149S",
+                  "Mutation_Description": "Substitution - coding silent",
+                  "Mutation_GRCh37_genome_position": "1:69537-69537",
+                  "Mutation_GRCh37_strand": "+",
+                  "Mutation_somatic_status": "Confirmed somatic variant",
+                  "Sample_source": "fresh/frozen - NOS",
+                  "Tumour_origin": "primary",
+                  "_type": "variant",
+                  "_landmark": "1",
+                  "_refAllele": "G",
+                  "_altAlleles": [
+                    "T"
+                  ],
+                  "_minBP": 69537,
+                  "_maxBP": 69537,
+                  "_id": "."
+                }
