@@ -1,0 +1,11 @@
+{
+	"bin": 609,
+	"chrom": "chr1",
+	"chromStart": 3190581,
+	"chromEnd": 3191428,
+	"name": "element_705",
+	"score": 900,
+	"_landmark": "1",
+	"_minBP": 3190582,
+	"_maxBP": 3191428
+}
