@@ -1,0 +1,38 @@
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLES	rsID	dbSNP.SuspectRegion	dbSNP.ClinicalSig	dbSNP.DiseaseVariant	COSMIC.Mutation_ID	COSMIC.Mutation_CDS	COSMIC.Mutation_AA	COSMIC.strand	1000Genomes.ASN_AF	1000Genomes.AMR_AF	1000Genomes.AFR_AF	1000Genomes.EUR_AF	BGI200_Danish_MAF	ESP6500_EUR_MAF	ESP6500_AFR_MAF	HapMap.CEU_MAF	HapMap.YRI_MAF	HapMap.JPT+CHB_MAF	Entrez.GeneID	Gene_Symbol	OMIM.ID	OMIM.Disease	miRBASE.ID	UCSC.BlacklistedRegion	UCSC.conservation	UCSC.regulation	UCSC.tfbs	UCSC.tss	UCSC.enhancer	UCSC.Alignability/Uniquness	UCSC.Repeat_Region
+chr1	216424275	rs696723	C	G	.	.	.	.	.	rs696723	unspecified	non-pathogenic	1	.	.	.	.	.	0.02	0.17	0.01	0.002	0.011279	0.174308	0.008	0.25	0	7399	USH2A	608400	Usher syndrome, type 2A, 276901 (3); Retinitis pigmentosa 39, 613809	.	.	1	.	.	.	.	.	.
+chr5	112162854	rs2229992	T	C	.	.	.	.	.	rs2229992	unspecified	other	1	.	.	.	.	0.69	0.64	0.17	0.6	0.458	0.409767	0.21208	0.392	0.076	0.264	324	APC	611731	Adenomatous polyposis coli, 175100 (3); Gastric cancer, somatic,	.	.	1	.	.	.	.	.	.
+chr1	9323910	rs6688832	G	A	.	.	.	.	.	rs6688832	unspecified	probable-pathogenic	1	.	.	.	.	0.45	0.34	0.46	0.25	0.217	0.229186	0.457785	0.167	0.5	0.489	9563	H6PD	138090	Cortisone reductase deficiency 1, 604931 (3)	.	.	.	.	.	.	.	.	.
+chr5	89979589	rs4916684	G	A	.	.	.	.	.	rs4916684	unspecified	probable-non-pathogenic	1	.	.	.	.	0.82	0.78	0.94	0.68	.	0.355193	0.094222	0.425	0.051	0.18	84059	GPR98	602851	Febrile seizures, familial, 4, 604352 (3); Usher syndrome, type	.	.	1	.	.	.	.	.	.
+chr1	9323910	rs6688832	G	A	.	.	.	.	.	rs6688832	unspecified	probable-pathogenic	1	.	.	.	.	0.45	0.34	0.46	0.25	0.217	0.229186	0.457785	0.167	0.5	0.489	9563	H6PD	138090	Cortisone reductase deficiency 1, 604931 (3)	.	.	.	.	.	.	.	.	.
+chr1	762273	rs3115849	G	A	.	.	.	.	.	rs3115849	unspecified	unknown	0	.	.	.	.	0.86	0.8	0.33	0.84	.	.	.	.	.	.	79854	LINC00115	.	.	.	.	.	.	.	.	.	.	.
+chr1	12907370	rs2076063	A	T	.	.	.	.	.	rs2076063	Paralog	unknown	0	.	.	.	.	.	.	.	.	.	.	.	.	0.042	.	343069	HNRNPCL1	.	.	.	.	.	.	.	.	.	.	.
+chr1	762273	rs3115849	G	A	.	.	.	.	.	rs3115849	unspecified	unknown	0	.	.	.	.	0.86	0.8	0.33	0.84	.	.	.	.	.	.	79854	LINC00115	.	.	.	.	.	.	.	.	.	.	.
+chr12	88890671	rs995030	A	G	.	.	.	.	.	rs995030	unspecified	unknown	1	.	.	.	.	0.71	0.85	0.25	0.81	.	.	.	0.181	0.242	0.376	4254	KITLG	184745	[Skin/hair/eye pigmentation 7, blond/brown hair], 611664 (3);	.	.	.	.	.	.	.	.	.
+chr1	876499	rs4372192	A	G	.	.	.	.	.	rs4372192	unspecified	unknown	0	.	.	.	.	0.92	0.92	0.86	0.95	0.063	0.062324	0.11669	.	.	.	148398	SAMD11	.	.	.	.	.	.	.	.	.	.	.
+chr11	1017069	rs80333708	G	A	.	.	.	.	.	rs80333708	unspecified	unknown	0	86091	c.5732C>T	p.T1911M	-	.	.	.	.	.	.	.	.	.	.	4588	MUC6	158374		.	.	.	.	.	.	.	.	.
+chr1	1859131	rs4648734	C	T	.	.	.	.	.	rs4648734	unspecified	unknown	0	.	.	.	.	0.2	0.21	0.21	0.24	.	.	.	.	.	.	339457	C1orf222	.	.	.	.	.	.	.	.	.	.	.
+chr1	762632	rs3131948	T	A	.	.	.	.	.	rs3131948	unspecified	unknown	0	.	.	.	.	0.82	0.78	0.44	0.81	.	.	.	.	.	.	79854	LINC00115	.	.	.	.	.	.	.	.	.	.	.
+chr1	881627	rs2272757	G	A	.	.	.	.	.	rs2272757	unspecified	unknown	0	.	.	.	.	0.61	0.46	0.08	0.63	0.424	0.362093	0.156222	.	.	.	26155	NOC2L	610770		.	.	.	.	.	.	.	.	.
+chr1	1027070	rs11260590	G	A	.	.	.	.	.	rs11260590	unspecified	unknown	0	.	.	.	.	0.13	0.1	0.39	0.1	.	.	.	.	.	.	54991	C1orf159	.	.	.	.	.	.	.	.	.	.	1
+chr21	10793906	rs146787155	G	C	.	.	.	.	.	rs146787155	.	.	0	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	.	1	.	.	.	.	.	.	1
+chr1	12251808	rs653667	T	G	.	.	.	.	.	rs653667	unspecified	unknown	0	.	.	.	.	0.35	0.25	0.25	0.36	.	0.367209	0.248071	0.356	0.193	0.328	7133	TNFRSF1B	191191		hsa-mir-4632	.	.	.	.	.	.	.	.
+chr1	12251808	rs653667	T	G	.	.	.	.	.	rs653667	unspecified	unknown	0	.	.	.	.	0.35	0.25	0.25	0.36	.	0.367209	0.248071	0.356	0.193	0.328	100616438	MIR4632	.	.	hsa-mir-4632	.	.	.	.	.	.	.	.
+chr2	207647981	rs2241347	C	T	.	.	.	.	.	rs2241347	unspecified	unknown	0	.	.	.	.	0.74	0.38	0.36	0.19	.	.	.	.	.	.	22868	FASTKD2	612322	Mitochondrial complex IV deficiency, 220110 (3)	hsa-mir-3130-1	.	.	.	.	.	.	.	.
+chr2	207647981	rs2241347	C	T	.	.	.	.	.	rs2241347	unspecified	unknown	0	.	.	.	.	0.74	0.38	0.36	0.19	.	.	.	.	.	.	22869	FASTKD3	612323	Mitochondrial complex IV deficiency, 220110 (3)	hsa-mir-3130-2	.	.	.	.	.	.	.	.
+chr2	207647981	rs2241347	C	T	.	.	.	.	.	rs2241347	unspecified	unknown	0	.	.	.	.	0.74	0.38	0.36	0.19	.	.	.	.	.	.	100422993	MIR3130-1	.	.	hsa-mir-3130-1	.	.	.	.	.	.	.	.
+chr2	207647981	rs2241347	C	T	.	.	.	.	.	rs2241347	unspecified	unknown	0	.	.	.	.	0.74	0.38	0.36	0.19	.	.	.	.	.	.	100422994	MIR3130-2	.	.	hsa-mir-3130-2	.	.	.	.	.	.	.	.
+chr2	207647981	rs2241347	C	T	.	.	.	.	.	rs2241347	unspecified	unknown	0	.	.	.	.	0.74	0.38	0.36	0.19	.	.	.	.	.	.	100423002	MIR3130-2	.	.	hsa-mir-3130-1	.	.	.	.	.	.	.	.
+chr2	207647981	rs2241347	C	T	.	.	.	.	.	rs2241347	unspecified	unknown	0	.	.	.	.	0.74	0.38	0.36	0.19	.	.	.	.	.	.	100423003	MIR3130-3	.	.	hsa-mir-3130-2	.	.	.	.	.	.	.	.
+chr1	216424275	rs696723	C	G	.	.	.	.	.	rs696723	unspecified	non-pathogenic	1	.	.	.	.	.	0.02	0.17	0.01	0.002	0.011279	0.174308	0.008	0.25	0	7399	USH2A	608400	Usher syndrome, type 2A, 276901 (3); Retinitis pigmentosa 39, 613809	.	.	1	.	.	.	.	.	.
+chr5	112162854	rs2229992	T	C	.	.	.	.	.	rs2229992	unspecified	other	1	.	.	.	.	0.69	0.64	0.17	0.6	0.458	0.409767	0.21208	0.392	0.076	0.264	324	APC	611731	Adenomatous polyposis coli, 175100 (3); Gastric cancer, somatic,	.	.	1	.	.	.	.	.	.
+chr1	171076966	rs2266782	G	A	.	.	.	.	.	rs2266782	unspecified	pathogenic	1	.	.	.	.	0.21	0.3	0.52	0.38	0.4	0.410465	0.465275	0.383	0.458	0.197	2328	FMO3	136132	Trimethylaminuria, 602079 (3)	.	.	1	.	1	.	.	.	.
+chr5	89979589	rs4916684	G	A	.	.	.	.	.	rs4916684	unspecified	probable-non-pathogenic	1	.	.	.	.	0.82	0.78	0.94	0.68	.	0.355193	0.094222	0.425	0.051	0.18	84059	GPR98	602851	Febrile seizures, familial, 4, 604352 (3); Usher syndrome, type	.	.	1	.	.	.	.	.	.
+chr1	9323910	rs6688832	G	A	.	.	.	.	.	rs6688832	unspecified	probable-pathogenic	1	.	.	.	.	0.45	0.34	0.46	0.25	0.217	0.229186	0.457785	0.167	0.5	0.489	9563	H6PD	138090	Cortisone reductase deficiency 1, 604931 (3)	.	.	.	.	.	.	.	.	.
+chr5	140725523	rs112486508	C	T	.	.	.	.	.	rs112486508	unspecified	unknown	1	.	.	.	.	0.0017	0.02	0.23	0.04	.	.	.	.	.	.	56114	PCDHGA1	606288		.	.	1	.	.	.	.	.	.
+chr5	140725523	rs112486508	C	T	.	.	.	.	.	rs112486508	unspecified	unknown	1	.	.	.	.	0.0017	0.02	0.23	0.04	.	.	.	.	.	.	56113	PCDHGA2	606289		.	.	1	.	.	.	.	.	.
+chr5	140725523	rs112486508	C	T	.	.	.	.	.	rs112486508	unspecified	unknown	1	.	.	.	.	0.0017	0.02	0.23	0.04	.	.	.	.	.	.	56112	PCDHGA3	606290		.	.	1	.	.	.	.	.	.
+chr1	989423	-	G	A	.	.	.	.	.	.	.	.	0	.	.	.	.	.	.	.	.	.	.	.	.	.	.	375790	AGRN	103320	Myasthenia, limb-girdle, familial, 254300 (3)	.	.	.	.	.	.	.	.	.
+chr1	935459	rs3128113	A	G	.	.	.	.	.	rs3128113	unspecified	unknown	0	.	.	.	.	0.83	0.79	0.27	0.78	.	.	.	.	.	.	57801	HES4	608060		.	.	.	.	.	1	.	.	.
+chr1	877831	rs6672356	T	C	.	.	.	.	.	rs6672356	unspecified	unknown	0	.	.	.	.	0.99	1	1	0.99	.	.	.	.	.	.	148398	SAMD11	.	.	.	.	.	.	.	.	.	.	.
+chr1	762273	rs3115849	G	A	.	.	.	.	.	rs3115849	unspecified	unknown	0	.	.	.	.	0.86	0.8	0.33	0.84	.	.	.	.	.	.	79854	LINC00115	.	.	.	.	.	.	.	.	.	.	.
+chr1	26608828	rs1134584	G	A	.	.	.	.	.	rs1134584	unspecified	unknown	0	.	.	.	.	0.26	0.35	0.34	0.49	.	0.331648	0.475	.	.	.	91544	UBXN11	609151	.	.	.	.	.	.	.	.	.	1
