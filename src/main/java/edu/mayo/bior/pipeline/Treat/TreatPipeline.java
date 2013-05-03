@@ -13,6 +13,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.cli.cmd.SNPEffCommand;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 import edu.mayo.bior.pipeline.Treat.format.BgiFormatter;
+import edu.mayo.bior.pipeline.Treat.format.CosmicFormatter;
 import edu.mayo.bior.pipeline.Treat.format.DbsnpFormatter;
 import edu.mayo.bior.pipeline.Treat.format.EspFormatter;
 import edu.mayo.bior.pipeline.Treat.format.Formatter;
@@ -81,24 +82,25 @@ public class TreatPipeline extends Pipeline<History, History>
 	 * carries over to the final output column order.
 	 */
 	private void initFormatters() {
-		mFormatters.add(new BgiFormatter());
 		mFormatters.add(new DbsnpFormatter());
+		mFormatters.add(new CosmicFormatter());
+		mFormatters.add(new ThousandGenomesFormatter());
 		mFormatters.add(new EspFormatter());
 		mFormatters.add(new HapmapFormatter());
-		mFormatters.add(new HgncFormatter());
-		mFormatters.add(new MirBaseFormatter());
 		mFormatters.add(new NcbiGeneFormatter());
 		mFormatters.add(new OmimFormatter());
-		mFormatters.add(new SNPEffFormatter());
-		mFormatters.add(new ThousandGenomesFormatter());
+		mFormatters.add(new MirBaseFormatter());
 		mFormatters.add(new UcscBlacklistedFormatter());
 		mFormatters.add(new UcscConservationFormatter());
-		mFormatters.add(new UcscEnhancerFormatter());
 		mFormatters.add(new UcscRegulationFormatter());
-		mFormatters.add(new UcscRepeatFormatter());
 		mFormatters.add(new UcscTfbsFormatter());
 		mFormatters.add(new UcscTssFormatter());
+		mFormatters.add(new UcscEnhancerFormatter());
 		mFormatters.add(new UcscUniqueFormatter());
+		mFormatters.add(new UcscRepeatFormatter());
+		mFormatters.add(new BgiFormatter());
+		mFormatters.add(new HgncFormatter());
+		mFormatters.add(new SNPEffFormatter());
 		mFormatters.add(new VEPFormatter());
 		mFormatters.add(new VEPHgncFormatter());
 	}
