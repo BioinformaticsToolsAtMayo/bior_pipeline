@@ -1,0 +1,65 @@
+{
+  "CHROM": "1",
+  "POS": "985955",
+  "ID": "rs199476396",
+  "REF": "G",
+  "ALT": "C",
+  "QUAL": ".",
+  "FILTER": ".",
+  "INFO": {
+    "RSPOS": 985955,
+    "dbSNPBuildID": 136,
+    "SSR": 0,
+    "SAO": 1,
+    "VP": "050260000a01000002110100",
+    "GENEINFO": "AGRN:375790",
+    "WGT": 1,
+    "VC": "SNV",
+    "PM": true,
+    "S3D": true,
+    "NSM": true,
+    "REF": true,
+    "OTHERKG": true,
+    "LSD": true,
+    "OM": true,
+    "CLNALLE": [
+      1
+    ],
+    "CLNHGVS": [
+      "NC_000001.10:g.985955G\u003eC"
+    ],
+    "CLNSRC": [
+      "OMIM Allelic Variant"
+    ],
+    "CLNORIGIN": [
+      "1"
+    ],
+    "CLNSRCID": [
+      "103320.0001"
+    ],
+    "CLNSIG": [
+      "5"
+    ],
+    "CLNDSDB": [
+      "GeneReviews:NCBI:OMIM:Orphanet"
+    ],
+    "CLNDSDBID": [
+      "NBK1168:C1850792:254300:590"
+    ],
+    "CLNDBN": [
+      "Myasthenia\\x2c limb-girdle\\x2c familial"
+    ],
+    "CLNACC": [
+      "RCV000019902.1"
+    ]
+  },
+  "_id": "rs199476396",
+  "_type": "variant",
+  "_landmark": "1",
+  "_refAllele": "G",
+  "_altAlleles": [
+    "C"
+  ],
+  "_minBP": 985955,
+  "_maxBP": 985955
+}

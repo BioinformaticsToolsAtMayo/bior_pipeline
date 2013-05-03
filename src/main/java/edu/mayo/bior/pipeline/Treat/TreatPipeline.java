@@ -14,6 +14,7 @@ import edu.mayo.bior.cli.cmd.SNPEffCommand;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 import edu.mayo.bior.pipeline.Treat.format.BgiFormatter;
 import edu.mayo.bior.pipeline.Treat.format.CosmicFormatter;
+import edu.mayo.bior.pipeline.Treat.format.DbsnpClinvarFormatter;
 import edu.mayo.bior.pipeline.Treat.format.DbsnpFormatter;
 import edu.mayo.bior.pipeline.Treat.format.EspFormatter;
 import edu.mayo.bior.pipeline.Treat.format.Formatter;
@@ -83,6 +84,7 @@ public class TreatPipeline extends Pipeline<History, History>
 	 */
 	private void initFormatters() {
 		mFormatters.add(new DbsnpFormatter());
+		mFormatters.add(new DbsnpClinvarFormatter());
 		mFormatters.add(new CosmicFormatter());
 		mFormatters.add(new ThousandGenomesFormatter());
 		mFormatters.add(new EspFormatter());
@@ -125,6 +127,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		String omimFile			= baseDir + mProps.get("omimFile");
 		String omimIndexFile	= baseDir + mProps.get("omimIndexFile");
 		String dbsnpFile		= baseDir + mProps.get("dbsnpFile");
+		String dbsnpClinvarFile	= baseDir + mProps.get("dbsnpClinvarFile");
 		String cosmicFile		= baseDir + mProps.get("cosmicFile");
 		String blacklistedFile	= baseDir + mProps.get("blacklistedFile");	
 		String conservationFile	= baseDir + mProps.get("conservationFile");
@@ -156,7 +159,8 @@ public class TreatPipeline extends Pipeline<History, History>
 		
 		order.add(JsonColumn.SNPEFF);				pipes.add(new SNPEFFPipeline (new String[]{SNPEffCommand.DEFAULT_GENOME_VERSION}, true));
 		
-		order.add(JsonColumn.DBSNP);				pipes.add(new SameVariantPipe(dbsnpFile,        order.size() * -1 + 1)); 		
+		order.add(JsonColumn.DBSNP_ALL);			pipes.add(new SameVariantPipe(dbsnpFile,        order.size() * -1 + 1)); 		
+		order.add(JsonColumn.DBSNP_CLINVAR);		pipes.add(new SameVariantPipe(dbsnpClinvarFile, order.size() * -1 + 1)); 		
 		order.add(JsonColumn.COSMIC);				pipes.add(new SameVariantPipe(cosmicFile,       order.size() * -1 + 1)); 
 		order.add(JsonColumn.UCSC_BLACKLISTED);		pipes.add(new OverlapPipe    (blacklistedFile,  order.size() * -1 + 1));
 		order.add(JsonColumn.UCSC_CONSERVATION);	pipes.add(new OverlapPipe    (conservationFile, order.size() * -1 + 1));

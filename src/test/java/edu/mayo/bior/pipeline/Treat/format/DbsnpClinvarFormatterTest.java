@@ -11,20 +11,20 @@ import org.junit.Test;
 
 import edu.mayo.bior.pipeline.Treat.JsonColumn;
 
-public class DbsnpFormatterTest extends BaseFormatterTest {
+public class DbsnpClinvarFormatterTest extends BaseFormatterTest {
 
-	private final Formatter mFormatter = new DbsnpFormatter();
+	private final Formatter mFormatter = new DbsnpClinvarFormatter();
 
 	private static final String[] EXPECTED_HEADER =
 		{
-			"rsID",
-			"dbSNP.SuspectRegion"
+			"dbSNP.ClinicalSig",
+			"dbSNP.DiseaseVariant"
 		};	
 
 	@Test
 	public void testJSONColumn()
 	{
-		assertEquals(JsonColumn.DBSNP_ALL, mFormatter.getJSONColumn());
+		assertEquals(JsonColumn.DBSNP_CLINVAR, mFormatter.getJSONColumn());
 	}
 	
 	@Test
@@ -42,12 +42,12 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 	public void test1() throws IOException
 	{
 		
-		String json = FileUtils.readFileToString(new File("src/test/resources/treat/formatters/DbsnpFormatter.test1.json"));		
+		String json = FileUtils.readFileToString(new File("src/test/resources/treat/formatters/DbsnpClinvarFormatter.test1.json"));		
 		
 		String[] expectedValues =
 			{
-				"rsABCDEF",
-				"byEST"
+				"pathogenic",
+				"1"
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);
@@ -62,12 +62,12 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 	public void test2() throws IOException
 	{
 		
-		String json = FileUtils.readFileToString(new File("src/test/resources/treat/formatters/DbsnpFormatter.test2.json"));		
+		String json = "{}";		
 		
 		String[] expectedValues =
 			{
-				"rsWXYZ",
-				""
+				"",
+				"0"
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);

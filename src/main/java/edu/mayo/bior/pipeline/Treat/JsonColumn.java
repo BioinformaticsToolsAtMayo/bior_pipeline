@@ -10,7 +10,8 @@ public enum JsonColumn {
 	VARIANT, // JSON added by VCF2VariantPipe	
 	NCBI_GENE,
 	HGNC,
-	DBSNP,
+	DBSNP_ALL,
+	DBSNP_CLINVAR,
 	COSMIC,
 	OMIM,
 	HAPMAP,
