@@ -11,7 +11,7 @@ public class FormatUtils {
 	 * 
 	 * @param path JSON search path to apply.
 	 * @param json JSON document to be searched.
-	 * @return The extracted path result.  Otherwise, a blank string.
+	 * @return The extracted path result.  Otherwise, a dot "."
 	 */
 	public static String drill(JsonPath path, String json)
 	{
@@ -21,7 +21,7 @@ public class FormatUtils {
 		}
 		catch (InvalidPathException ipe)
 		{
-			return "";
+			return ".";
 		}		
 	}	
 }

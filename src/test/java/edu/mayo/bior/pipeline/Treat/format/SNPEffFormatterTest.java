@@ -83,13 +83,13 @@ public class SNPEffFormatterTest extends BaseFormatterTest{
 				"INTERGENIC",
 				"MODIFIER",
 				"NONE",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				""
+				".",
+				".",
+				".",
+				".",
+				".",
+				".",
+				"."
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);

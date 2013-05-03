@@ -71,8 +71,8 @@ public class ThousandGenomesFormatterTest extends BaseFormatterTest {
 			{
 				"0.13",
 				"0.17",
-				"",
-				""
+				".",
+				"."
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);

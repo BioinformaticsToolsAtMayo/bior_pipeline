@@ -66,7 +66,7 @@ public class DbsnpClinvarFormatterTest extends BaseFormatterTest {
 		
 		String[] expectedValues =
 			{
-				"",
+				".",
 				"0"
 			};
 		

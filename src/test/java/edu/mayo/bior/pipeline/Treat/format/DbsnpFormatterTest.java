@@ -67,7 +67,7 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 		String[] expectedValues =
 			{
 				"rsWXYZ",
-				""
+				"."
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);

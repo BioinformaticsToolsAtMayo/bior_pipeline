@@ -56,7 +56,7 @@ public class DbsnpFormatter implements Formatter
 		}
 		catch (NumberFormatException e)
 		{
-			return "";
+			return ssrCode;
 		}
 
 		switch (code)
@@ -67,7 +67,7 @@ public class DbsnpFormatter implements Formatter
 			case 3:  return "Para_EST";
 			case 4:  return "oldAlign";
 			case 5:  return "other";
-			default: return "";
+			default: return ssrCode;
 		}
 	}	
 }
