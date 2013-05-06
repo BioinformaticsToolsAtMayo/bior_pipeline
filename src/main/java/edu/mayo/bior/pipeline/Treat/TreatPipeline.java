@@ -44,8 +44,11 @@ import edu.mayo.pipes.JSON.lookup.LookupPipe;
 import edu.mayo.pipes.JSON.tabix.OverlapPipe;
 import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
+import edu.mayo.pipes.history.CompressPipe;
 import edu.mayo.pipes.history.HCutPipe;
 import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.util.FieldSpecification;
+import edu.mayo.pipes.util.FieldSpecification.FieldDirection;
 
 /**
  * BioR implementation of TREAT annotation module.
@@ -59,6 +62,9 @@ public class TreatPipeline extends Pipeline<History, History>
 	private BiorProperties	mProps;	
 	
 	private List<Formatter> mFormatters = new ArrayList<Formatter>();
+	
+	// total count of formatted output columns (excludes columns from original VCF)
+	private int mFormattedColumnCount;
 	
 	/**
 	 * Constructor
@@ -105,6 +111,13 @@ public class TreatPipeline extends Pipeline<History, History>
 		mFormatters.add(new SNPEffFormatter());
 		mFormatters.add(new VEPFormatter());
 		mFormatters.add(new VEPHgncFormatter());
+
+		// determine TOTAL number of formatted columns
+		mFormattedColumnCount = 0;
+		for (Formatter f: mFormatters)
+		{
+			mFormattedColumnCount += f.getHeaders().size();
+		}
 	}
 	
 	/**
@@ -188,7 +201,10 @@ public class TreatPipeline extends Pipeline<History, History>
 		/* remove OMIM ID X-REF */					pipes.add(new HCutPipe       (new int[] {-3}));
 		
 		/* transform JSON cols into final output */	pipes.add(new TransformFunctionPipe(new FormatterPipeFunction(order, mFormatters)));
-						
+
+		/* specify final output cols to compress */	FieldSpecification fSpec = new FieldSpecification(mFormattedColumnCount + "-", FieldDirection.RIGHT_TO_LEFT);
+		/* compress to have 1-to-1 */				pipes.add(new CompressPipe(fSpec, "|"));
+
 		this.setPipes(pipes);		
 	}
 }
