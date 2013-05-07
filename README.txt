@@ -45,5 +45,3 @@
 	2. M2ECLIPSE:		Right-click and select Run As --> Maven Build...
 						Under Goals enter "clean verify"
 						Click Run
-						
-Mike LIm rules the pong table.
