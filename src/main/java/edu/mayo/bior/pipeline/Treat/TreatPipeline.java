@@ -93,9 +93,11 @@ public class TreatPipeline extends Pipeline<History, History>
 		mFormatters.add(new DbsnpClinvarFormatter());
 		mFormatters.add(new CosmicFormatter());
 		mFormatters.add(new ThousandGenomesFormatter());
+		mFormatters.add(new BgiFormatter());
 		mFormatters.add(new EspFormatter());
 		mFormatters.add(new HapmapFormatter());
 		mFormatters.add(new NcbiGeneFormatter());
+		mFormatters.add(new HgncFormatter());
 		mFormatters.add(new OmimFormatter());
 		mFormatters.add(new MirBaseFormatter());
 		mFormatters.add(new UcscBlacklistedFormatter());
@@ -106,11 +108,9 @@ public class TreatPipeline extends Pipeline<History, History>
 		mFormatters.add(new UcscEnhancerFormatter());
 		mFormatters.add(new UcscUniqueFormatter());
 		mFormatters.add(new UcscRepeatFormatter());
-		mFormatters.add(new BgiFormatter());
-		mFormatters.add(new HgncFormatter());
-		mFormatters.add(new SNPEffFormatter());
 		mFormatters.add(new VEPFormatter());
 		mFormatters.add(new VEPHgncFormatter());
+		mFormatters.add(new SNPEffFormatter());
 
 		// determine TOTAL number of formatted columns
 		mFormattedColumnCount = 0;

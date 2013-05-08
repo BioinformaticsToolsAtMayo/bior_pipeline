@@ -25,18 +25,18 @@ public class HapmapFormatter implements Formatter {
 	public List<String> getHeaders() {
 		return Arrays.asList(
 				"HapMap.CEU_MAF",
-				"HapMap.CHB_MAF",
+				"HapMap.YRI_MAF",
 				"HapMap.JPT_MAF",
-				"HapMap.YRI_MAF"
+				"HapMap.CHB_MAF"
 				);
 	}
 	
 	public List<String> format(String json) {
 		return Arrays.asList(
 				FormatUtils.drill(PATH_CEU_MAF, json),
-				FormatUtils.drill(PATH_CHB_MAF, json),
+				FormatUtils.drill(PATH_YRI_MAF, json),
 				FormatUtils.drill(PATH_JPT_MAF, json),
-				FormatUtils.drill(PATH_YRI_MAF, json)
+				FormatUtils.drill(PATH_CHB_MAF, json)
 				);
 	}
 }

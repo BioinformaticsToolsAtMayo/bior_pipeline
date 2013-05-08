@@ -32,7 +32,8 @@ public class TreatITCase extends RemoteFunctionalTest
 		String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
 		
 		CommandOutput out = executeScript("bior_annotate", goldInput);
-		
+
+		// check that command completed successfully
 		if (out.exit != 0) {
 			fail(out.stderr);
 		}
@@ -40,12 +41,11 @@ public class TreatITCase extends RemoteFunctionalTest
 		List<String> expectedOutputLines = splitLines(goldOutput);
 		List<String> actualOutputLines = splitLines(out.stdout);
 		
-		// TODO: will not pass until pipeline has 1-to-1 variant lines
-		
-//		assertEquals(expectedOutputLines.size(), actualOutputLines.size());
-//		for (int i=0; i < expectedOutputLines.size(); i++) {
-//			assertEquals(expectedOutputLines.get(i), actualOutputLines.get(i));
-//		}
+		// compare line-by-line
+		assertEquals(expectedOutputLines.size(), actualOutputLines.size());
+		for (int i=0; i < expectedOutputLines.size(); i++) {
+			assertEquals(expectedOutputLines.get(i), actualOutputLines.get(i));
+		}
 	}
 	
 	private List<String> splitLines(String s) throws IOException
