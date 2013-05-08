@@ -49,8 +49,8 @@ public class EspFormatterTest extends BaseFormatterTest {
 				+     "\"EXOME_CHIP\":[\"no\"],\"GWAS_PUBMED\":[\".\"],\"GM\":[\".\"],\"FG\":[\"intergenic\"],\"AAC\":[\".\"],\"PP\":[\".\"],\"CDP\":[\".\"],\"GS\":[\".\"],\"PH\":[\".\"]},"
 				+     "\"_id\":\".\",\"_type\":\"variant\",\"_landmark\":\"21\",\"_refAllele\":\"TG\",\"_altAlleles\":[\"T\"],\"_minBP\":9908404,\"_maxBP\":9908405,"
 				+     "\"EA\":{\"_maf\":\"\"},\"AA\":{},\"ALL\":{\"_maf\":0.000502}}";
-		// { EA._maf, AA._maf }
-		String[] expected =  { "", "" };
+		// { EA._maf, AA._maf } - where EA._maf is blank, and AA._maf is missing
+		String[] expected =  { "", "." };
 		validateFormattedValues(mFormatter, json, expected);
 	}
 }
