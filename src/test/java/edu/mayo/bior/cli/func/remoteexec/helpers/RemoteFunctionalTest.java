@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,8 +14,6 @@ import javax.management.BadAttributeValueExpException;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.cli.MissingArgumentException;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -34,7 +30,9 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	/** NOTE: All tests must be listed here if they are to be run!!!! */
 	private Class[] REMOTE_TESTS = {
 		edu.mayo.bior.cli.func.remoteexec.SNPEffITCase.class,
-		edu.mayo.bior.cli.func.remoteexec.VEPITCase.class
+		edu.mayo.bior.cli.func.remoteexec.VEPITCase.class, 
+		edu.mayo.bior.cli.func.remoteexec.TreatITCase.class,
+		edu.mayo.bior.cli.func.remoteexec.ManyCmdsITCase.class
 	};
 
 	public enum DevServerUserPropKeys { 
