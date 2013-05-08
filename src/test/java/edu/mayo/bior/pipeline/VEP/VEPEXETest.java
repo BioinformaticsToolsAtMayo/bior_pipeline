@@ -49,9 +49,9 @@ public class VEPEXETest {
             	"STDOUT", "-dir", "xxxx", "-vcf", "--hgnc", 
             	"-polyphen", "b", "-sift", "b", "--offline",
             	"--buffer_size", "1",
-            	"--compress", "gunzip -c",
             	"--fork", "4",
-            	"-all"
+            	"-all",
+            	"--compress", "gunzip -c",
             };
 
         System.out.println("Actual: " + actual.toString());
