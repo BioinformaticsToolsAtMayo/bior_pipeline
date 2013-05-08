@@ -21,8 +21,7 @@ public class OmimFormatter implements Formatter
 		return Arrays.asList("OMIM.ID", "OMIM.Disease");
 	}
 	
-	public List<String> format(String json)
-	{
+	public List<String> format(String json) {
 		return Arrays.asList(
 			FormatUtils.drill(PATH_ID, json),
 			FormatUtils.drill(PATH_DISEASE, json)

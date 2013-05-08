@@ -23,8 +23,7 @@ public class EspFormatter implements Formatter
 		return Arrays.asList("ESP6500.EUR_MAF", "ESP6500.AFR_MAF");
 	}
 	
-	public List<String> format(String json)
-	{
+	public List<String> format(String json)	{
 		return Arrays.asList(
 				FormatUtils.drill(PATH_EUROPEAN_MAF, json),
 				FormatUtils.drill(PATH_AFRICAN_MAF,  json)
