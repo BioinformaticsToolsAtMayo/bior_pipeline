@@ -1,7 +1,6 @@
 package edu.mayo.bior.cli.func;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,8 +17,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import edu.mayo.bior.util.CatalogUtils;
 
 /**
 *
