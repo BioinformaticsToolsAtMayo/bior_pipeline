@@ -20,11 +20,11 @@ public class HapmapFormatterTest extends BaseFormatterTest {
 	
 	@Test
 	public void testHeader() {
-		validateHeader(mFormatter, new String[] { 
+		validateHeader(mFormatter, new String[] {
 				"HapMap.CEU_MAF",
-				"HapMap.CHB_MAF",
+				"HapMap.YRI_MAF",
 				"HapMap.JPT_MAF",
-				"HapMap.YRI_MAF"
+				"HapMap.CHB_MAF"
 		} );
 	}
 	
@@ -35,7 +35,7 @@ public class HapmapFormatterTest extends BaseFormatterTest {
 	@Test
 	public void testGoodJson() throws IOException {
 		String json = FileUtils.readFileToString(new File("src/test/resources/treat/formatters/HapmapFormatter.test1.json"));		
-		String[] expected =  { "0.102", "0.485", "0.427", "0.077" };
+		String[] expected =  { "0.102", "0.077", "0.427",  "0.485"};
 		validateFormattedValues(mFormatter, json, expected);
 	}
 
@@ -48,7 +48,7 @@ public class HapmapFormatterTest extends BaseFormatterTest {
 		String json = FileUtils.readFileToString(new File("src/test/resources/treat/formatters/HapmapFormatter.test1.json"));
 		// Remove the other freq for CEU
 		json = json.replace("\"otherallele_freq\": 0.102,\n", "");
-		String[] expected =  { ".", "0.485", "0.427", "0.077" };
+		String[] expected =  { ".", "0.077", "0.427", "0.485" };
 		validateFormattedValues(mFormatter, json, expected);
 	}
 }
