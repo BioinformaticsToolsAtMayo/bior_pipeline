@@ -202,4 +202,37 @@ public class VEPITCase extends RemoteFunctionalTest {
 		System.out.println("---------------------------");
 	}
 
+
+	@Test
+	/** 
+	 * Tests bypass logic for bior_vep.
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public void bypass() throws IOException, InterruptedException
+	{
+		System.out.println("VEPITCase.bypass(): Running the command line call and only getting the worst effect per variant as output");
+		// NOTE:  This test case should only run on biordev - where it can run VEP
+		String vcfIn = loadFile(new File(VEPDIR + "bypass.vcf"));
+
+		CommandOutput out = executeScript("bior_vep", vcfIn);
+
+		assertEquals(out.stderr, 0, out.exit);
+		assertEquals("", out.stderr);
+		
+		String actualStr = out.stdout;
+		List<String> lines = Arrays.asList(actualStr.split("\n"));
+		
+		assertEquals(5, lines.size());
+
+		List<String> dataLines = lines.subList(1, lines.size());		
+		for (String line: dataLines)
+		{
+			String[] cols = line.split("\t");
+			assertEquals(9, cols.length);
+			assertEquals("{}", cols[8]);
+		}
+	}	
+	
 }

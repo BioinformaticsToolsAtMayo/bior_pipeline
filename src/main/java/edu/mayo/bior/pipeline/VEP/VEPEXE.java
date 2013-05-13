@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -32,6 +33,12 @@ public class VEPEXE implements PipeFunction<String,String>{
 	//       else the call will hang.
 	//       (though when used separately on just the command line, 20-50 is most efficient)
 	private static final String VEP_BUFFER_SIZE = "1";
+	
+	private static final int VCF_REF_COL = 3; 
+	private static final int VCF_ALT_COL = 4; 
+
+	// 10 second timeout for VEP writing response to STDOUT
+	private static final long RECEIVE_TIMEOUT = 10;
 
 	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
@@ -106,16 +113,41 @@ public class VEPEXE implements PipeFunction<String,String>{
 	}
 
 
-	public String compute(String a) {
-		try {
-			mVep.send(a);
-			String result =  mVep.receive();
-			return result;
-		} catch( RuntimeException runtimeExc) {
+	public String compute(String vcfLine)
+	{
+		
+		// For cases where VEP will not send a response to STDOUT,
+		// VEP will be bypassed
+		if (bypass(vcfLine))
+		{
+			sLogger.warn(String.format("bypassing VCF line: %s", vcfLine));
+			return getFakeResponse(vcfLine);
+		}
+		
+		try
+		{
+			
+			mVep.send(vcfLine);
+
+			try
+			{
+				String result =  mVep.receive(RECEIVE_TIMEOUT, TimeUnit.SECONDS);
+				return result;
+			}
+			catch (TimeoutException te)
+			{
+				sLogger.warn(String.format("Timeout of %s seconds reached for VCF line: %s",RECEIVE_TIMEOUT, vcfLine));
+				return getFakeResponse(vcfLine);
+			}
+		}
+		catch( RuntimeException runtimeExc)
+		{
 			terminate();
 			// Rethrow any runtime exceptions
 			throw runtimeExc;
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			terminate();
 			sLogger.error(ex);
 		}
@@ -125,11 +157,74 @@ public class VEPEXE implements PipeFunction<String,String>{
 		throw new NoSuchElementException();
 	}
 
+	/**
+	 * Gets a "fake" response from VEP that is useful for when VEP is
+	 * either bypassed entirely or VEP failed to send a response.
+	 * 
+	 * @param vcfLine
+	 * @return
+	 */
+	private String getFakeResponse(String vcfLine)
+	{
+		// return with blank CSQ field in INFO column
+		return vcfLine + "\tCSQ=";		
+	}
+	
 	public void terminate() {
 		try {
 			this.mVep.terminate();
 		} catch(Exception e) { 
 			sLogger.error("Error terminating VEPEXE pipe" + e);
 		}
+	}
+	
+	/**
+	 * Checks for cases where VEP will <b>not</b> send a response to STDOUT.
+	 * These cases should be avoided as the {@link UnixStreamCommand#receive()}
+	 * will hang indefinitely.
+	 * <p/>
+	 * The following cases cause VEP to not return a response and are checked:
+	 * <ul>
+	 * <li>absent (e.g. NULL) value for ALT column</li>
+	 * <li>1 or more whitespace characters for ALT column</li>
+	 * <li>"." character for ALT column</li>
+	 * <li>ALT and REF columns match</li>
+	 * </ul>
+	 *  
+	 * @param line
+	 * 		A single data line from a VCF file.
+	 * @return
+	 * 		True if VEP should be bypassed.  False otherwise.
+	 */
+	private boolean bypass(String line)
+	{
+		String[] cols = line.split("\t");
+		
+		// make sure we can access the ALT column
+		if (cols.length < (VCF_ALT_COL + 1))
+		{
+			return true;
+		}
+		
+		final String ref = cols[VCF_REF_COL].trim();
+		final String alt = cols[VCF_ALT_COL].trim();
+				
+		if (
+				// NULL or whitespace
+				(alt.length() == 0) ||
+				
+				// dot
+				alt.equals(".") ||
+				
+				// REF and ALT are same
+				alt.equals(ref)
+		   )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}		
 	}
 }
