@@ -23,7 +23,39 @@ import org.apache.log4j.Logger;
  */
 public class BiorProperties {
 
-	public enum Key { SnpEffJar, SnpEffConfig, BiorVepPerl, BiorVep, BiorVepCache };
+	public enum Key { 
+		SnpEffJar,
+		SnpEffConfig,
+		BiorVepPerl,
+		BiorVep,
+		BiorVepCache,
+		// fileBase will be the directory containing the files referenced by the next couple dozen keys 
+		fileBase,
+		// These are files within fileBase directory -------------->
+		genesFile,
+		hgncFile,
+		hgncIndexFile,
+		hgncEnsemblGeneIndexFile,
+		omimFile,
+		omimIndexFile,
+		dbsnpFile,
+		dbsnpClinvarFile,
+		cosmicFile,
+		blacklistedFile,
+		conservationFile,
+		enhancerFile,
+		tfbsFile,
+		tssFile,
+		uniqueFile,
+		repeatFile,
+		regulationFile,
+		mirBaseFile,
+		bgiFile,
+		espFile,
+		hapMapFile,
+		kGenomeFile
+		// <----------------------------------------------
+		};
 	
     private static final String BIOR_PROP = "BIOR_PROP";
     private static String file = null;
