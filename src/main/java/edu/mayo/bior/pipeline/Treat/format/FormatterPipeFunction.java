@@ -22,11 +22,21 @@ import edu.mayo.pipes.history.History;
 public class FormatterPipeFunction implements PipeFunction<History, History>
 {
 
-	private Map<JsonColumn, Integer> mIndex;
+	private Map<JsonColumn, Integer> mJsonIndex;
 
-	private List<Formatter> mFormatters;
+	private List<Formatter> mAllPossibleFormatters;
 	
 	private boolean mIsFirst = true;
+	
+	// Keep track of the list of columns to add.  This may not be all of the columns
+	// returned from the formatters, since the user can specify a subset in the config file.
+	// If a subset of columns is specified in the config file, only those columns will be set in this list
+	private List<String> mColsFromConfig;
+	
+	// Keep track of the columns that were actually added, and the order in which they were added.
+	// NOTE: This will be empty until after the first row is processed
+	private List<String> mColsAdded = new ArrayList<String>();
+	
 	
 	/**
 	 * Constructor 
@@ -35,49 +45,68 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	 * 		The order of JSON columns added <b>after</b> the original user's columns.
 	 * @param formatters
 	 * 		One or more {@link Formatter} implementations to apply to the JSON columns.
+	 * @param colsFromConfig
+	 * 		The list of columns the user wants to see in the output (as specified in the config file)
+	 * 		If this is null, then there was no config file specified, so ALL columns will be outputted. 
 	 */
-	public FormatterPipeFunction(List<JsonColumn> order, List<Formatter> formatters) {
-		mIndex = index(order);
-		mFormatters = formatters;
+	public FormatterPipeFunction(List<JsonColumn> order, List<Formatter> allPossibleFormatters, List<String> colsFromConfig) {
+		mJsonIndex = index(order);
+		mAllPossibleFormatters = allPossibleFormatters;
+		mColsFromConfig = colsFromConfig;
+	}
+	
+	/** Get the column headers that were added to the output.  
+	 *  NOTE: At least one row must have been processed for this to return anything 
+	 * @return
+	 */
+	public List<String> getColumnsAdded() {
+		return mColsAdded;
 	}
 	
 	public History compute(History history)
 	{
 		// remove JSON columns from History + metadata
-		List<String> jsonCols = removeJSON(mIndex.size(), history, mIsFirst);
+		List<String> jsonCols = removeJSON(mJsonIndex.size(), history, mIsFirst);
 		
-		for (Formatter f: mFormatters)
+		for (Formatter fmt: mAllPossibleFormatters)
 		{
-			// get designated JSON column that will be processed
-			JsonColumn col = f.getJSONColumn();
+			// get the JSON column that data will be pulled from
+			JsonColumn col = fmt.getJSONColumn();
 			
-			if (mIndex.containsKey(col))
-			{
+			// If the list of JSON columns contains the one we want to pull from...
+			// (if it does NOT, then the user may have selected to not output from that source)
+			if( mJsonIndex.containsKey(col) ) {
 				// 1st time through, add column metadata
-				if (mIsFirst)
-				{
-					for (String header: f.getHeaders())
-					{
-						History.getMetaData().getColumns().add(new ColumnMetaData(header));
-					}
-				}				
+				if (mIsFirst) {
+					addHeaders(fmt);
+					mIsFirst = false;
+				}
 				
 				// get JSON for formatter
-				String json = jsonCols.get(mIndex.get(col));
+				String json = jsonCols.get(mJsonIndex.get(col));
 				
 				// process JSON to get formatted values and add to History
-				for (String value: f.format(json))
-				{
-					history.add(value);
-				}				
+				List<String> headers = fmt.getHeaders();
+				List<String> values  = fmt.format(json);
+				for(int i=0; i < headers.size(); i++) {
+					if( mColsFromConfig == null || mColsFromConfig.contains(headers.get(i)) )
+						history.add(values.get(i));
+				}
 			}
 		}
 		
-		// toggle flag off
-		if (mIsFirst)
-			mIsFirst = false;
-		
 		return history;
+	}
+	
+	private void addHeaders(Formatter formatter) {
+		for (String header: formatter.getHeaders())	{
+			// Add the header if the config file was not specified (which means user wants all output columns)
+			// or if the user had specifically wanted that column as output
+			if(mColsFromConfig == null  ||  mColsFromConfig.contains(header)) {
+				mColsAdded.add(header);
+				History.getMetaData().getColumns().add(new ColumnMetaData(header));
+			}
+		}
 	}
 
 	/**
@@ -121,8 +150,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 		int firstJsonColIdx = h.size() - numJsonCols;
 		
 		// go in reverse-order from end of History for "safe" removes
-		for (int colIdx=h.size() - 1; colIdx >= firstJsonColIdx; colIdx--)
-		{
+		for (int colIdx=h.size() - 1; colIdx >= firstJsonColIdx; colIdx--) {
 			String value = h.get(colIdx).trim();
 
 			list.add(value);
