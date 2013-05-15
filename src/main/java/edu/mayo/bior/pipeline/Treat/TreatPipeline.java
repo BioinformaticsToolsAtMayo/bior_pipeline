@@ -254,6 +254,9 @@ public class TreatPipeline extends Pipeline<History, History>
 
 	/** Throw an exception if the config file column is not one of the possible ones */
 	private void validateConfigFileColumns(List<String> configFileCols) {
+		if(configFileCols == null)
+			return;  // No config file specified - OK
+		
 		if(configFileCols.size() == 0)
 			throw new IllegalArgumentException("Error: The config file does not contain any output columns.  Please add some columns to output.  Or, to add all columns, do not add the config file option.");
 
