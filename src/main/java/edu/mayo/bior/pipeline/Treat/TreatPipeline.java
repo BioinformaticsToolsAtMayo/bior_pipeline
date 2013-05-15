@@ -170,10 +170,7 @@ public class TreatPipeline extends Pipeline<History, History>
 	{
 		Formatter colFormatter = jsonColToFormatter(jsonColumn);
 		if( isPipeNeeded(colFormatter) ) {
-			if( jsonColumn == null )
-				jsonColOrder.add(jsonColumn);
-			else
-				jsonColOrder.add(colFormatter.getJSONColumn());
+			jsonColOrder.add(jsonColumn);
 			pipesList.add(pipeToAdd);
 		}
 	}
