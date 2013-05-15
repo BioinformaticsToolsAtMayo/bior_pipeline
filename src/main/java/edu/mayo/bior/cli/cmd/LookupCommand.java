@@ -48,7 +48,7 @@ public class LookupCommand implements CommandPlugin {
 		} else {
 			//find the index file based on catalog-name
 			try {
-				indexFilePath = IndexUtils.buildIndexPath(catalogFilePath, key);
+				indexFilePath = IndexUtils.getH2DbIndexPath(catalogFilePath, key);
 			}catch(IOException ioe) {
 				throw new InvalidOptionArgValueException(
 						opts.getOption(OPTION_CATALOG_FILE + ""),

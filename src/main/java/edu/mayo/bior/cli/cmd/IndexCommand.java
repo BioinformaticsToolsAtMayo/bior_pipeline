@@ -44,12 +44,17 @@ public class IndexCommand implements CommandPlugin {
 		
 		// Index path is optional - use it if supplied, else create it from the bgzip catalog path
 		String indexDbPathOut = line.getOptionValue(OPTION_INDEX_PATH);
-		if(indexDbPathOut == null)
-			indexDbPathOut = IndexUtils.buildIndexPath(bgzipPath, key);
+		if(indexDbPathOut == null) {
+			//if(catalogLineCount <= 1000000)
+				// TODO: Create a text file index instead
+			indexDbPathOut = IndexUtils.getH2DbIndexPath(bgzipPath, key);
+		}
 		
 		IndexUtils.createParentDirectories(indexDbPathOut);
 		
 		IndexDatabaseCreator indexer = new IndexDatabaseCreator();
 		indexer.buildIndexH2(bgzipPath, -1, key, indexDbPathOut);
 	}
+	
+	
 }
