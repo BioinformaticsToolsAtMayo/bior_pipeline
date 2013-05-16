@@ -20,7 +20,7 @@ public class UcscUniqueFormatter implements Formatter
 	{
 		List<String> headers = new ArrayList<String>();
 		
-		headers.add("UCSC.Alignability/Uniquness");
+		headers.add("UCSC.Alignability/Uniqueness");
 		
 		return headers;
 	}

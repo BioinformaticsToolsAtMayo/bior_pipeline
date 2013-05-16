@@ -26,7 +26,7 @@ public class UcscUniqueFormatterTest extends BaseFormatterTest {
 	{
 		String[] header =
 			{
-				"UCSC.Alignability/Uniquness"
+				"UCSC.Alignability/Uniqueness"
 			};	
 		validateHeader(mFormatter, header);
 	}
