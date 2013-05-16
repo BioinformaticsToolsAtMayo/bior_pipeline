@@ -80,10 +80,8 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			// (if it does NOT, then the user may have selected to not output from that source)
 			if( mJsonIndex.containsKey(col) ) {
 				// 1st time through, add column metadata
-				if (mIsFirst) {
+				if (mIsFirst)
 					addHeaders(fmt);
-					mIsFirst = false;
-				}
 				
 				// get JSON for formatter
 				String json = jsonCols.get(mJsonIndex.get(col));
@@ -97,7 +95,10 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 				}
 			}
 		}
-		
+		// Don't change the mIsFirst flag until here.  If we do it inside the loop
+		// it will only add the columns from the first formatter and then stop
+		mIsFirst = false;
+
 		return history;
 	}
 	
