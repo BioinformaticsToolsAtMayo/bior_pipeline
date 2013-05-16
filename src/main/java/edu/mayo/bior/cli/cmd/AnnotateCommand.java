@@ -1,8 +1,12 @@
 package edu.mayo.bior.cli.cmd;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -11,6 +15,9 @@ import org.apache.log4j.Logger;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
 import edu.mayo.cli.CommandPlugin;
+import edu.mayo.cli.InvalidDataException;
+import edu.mayo.cli.InvalidOptionArgValueException;
+import edu.mayo.exec.AbnormalExitException;
 
 public class AnnotateCommand implements CommandPlugin {
 	
@@ -19,6 +26,8 @@ public class AnnotateCommand implements CommandPlugin {
 	private static final Logger sLogger = Logger.getLogger(AnnotateCommand.class);
 
 	private static final String OPTION_GENOME_VERSION = "genome_version";
+	
+	private static final char OPTION_CONFIG_FILE = 'c';
 
 	public void init(Properties props) throws Exception {
 		// TODO Auto-generated method stub
@@ -28,10 +37,28 @@ public class AnnotateCommand implements CommandPlugin {
 	/**
 	 * 
 	 */
-	public void execute(CommandLine line, Options opts) throws Exception {
+	public void execute(CommandLine line, Options opts) throws IOException, InterruptedException, 
+																BrokenBarrierException, TimeoutException, AbnormalExitException, 
+																InvalidOptionArgValueException, InvalidDataException{
+			
+		String configFilePath; 
 		
-		mPipeline.execute(new TreatPipeline());
-		
+		if (line.hasOption(OPTION_CONFIG_FILE)) {
+			
+			configFilePath = line.getOptionValue(OPTION_CONFIG_FILE);
+			
+			if ( ! new File(configFilePath).exists() ) {	
+				throw new InvalidOptionArgValueException(
+						opts.getOption(OPTION_CONFIG_FILE + ""),
+						configFilePath, 
+						"The Config file path '" + configFilePath + "' does not exist. Please specify a valid config file path."
+						);
+			}	
+		} else { // config file option not specified. This should use the 'default' config file.
+			configFilePath = "src/main/resources/default.config";
+		}
+		 		
+		mPipeline.execute(new TreatPipeline(configFilePath));		
 	}
 	
 	private String[] getCommandLineOptions(CommandLine line) {
