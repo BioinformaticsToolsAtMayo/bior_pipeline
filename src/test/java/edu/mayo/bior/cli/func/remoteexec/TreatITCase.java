@@ -9,12 +9,16 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
+import edu.mayo.cli.InvalidDataException;
+import edu.mayo.exec.AbnormalExitException;
 
 /**
  * Functional tests for the BioR TREAT annotation module implementation.
@@ -87,6 +91,48 @@ public class TreatITCase extends RemoteFunctionalTest
 		}
 	}
 	
+	//@Test
+    public void testAnnotateCommandWithConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+    	System.out.println("Testing: AnnotateCommand With ConfigFile...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		String output = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+		
+		String configFilePath = "src/test/resources/treat/configtest/all.config";
+		
+		// execute command with config file option - default
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+
+		if (out.exit != 0) {
+			fail(out.stderr);
+		}
+		
+		assertEquals(out.stderr, 0, out.exit);
+        assertEquals("", out.stderr);
+
+        String header = getHeader(out.stdout);
+		System.out.println("header="+header);
+    }
+	
+    //@Test
+    public void testAnnotateCommandWithoutConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+    	System.out.println("Testing: AnnotateCommand Without ConfigFile...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		String output = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+		
+		// execute command with config file option - default
+		CommandOutput out = executeScript("bior_annotate", goldInput); //with 'config' option
+
+		if (out.exit != 0) {
+			fail(out.stderr);
+		}
+		
+		assertEquals(out.stderr, 0, out.exit);
+        assertEquals("", out.stderr);
+
+        String header = getHeader(out.stdout);
+		System.out.println("header="+header);
+    }
+    
 	private List<String> splitLines(String s) throws IOException
 	{
 		List<String> lines = new ArrayList<String>();
