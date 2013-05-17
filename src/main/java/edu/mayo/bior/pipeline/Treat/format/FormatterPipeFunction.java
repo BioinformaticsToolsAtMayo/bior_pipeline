@@ -32,10 +32,6 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	// If a subset of columns is specified in the config file, only those columns will be set in this list
 	private List<String> mColsFromConfig;
 	
-	// Keep track of the columns that were actually added, and the order in which they were added.
-	// NOTE: This will be empty until after the first row is processed
-	private List<String> mColsAdded = new ArrayList<String>();
-	
 	
 	/**
 	 * Constructor 
@@ -64,7 +60,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			if(mColsFromConfig.contains(col))
 				colsAdded.add(col);
 		}
-		return mColsAdded;
+		return colsAdded;
 	}
 	
 	public History compute(History history)
@@ -107,7 +103,6 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			// Add the header if the config file was not specified (which means user wants all output columns)
 			// or if the user had specifically wanted that column as output
 			if(mColsFromConfig == null  ||  mColsFromConfig.contains(header)) {
-				mColsAdded.add(header);
 				History.getMetaData().getColumns().add(new ColumnMetaData(header));
 			}
 		}
