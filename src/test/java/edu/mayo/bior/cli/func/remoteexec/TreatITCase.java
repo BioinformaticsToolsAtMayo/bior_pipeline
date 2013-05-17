@@ -21,6 +21,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
+import edu.mayo.cli.InvalidDataException;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
