@@ -41,10 +41,10 @@ public class TreatITCase extends RemoteFunctionalTest {
 	public void testAnnotateCommandWithDefaultConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
         System.out.println("Testing: AnnotateCommand With ConfigFile...");
         String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-        //String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
+        String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
 
-        String goldOutputHeader = "#CHROM       POS     ID      REF     ALT     QUAL    FILTER  INFO    rsID    dbSNP.SuspectRegion     dbSNP.ClinicalSig       dbSNP.DiseaseVariant    COSMIC.Mutation_ID      COSMIC.Mutation_CDS     COSMIC.Mutation_AA      COSMIC.strand   1000Genomes.ASN_AF      1000Genomes.AMR_AF      1000Genomes.AFR_AF      1000Genomes.EUR_AF      BGI200_Danish_MAF       ESP6500.EUR_MAF ESP6500.AFR_MAF HapMap.CEU_MAF  HapMap.YRI_MAF  HapMap.JPT_MAF  HapMap.CHB_MAF  Entrez.GeneID   Gene_Symbol     Approved_Gene_Name      Ensembl_Gene_ID OMIM.ID OMIM.Disease    miRBASE.ID      UCSC.BlacklistedRegion  UCSC.conservation       UCSC.regulation UCSC.tfbs       UCSC.tss        UCSC.enhancer   UCSC.Alignability/Uniqueness    UCSC.Repeat_Region      VEP.Allele      VEP.Gene        VEP.Feature     VEP.Consequence VEP.cDNA_position       VEP.CDS_position        VEP.Protein_position    VEP.Amino_acids VEP.Codons      VEP.HGNC        SIFT.TERM       SIFT.Score      PolyPhen.TERM   PolyPhen.Score  UniprotID       SNPEFF.Effect   SNPEFF.Effect_impact    SNPEFF.Functional_class SNPEFF.Codon_change     SNPEFF.Amino_acid_change        SNPEFF.Gene_name        SNPEFF.Gene_bioType     SNPEFF.Coding   SNPEFF.Transcript       SNPEFF.Exon";
-        String[] expectedHeader = goldOutputHeader.split("\t");
+        //String goldOutputHeader = "#CHROM       POS     ID      REF     ALT     QUAL    FILTER  INFO    rsID    dbSNP.SuspectRegion     dbSNP.ClinicalSig       dbSNP.DiseaseVariant    COSMIC.Mutation_ID      COSMIC.Mutation_CDS     COSMIC.Mutation_AA      COSMIC.strand   1000Genomes.ASN_AF      1000Genomes.AMR_AF      1000Genomes.AFR_AF      1000Genomes.EUR_AF      BGI200_Danish_MAF       ESP6500.EUR_MAF ESP6500.AFR_MAF HapMap.CEU_MAF  HapMap.YRI_MAF  HapMap.JPT_MAF  HapMap.CHB_MAF  Entrez.GeneID   Gene_Symbol     Approved_Gene_Name      Ensembl_Gene_ID OMIM.ID OMIM.Disease    miRBASE.ID      UCSC.BlacklistedRegion  UCSC.conservation       UCSC.regulation UCSC.tfbs       UCSC.tss        UCSC.enhancer   UCSC.Alignability/Uniqueness    UCSC.Repeat_Region      VEP.Allele      VEP.Gene        VEP.Feature     VEP.Consequence VEP.cDNA_position       VEP.CDS_position        VEP.Protein_position    VEP.Amino_acids VEP.Codons      VEP.HGNC        SIFT.TERM       SIFT.Score      PolyPhen.TERM   PolyPhen.Score  UniprotID       SNPEFF.Effect   SNPEFF.Effect_impact    SNPEFF.Functional_class SNPEFF.Codon_change     SNPEFF.Amino_acid_change        SNPEFF.Gene_name        SNPEFF.Gene_bioType     SNPEFF.Coding   SNPEFF.Transcript       SNPEFF.Exon";
+        //String[] expectedHeader = goldOutputHeader.split("\t");
         String configFilePath = "src/test/resources/treat/configtest/all.config";
 
         // execute command with config file option - default
@@ -57,6 +57,9 @@ public class TreatITCase extends RemoteFunctionalTest {
         assertEquals(out.stderr, 0, out.exit);
         assertEquals("", out.stderr);
 
+        List<String> expectedLines = splitLines(goldOutput);
+        String[] expectedHeader = expectedLines.get(0).split("\t");
+        
         String header = getHeader(out.stdout);
         String[] resultHeader = header.split("\t");
        
@@ -67,10 +70,10 @@ public class TreatITCase extends RemoteFunctionalTest {
     public void testAnnotateCommandWithoutConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
         System.out.println("Testing: AnnotateCommand Without ConfigFile...");
         String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-        //String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
+        String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
         
-        String goldOutputHeader = "#CHROM       POS     ID      REF     ALT     QUAL    FILTER  INFO    rsID    dbSNP.SuspectRegion     dbSNP.ClinicalSig       dbSNP.DiseaseVariant    COSMIC.Mutation_ID      COSMIC.Mutation_CDS     COSMIC.Mutation_AA      COSMIC.strand   1000Genomes.ASN_AF      1000Genomes.AMR_AF      1000Genomes.AFR_AF      1000Genomes.EUR_AF      BGI200_Danish_MAF       ESP6500.EUR_MAF ESP6500.AFR_MAF HapMap.CEU_MAF  HapMap.YRI_MAF  HapMap.JPT_MAF  HapMap.CHB_MAF  Entrez.GeneID   Gene_Symbol     Approved_Gene_Name      Ensembl_Gene_ID OMIM.ID OMIM.Disease    miRBASE.ID      UCSC.BlacklistedRegion  UCSC.conservation       UCSC.regulation UCSC.tfbs       UCSC.tss        UCSC.enhancer   UCSC.Alignability/Uniqueness    UCSC.Repeat_Region      VEP.Allele      VEP.Gene        VEP.Feature     VEP.Consequence VEP.cDNA_position       VEP.CDS_position        VEP.Protein_position    VEP.Amino_acids VEP.Codons      VEP.HGNC        SIFT.TERM       SIFT.Score      PolyPhen.TERM   PolyPhen.Score  UniprotID       SNPEFF.Effect   SNPEFF.Effect_impact    SNPEFF.Functional_class SNPEFF.Codon_change     SNPEFF.Amino_acid_change        SNPEFF.Gene_name        SNPEFF.Gene_bioType     SNPEFF.Coding   SNPEFF.Transcript       SNPEFF.Exon";
-        String[] expectedHeader = goldOutputHeader.split("\t");
+        //String goldOutputHeader = "#CHROM       POS     ID      REF     ALT     QUAL    FILTER  INFO    rsID    dbSNP.SuspectRegion     dbSNP.ClinicalSig       dbSNP.DiseaseVariant    COSMIC.Mutation_ID      COSMIC.Mutation_CDS     COSMIC.Mutation_AA      COSMIC.strand   1000Genomes.ASN_AF      1000Genomes.AMR_AF      1000Genomes.AFR_AF      1000Genomes.EUR_AF      BGI200_Danish_MAF       ESP6500.EUR_MAF ESP6500.AFR_MAF HapMap.CEU_MAF  HapMap.YRI_MAF  HapMap.JPT_MAF  HapMap.CHB_MAF  Entrez.GeneID   Gene_Symbol     Approved_Gene_Name      Ensembl_Gene_ID OMIM.ID OMIM.Disease    miRBASE.ID      UCSC.BlacklistedRegion  UCSC.conservation       UCSC.regulation UCSC.tfbs       UCSC.tss        UCSC.enhancer   UCSC.Alignability/Uniqueness    UCSC.Repeat_Region      VEP.Allele      VEP.Gene        VEP.Feature     VEP.Consequence VEP.cDNA_position       VEP.CDS_position        VEP.Protein_position    VEP.Amino_acids VEP.Codons      VEP.HGNC        SIFT.TERM       SIFT.Score      PolyPhen.TERM   PolyPhen.Score  UniprotID       SNPEFF.Effect   SNPEFF.Effect_impact    SNPEFF.Functional_class SNPEFF.Codon_change     SNPEFF.Amino_acid_change        SNPEFF.Gene_name        SNPEFF.Gene_bioType     SNPEFF.Coding   SNPEFF.Transcript       SNPEFF.Exon";
+        //String[] expectedHeader = goldOutputHeader.split("\t");
         
         // execute command without config file option - default
         CommandOutput out = executeScript("bior_annotate", goldInput); //without 'config' option
@@ -82,13 +85,16 @@ public class TreatITCase extends RemoteFunctionalTest {
         assertEquals(out.stderr, 0, out.exit);
         assertEquals("", out.stderr);
 
+        List<String> expectedLines = splitLines(goldOutput);
+        String[] expectedHeader = expectedLines.get(0).split("\t");
+
         String header = getHeader(out.stdout);
         String[] resultHeader = header.split("\t");
        
         assertEquals(String.format("# of columns did not match.", expectedHeader.length, resultHeader.length), expectedHeader.length, resultHeader.length);
     }
 
-	@Test
+	//@Test
 	public void treatPipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
