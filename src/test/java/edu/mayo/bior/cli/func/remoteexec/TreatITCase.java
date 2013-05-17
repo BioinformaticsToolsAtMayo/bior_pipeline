@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
@@ -15,10 +16,17 @@ import java.util.concurrent.TimeoutException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import com.tinkerpop.pipes.util.Pipeline;
+
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
-import edu.mayo.cli.InvalidDataException;
+import edu.mayo.bior.pipeline.Treat.TreatPipeline;
 import edu.mayo.exec.AbnormalExitException;
+import edu.mayo.pipes.PrintPipe;
+import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.test.PipeTestUtils;
 
 /**
  * Functional tests for the BioR TREAT annotation module implementation.
@@ -28,6 +36,19 @@ import edu.mayo.exec.AbnormalExitException;
  */
 public class TreatITCase extends RemoteFunctionalTest
 {
+	
+	@Test
+	public void treatPipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+		Pipeline pipes = new Pipeline(
+				new CatPipe(),
+				new HistoryInPipe(),
+				new TreatPipeline(),//"src/test/resources/treat/configtest/subset.config"),
+				new HistoryOutPipe(),
+				new PrintPipe()
+				);
+		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
+		List<String> actual = PipeTestUtils.getResults(pipes);
+	}
 
 	@Test
 	public void gold() throws IOException, InterruptedException

@@ -107,44 +107,85 @@ public class TreatPipeline extends Pipeline<History, History>
 		//		 	 ColOrder, JsonColumnName,				PipesList	PipeToAdd
 		//			---------  -------------------			----------	--------------------------------------------------------
 		// 1ST JSON column is the original variant
-		addPipeIfNeeded(order, JsonColumn.VARIANT,			pipes,		new VCF2VariantPipe () );
-		addPipeIfNeeded(order, JsonColumn.VEP,				pipes,		new VEPPipeline (new String[0], true) );
-		/* add Ensembl Gene X-REF -- NOTE: No col - will be deleted */
-															pipes.add(  new DrillPipe (true, new String[] {"Gene"}) ); 
-		addPipeIfNeeded(order, JsonColumn.VEP_HGNC,			pipes,		new LookupPipe (getFile(Key.hgncFile), getFile(Key.hgncEnsemblGeneIndexFile), -2) );
-		/* remove Ensembl Gene X-REF (removing a col - no header needed */
-															pipes.add(	new HCutPipe (new int[] {-3}));
-		addPipeIfNeeded(order, JsonColumn.SNPEFF, 			pipes, 		new SNPEFFPipeline (new String[]{SNPEffCommand.DEFAULT_GENOME_VERSION}, true));
-		addPipeIfNeeded(order, JsonColumn.DBSNP_ALL, 		pipes,		new SameVariantPipe(getFile(Key.dbsnpFile),        	1 - order.size())); 		
-		addPipeIfNeeded(order, JsonColumn.DBSNP_CLINVAR,	pipes, 		new SameVariantPipe(getFile(Key.dbsnpClinvarFile), 	1 - order.size())); 		
-		addPipeIfNeeded(order, JsonColumn.COSMIC,			pipes, 		new SameVariantPipe(getFile(Key.cosmicFile),       	1 - order.size())); 
-		addPipeIfNeeded(order, JsonColumn.UCSC_BLACKLISTED,	pipes,		new OverlapPipe(getFile(Key.blacklistedFile),  		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.UCSC_CONSERVATION,pipes,		new OverlapPipe(getFile(Key.conservationFile), 		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.UCSC_ENHANCER,	pipes, 		new OverlapPipe(getFile(Key.enhancerFile),     		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.UCSC_TFBS,		pipes,		new OverlapPipe(getFile(Key.tfbsFile),         		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.UCSC_TSS,			pipes,		new OverlapPipe(getFile(Key.tssFile),          		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.UCSC_UNIQUE,		pipes,		new OverlapPipe(getFile(Key.uniqueFile),       		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.UCSC_REPEAT,		pipes,		new OverlapPipe(getFile(Key.repeatFile),       		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.UCSC_REGULATION,	pipes,		new OverlapPipe(getFile(Key.regulationFile),   		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.MIRBASE,			pipes,		new OverlapPipe(getFile(Key.mirBaseFile),      		1 - order.size()));
-
-		// allele frequency annotation
-		addPipeIfNeeded(order, JsonColumn.BGI,				pipes,		new OverlapPipe(getFile(Key.bgiFile),          		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.ESP,				pipes,		new OverlapPipe(getFile(Key.espFile),          		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.HAPMAP,			pipes,		new OverlapPipe(getFile(Key.hapMapFile),       		1 - order.size()));
-		addPipeIfNeeded(order, JsonColumn.THOUSAND_GENOMES,	pipes,		new OverlapPipe(getFile(Key.kGenomeFile),       	1 - order.size()));
-
-		// annotation requiring walking X-REFs
-		addPipeIfNeeded(order, JsonColumn.NCBI_GENE,		pipes,		new OverlapPipe(getFile(Key.genesFile),        		1 - order.size()));		
-		/* add Entrez GeneID X-REF */								
-															pipes.add(	new DrillPipe(true, new String[] {"GeneID"})); 
-		addPipeIfNeeded(order, JsonColumn.HGNC,				pipes,		new LookupPipe(getFile(Key.hgncFile), getFile(Key.hgncIndexFile), -2));
-		/* remove Entrez GeneID X-REF*/						pipes.add(	new HCutPipe(new int[] {-3}));
-		/* add OMIM ID X-REF */								pipes.add(	new DrillPipe(true, new String[] {"mapped_OMIM_ID"}));
-		addPipeIfNeeded(order, JsonColumn.OMIM,				pipes,		new LookupPipe(getFile(Key.omimFile), getFile(Key.omimIndexFile), -2));
-		/* remove OMIM ID X-REF */							pipes.add(	new HCutPipe(new int[] {-3}));
-		
-		// Get the number of columns we will add (after the JSON columns)
+			order.add(JsonColumn.VARIANT);			pipes.add(new VCF2VariantPipe());
+		if(isNeedPipe(new VEPFormatter())) {
+			order.add(JsonColumn.VEP);				pipes.add(new VEPPipeline (new String[0], true) );
+		}
+		// Since the drill and cut are for HGNC lookup, we must check if HGNC is needed before we perform the drill and cut
+		if(isNeedPipe(new VEPHgncFormatter()) ) {
+			/* add Ensembl Gene X-REF col	*/		pipes.add(new DrillPipe (true, new String[] {"Gene"}) ); 
+			order.add(JsonColumn.VEP_HGNC);			pipes.add(new LookupPipe (getFile(Key.hgncFile), getFile(Key.hgncEnsemblGeneIndexFile), -2) );
+			/* remove Ensembl Gene X-REF col */		pipes.add(new HCutPipe (new int[] {-3}));
+		}
+		// Since SNPEff takes a long time to load, AND that load is in the constructor, let's check if we need it first before calling the constructor
+		if(isNeedPipe(new SNPEffFormatter()) )	{
+			order.add(JsonColumn.SNPEFF);			pipes.add(new SNPEFFPipeline (new String[]{SNPEffCommand.DEFAULT_GENOME_VERSION}, true));
+		}
+		// Using 1-order.size because we don't know how many columns the user passed in.
+		// We want to reference the vcf2variant column, but it is easier to reference it from the end
+		if(isNeedPipe(new DbsnpFormatter())) { 
+			order.add(JsonColumn.DBSNP_ALL);		pipes.add(new SameVariantPipe(getFile(Key.dbsnpFile),    	1-order.size())); 	
+		}
+		if(isNeedPipe(new DbsnpClinvarFormatter())) {
+			order.add(JsonColumn.DBSNP_CLINVAR);	pipes.add(new SameVariantPipe(getFile(Key.dbsnpClinvarFile),1-order.size()));
+		}
+		if(isNeedPipe(new CosmicFormatter())) {
+			order.add(JsonColumn.COSMIC);			pipes.add(new SameVariantPipe(getFile(Key.cosmicFile),      1-order.size()));
+		}
+		if(isNeedPipe(new UcscBlacklistedFormatter())) {
+			order.add(JsonColumn.UCSC_BLACKLISTED);	pipes.add(new OverlapPipe(getFile(Key.blacklistedFile),  	1-order.size()));
+		}
+		if(isNeedPipe(new UcscConservationFormatter())) {
+			order.add(JsonColumn.UCSC_CONSERVATION);pipes.add(new OverlapPipe(getFile(Key.conservationFile), 	1-order.size()));
+		}
+		if(isNeedPipe(new UcscEnhancerFormatter())) {
+			order.add(JsonColumn.UCSC_ENHANCER);	pipes.add(new OverlapPipe(getFile(Key.enhancerFile),     	1-order.size()));
+		}
+		if(isNeedPipe(new UcscTfbsFormatter())) {
+			order.add(JsonColumn.UCSC_TFBS);		pipes.add(new OverlapPipe(getFile(Key.tfbsFile),         	1-order.size()));
+		}
+		if(isNeedPipe(new UcscTssFormatter())) {
+			order.add(JsonColumn.UCSC_TSS);			pipes.add(new OverlapPipe(getFile(Key.tssFile),          	1-order.size()));
+		}
+		if(isNeedPipe(new UcscUniqueFormatter())) {
+			order.add(JsonColumn.UCSC_UNIQUE);		pipes.add(new OverlapPipe(getFile(Key.uniqueFile),       	1-order.size()));
+		}
+		if(isNeedPipe(new UcscRepeatFormatter())) {
+			order.add(JsonColumn.UCSC_REPEAT);		pipes.add(new OverlapPipe(getFile(Key.repeatFile),       	1-order.size()));
+		}
+		if(isNeedPipe(new UcscRegulationFormatter())) {
+			order.add(JsonColumn.UCSC_REGULATION);	pipes.add(new OverlapPipe(getFile(Key.regulationFile),   	1-order.size()));
+		}
+		if(isNeedPipe(new MirBaseFormatter())) {
+			order.add(JsonColumn.MIRBASE);			pipes.add(new OverlapPipe(getFile(Key.mirBaseFile),      	1-order.size()));
+		}
+		if(isNeedPipe(new BgiFormatter())) {
+			// allele frequency annotation
+			order.add(JsonColumn.BGI);				pipes.add(new OverlapPipe(getFile(Key.bgiFile),          	1-order.size()));
+		}
+		if(isNeedPipe(new EspFormatter())) {
+			order.add(JsonColumn.ESP);				pipes.add(new OverlapPipe(getFile(Key.espFile),          	1-order.size()));
+		}
+		if(isNeedPipe(new HapmapFormatter())) {
+			order.add(JsonColumn.HAPMAP);			pipes.add(new OverlapPipe(getFile(Key.hapMapFile),       	1-order.size()));
+		}
+		if(isNeedPipe(new ThousandGenomesFormatter())) {
+			order.add(JsonColumn.THOUSAND_GENOMES);	pipes.add(new OverlapPipe(getFile(Key.kGenomeFile),      	1-order.size()));
+		}
+		if(isNeedPipe(new NcbiGeneFormatter())) {
+			// annotation requiring walking X-REFs
+			order.add(JsonColumn.NCBI_GENE);		pipes.add(new OverlapPipe(getFile(Key.genesFile),        	1-order.size()));		
+		}
+		if(isNeedPipe(new HgncFormatter())) {
+			/* add Entrez GeneID X-REF */			pipes.add(new DrillPipe(true, new String[] {"GeneID"})); 
+			order.add(JsonColumn.HGNC);				pipes.add(new LookupPipe(getFile(Key.hgncFile), getFile(Key.hgncIndexFile), -2));
+			/* remove Entrez GeneID X-REF*/			pipes.add(new HCutPipe(new int[] {-3}));
+		}
+		if(isNeedPipe(new OmimFormatter()) ) {
+			/* add OMIM ID X-REF */					pipes.add(new DrillPipe(true, new String[] {"mapped_OMIM_ID"}));
+			order.add(JsonColumn.OMIM);				pipes.add(new LookupPipe(getFile(Key.omimFile), getFile(Key.omimIndexFile), -2));
+			/* remove OMIM ID X-REF */				pipes.add(	new HCutPipe(new int[] {-3}));
+		}
 		
 		FormatterPipeFunction formatterPipe = new FormatterPipeFunction(order, mConfigColumnsToOutput);
 		/* transform JSON cols into final output */			pipes.add(new TransformFunctionPipe(formatterPipe));
@@ -155,69 +196,12 @@ public class TreatPipeline extends Pipeline<History, History>
 
 		this.setPipes(pipes);		
 	}
-	
-	
-	/** Add pipe to be processed, if the column is in the user-specified config file
-	 * @param jsonColOrderList  List of JSON column names for pipes that are added
-	 * @param jsonColName       Name of JSON column to add (if pipe is added) 
-	 * @param colFormatter		The formatter associated with the pipe (null if there is no associated formatter)
-	 * @param pipesList			List of pipes - pipeToAdd will be added to this list if necessary
-	 * @param pipeToAdd			If this pipe is necessary (based on columns user selects in the config file, then add to pipesList
-	 * @return 1 if pipe added (WITH JSON HEADER), 0 if not
-	 */
-	private void addPipeIfNeeded(List<JsonColumn> jsonColOrder,  JsonColumn jsonColumn,
-	 List<Pipe> pipesList,  Pipe pipeToAdd) 
-	{
-		Formatter colFormatter = jsonColToFormatter(jsonColumn);
-		if( isPipeNeeded(colFormatter) ) {
-			jsonColOrder.add(jsonColumn);
-			pipesList.add(pipeToAdd);
-		}
-	}
 
-	/** If the jsonCol is null as it will be for JsonColumn.VariantToJson, 
-	 * then just return null Formatter (it will only add the column header)
-	 * @param jsonCol
-	 * @return
-	 */
-	private Formatter jsonColToFormatter(JsonColumn jsonCol) {
-		Formatter formatter = null;
-		
-		if(     JsonColumn.VEP.equals(jsonCol))				formatter = new VEPFormatter();
-		else if(JsonColumn.VEP_HGNC.equals(jsonCol))		formatter = new VEPHgncFormatter();
-		else if(JsonColumn.SNPEFF.equals(jsonCol))			formatter = new SNPEffFormatter();
-		else if(JsonColumn.DBSNP_ALL.equals(jsonCol))		formatter = new DbsnpFormatter();
-		else if(JsonColumn.DBSNP_CLINVAR.equals(jsonCol))	formatter = new DbsnpClinvarFormatter();
-		else if(JsonColumn.COSMIC.equals(jsonCol))			formatter = new CosmicFormatter();
-		else if(JsonColumn.UCSC_BLACKLISTED.equals(jsonCol)) formatter= new UcscBlacklistedFormatter();
-		else if(JsonColumn.UCSC_CONSERVATION.equals(jsonCol)) formatter=new UcscConservationFormatter();
-		else if(JsonColumn.UCSC_ENHANCER.equals(jsonCol))	formatter = new UcscEnhancerFormatter();
-		else if(JsonColumn.UCSC_TFBS.equals(jsonCol))		formatter = new UcscTfbsFormatter();
-		else if(JsonColumn.UCSC_TSS.equals(jsonCol))		formatter = new UcscTssFormatter();
-		else if(JsonColumn.UCSC_UNIQUE.equals(jsonCol))		formatter = new UcscUniqueFormatter();
-		else if(JsonColumn.UCSC_REPEAT.equals(jsonCol))		formatter = new UcscRepeatFormatter();
-		else if(JsonColumn.UCSC_REGULATION.equals(jsonCol))	formatter = new UcscRegulationFormatter();
-		else if(JsonColumn.MIRBASE.equals(jsonCol))			formatter = new MirBaseFormatter();
-
-		// allele frequency annotation
-		else if(JsonColumn.BGI.equals(jsonCol))				formatter = new BgiFormatter();
-		else if(JsonColumn.ESP.equals(jsonCol))				formatter = new EspFormatter();
-		else if(JsonColumn.HAPMAP.equals(jsonCol))			formatter = new HapmapFormatter();
-		else if(JsonColumn.THOUSAND_GENOMES.equals(jsonCol)) formatter= new ThousandGenomesFormatter();
-
-		// annotation requiring walking X-REFs
-		else if(JsonColumn.NCBI_GENE.equals(jsonCol))		formatter = new NcbiGeneFormatter();
-		else if(JsonColumn.HGNC.equals(jsonCol))			formatter = new HgncFormatter();
-		else if(JsonColumn.OMIM.equals(jsonCol))			formatter = new OmimFormatter();
-		
-		return formatter;
-	}
-	
 
 	/** Do we need to add this pipe?  Yes, if any of its columns are in the config file
 	   (or config properties are null, which signifies that the user wants ALL columns)
 	   (or if the columnFormatter is null, which means it is a necessary pipe) */
-	private boolean isPipeNeeded(Formatter colFormatter) {
+	private boolean isNeedPipe(Formatter colFormatter) {
 		if( colFormatter == null || mConfigColumnsToOutput == null )
 			return true;
 		// Else we need to loop thru the columns this pipe would add.
@@ -226,12 +210,28 @@ public class TreatPipeline extends Pipeline<History, History>
 			if(mConfigColumnsToOutput.contains(colFromPipe))
 				return true;
 		}
+		
+		// There are a few dependencies:
+		//  - Add Vep 		if VepHgnc is wanted    	(vepHgnc depends on vep)
+		//  - Add NcbiGene 	if Hgnc is wanted			(Hgnc    depends on NcbiGene)
+		//	- Add NcbiGene AND Hgnc  if Omim is wanted	(Omim	 depends on BOTH NcbiGene AND Hgnc)
+		if(colFormatter instanceof VEPFormatter  &&  isNeedPipe(new VEPHgncFormatter()))
+			return true;
+		if(colFormatter instanceof NcbiGeneFormatter  &&  isNeedPipe(new HgncFormatter()))
+			return true;
+		if(colFormatter instanceof NcbiGeneFormatter  &&  isNeedPipe(new OmimFormatter())) 
+			return true;
+		if(colFormatter instanceof HgncFormatter &&  isNeedPipe(new OmimFormatter())) 
+			return true;
+
+		
 		// None are in the config file, so safe to bypass pipe
 		return false;
 	}
 
 	private String getFile(Key propKey) {
-		return mProps.get(Key.fileBase) + mProps.get(propKey);
+		String path =  mProps.get(Key.fileBase) + mProps.get(propKey);
+		return path;
 	}
 	
 	/** Load the config file that contains the columns that bior_annotate is to keep */
