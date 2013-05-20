@@ -58,7 +58,15 @@ public class AnnotateCommand implements CommandPlugin {
 			configFilePath = "src/main/resources/default.config";
 		}
 		 		
-		mPipeline.execute(new TreatPipeline(configFilePath));		
+		try {
+			mPipeline.execute(new TreatPipeline(configFilePath));
+		} catch(Exception ex) {
+			throw new InvalidOptionArgValueException(
+					opts.getOption(OPTION_CONFIG_FILE + ""),
+					configFilePath, 
+					ex.getMessage()
+					);
+		}
 	}
 	
 	private String[] getCommandLineOptions(CommandLine line) {
