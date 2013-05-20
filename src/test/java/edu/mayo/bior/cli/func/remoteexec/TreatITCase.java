@@ -169,8 +169,58 @@ public class TreatITCase extends RemoteFunctionalTest {
 		}
 	}
 	
+	/** empty config file with no columns */
+    @Test
+    public void testEmptyFile() throws IOException, InterruptedException {
+        System.out.println("Testing: AnnotateCommand ConfigFile - empty config file");
+
+        try{ 
+        	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+            String configFilePath = "src/test/resources/treat/configtest/empty.config";
+
+            // execute command with config file option - default
+            CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+            assertEquals(out.stderr, 1, out.exit);
+        } catch(IllegalArgumentException ex) {
+        	assert true; //exceotion is thrown by TreatPipeline
+        }
+    }
+
+	/** invalid columns in the config file */
+    @Test
+    public void testAllInvalidColumns() throws IOException, InterruptedException {
+        System.out.println("Testing: AnnotateCommand ConfigFile - all invalid columns");
+
+        try{ 
+        	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+            String configFilePath = "src/test/resources/treat/configtest/all_invalid.config";
+
+            // execute command with config file option - default
+            CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+            assertEquals(out.stderr, 1, out.exit);
+        } catch(IllegalArgumentException ex) {        	
+        	assert true; //exception is thrown by TreatPipeline
+        }
+    }
     
-	private List<String> splitLines(String s) throws IOException
+	/** some invalid columns in the config file */
+    @Test
+    public void testSomeInvalidColumns() throws IOException, InterruptedException {
+        System.out.println("Testing: AnnotateCommand ConfigFile - some columns are invalid");
+
+        try{ 
+        	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+            String configFilePath = "src/test/resources/treat/configtest/some_invalid.config";
+
+            // execute command with config file option - default
+            CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+            assertEquals(out.stderr, 1, out.exit);
+        } catch(IllegalArgumentException ex) {
+        	assert true; //exception is thrown by TreatPipeline
+        }
+    }
+
+    private List<String> splitLines(String s) throws IOException
 	{
 		List<String> lines = new ArrayList<String>();
 		
