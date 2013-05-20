@@ -1,6 +1,7 @@
 package edu.mayo.bior.cli.func.remoteexec;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,6 +26,7 @@ import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.cli.func.BaseFunctionalTest;
+import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
@@ -63,101 +65,71 @@ public class AnnotateCommandConfigFileITCase extends RemoteFunctionalTest {
 	    public TemporaryFolder tFolder = new TemporaryFolder();     
 	    
 	    private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
-	    
-	    /** default config file is assumed to have all columns 
-	     * @throws IOException 
-	     * @throws AbnormalExitException 
-	     * @throws TimeoutException 
-	     * @throws BrokenBarrierException 
-	     * @throws InvalidDataException */
-	    //@Test
-	    public void testDefaultFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
-	    	System.out.println("Testing: AnnotateCommand ConfigFile - default");
-	    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-			String output = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
-			
-			String configFilePath = "src/test/resources/treat/configtest/default.config";
-			
-			try{
-			Pipe pipeline = new Pipeline(new CatPipe(), 
-										new HistoryInPipe(),
-										new TreatPipeline(configFilePath), 
-										new PrintPipe());
-			pipeline.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
-						
-			while(pipeline.hasNext()) {
-				System.out.println("in..");
-				pipeline.next();
-			}
-			}catch (Exception ex) {
-				ex.printStackTrace();
-			}
-			
-			//mPipeline.execute(new TreatPipeline(configFilePath));
-			
-			// execute command with config file option - default
-			//CommandOutput out = executeScript("bior_annotate", goldInput); //with 'config' option
-
-			//if (out.exit != 0) {
-			//	fail(out.stderr);
-			//}
-			
-			//List<String> expectedOutputLines = splitLines(output);
-			//List<String> actualOutputLines = splitLines(out.stdout); 
-						
-			//List<String> expectedOutputLines = splitLines(output);						
-			//List<String> actualOutputLines = splitLines(output);			
-			
-			// compare line-by-line
-			//assertEquals(expectedOutputLines.size(), actualOutputLines.size());
-			//for (int i=0; i < expectedOutputLines.size(); i++) {
-			//	assertEquals(expectedOutputLines.get(i), actualOutputLines.get(i));
-			//}    	
-	    }
-	    
 
 	    /** empty config file with no columns */
 	    //@Test
 	    public void testEmptyFile() throws IOException, InterruptedException {
 	    	System.out.println("Testing: AnnotateCommand ConfigFile - empty file");
-
-	    	// TODO what is the behaviour to test??
-	    	    		    	
-	    }
-
-	    /** All columns defined */
-	    //@Test
-	    public void testAllColumns() throws IOException, InterruptedException {
-	    	System.out.println("Testing: AnnotateCommand ConfigFile - all columns");
+	    	
 	    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-			String output = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/all_output.tsv"));
+			//String output = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+			
+			String configFilePath = "src/test/resources/treat/configtest/empty.config";
 			
 			// execute command with config file option - default
-			//CommandOutput out = executeScript("bior_annotate", goldInput); //with 'config' option
+	        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
 
-			//if (out.exit != 0) {
-			//	fail(out.stderr);
-			//}
-			
-			//List<String> expectedOutputLines = splitLines(output);
-			//List<String> actualOutputLines = splitLines(out.stdout); 
-						
-			List<String> expectedOutputLines = splitLines(output);						
-			List<String> actualOutputLines = splitLines(output);			
-			
-			// compare line-by-line
-			assertEquals(expectedOutputLines.size(), actualOutputLines.size());
-			for (int i=0; i < expectedOutputLines.size(); i++) {
-				assertEquals(expectedOutputLines.get(i), actualOutputLines.get(i));
-			}    	
+	        if (out.exit != 0) {
+	        	fail(out.stderr);
+	        }
+	        
+	        System.out.println(out.stderr);
+	        //assertEquals(out.stderr, 0, out.exit);
+	        //assertEquals("", out.stderr);	    	    		    	
 	    }
 
 	    /** Column names defined, but are invalid */
 	    //@Test
 	    public void testInvalidColumns() throws IOException, InterruptedException {
-	    	// TODO what is the behaviour to test??
+	    	System.out.println("Testing: AnnotateCommand ConfigFile - all invalid columns");
+	    	
+	    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+			
+			String configFilePath = "src/test/resources/treat/configtest/all_invalid.config";
+			
+			// execute command with config file option - default
+	        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+
+	        if (out.exit != 0) {
+	        	fail(out.stderr);
+	        }
+	        
+	        System.out.println(out.stderr);
+	        //assertEquals(out.stderr, 0, out.exit);
+	        //assertEquals("", out.stderr);	    
 	    }
 
+	    /** Column names defined, but are invalid */
+	    //@Test
+	    public void testSomeInvalidColumns() throws IOException, InterruptedException {
+	    	System.out.println("Testing: AnnotateCommand ConfigFile - some columns are invalid");
+	    	
+	    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+			
+			String configFilePath = "src/test/resources/treat/configtest/some_invalid.config";
+			
+			// execute command with config file option - default
+	        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+
+	        if (out.exit != 0) {
+	        	fail(out.stderr);
+	        }
+	        
+	        System.out.println(out.stderr);
+	        //assertEquals(out.stderr, 0, out.exit);
+	        //assertEquals("", out.stderr);	    
+	    }
+	    
 	    /** file with only a subset of columns defined, but has all columns of a datasource. 
 	     * In this case either all columns of a datasource exist or none */
 	    //@Test
@@ -212,7 +184,38 @@ public class AnnotateCommandConfigFileITCase extends RemoteFunctionalTest {
 				assertEquals(expectedOutputLines.get(i), actualOutputLines.get(i));
 			}    	
 	    }
+
 	    
+	    /** default config file is assumed to have all columns 
+	     * @throws IOException 
+	     * @throws AbnormalExitException 
+	     * @throws TimeoutException 
+	     * @throws BrokenBarrierException 
+	     * @throws InvalidDataException */
+	    //@Test
+	    public void testDefaultFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+	    	System.out.println("Testing: AnnotateCommand ConfigFile - default");
+	    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+			String output = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+			
+			String configFilePath = "src/test/resources/treat/configtest/default.config";
+			
+			try{
+			Pipe pipeline = new Pipeline(new CatPipe(), 
+										new HistoryInPipe(),
+										new TreatPipeline(configFilePath), 
+										new PrintPipe());
+			pipeline.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
+						
+			while(pipeline.hasNext()) {
+				System.out.println("in..");
+				pipeline.next();
+			}
+			}catch (Exception ex) {
+				ex.printStackTrace();
+			}
+	    }
+
 	    private List<String> splitLines(String s) throws IOException {
 			List<String> lines = new ArrayList<String>();
 			
