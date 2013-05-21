@@ -1,19 +1,18 @@
 package edu.mayo.bior.cli.func.remoteexec;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import com.tinkerpop.pipes.util.Pipeline;
@@ -32,207 +31,195 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
 /**
  * Functional tests for the BioR TREAT annotation module implementation.
  * 
- * @author duffp
+ * @author duffp, mmeiners
  *
  */
-public class TreatITCase extends RemoteFunctionalTest {
-	
+public class TreatITCase extends RemoteFunctionalTest
+{
 	@Test
-	public void testAnnotateCommandWithDefaultConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
-        System.out.println("Testing: AnnotateCommand With ConfigFile...");
-        String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-        String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
-
-        //String goldOutputHeader = "#CHROM       POS     ID      REF     ALT     QUAL    FILTER  INFO    rsID    dbSNP.SuspectRegion     dbSNP.ClinicalSig       dbSNP.DiseaseVariant    COSMIC.Mutation_ID      COSMIC.Mutation_CDS     COSMIC.Mutation_AA      COSMIC.strand   1000Genomes.ASN_AF      1000Genomes.AMR_AF      1000Genomes.AFR_AF      1000Genomes.EUR_AF      BGI200_Danish_MAF       ESP6500.EUR_MAF ESP6500.AFR_MAF HapMap.CEU_MAF  HapMap.YRI_MAF  HapMap.JPT_MAF  HapMap.CHB_MAF  Entrez.GeneID   Gene_Symbol     Approved_Gene_Name      Ensembl_Gene_ID OMIM.ID OMIM.Disease    miRBASE.ID      UCSC.BlacklistedRegion  UCSC.conservation       UCSC.regulation UCSC.tfbs       UCSC.tss        UCSC.enhancer   UCSC.Alignability/Uniqueness    UCSC.Repeat_Region      VEP.Allele      VEP.Gene        VEP.Feature     VEP.Consequence VEP.cDNA_position       VEP.CDS_position        VEP.Protein_position    VEP.Amino_acids VEP.Codons      VEP.HGNC        SIFT.TERM       SIFT.Score      PolyPhen.TERM   PolyPhen.Score  UniprotID       SNPEFF.Effect   SNPEFF.Effect_impact    SNPEFF.Functional_class SNPEFF.Codon_change     SNPEFF.Amino_acid_change        SNPEFF.Gene_name        SNPEFF.Gene_bioType     SNPEFF.Coding   SNPEFF.Transcript       SNPEFF.Exon";
-        //String[] expectedHeader = goldOutputHeader.split("\t");
-        String configFilePath = "src/test/resources/treat/configtest/all.config";
-
-        // execute command with config file option - default
-        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
-
-        if (out.exit != 0) {
-        	fail(out.stderr);
-        }
-
-        assertEquals(out.stderr, 0, out.exit);
-        assertEquals("", out.stderr);
-
-        List<String> expectedLines = splitLines(goldOutput);
-        String[] expectedHeader = expectedLines.get(0).split("\t");
-        
-        String header = getHeader(out.stdout);
-        String[] resultHeader = header.split("\t");
-       
-        assertEquals(String.format("# of columns did not match.", expectedHeader.length, resultHeader.length), expectedHeader.length, resultHeader.length);
-    }
-
-    @Test
-    public void testAnnotateCommandWithoutConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
-        System.out.println("Testing: AnnotateCommand Without ConfigFile...");
-        String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-        String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
-        
-        //String goldOutputHeader = "#CHROM       POS     ID      REF     ALT     QUAL    FILTER  INFO    rsID    dbSNP.SuspectRegion     dbSNP.ClinicalSig       dbSNP.DiseaseVariant    COSMIC.Mutation_ID      COSMIC.Mutation_CDS     COSMIC.Mutation_AA      COSMIC.strand   1000Genomes.ASN_AF      1000Genomes.AMR_AF      1000Genomes.AFR_AF      1000Genomes.EUR_AF      BGI200_Danish_MAF       ESP6500.EUR_MAF ESP6500.AFR_MAF HapMap.CEU_MAF  HapMap.YRI_MAF  HapMap.JPT_MAF  HapMap.CHB_MAF  Entrez.GeneID   Gene_Symbol     Approved_Gene_Name      Ensembl_Gene_ID OMIM.ID OMIM.Disease    miRBASE.ID      UCSC.BlacklistedRegion  UCSC.conservation       UCSC.regulation UCSC.tfbs       UCSC.tss        UCSC.enhancer   UCSC.Alignability/Uniqueness    UCSC.Repeat_Region      VEP.Allele      VEP.Gene        VEP.Feature     VEP.Consequence VEP.cDNA_position       VEP.CDS_position        VEP.Protein_position    VEP.Amino_acids VEP.Codons      VEP.HGNC        SIFT.TERM       SIFT.Score      PolyPhen.TERM   PolyPhen.Score  UniprotID       SNPEFF.Effect   SNPEFF.Effect_impact    SNPEFF.Functional_class SNPEFF.Codon_change     SNPEFF.Amino_acid_change        SNPEFF.Gene_name        SNPEFF.Gene_bioType     SNPEFF.Coding   SNPEFF.Transcript       SNPEFF.Exon";
-        //String[] expectedHeader = goldOutputHeader.split("\t");
-        
-        // execute command without config file option - default
-        CommandOutput out = executeScript("bior_annotate", goldInput); //without 'config' option
-
-        if (out.exit != 0) {
-        	fail(out.stderr);
-        }
-        
-        assertEquals(out.stderr, 0, out.exit);
-        assertEquals("", out.stderr);
-
-        List<String> expectedLines = splitLines(goldOutput);
-        String[] expectedHeader = expectedLines.get(0).split("\t");
-
-        String header = getHeader(out.stdout);
-        String[] resultHeader = header.split("\t");
-       
-        assertEquals(String.format("# of columns did not match.", expectedHeader.length, resultHeader.length), expectedHeader.length, resultHeader.length);
-    }
-
-	//@Test
-	public void treatPipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+	public void testPipeline_SubsetConfig() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testPipeline_SubsetConfig():");
+		System.out.println("Annotate pipeline with a subset config file...");
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe(),
-				new TreatPipeline(),//"src/test/resources/treat/configtest/subset.config"),
-				new HistoryOutPipe(),
-				new PrintPipe()
+				new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config"),
+				new HistoryOutPipe()
+				//new PrintPipe()
 				);
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
 		List<String> actual = PipeTestUtils.getResults(pipes);
+		List<String> expected = splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv")));
+		assertLinesEqual(expected, actual);
+		System.out.println("<<<<<----------- Test passed -----");
 	}
 
 	@Test
-	public void gold() throws IOException, InterruptedException
+	public void testPipeline_subsetWithDependencies() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
 	{
-		String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String goldOutput = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
-		
-		CommandOutput out = executeScript("bior_annotate", goldInput, "--log");
-
-		// check that command completed successfully
-		if (out.exit != 0)
-		{
-			fail(out.stderr);
-		}
-		
-		List<String> expectedLines = splitLines(goldOutput);
-		List<String> actualLines = splitLines(out.stdout);
-
-		// check number of rows
-		assertEquals(
-			String.format("# of rows did not match.", expectedLines.size(), actualLines.size()), 
-			expectedLines.size(),
-			actualLines.size());
-		
-		for (int i=0; i < expectedLines.size(); i++)
-		{
-			final int lineNum = i + 1;
-			
-			String expectedLine = expectedLines.get(i);
-			String actualLine   = actualLines.get(i);
-			
-			String[] expectedCols = expectedLine.split("\t");
-			String[] actualCols   = actualLine.split("\t");
-			
-			// check number of columns
-			assertEquals(
-				String.format("# of columns did not match for line %s.", expectedCols.length, actualCols.length), 
-				expectedCols.length,
-				actualCols.length);
-			
-			// compare column-by-column
-			for (int col=0; col < expectedCols.length; col++)
-			{
-				final int colNum = col + 1;
-				
-				String expectedVal = expectedCols[col];
-				String actualVal   = actualCols[col]; 
-				
-				// compare ONLY if the value is not "*"
-				if (expectedVal.equals("*") == false)
-				{
-					// compare column values
-					assertEquals(
-						String.format(
-								"Values did not match for line %s, column %s.\n" + "expected line: %s\n" + "actual line: %s\n",
-								lineNum, colNum, expectedLine, actualLine),
-						expectedVal,
-						actualVal);
-				}
-			}
-		}
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testPipeline_subsetWithDependencies():");
+		System.out.println("Annotate pipeline with columns that have dependencies on other data sources (and are in a different order in the config file vs what bior_annotate expects)...");
+		Pipeline pipes = new Pipeline(
+				new CatPipe(),
+				new HistoryInPipe(),
+				new TreatPipeline("src/test/resources/treat/configtest/subset.config"),
+				new HistoryOutPipe()
+				//new PrintPipe()
+				);
+		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
+		List<String> actual = PipeTestUtils.getResults(pipes);
+		List<String> expected = splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv")));
+		assertLinesEqual(expected, actual);
+		System.out.println("<<<<<----------- Test passed -----");
 	}
 	
-	/** empty config file with no columns */
-    @Test
-    public void testEmptyFile() throws IOException, InterruptedException {
-        System.out.println("Testing: AnnotateCommand ConfigFile - empty config file");
 
-        try{ 
-        	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-            String configFilePath = "src/test/resources/treat/configtest/empty.config";
+	@Test
+    public void testCmd_WithAllConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testCmd_WithAllConfigFile():");
+		System.out.println("AnnotateCommand With ConfigFile...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+		
+		String configFilePath = "src/test/resources/treat/configtest/all.config";
+		
+		// execute command with config file option - default
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
 
-            // execute command with config file option - default
-            CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
-            assertEquals(out.stderr, 1, out.exit);
-        } catch(IllegalArgumentException ex) {
-        	assert true; //exceotion is thrown by TreatPipeline
-        }
+		FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
+
+		if (out.exit != 0)
+			fail(out.stderr);
+
+		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		//assertMatch(splitLines(expected), splitLines(out.stdout));
+		System.out.println("<<<<<----------- Test passed -----");
     }
-
-	/** invalid columns in the config file */
+	
     @Test
-    public void testAllInvalidColumns() throws IOException, InterruptedException {
-        System.out.println("Testing: AnnotateCommand ConfigFile - all invalid columns");
+    public void testCmd_NoConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testCmd_NoConfigFile():");
+		System.out.println("AnnotateCommand Without ConfigFile...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+		
+		// execute command with config file option - default
+		CommandOutput out = executeScript("bior_annotate", goldInput); //with 'config' option
 
-        try{ 
-        	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-            String configFilePath = "src/test/resources/treat/configtest/all_invalid.config";
-
-            // execute command with config file option - default
-            CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
-            assertEquals(out.stderr, 1, out.exit);
-        } catch(IllegalArgumentException ex) {        	
-        	assert true; //exception is thrown by TreatPipeline
-        }
+		if (out.exit != 0)
+			fail(out.stderr);
+		
+		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		System.out.println("<<<<<----------- Test passed -----");
     }
     
-	/** some invalid columns in the config file */
+	/** empty config file with no columns - expect an error message*/
     @Test
-    public void testSomeInvalidColumns() throws IOException, InterruptedException {
-        System.out.println("Testing: AnnotateCommand ConfigFile - some columns are invalid");
+    public void testEmptyConfigFile() throws IOException, InterruptedException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+        System.out.println("Testing: testEmptyConfigFile(): AnnotateCommand ConfigFile - empty config file");
 
-        try{ 
-        	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-            String configFilePath = "src/test/resources/treat/configtest/some_invalid.config";
+        String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+        String configFilePath = "src/test/resources/treat/configtest/empty.config";
 
-            // execute command with config file option - default
-            CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
-            assertEquals(out.stderr, 1, out.exit);
-        } catch(IllegalArgumentException ex) {
-        	assert true; //exception is thrown by TreatPipeline
-        }
+        // execute command with config file option - default
+        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+        assertEquals(out.stderr, 1, out.exit);
+        assertTrue(out.stderr.contains("config file does not contain any output columns"));
+		System.out.println("<<<<<----------- Test passed -----");
     }
 
-    private List<String> splitLines(String s) throws IOException
-	{
-		List<String> lines = new ArrayList<String>();
-		
-		BufferedReader br = new BufferedReader(new StringReader(s));
-		String line = br.readLine();
-		while (line != null)
-		{
-			lines.add(line);
-			line = br.readLine();
-		}
-		br.close();
-		
-		return lines;
+	/** invalid columns in the config file  - expect an error message */
+    @Test
+    public void testAllInvalidColumns() throws IOException, InterruptedException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+        System.out.println("Testing: testAllInvalidColumns(): AnnotateCommand ConfigFile - all invalid columns");
+
+        String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+        String configFilePath = "src/test/resources/treat/configtest/all_invalid.config";
+
+        // execute command with config file option - default
+        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+        assertEquals(out.stderr, 1, out.exit);
+        assertTrue(out.stderr.contains("these columns specified in the config file are not recognized"));
+		System.out.println("<<<<<----------- Test passed -----");
+    }
+    
+	/** some invalid columns in the config file - expect an error message */
+    @Test
+    public void testSomeInvalidColumns() throws IOException, InterruptedException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+        System.out.println("Testing: testSomeInvalidColumns(): AnnotateCommand ConfigFile - some columns are invalid");
+
+        String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+        String configFilePath = "src/test/resources/treat/configtest/some_invalid.config";
+
+        // execute command with config file option - default
+        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+        assertEquals(out.stderr, 1, out.exit);
+        assertTrue(out.stderr.contains("these columns specified in the config file are not recognized"));
+		System.out.println("<<<<<----------- Test passed -----");
+    }
+    
+    @Test
+    public void testSplit() throws IOException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testSplit():");
+    	String str = "line1\nline2\r\nline3\nline4";
+    	List<String> expected = Arrays.asList("line1", "line2", "line3", "line4");
+    	assertEquals(expected, splitLines(str));
+		System.out.println("<<<<<----------- Test passed -----");
+    }
+    
+	private List<String> splitLines(String s) throws IOException {
+		return Arrays.asList(s.split("\r\n|\n|\r"));
 	}	
+	
+	/** Compare all lines and columns.
+	 * If there are '*' characters in the expected output, then don't compare these */
+	private void assertLinesEqual(List<String> expected, List<String> actual) {
+		int numDiffs = 0;
+		System.out.println("# Lines: (expected: " + expected.size() + ", actual: " + actual.size() + ")");
+		for(int i=0; i < Math.max(expected.size(), actual.size()); i++) {
+			String lineExpect = expected.size() >= i ? expected.get(i) : "";
+			String lineActual = actual.size()   >= i ? actual.get(i)   : "";
+			if(! lineExpect.equals(lineActual))
+				numDiffs++;
+			else
+				continue;
+			
+			int maxCols = Math.max(lineExpect.split("\t").length, lineActual.split("\t").length);
+			String[] expectCols = lineExpect.split("\t", maxCols);
+			String[] actualCols = lineActual.split("\t", maxCols);
+			System.out.println("--- Line " + (i+1) + " - Diff ---");
+			StringBuilder expectedStr = new StringBuilder("Expected: ");
+			StringBuilder actualStr   = new StringBuilder("Actual:   ");
+			StringBuilder diffStr     = new StringBuilder("Diff:     ");
+			for(int j = 0; j < maxCols; j++) {
+				String expCol = expectCols.length > j ? expectCols[j] : "";
+				String actCol = actualCols.length > j ? actualCols[j] : "";
+				String delim = j < maxCols-1 ? "\t" : "";
+				expectedStr.append(expCol + delim);
+				actualStr.append(  actCol + delim);
+				int maxLen = Math.max(expCol.length(), actCol.length());
+				int numDelims = (maxLen / 8) + 1;
+				boolean isEqual = "*".equals(expCol) || expCol.equals(actCol);
+				diffStr.append( isEqual ? StringUtils.repeat("\t", numDelims) : StringUtils.repeat("^", maxLen)+"\t" );
+			}
+			System.out.println(expectedStr);
+			System.out.println(actualStr);
+			System.out.println(diffStr);
+			System.out.println("Actl/tab: " + lineActual);
+		}
+		if(numDiffs == 0)
+			System.out.println("  (All lines are the same)");
+		else
+			System.out.println("  (# of lines different: " + numDiffs + ")");
+		assertEquals(0, numDiffs);
+	}
+	
 }
