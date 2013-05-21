@@ -254,8 +254,11 @@ public class TreatPipeline extends Pipeline<History, History>
 		if(configFileCols == null)
 			return;  // No config file specified - OK
 		
-		if(configFileCols.size() == 0)
-			throw new IllegalArgumentException("Error: The config file does not contain any output columns.  Please add some columns to output.  Or, to add all columns, do not add the config file option.");
+		if(configFileCols.size() == 0) {
+			final String MSG = "Error: The config file does not contain any output columns.  Please add some columns to output.  Or, to add all columns, do not add the config file option.";
+			System.err.println(MSG);
+			throw new IllegalArgumentException();
+		}
 
 		List<String> allCols = FormatterPipeFunction.getAllPossibleColumns();
 		StringBuffer errMsg = new StringBuffer();
@@ -265,6 +268,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		}
 		if(errMsg.length() > 0) {
 			errMsg.insert(0, "Error: these columns specified in the config file are not recognized:\n");
+			System.err.println(errMsg.toString());
 			throw new IllegalArgumentException(errMsg.toString());
 		}
 	}
