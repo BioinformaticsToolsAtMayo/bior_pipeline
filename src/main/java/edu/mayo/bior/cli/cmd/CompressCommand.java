@@ -9,12 +9,16 @@ import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.pipes.history.CompressPipe;
 import edu.mayo.pipes.util.FieldSpecification;
+import edu.mayo.pipes.util.FieldSpecification.FieldDirection;
 
 public class CompressCommand implements CommandPlugin
 {
 	private static final String DEFAULT_SEPARATOR = "|";
+	private static final String DEFAULT_ESCAPE_SEPARATOR = "\\|";	
 
 	private static final char OPTION_SEPARATOR = 's';	
+	private static final char OPTION_ESCAPE    = 'e';	
+	private static final char OPTION_REVERSE   = 'r';	
 		
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
@@ -26,7 +30,17 @@ public class CompressCommand implements CommandPlugin
 	{
 		// get COLUMNS argument
 		String fieldSpecStr = line.getArgs()[0];
-		FieldSpecification fieldSpec = new FieldSpecification(fieldSpecStr);
+		
+		FieldDirection direction;
+		if (line.hasOption(OPTION_REVERSE))
+		{
+			direction = FieldDirection.RIGHT_TO_LEFT;
+		}
+		else
+		{
+			direction = FieldDirection.LEFT_TO_RIGHT;
+		}		
+		FieldSpecification fieldSpec = new FieldSpecification(fieldSpecStr, direction);
 		
 		// grab from option flag
 		String delimiter = DEFAULT_SEPARATOR;
@@ -35,7 +49,13 @@ public class CompressCommand implements CommandPlugin
 			delimiter = line.getOptionValue(OPTION_SEPARATOR);
 		}
 		
-		CompressPipe pipe = new CompressPipe(fieldSpec, delimiter);;
+		String escapeDelimiter = DEFAULT_ESCAPE_SEPARATOR;
+		if (line.hasOption(OPTION_ESCAPE))
+		{
+			escapeDelimiter = line.getOptionValue(OPTION_ESCAPE);
+		}
+
+		CompressPipe pipe = new CompressPipe(fieldSpec, delimiter, escapeDelimiter);
 		 
 		
 		mPipeline.execute(pipe);		

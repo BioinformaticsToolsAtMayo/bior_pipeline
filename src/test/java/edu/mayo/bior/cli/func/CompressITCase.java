@@ -54,5 +54,50 @@ public class CompressITCase extends BaseFunctionalTest
 		assertEquals("", out.stderr);
 
 		assertEquals(expected, out.stdout);
+	}
+	
+	@Test
+	public void testEscape() throws IOException, InterruptedException {
+		
+		// have JSON for STDIN
+		String stdin = 
+				"#COL1\tCOL2\n" +
+				"dataA\t1,A\n" +
+				"dataA\t2,B\n" +
+				"dataA\t3,C\n";
+		String expected = 
+				"#COL1\tCOL2\n" +
+				"dataA\t1#A,2#B,3#C\n";
+		
+		CommandOutput out = executeScript("bior_compress", stdin,"--separator", ",", "--escape", "#", "2");
+
+		assertEquals(out.stderr, 0, out.exit);
+		assertEquals("", out.stderr);
+
+		assertEquals(expected, out.stdout);
+	}
+	
+	@Test
+	public void testReverse() throws IOException, InterruptedException {
+		
+		// have JSON for STDIN
+		String stdin = 
+				"#COL1\tCOL2\n" +
+				"dataA\t1\n" +
+				"dataA\t2\n" +
+				"dataB\t3\n";
+		String expected = 
+				"#COL1\tCOL2\n" +
+				"dataA\t1|2\n" +
+				"dataB\t3\n";
+		
+		// pick field 1 (RIGHT_TO_LEFT), so that's actually the 2nd column as the compress column
+		CommandOutput out = executeScript("bior_compress", stdin, "--reverse", "1");
+
+		assertEquals(out.stderr, 0, out.exit);
+		assertEquals("", out.stderr);
+
+		assertEquals(expected, out.stdout);
 	}	
+	
 }
