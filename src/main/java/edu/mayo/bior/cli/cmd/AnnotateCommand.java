@@ -60,11 +60,11 @@ public class AnnotateCommand implements CommandPlugin {
 		 		
 		try {
 			mPipeline.execute(new TreatPipeline(configFilePath));
-		} catch(Exception ex) {
+		} catch(IllegalArgumentException ex) {
 			throw new InvalidOptionArgValueException(
 					opts.getOption(OPTION_CONFIG_FILE + ""),
 					configFilePath, 
-					ex.getMessage()
+					""
 					);
 		}
 	}
