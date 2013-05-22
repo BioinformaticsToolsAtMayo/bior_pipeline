@@ -64,7 +64,7 @@ public class AnnotateCommand implements CommandPlugin {
 			throw new InvalidOptionArgValueException(
 					opts.getOption(OPTION_CONFIG_FILE + ""),
 					configFilePath, 
-					""
+					ex.getMessage()
 					);
 		}
 	}
