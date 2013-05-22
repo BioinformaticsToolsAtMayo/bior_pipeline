@@ -5,7 +5,7 @@ chr5	112162854	rs2229992	T	C	99	.	.	rs2229992	unspecified	other	1	0.6
 chr1	9323910	rs6688832	G	A	99	.	.	rs6688832	unspecified	unknown	1	0.25
 chr5	89979589	rs4916684	G	A	99	.	.	rs4916684	unspecified	untested	0	0.68
 chr1	762273	rs3115849	G	A	99	.	.	rs3115849	unspecified	.	0	0.84
-chr1	12907370	rs2076063	A	T	99	.	.	rs2076063|rs2076063	Paralog|Paralog	.|.	0|0	0.02|.
+chr1	12907370	rs2076063	A	T	99	.	.	rs2076063	Paralog	.	0	0.02|.
 chr12	88890671	rs995030	A	G	6.02	.	.	rs995030	unspecified	.	0	0.81
 chr1	876499	rs4372192	A	G	66.21	.	.	rs4372192	unspecified	.	0	0.95
 chr11	1017069	rs80333708	G	A	99	.	.	rs80333708	unspecified	.	0	.
@@ -16,11 +16,11 @@ chr1	1027070	rs11260590	G	A	65.56	.	.	rs11260590	unspecified	.	0	0.1
 chr21	10793906	rs146787155	G	C	99	.	.	rs146787155	unspecified	.	0	.
 chr1	12251808	rs653667	T	G	60.19	.	.	rs653667	unspecified	.	0	0.36
 chr2	207647981	rs2241347	C	T	6.02	.	.	rs2241347	unspecified	.	0	0.19
-chr1	171076966	rs2266782	G	A	99	.	.	rs2266782	unspecified	255|5	1	0.38
+chr1	171076966	rs2266782	G	A	99	.	.	rs2266782	unspecified	255\|5	1	0.38
 chr5	140725523	rs112486508	C	T	99	.	.	rs112486508	unspecified	untested	0	0.04
 chr1	989423	-	G	A	63.25	.	.	.	.	.	0	.
 chr1	935459	rs3128113	A	G	75.41	.	.	rs3128113	unspecified	.	0	0.78
 chr1	877831	rs6672356	T	C	60.18	.	.	rs6672356	unspecified	.	0	0.99
 chr1	26608828	rs1134584	G	A	99	.	.	rs1134584	unspecified	.	0	0.49
-chr1	873558	rs1110052	G	T	.	.	.	rs1110052|rs1110052	unspecified|unspecified	.|.	0|0	0.01|0.69
+chr1	873558	rs1110052	G	T	.	.	.	rs1110052	unspecified	.	0	0.01|0.69
 chr1	564458	rs77440582	G	C	.	.	.	rs77440582	unspecified	.	0	.
