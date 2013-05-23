@@ -41,7 +41,7 @@ public class AnnotateCommand implements CommandPlugin {
 																BrokenBarrierException, TimeoutException, AbnormalExitException, 
 																InvalidOptionArgValueException, InvalidDataException{
 			
-		String configFilePath; 
+		String configFilePath=null; 
 		
 		if (line.hasOption(OPTION_CONFIG_FILE)) {
 			
@@ -54,9 +54,7 @@ public class AnnotateCommand implements CommandPlugin {
 						"The Config file path '" + configFilePath + "' does not exist. Please specify a valid config file path."
 						);
 			}	
-		} else { // config file option not specified. This should use the 'default' config file.
-			configFilePath = "src/main/resources/default.config";
-		}
+		} 
 		 		
 		try {
 			mPipeline.execute(new TreatPipeline(configFilePath));
