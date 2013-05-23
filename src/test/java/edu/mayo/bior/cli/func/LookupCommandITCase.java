@@ -5,9 +5,16 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
 import org.junit.Test;
 
 import com.jayway.jsonpath.JsonPath;
+
+import edu.mayo.bior.cli.cmd.LookupCommand;
+import edu.mayo.cli.InvalidDataException;
+import edu.mayo.cli.InvalidOptionArgValueException;
 
 public class LookupCommandITCase extends BaseFunctionalTest {
 
@@ -38,10 +45,8 @@ public class LookupCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void testMatchCaseInsensitive() throws IOException, InterruptedException {
-		String stdin = "src/test/resources/genes.tsv.bgz";
-
-	    String inputLine = "Parp4p1"; //"PARP4P1";
-	    CommandOutput out = executeScript("bior_lookup", inputLine, "-p", "gene", "-d", stdin);
+	    String inputLine = "Parp4p1"; // Actual name is: "PARP4P1";
+	    CommandOutput out = executeScript("bior_lookup", inputLine, "-p", "gene", "-d", "src/test/resources/genes.tsv.bgz" );
         assertEquals(out.stderr, 0, out.exit);
         assertEquals("", out.stderr);
 
@@ -55,7 +60,27 @@ public class LookupCommandITCase extends BaseFunctionalTest {
 	    
 	    assertEquals("PARP4P1", JsonPath.compile("gene").read(json));	    
 	}
+	
+	@Test
+	public void testMatchCaseSensitive() throws IOException, InterruptedException {
+		String stdin = "src/test/resources/genes.tsv.bgz";
 
+	    String inputLine = "C1ORF159"; // Actual name is: "C1orf159";
+	    CommandOutput out = executeScript("bior_lookup", inputLine, "-p", "gene", "-d", stdin, "-s");
+        assertEquals(out.stderr, 0, out.exit);
+        assertEquals("", out.stderr);
+
+        String header = getHeader(out.stdout);
+
+        // pull out just data rows
+	    String data = out.stdout.replace(header, "");
+	    String[] cols = data.split("\t");
+
+	    String json = cols[cols.length - 1].trim();
+	    
+	    // Should NOT be found since the case didn't match that in the database
+	    assertEquals("{}", json);
+	}
 	
 	@Test
 	public void testNoMatch() throws IOException, InterruptedException {
@@ -74,7 +99,10 @@ public class LookupCommandITCase extends BaseFunctionalTest {
 	    String[] cols = data.split("\t");
 
 	    assertEquals("{}", cols[4].trim());
+	    
+	    
 	}
+	
 	
 	@Test
 	public void testInvalidInput() throws IOException, InterruptedException {

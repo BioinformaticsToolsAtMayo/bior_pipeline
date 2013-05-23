@@ -161,16 +161,16 @@ public class TreatPipeline extends Pipeline<History, History>
 		}
 		if(isNeedPipe(new BgiFormatter())) {
 			// allele frequency annotation
-			order.add(JsonColumn.BGI);				pipes.add(new OverlapPipe(getFile(Key.bgiFile),          	1-order.size()));
+			order.add(JsonColumn.BGI);				pipes.add(new SameVariantPipe(getFile(Key.bgiFile),        	1-order.size()));
 		}
 		if(isNeedPipe(new EspFormatter())) {
-			order.add(JsonColumn.ESP);				pipes.add(new OverlapPipe(getFile(Key.espFile),          	1-order.size()));
+			order.add(JsonColumn.ESP);				pipes.add(new SameVariantPipe(getFile(Key.espFile),        	1-order.size()));
 		}
 		if(isNeedPipe(new HapmapFormatter())) {
-			order.add(JsonColumn.HAPMAP);			pipes.add(new OverlapPipe(getFile(Key.hapMapFile),       	1-order.size()));
+			order.add(JsonColumn.HAPMAP);			pipes.add(new SameVariantPipe(getFile(Key.hapMapFile),     	1-order.size()));
 		}
 		if(isNeedPipe(new ThousandGenomesFormatter())) {
-			order.add(JsonColumn.THOUSAND_GENOMES);	pipes.add(new OverlapPipe(getFile(Key.kGenomeFile),      	1-order.size()));
+			order.add(JsonColumn.THOUSAND_GENOMES);	pipes.add(new SameVariantPipe(getFile(Key.kGenomeFile),    	1-order.size()));
 		}
 		if(isNeedPipe(new NcbiGeneFormatter())) {
 			// annotation requiring walking X-REFs
@@ -188,11 +188,11 @@ public class TreatPipeline extends Pipeline<History, History>
 		}
 		
 		FormatterPipeFunction formatterPipe = new FormatterPipeFunction(order, mConfigColumnsToOutput);
-		/* transform JSON cols into final output */			pipes.add(new TransformFunctionPipe(formatterPipe));
+		/* transform JSON cols into final output */	pipes.add(new TransformFunctionPipe(formatterPipe));
 
 		/* specify final output cols to compress */	
 		FieldSpecification fSpec = new FieldSpecification(formatterPipe.getColumnsAdded().size() + "-", FieldDirection.RIGHT_TO_LEFT);
-		/* compress to have 1-to-1 */						pipes.add(new CompressPipe(fSpec, "|"));
+		/* compress to have 1-to-1 */				pipes.add(new CompressPipe(fSpec, "|"));
 
 		this.setPipes(pipes);		
 	}
@@ -256,7 +256,6 @@ public class TreatPipeline extends Pipeline<History, History>
 		
 		if(configFileCols.size() == 0) {
 			final String MSG = "Error: The config file does not contain any output columns.  Please add some columns to output.  Or, to add all columns, do not add the config file option.";
-			//System.err.println(MSG);
 			throw new IllegalArgumentException(MSG);
 		}
 
@@ -268,7 +267,6 @@ public class TreatPipeline extends Pipeline<History, History>
 		}
 		if(errMsg.length() > 0) {
 			errMsg.insert(0, "Error: these columns specified in the config file are not recognized:\n");
-			//System.err.println(errMsg.toString());
 			throw new IllegalArgumentException(errMsg.toString());
 		}
 	}

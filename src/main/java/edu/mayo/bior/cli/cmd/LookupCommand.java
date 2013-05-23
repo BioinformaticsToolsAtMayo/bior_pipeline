@@ -22,6 +22,7 @@ public class LookupCommand implements CommandPlugin {
 	// If not, then the last column is used)
 	private static final char OPTION_KEY = 'p';
 	private static final char OPTION_CATALOG_FILE = 'd';
+	private static final char OPTION_CASE_SENSITIVE = 's';
 	
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
@@ -86,7 +87,9 @@ public class LookupCommand implements CommandPlugin {
         	column = new Integer(line.getOptionValue(OPTION_DRILL_COLUMN));
         }
 
-        LookupPipe pipe = new LookupPipe(catalogFilePath, indexFilePath, column);
+        boolean isCaseSensitive = line.hasOption(OPTION_CASE_SENSITIVE);
+
+        LookupPipe pipe = new LookupPipe(catalogFilePath, indexFilePath, column, isCaseSensitive);
 		
 		mPipeline.execute(pipe);		
 	}

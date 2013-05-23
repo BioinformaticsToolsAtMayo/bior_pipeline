@@ -47,11 +47,11 @@ public class AnnotateCommand implements CommandPlugin {
 			
 			configFilePath = line.getOptionValue(OPTION_CONFIG_FILE);
 			
-			if ( ! new File(configFilePath).exists() ) {	
+			if ( ! new File(configFilePath).exists()  ||  new File(configFilePath).length() == 0 ) {	
 				throw new InvalidOptionArgValueException(
 						opts.getOption(OPTION_CONFIG_FILE + ""),
 						configFilePath, 
-						"The Config file path '" + configFilePath + "' does not exist. Please specify a valid config file path."
+						"The Config file path '" + configFilePath + "' does not exist (or is empty). Please specify a valid config file path."
 						);
 			}	
 		} 

@@ -76,7 +76,7 @@ public class TreatITCase extends RemoteFunctionalTest
 	}
 	
 
-	//@Test
+	@Test
     public void testCmd_WithAllConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testCmd_WithAllConfigFile():");
@@ -99,7 +99,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("<<<<<----------- Test passed -----");
     }
 	
-    //@Test
+    @Test
     public void testCmd_NoConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testCmd_NoConfigFile():");
@@ -129,7 +129,7 @@ public class TreatITCase extends RemoteFunctionalTest
         // execute command with config file option - default
         CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
         assertEquals(out.stderr, 1, out.exit);
-        assertTrue(out.stderr.contains("config file does not contain any output columns"));
+        assertTrue(out.stderr.contains("does not exist (or is empty). Please specify a valid config file path."));
 		System.out.println("<<<<<----------- Test passed -----");
     }
 
@@ -145,7 +145,7 @@ public class TreatITCase extends RemoteFunctionalTest
         // execute command with config file option - default
         CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
         assertEquals(out.stderr, 1, out.exit);
-        assertTrue(out.stderr.contains("these columns specified in the config file are not recognized"));
+        assertTrue(out.stderr.contains("these columns specified in the config file are not recognized:\n    INVALID1\n    INVALID2\n    INVALID3"));
 		System.out.println("<<<<<----------- Test passed -----");
     }
     
@@ -161,7 +161,7 @@ public class TreatITCase extends RemoteFunctionalTest
         // execute command with config file option - default
         CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
         assertEquals(out.stderr, 1, out.exit);
-        assertTrue(out.stderr.contains("these columns specified in the config file are not recognized"));
+        assertTrue(out.stderr.contains("these columns specified in the config file are not recognized:\n    INVALID1\n    INVALID2"));
 		System.out.println("<<<<<----------- Test passed -----");
     }
     
@@ -212,14 +212,17 @@ public class TreatITCase extends RemoteFunctionalTest
 			}
 			System.out.println(expectedStr);
 			System.out.println(actualStr);
-			System.out.println(diffStr);
 			System.out.println("Actl/tab: " + lineActual);
+			System.out.println(diffStr);
 		}
 		if(numDiffs == 0)
 			System.out.println("  (All lines are the same)");
 		else
 			System.out.println("  (# of lines different: " + numDiffs + ")");
-		assertEquals(0, numDiffs);
+		
+		assertEquals("Number of differences between actual and expected (out of " 
+			+ Math.max(expected.size(), actual.size()) + ")  ",
+			0, numDiffs);
 	}
 	
 }
