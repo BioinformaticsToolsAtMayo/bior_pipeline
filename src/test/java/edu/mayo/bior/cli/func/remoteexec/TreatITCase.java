@@ -76,7 +76,7 @@ public class TreatITCase extends RemoteFunctionalTest
 	}
 	
 
-	@Test
+	//@Test
     public void testCmd_WithAllConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testCmd_WithAllConfigFile():");
@@ -99,7 +99,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("<<<<<----------- Test passed -----");
     }
 	
-    @Test
+    //@Test
     public void testCmd_NoConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testCmd_NoConfigFile():");
