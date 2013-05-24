@@ -84,6 +84,32 @@ public class VEPITCase extends RemoteFunctionalTest {
 		System.out.println("VEPITCase.vepExeOnlyPipe() - Total runtime: " + (end-start)/1000.0);
 	}
 	
+	@Test
+	public void singleLine() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+		System.out.println("-----------------------------------------");
+		System.out.println("VEPITCase.singleLine()");
+		
+		VEPPipeline vepPipe = new VEPPipeline(null, false);
+		Pipeline pipe = new Pipeline( new HistoryInPipe(), vepPipe, new HistoryOutPipe() );
+		pipe.setStarts(  Arrays.asList(
+				"##fileformat=VCFv4.0",
+				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO",
+				"21	26960070	rs116645811	G	A	.	.	." ));
+		List<String> actual = PipeTestUtils.getResults(pipe);
+		// Expected from: CSQ=A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||LINC00515|4432|||,A|ENSG00000154719|ENST00000352957|Transcript|intron_variant|||||||MRPL39||||,A|ENSG00000154719|ENST00000307301|Transcript|missense_variant|1043|1001|334|T/M|aCg/aTg||MRPL39||tolerated(0.05)|benign(0.001)|
+		List<String> expected = Arrays.asList(
+				"##fileformat=VCFv4.0",
+				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	VEP",
+				"21	26960070	rs116645811	G	A	.	.	.	{\"Allele\":\"A\",\"Gene\":\"ENSG00000154719\",\"Feature\":\"ENST00000307301\",\"Feature_type\":\"Transcript\",\"Consequence\":\"missense_variant\",\"cDNA_position\":\"1043\",\"CDS_position\":\"1001\",\"Protein_position\":\"334\",\"Amino_acids\":\"T/M\",\"Codons\":\"aCg/aTg\",\"HGNC\":\"MRPL39\",\"SIFT\":\"tolerated(0.05)\",\"PolyPhen\":\"benign(0.001)\",\"SIFT_TERM\":\"tolerated\",\"SIFT_Score\":0.05,\"PolyPhen_TERM\":\"benign\",\"PolyPhen_Score\":0.001}"
+				);
+				
+		vepPipe.terminate();
+
+		printComparison(pipe, expected, actual);
+		
+		PipeTestUtils.assertListsEqual(expected, actual);
+
+	}
 	
 	@Test
 	public void pipelineFanout() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
