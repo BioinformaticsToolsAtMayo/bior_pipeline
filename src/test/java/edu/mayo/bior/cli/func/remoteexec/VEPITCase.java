@@ -100,9 +100,15 @@ public class VEPITCase extends RemoteFunctionalTest {
 		List<String> expected = Arrays.asList(
 				"##fileformat=VCFv4.0",
 				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	VEP",
-				"21	26960070	rs116645811	G	A	.	.	.	{\"Allele\":\"A\",\"Gene\":\"ENSG00000154719\",\"Feature\":\"ENST00000307301\",\"Feature_type\":\"Transcript\",\"Consequence\":\"missense_variant\",\"cDNA_position\":\"1043\",\"CDS_position\":\"1001\",\"Protein_position\":\"334\",\"Amino_acids\":\"T/M\",\"Codons\":\"aCg/aTg\",\"HGNC\":\"MRPL39\",\"SIFT\":\"tolerated(0.05)\",\"PolyPhen\":\"benign(0.001)\",\"SIFT_TERM\":\"tolerated\",\"SIFT_Score\":0.05,\"PolyPhen_TERM\":\"benign\",\"PolyPhen_Score\":0.001}"
+				"21	26960070	rs116645811	G	A	.	.	.	" 
+					+ "[{\"Allele\":\"A\",\"Gene\":\"ENSG00000248333\",\"Feature\":\"ENST00000317673\",\"Feature_type\":\"Transcript\",\"Consequence\":\"intron_variant\",\"HGNC\":\"CDK11B\"},"
+					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000248333\",\"Feature\":\"ENST00000341028\",\"Feature_type\":\"Transcript\",\"Consequence\":\"intron_variant\",\"HGNC\":\"CDK11B\"},"
+					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000248333\",\"Feature\":\"ENST00000407249\",\"Feature_type\":\"Transcript\",\"Consequence\":\"intron_variant\",\"HGNC\":\"CDK11B\"},"
+					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000189339\",\"Feature\":\"ENST00000234800\",\"Feature_type\":\"Transcript\",\"Consequence\":\"downstream_gene_variant\",\"HGNC\":\"SLC35E2B\",\"DISTANCE\":\"4223\"},"
+					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000189339\",\"Feature\":\"ENST00000378662\",\"Feature_type\":\"Transcript\",\"Consequence\":\"downstream_gene_variant\",\"HGNC\":\"SLC35E2B\",\"DISTANCE\":\"4222\"},"
+					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000248333\",\"Feature\":\"ENST00000340677\",\"Feature_type\":\"Transcript\",\"Consequence\":\"intron_variant\",\"HGNC\":\"CDK11B\"},"
+					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000248333\",\"Feature\":\"ENST00000341832\",\"Feature_type\":\"Transcript\",\"Consequence\":\"upstream_gene_variant\",\"HGNC\":\"CDK11B\",\"DISTANCE\":\"3\"}]"
 				);
-				
 		vepPipe.terminate();
 
 		printComparison(pipe, expected, actual);
