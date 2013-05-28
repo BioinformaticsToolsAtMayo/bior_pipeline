@@ -190,13 +190,15 @@ public abstract class BaseFunctionalTest {
 			// STDERR [script process] ---> local byte array
 			ByteArrayOutputStream stderrData = new ByteArrayOutputStream();
 			StreamConnector stderrConnector = new StreamConnector(p.getErrorStream(), stderrData, 1024);
-			new Thread(stderrConnector).start();
+			Thread stderrThread = new Thread(stderrConnector);
+			stderrThread.start();
 	
 			// connect STDOUT from script process and store in local memory
 			// STDOUT [script process] ---> local byte array
 			ByteArrayOutputStream stdoutData = new ByteArrayOutputStream();		
 			StreamConnector stdoutConnector = new StreamConnector(p.getInputStream(), stdoutData, 1024);
-			new Thread(stdoutConnector).start();
+			Thread stdoutThread = new Thread(stdoutConnector);
+			stdoutThread.start();
 	
 			// feed STDIN into process if necessary
 			if (stdin != null) {
@@ -206,6 +208,11 @@ public abstract class BaseFunctionalTest {
 			
 			// block until process ends
 			int exitCode = p.waitFor();
+
+			// wait for threads to finish
+			stdoutThread.join();
+			stderrThread.join();
+			
 			String stderr = stderrData.toString("UTF-8");
 			String stdout = stdoutData.toString("UTF-8");
 
