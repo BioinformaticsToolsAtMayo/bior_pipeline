@@ -130,8 +130,6 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 		// send VCF header, this is required
 		snpeff.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 
-		boolean outputHeaderProcessed = false;
-
 		ArrayList<String> actualOutput = new ArrayList<String>();
 		
 		String line = br.readLine();
@@ -147,8 +145,15 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 				String outputLine = snpeff.receive();
 
 				// handle header outputted from SNPEFF
-				while (outputLine.startsWith("#")) {
-					actualOutput.add(outputLine);
+				while (outputLine.startsWith("#"))
+				{					
+					// keep only  vcf related header lines
+					// ignore SNPEFF specific lines (e.g. version and cmd)
+					if ((outputLine.startsWith("##SnpEffVersion") == false) &&
+						(outputLine.startsWith("##SnpEffCmd") == false))
+					{
+						actualOutput.add(outputLine);						
+					}
 					outputLine = snpeff.receive();
 				}
 

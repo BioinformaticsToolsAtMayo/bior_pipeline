@@ -1,5 +1,3 @@
-##SnpEffVersion="2.0.5 (build 2011-12-24), by Pablo Cingolani"
-##SnpEffCmd="SnpEff eff -c /projects/bsi/bictools/apps/annotation/snpeff/2.0.5d/snpEff.config -v -o vcf -noStats GRCh37.64 "
 ##INFO=<ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Effefct_Impact | Functional_Class | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' ">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 chr1	949608	rs1921	G	A	0.0	.	EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|aGc/aAc|S83N|ISG15|protein_coding|CODING|ENST00000379389|exon_1_949364_949920),UPSTREAM(MODIFIER||||RP11-54O7.11|antisense|NON_CODING|ENST00000458555|)
