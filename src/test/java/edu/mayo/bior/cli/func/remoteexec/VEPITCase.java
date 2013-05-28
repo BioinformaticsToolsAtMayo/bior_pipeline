@@ -76,7 +76,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		
 		vepExe.terminate();
 
-		printComparison(p, expected, actual);
+		//printComparison(p, expected, actual);
 
 		PipeTestUtils.assertListsEqual(expected, actual);
 		
@@ -107,7 +107,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 				);
 		vepPipe.terminate();
 
-		printComparison(pipe, expected, actual);
+		//printComparison(pipe, expected, actual);
 		
 		PipeTestUtils.assertListsEqual(expected, actual);
 
@@ -127,7 +127,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 
 		vepPipe.terminate();
 
-		printComparison(pipe, expected, actual);
+		//printComparison(pipe, expected, actual);
 		
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
@@ -151,7 +151,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 
 		vepPipe.terminate();
 
-		printComparison(pipe, expected, actual);
+		//printComparison(pipe, expected, actual);
 		
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
@@ -177,7 +177,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		List<String> actual = Arrays.asList(actualStr.split("\n"));
 		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.fanout2.vcf");
 		
-		printComparison(null, expected, actual);
+		//printComparison(null, expected, actual);
 		
 		// The output should contain some sift and polyphen scores
 		assertTrue(actualStr.contains("\"PolyPhen\":\"benign(0.001)\""));
@@ -208,7 +208,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		List<String> actual = Arrays.asList(actualStr.split("\n"));
 		List<String> expected = FileCompareUtils.loadFile(VEPDIR + "vepsample.expected.worstonly.vcf");
 
-		printComparison(null, expected, actual);
+		//printComparison(null, expected, actual);
 
 		// The output should contain some sift and polyphen scores
 		assertTrue(actualStr.contains("\"PolyPhen\":\"benign(0.001)\""));
