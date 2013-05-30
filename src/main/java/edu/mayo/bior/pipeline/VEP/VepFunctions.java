@@ -34,13 +34,22 @@ public class VepFunctions {
 	}
 	
 	/** Turn CSQ result ("CSQ=x|y|z") into json ("{CSQ:{"a":"x","b":"y","c":"z"}}")  */
-	public JsonArray vepCsqToJsonList(String vepCsq) {
-		String[] vepCsqItems = vepCsq.replace("CSQ=", "").split(",");
-		JsonArray jsonArray = new JsonArray();
-		for(String csqItem : vepCsqItems) {
-			jsonArray.add(vepCsqToJson(csqItem));
+	public JsonArray vepCsqToJsonList(String vepCsq) {		
+		JsonArray jsonArray = new JsonArray();		
+		if (vepCsq.contains("VEPERR")) {
+			JsonObject jObj = new JsonObject();
+			jObj.addProperty("VEPMessage", "VEPERRORMessage");
+			jObj.addProperty("Status", "VEP failed to assign function to this variant");
+			jsonArray.add(jObj);
+		} else {
+			String[] vepCsqItems = vepCsq.replace("CSQ=", "").split(",");
+			for(String csqItem : vepCsqItems) {
+				jsonArray.add(vepCsqToJson(csqItem));
+			}
 		}
+		
 		return jsonArray;
+			
 	}
 	
 	

@@ -167,7 +167,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 	private String getFakeResponse(String vcfLine)
 	{
 		// return with blank CSQ field in INFO column
-		return vcfLine + "\tCSQ=";		
+		return vcfLine + "\tCSQ=VEPERR";		
 	}
 	
 	public void terminate() {

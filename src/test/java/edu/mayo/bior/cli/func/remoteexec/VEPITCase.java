@@ -263,4 +263,24 @@ public class VEPITCase extends RemoteFunctionalTest {
 		}
 	}	
 	
+	//@Test
+	public void test_VEPErrorMessage() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+		System.out.println("-----------------------------------------");
+		System.out.println("VEPITCase.VEPErrorMEssage()");
+		
+		VEPPipeline vepPipe = new VEPPipeline(null, false);
+		Pipeline pipe = new Pipeline( new HistoryInPipe(), vepPipe, new HistoryOutPipe() );
+		pipe.setStarts(  Arrays.asList(
+				"##fileformat=VCFv4.0",
+				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO",
+				"2126960070	rs116645811	G	A	.	.	." )); //line has error for VEP to hang
+		List<String> actual = PipeTestUtils.getResults(pipe);
+		String[] aCSQ = actual.get(2).split("\t");
+		
+		String expected = "\"[\"{\"VEPMessage\":\"VEPERRORMessage\",\"Status\":\"VEP failed to assign function to this variant\"}\"";
+			
+		vepPipe.terminate();
+		
+		assertEquals(aCSQ[7], expected);
+	}
 }
