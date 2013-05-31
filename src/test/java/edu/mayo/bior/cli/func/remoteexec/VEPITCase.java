@@ -49,7 +49,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 
 	private final String VEPDIR = "src/test/resources/tools/vep/";
 	
-	@Test
+	//@Test
 	/** Test only the output of VEP itself based on input (no JSON conversion, just the raw output) */
 	public void vepExeOnlyPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
 		System.out.println("-----------------------------------------");
@@ -84,7 +84,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		System.out.println("VEPITCase.vepExeOnlyPipe() - Total runtime: " + (end-start)/1000.0);
 	}
 	
-	@Test
+	//@Test
 	public void singleLine() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("-----------------------------------------");
 		System.out.println("VEPITCase.singleLine()");
@@ -113,7 +113,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 
 	}
 	
-	@Test
+	//@Test
 	public void pipelineFanout() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("-----------------------------------------");
 		System.out.println("VEPITCase.pipelineFanout()");
@@ -133,7 +133,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	}
 	
 	
-	@Test
+	//@Test
 	public void pipelineWorst() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("-----------------------------------------");
 		System.out.println("VEPITCase.pipelineWorst()");
@@ -157,7 +157,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	}
 	
 	
-	@Test
+	//@Test
 	/** Test the whole bior_vep command with fanout of multiple effects
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -189,7 +189,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		
 	}
 
-	@Test
+	//@Test
 	/** Test the whole bior_vep command with worst effect ONLY for each variant
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -231,7 +231,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 	}
 
 
-	@Test
+	//@Test
 	/** 
 	 * Tests bypass logic for bior_vep.
 	 * 
@@ -277,11 +277,10 @@ public class VEPITCase extends RemoteFunctionalTest {
 		List<String> actual = PipeTestUtils.getResults(pipe);
 		String[] aCSQ = actual.get(2).split("\t");
 		
-		//String expected = "\"[\"{\"VEPMessage\":\"VEPERRORMessage\",\"Status\":\"VEP failed to assign function to this variant\"}\"";
-				
+        String expected = "[{\"VEPMessage\":\"VEPERRORMessage\",\"Status\":\"VEP failed to assign function to this variant\"}]";
+        				
 		vepPipe.terminate();
 		
-		//assertEquals(aCSQ[7], expected);
-		assertTrue(aCSQ[7].contains("VEPMessage"));
+		assertEquals(aCSQ[7], expected);		
 	}
 }
