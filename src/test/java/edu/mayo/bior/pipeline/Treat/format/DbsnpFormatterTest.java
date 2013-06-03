@@ -18,7 +18,9 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 	private static final String[] EXPECTED_HEADER =
 		{
 			"rsID",
-			"dbSNP.SuspectRegion"
+			"dbSNP.build",
+			"dbSNP.SuspectRegion",
+			"dbSNP.SNP_Allele_Origin"
 		};	
 
 	@Test
@@ -47,7 +49,9 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 		String[] expectedValues =
 			{
 				"rsABCDEF",
-				"byEST"
+				"119",
+				"byEST",
+				"Somatic"
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);
@@ -67,6 +71,8 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 		String[] expectedValues =
 			{
 				"rsWXYZ",
+				".",
+				".",
 				"."
 			};
 		

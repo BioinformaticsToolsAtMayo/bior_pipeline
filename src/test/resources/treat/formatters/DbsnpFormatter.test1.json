@@ -7,9 +7,11 @@
 	"QUAL": ".",
 	"FILTER": ".",
 	"INFO": {
+		"dbSNPBuildID": 119,	
 		"SSR": 2,
 		"SCS": 5,
-		"CLN": 1
+		"CLN": 1,
+		"SAO": 2
 	},
 	"_id": "rs10399749",
 	"_type": "variant",
