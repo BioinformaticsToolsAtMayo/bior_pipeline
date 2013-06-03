@@ -22,7 +22,6 @@ import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.exec.AbnormalExitException;
-import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
@@ -82,7 +81,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("Testing: testCmd_WithAllConfigFile():");
 		System.out.println("AnnotateCommand With ConfigFile...");
     	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
 		
 		String configFilePath = "src/test/resources/treat/configtest/all.config";
 		
@@ -105,7 +104,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("Testing: testCmd_NoConfigFile():");
 		System.out.println("AnnotateCommand Without ConfigFile...");
     	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/default_output.tsv"));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
 		
 		// execute command with config file option - default
 		CommandOutput out = executeScript("bior_annotate", goldInput); //with 'config' option
@@ -187,15 +186,12 @@ public class TreatITCase extends RemoteFunctionalTest
 		for(int i=0; i < Math.max(expected.size(), actual.size()); i++) {
 			String lineExpect = expected.size() >= i ? expected.get(i) : "";
 			String lineActual = actual.size()   >= i ? actual.get(i)   : "";
-			if(! lineExpect.equals(lineActual))
-				numDiffs++;
-			else
-				continue;
+			
+			boolean foundColMismatch = false;
 			
 			int maxCols = Math.max(lineExpect.split("\t").length, lineActual.split("\t").length);
 			String[] expectCols = lineExpect.split("\t", maxCols);
 			String[] actualCols = lineActual.split("\t", maxCols);
-			System.out.println("--- Line " + (i+1) + " - Diff ---");
 			StringBuilder expectedStr = new StringBuilder("Expected: ");
 			StringBuilder actualStr   = new StringBuilder("Actual:   ");
 			StringBuilder diffStr     = new StringBuilder("Diff:     ");
@@ -208,12 +204,26 @@ public class TreatITCase extends RemoteFunctionalTest
 				int maxLen = Math.max(expCol.length(), actCol.length());
 				int numDelims = (maxLen / 8) + 1;
 				boolean isEqual = "*".equals(expCol) || expCol.equals(actCol);
-				diffStr.append( isEqual ? StringUtils.repeat("\t", numDelims) : StringUtils.repeat("^", maxLen)+"\t" );
+				if (isEqual)
+				{
+					diffStr.append(StringUtils.repeat("\t", numDelims));
+				}
+				else
+				{
+					foundColMismatch = true;
+					diffStr.append(StringUtils.repeat("^", maxLen)+"\t" );
+				}				
 			}
-			System.out.println(expectedStr);
-			System.out.println(actualStr);
-			System.out.println("Actl/tab: " + lineActual);
-			System.out.println(diffStr);
+			
+			if(foundColMismatch)
+			{
+				numDiffs++;
+				System.out.println("--- Line " + (i+1) + " - Diff ---");
+				System.out.println(expectedStr);
+				System.out.println(actualStr);
+				System.out.println("Actl/tab: " + lineActual);
+				System.out.println(diffStr);
+			}
 		}
 		if(numDiffs == 0)
 			System.out.println("  (All lines are the same)");
