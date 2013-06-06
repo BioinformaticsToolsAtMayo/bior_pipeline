@@ -19,6 +19,7 @@ public class CompressCommand implements CommandPlugin
 	private static final char OPTION_SEPARATOR = 's';	
 	private static final char OPTION_ESCAPE    = 'e';	
 	private static final char OPTION_REVERSE   = 'r';	
+	private static final char OPTION_ALIGN     = 'a';	
 		
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
@@ -54,10 +55,15 @@ public class CompressCommand implements CommandPlugin
 		{
 			escapeDelimiter = line.getOptionValue(OPTION_ESCAPE);
 		}
-
-		CompressPipe pipe = new CompressPipe(fieldSpec, delimiter, escapeDelimiter);
-		 
 		
+		boolean useSetCompression = true;
+		if (line.hasOption(OPTION_ALIGN))
+		{
+			useSetCompression = false;
+		}
+
+		CompressPipe pipe = new CompressPipe(fieldSpec, delimiter, escapeDelimiter, useSetCompression);
+		 		
 		mPipeline.execute(pipe);		
 	}	
 }

@@ -100,4 +100,29 @@ public class CompressITCase extends BaseFunctionalTest
 		assertEquals(expected, out.stdout);
 	}	
 	
+	@Test
+	public void testAlign() throws IOException, InterruptedException {
+		
+		// have JSON for STDIN
+		String stdin = 
+				"#COL1\tCOL2\tCOL3\n" +
+				"dataA\t1\t.\n" +
+				"dataA\t.\t.\n" +
+				"dataA\t3\t.\n" +
+				"dataB\t100\tW\n" +
+				"dataB\t101\tW\n" +
+				"dataB\t333\t.\n";
+
+		String expected = 
+				"#COL1\tCOL2\tCOL3\n" +
+				"dataA\t1|.|3\t.|.|.\n" +
+				"dataB\t100|101|333\tW|W|.\n";
+		
+		CommandOutput out = executeScript("bior_compress", stdin, "--align", "2,3");
+
+		assertEquals(out.stderr, 0, out.exit);
+		assertEquals("", out.stderr);
+
+		assertEquals(expected, out.stdout);
+	}	
 }
