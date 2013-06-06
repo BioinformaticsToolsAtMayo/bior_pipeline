@@ -192,7 +192,7 @@ public class TreatPipeline extends Pipeline<History, History>
 
 		/* specify final output cols to compress */	
 		FieldSpecification fSpec = new FieldSpecification(formatterPipe.getColumnsAdded().size() + "-", FieldDirection.RIGHT_TO_LEFT);
-		/* compress to have 1-to-1 */				pipes.add(new CompressPipe(fSpec, "|"));
+		/* compress to have 1-to-1 */				pipes.add(new CompressPipe(fSpec, "|", "\\|", true));
 
 		this.setPipes(pipes);		
 	}
