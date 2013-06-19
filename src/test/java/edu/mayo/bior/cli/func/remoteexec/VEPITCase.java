@@ -101,9 +101,11 @@ public class VEPITCase extends RemoteFunctionalTest {
 				"##fileformat=VCFv4.0",
 				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	VEP",
 				"21	26960070	rs116645811	G	A	.	.	.	"
-					+ "[{\"Allele\":\"A\",\"Gene\":\"ENSG00000260583\",\"Feature\":\"ENST00000567517\",\"Feature_type\":\"Transcript\",\"Consequence\":\"upstream_gene_variant\",\"HGNC\":\"LINC00515\",\"DISTANCE\":\"4432\"},"
+					+ "{\"CSQ\":"
+					+  "[{\"Allele\":\"A\",\"Gene\":\"ENSG00000260583\",\"Feature\":\"ENST00000567517\",\"Feature_type\":\"Transcript\",\"Consequence\":\"upstream_gene_variant\",\"HGNC\":\"LINC00515\",\"DISTANCE\":\"4432\"},"
 					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000154719\",\"Feature\":\"ENST00000352957\",\"Feature_type\":\"Transcript\",\"Consequence\":\"intron_variant\",\"HGNC\":\"MRPL39\"},"
-					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000154719\",\"Feature\":\"ENST00000307301\",\"Feature_type\":\"Transcript\",\"Consequence\":\"missense_variant\",\"cDNA_position\":\"1043\",\"CDS_position\":\"1001\",\"Protein_position\":\"334\",\"Amino_acids\":\"T/M\",\"Codons\":\"aCg/aTg\",\"HGNC\":\"MRPL39\",\"SIFT\":\"tolerated(0.05)\",\"PolyPhen\":\"benign(0.001)\",\"SIFT_TERM\":\"tolerated\",\"SIFT_Score\":0.05,\"PolyPhen_TERM\":\"benign\",\"PolyPhen_Score\":0.001}]"				
+					+  "{\"Allele\":\"A\",\"Gene\":\"ENSG00000154719\",\"Feature\":\"ENST00000307301\",\"Feature_type\":\"Transcript\",\"Consequence\":\"missense_variant\",\"cDNA_position\":\"1043\",\"CDS_position\":\"1001\",\"Protein_position\":\"334\",\"Amino_acids\":\"T/M\",\"Codons\":\"aCg/aTg\",\"HGNC\":\"MRPL39\",\"SIFT\":\"tolerated(0.05)\",\"PolyPhen\":\"benign(0.001)\",\"SIFT_TERM\":\"tolerated\",\"SIFT_Score\":0.05,\"PolyPhen_TERM\":\"benign\",\"PolyPhen_Score\":0.001}]"
+					+  "}"
 				);
 		vepPipe.terminate();
 
@@ -180,10 +182,12 @@ public class VEPITCase extends RemoteFunctionalTest {
 		//printComparison(null, expected, actual);
 		
 		// The output should contain some sift and polyphen scores
-		assertTrue(actualStr.contains("\"PolyPhen\":\"benign(0.001)\""));
-		assertTrue(actualStr.contains("\"SIFT\":\"tolerated(0.05)\""));
-		assertTrue(actualStr.contains("\"PolyPhen_TERM\":\"benign\""));
-		assertTrue(actualStr.contains("\"SIFT_TERM\":\"tolerated\""));
+		assertTrue("VEP lines should begin with CSQ JSON structure (without ['s): [\n" + actualStr + "]", actualStr.contains("{\"CSQ\":[{"));
+		assertTrue("VEP lines should end with }]}: [\n" + actualStr + "]", actualStr.trim().endsWith("}]}"));
+		assertTrue(actualStr, actualStr.contains("\"PolyPhen\":\"benign(0.001)\""));
+		assertTrue(actualStr, actualStr.contains("\"SIFT\":\"tolerated(0.05)\""));
+		assertTrue(actualStr, actualStr.contains("\"PolyPhen_TERM\":\"benign\""));
+		assertTrue(actualStr, actualStr.contains("\"SIFT_TERM\":\"tolerated\""));
 
 		PipeTestUtils.assertListsEqual(expected, actual);
 		
@@ -277,7 +281,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		List<String> actual = PipeTestUtils.getResults(pipe);
 		String[] aCSQ = actual.get(2).split("\t");
 		
-        String expected = "[{\"VEPMessage\":\"VEPERRORMessage\",\"Status\":\"VEP failed to assign function to this variant\"}]";
+        String expected = "{\"CSQ\":[{\"VEPMessage\":\"VEPERRORMessage\",\"Status\":\"VEP failed to assign function to this variant\"}]}";
         				
 		vepPipe.terminate();
 		

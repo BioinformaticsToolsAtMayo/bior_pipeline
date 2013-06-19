@@ -180,7 +180,7 @@ public class TreatITCase extends RemoteFunctionalTest
 	
 	/** Compare all lines and columns.
 	 * If there are '*' characters in the expected output, then don't compare these */
-	private void assertLinesEqual(List<String> expected, List<String> actual) {
+	public static void assertLinesEqual(List<String> expected, List<String> actual) {
 		int numDiffs = 0;
 		System.out.println("# Lines: (expected: " + expected.size() + ", actual: " + actual.size() + ")");
 		for(int i=0; i < Math.max(expected.size(), actual.size()); i++) {
@@ -230,9 +230,46 @@ public class TreatITCase extends RemoteFunctionalTest
 		else
 			System.out.println("  (# of lines different: " + numDiffs + ")");
 		
-		assertEquals("Number of differences between actual and expected (out of " 
-			+ Math.max(expected.size(), actual.size()) + ")  ",
+		assertEquals(
+			"Number of differences between actual and expected (out of " + Math.max(expected.size(), actual.size()) + ")  ",
 			0, numDiffs);
+	}
+	
+	public static String getLineDiff(String lineExpect, String lineActual, int lineNum) {
+		final String EOL = System.getProperty("line.separator");
+		if(lineExpect == null && lineActual == null) 
+			return ""; // OK - both null
+		else if( lineExpect == null || lineActual == null) {
+			return  "--- Line " + lineNum + " - Diff ---" + EOL
+				+  	"Expected: " + (lineExpect == null ? "(null)" : lineExpect) + EOL
+				+ 	"Actual:   " + (lineActual == null ? "(null)" : lineActual) + EOL;
+		}
+		
+		StringBuilder diff = new StringBuilder();
+		int maxCols = Math.max(lineExpect.split("\t").length, lineActual.split("\t").length);
+		String[] expectCols = lineExpect.split("\t", maxCols);
+		String[] actualCols = lineActual.split("\t", maxCols);
+		diff.append("--- Line " + lineNum + " - Diff ---" + EOL);
+		StringBuilder expectedStr = new StringBuilder("Expected: ");
+		StringBuilder actualStr   = new StringBuilder("Actual:   ");
+		StringBuilder diffStr     = new StringBuilder("Diff:     ");
+		for(int j = 0; j < maxCols; j++) {
+			String expCol = expectCols.length > j ? expectCols[j] : "";
+			String actCol = actualCols.length > j ? actualCols[j] : "";
+			String delim = j < maxCols-1 ? "\t" : "";
+			expectedStr.append(expCol + delim);
+			actualStr.append(  actCol + delim);
+			int maxLen = Math.max(expCol.length(), actCol.length());
+			int numDelims = (maxLen / 8) + 1;
+			boolean isEqual = "*".equals(expCol) || expCol.equals(actCol);
+			diffStr.append( isEqual ? StringUtils.repeat("\t", numDelims) : StringUtils.repeat("^", maxLen)+"\t" );
+		}
+		diff.append(expectedStr + EOL);
+		diff.append(actualStr + EOL);
+		diff.append("Actl/tab: " + lineActual + EOL);
+		diff.append(diffStr + EOL);
+
+		return diff.toString();
 	}
 	
 }

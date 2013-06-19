@@ -60,7 +60,7 @@ public class VEPPipeline  extends Pipeline {
 			JsonArray csqAsJsonArray = mVepFunctions.vepCsqToJsonList(vepCsq);
 			String vepOut = mIsWorstCaseOnly 
 					? mVepFunctions.getWorstCase(csqAsJsonArray).toString() 
-					: csqAsJsonArray.toString();
+					: "{\"CSQ\":" + csqAsJsonArray.toString() + "}";
 			History original = mLastLineQ.remove();
 			original.add(vepOut);
 			return original;
