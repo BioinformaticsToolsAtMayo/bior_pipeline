@@ -1,0 +1,9 @@
+## Note here that the column produced by bior_same_variant will get moved to the end by bior_drill
+cat 1_original.vcf | bior_vcf_to_json | bior_same_variant -d 00-All_GRCh37.tsv.bgz | bior_drill -k -p INFO.SSR > 2.tmp.vcf
+# <- The output now should be equivalent to 2_bior_withMetadata.vcf
+
+cat 2.tmp.vcf | bior_drill -c -3 -p | bior_to_info > 3.tmp.vcf
+# <- Now output should be equivalent to 3_afterToInfo_withMetadata.vcf
+## NOTE: There may be duplicates now - make sure to only add one (ex: dbSNP137.INFO.SSR)
+## All "##BIOR=" rows should be removed and replaced with "##INFO=..." rows
+## Any duplicate "##INFO=..." rows should be removed (only one of each row), but key AND value must match (don't remove if they don't match)

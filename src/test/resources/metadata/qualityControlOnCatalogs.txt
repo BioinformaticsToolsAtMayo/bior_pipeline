@@ -1,0 +1,9 @@
+1) Check if 1-based (not 0-based)
+2) Prompt user for different fields, giving specific examples of each
+    - Could be either a command or UI
+3) Guarantee that the ShortUniqueName is NOT taken by another catalog in either the BioR or user catalogs
+4) Verify some fields with RefData
+5) BioR fields such as _landmark, _minBP, etc should be automatically added from a different properties file with the code
+    - Don't make users duplicate this since we control those fields
+    - Each of these keys should have a description just like the other catalogs keys
+6) Verify each new catalog has the required BioR fields, especially if the user wants to use bior_same_variant, or bior_annotate on them
