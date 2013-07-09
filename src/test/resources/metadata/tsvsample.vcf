@@ -1,0 +1,6 @@
+##fileformat=VCFv4.0
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	rsID	dbSNP.build	dbSNP.SuspectRegion	dbSNP.SNP_Allele_Origin	dbSNP.ClinicalSig	dbSNP.DiseaseVariant
+21	26960070	rs116645811	G	A	.	.	A	rs116645811	132	unspecified	unspecified	.	0	
+21	26965148	rs1135638	G	A	.	.	B	rs1135638	86	unspecified	unspecified	.	0	
+21	26965172	rs0010576	T	C	.	.	C	rs10576	52	unspecified	unspecified	.	0	
+21	26965205	rs1057885	T	C	.	.	D	rs1057885	86	unspecified	unspecified	.	0
