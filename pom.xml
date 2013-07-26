@@ -34,7 +34,26 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>			
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<echo>Copy Dan </echo>
+								<copy file="src/main/scripts/bior_create_catalog" tofile="target/bior_pipeline-0.0.3-SNAPSHOT/bin/bior_create_catalog"/>				
+								<chmod file="target/bior_pipeline-0.0.3-SNAPSHOT/bin/bior_create_catalog" perm="+rx"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

@@ -40,26 +40,30 @@ public class UnixStreamPipeline {
 
 	private static Logger sLogger = Logger.getLogger(UnixStreamPipeline.class);
 	
+        
+        
+        public void execute(Pipe<History, History> logic) throws InvalidDataException {
+            HistoryInPipe	historyIn = new HistoryInPipe();
+            HistoryOutPipe	historyOut = new HistoryOutPipe();
+            execute(historyIn, logic, historyOut);
+        }
 	/**
 	 * Executes the given Pipe like a stream-compatible UNIX command.
 	 * 
 	 * @param logic A Pipe that takes a HISTORY as input and output.
 	 */
-	public void execute(Pipe<History, History> logic) throws InvalidDataException {
-				
+	public void execute(Pipe inMeta, Pipe<History, History> logic, Pipe outMeta) throws InvalidDataException {				
 		// pipes
 		InputStreamPipe	in 		= new InputStreamPipe();
-		HistoryInPipe	historyIn = new HistoryInPipe();
-		HistoryOutPipe	historyOut = new HistoryOutPipe();
 		PrintPipe		print	= new PrintPipe();
 		
 		// pipeline definition
 		Pipe<InputStream, List<String>> pipeline = new Pipeline<InputStream, List<String>>
 			(
 					in,			// each STDIN line	--> String
-					historyIn,	// String			--> history
+					inMeta,	// String			--> history
 					logic,		// history			--> modified history*
-					historyOut,	// history*			--> String
+					outMeta,	// history*			--> String
 					print		// String			--> STDOUT
 			);
 		
