@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# exit if any statement returns a non-zero exit code
+set -e
+
+#check to make sure dependancies are installed and on the path
+command -v tabix >/dev/null 2>&1 || { echo >&2 "I require tabix but it's not installed/on your path.  Aborting."; exit 1; }
+command -v bgzip >/dev/null 2>&1 || { echo >&2 "I require bgzip but it's not installed/on your path.  Aborting."; exit 1; }
+command -v grep >/dev/null 2>&1 || { echo >&2 "I require grep but it's not installed/on your path.  Aborting."; exit 1; }
+
+
+
+INPUT=
+OUTPUT=
+while getopts “hc:o:i:” OPTION
+do
+     case $OPTION in
+         o)
+             OUTPUT=$OPTARG
+	     echo "OPTARG $OPTARG"
+             ;;
+         i)
+             INPUT=$OPTARG
+	     echo "OPTARG $OPTARG"
+     esac
+done
+
+# check java version
+REQUIRED_MINOR_VERSION=6
+
+# grab full version string from running "java -version"
+VERSION=`java -Xmx64m -version 2>&1 | grep "java version" | awk '{ print substr($3, 2, length($3)-2); }'`
+
+# parse out the minor version number
+MINOR_VERSION=`echo $VERSION | cut -d . -f 2`
+
+# check minor version, anything less than the required version is invalid
+if [ $MINOR_VERSION -lt $REQUIRED_MINOR_VERSION ]; then
+	echo "Invalid Java version $VERSION.  Java 1.$REQUIRED_MINOR_VERSION or higher is required."
+	echo "You can check your java version by running: java -version"
+	exit 1
+fi
+
+if [[ $* == *-h* ]];
+then
+    java -Dlog4j.defaultInitOverride=true -Xmx128m -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.cli.CommandLineApp edu.mayo.bior.cli.cmd.CreateCatalogCommand $0 $@
+    exit;
+fi
+
+#if user did not provide values for input and output, then give them help
+#if [[ -z $INPUT ]] || [[ -z $OUTPUT ]]
+#then
+#     java -Dlog4j.defaultInitOverride=true -Xmx128m -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.cli.CommandLineApp edu.mayo.bior.cli.cmd.CreateCatalogCommand $0 $@
+#     exit 1
+#fi
+
+
+echo "Formatting Catalog... (Step 1/3)"
+java -Dlog4j.defaultInitOverride=true -Xmx128m -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.cli.CommandLineApp edu.mayo.bior.cli.cmd.CreateCatalogCommand $0 $@
+
+echo "Sorting and Compressing Catalog...[${OUTPUT}] (Step 2/3)"
+#(grep ^"#" in.gff; grep -v ^"#" in.gff | sort -k1,1 -k4,4n) | bgzip > sorted.gff.gz;
+cat ${OUTPUT} | sort -k1,1 -k2,2n | bgzip > ${OUTPUT}.tsv.bgz ;
+rm ${OUTPUT}
+
+echo "Indexing Catalog...(Step 3/3)"
+tabix -s 1 -b 2 -e 3 ${OUTPUT}.tsv.bgz
+
+echo "Done!"
+
