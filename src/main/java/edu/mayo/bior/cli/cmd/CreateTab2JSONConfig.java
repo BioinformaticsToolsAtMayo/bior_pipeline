@@ -39,7 +39,6 @@ public class CreateTab2JSONConfig implements CommandPlugin {
          */
         public class CreateConfig implements PipeFunction{
 
-        @Override
         public Object compute(Object a) {
             StringBuilder sb = new StringBuilder();
             String s = (String) a;

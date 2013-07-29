@@ -164,7 +164,6 @@ public class CreateCatalogCommand implements CommandPlugin {
             return maxbp;
         }
 
-        @Override
         public String compute(History h) {
 
             fixColumn(h.size());
