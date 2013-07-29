@@ -70,7 +70,7 @@ public class VEPPipeline  extends Pipeline {
 		private void addHeaderMetaData() {
 			if( isFirstLine ) {
 				isFirstLine = false;
-				History.getMetaData().getColumns().add(new ColumnMetaData("VEP"));
+				History.getMetaData().getColumns().add(new ColumnMetaData("BIOR.VEP"));
 			}
 		}
 	}
