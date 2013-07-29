@@ -91,8 +91,8 @@ public class AddBiorMetadataLinesToHeaderPipe extends AbstractPipe<History,Histo
 	        			
 	        			attributes.add("ID=\""+column_name+"\"");
 	        			
-	        			//for this datasourcename, find the catalog.datasource.properties file location from the catalogs.properties file
-	        			String catalogFile = "src/test/resources/metadata/00-All_GRch37.datasource.properties";
+	        			// TODO: for this datasourcename, find the catalog.datasource.properties file location from the catalogs.properties file	        			
+	        			String catalogFile = "src/test/resources/metadata/00-All_GRCh37.datasource.properties";
 	        			try {
 	        				propsUtil = new PropertiesFileUtil(catalogFile);
 						
