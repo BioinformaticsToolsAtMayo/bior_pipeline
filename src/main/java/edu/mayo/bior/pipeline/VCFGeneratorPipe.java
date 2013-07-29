@@ -24,6 +24,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 
 	private static final Logger sLogger = Logger.getLogger(VCFGeneratorPipe.class);
 	Map<Integer,String> biorindexes = new HashMap<Integer,String>();
+	
 	int totalcolumns;
 	
 	boolean modifyMetadata = false;
@@ -51,28 +52,66 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	    	    	 } 
 	    	    		
 	    	    	} 
-	    //remove the columns from Header    
+	    //remove the columns from ColumnHeader    
 	    removeColumnHeader(History.getMetaData(),biorindexes );
 	    modifyMetadata = true;
 	    }
 	   
 	    
 	    
-	    } else {
-	    	
-	    	//throw error
 	    }
-	    
+		
 	    history =  removecolumns(modifyhistory(history,biorindexes),biorindexes);
-		return history;
+		history =  addColumnheaders(history);
+	    return history;
 	    	
 		
 		
 	}
 
-	private void addColumnheaders(Map<Integer, String> biorindexes2) {
+	private History addColumnheaders(History history) {
+	   
+		List<String> colmeta = history.getMetaData().getOriginalHeader();
 	
 		
+		for (String info: colmeta){
+
+			if (info.startsWith("##BIOR=<ID") && info.contains("drill")){
+		 
+		 String ast = info.split("<")[1];
+		 String ast1 = ast.replace(">", "");
+		 String[] ast2 = ast1.split(",");
+        
+		 HashMap<String,String> meta = new HashMap<String,String>();
+         for (String as:ast2){
+        	String[] ast3 = as.split("=");
+        	meta.put(ast3[0], ast3[1]);
+         }
+		
+         StringBuilder st = new StringBuilder();
+         st.append("##INFO=<ID=");
+         st.append(meta.get("ID"));
+         st.append(",Number=.,");
+         st.append("Type=String,");
+         st.append("Description=");
+         st.append(meta.get("Description"));
+         st.append(",CatalogShortUniqueName=");
+         st.append(meta.get("CatalogShortUniqueName"));
+         st.append(",CatalogVersion=");
+         st.append(meta.get("CatalogVersion"));
+         st.append(",CatalogBuild=");
+         st.append(meta.get("CatalogBuild"));
+         st.append(",CatalogPath");
+         st.append(meta.get("CatalogPath"));
+         st.append("\">");
+         
+   
+		 colmeta.add(st.toString())	;
+			}
+		}
+		
+		history.getMetaData().setOriginalHeader(colmeta);
+		return history;
 	}
 
 	
@@ -130,7 +169,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 				val = history.get(value);
 			}
 			
-			if (val != null && !val.isEmpty() && !val.contentEquals(".")) {
+			if (val != null && !val.isEmpty() && !val.contentEquals(".") && !val.startsWith("{")) {
 			String newValue = history.get(7).concat(";" + biorindexes.get(value) +"=" + val);	
 			history.set(7,newValue) ;
 			
