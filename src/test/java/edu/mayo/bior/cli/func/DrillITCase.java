@@ -28,7 +28,7 @@ public class DrillITCase extends BaseFunctionalTest {
 		assertEquals("", out.stderr);
 
 		String header = getHeader(out.stdout);
-		assertEquals("#key1\tkey2\tkey3\n", header);
+		assertEquals("#JSON_COLUMN.key1\tJSON_COLUMN.key2\tJSON_COLUMN.key3\n", header);
 
 		// pull out just data rows		
 		String data = out.stdout.replace(header, "");		
@@ -53,7 +53,7 @@ public class DrillITCase extends BaseFunctionalTest {
 		assertEquals("", out.stderr);
 
 		String header = getHeader(out.stdout);
-		assertEquals("#key2\tJSON_COLUMN\n", header);
+		assertEquals("#JSON_COLUMN.key2\tJSON_COLUMN\n", header);
 
 		// pull out just data rows
 		String data = out.stdout.replace(header, "");		
