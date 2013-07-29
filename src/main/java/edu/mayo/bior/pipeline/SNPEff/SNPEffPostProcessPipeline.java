@@ -29,6 +29,7 @@ import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.JSON.DrillPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.UNIX.GrepEPipe;
+import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
@@ -100,7 +101,7 @@ public class SNPEffPostProcessPipeline {
 	public static class SNPEffTransformPipe implements PipeFunction<History, History> {
 
 		boolean showMostSignificantEffectOnly = true;
-		
+		boolean colmetadata = false;
 		public SNPEffTransformPipe(boolean showMostSignificantEffectOnly) {
 			this.showMostSignificantEffectOnly = showMostSignificantEffectOnly;
 		}
@@ -108,9 +109,19 @@ public class SNPEffPostProcessPipeline {
        // @Override
         public History compute(History history) {
             //throw new UnsupportedOperationException("Not supported yet.");
-        	
+        	if (colmetadata == false){  
+        	List<ColumnMetaData> colmeta =	history.getMetaData().getColumns();
+    		  if (colmeta.get(7).getColumnName().equalsIgnoreCase("SNPEff"))  {
+    			  
+    			  
+    			  colmeta.remove(7);
+    			  colmeta.add(new ColumnMetaData("BIOR.SNPEff"));
+    			  
+    		  }
+    		 colmetadata= true; 
+        	}
+        //	History.getMetaData().setOriginalHeader(m)
         	String parsedEffValue = this.parseEFFColumnData(history);
-        	
         	//add the parsed-effect-value as a json string to the end of history
         	history.add(parsedEffValue);
         	
@@ -140,8 +151,9 @@ public class SNPEffPostProcessPipeline {
 	        	if (history.size() > 7) {
 	        		if (history.get(7)!=null && !history.get(7).equals("")) {
 	        			if (history.get(7).contains("EFF=")) {        			
-	        		
+	        		       
 		        			rawEff = history.get(7); //last column has EFF
+		        		
 		        			String rawEffValue = rawEff.substring(rawEff.indexOf("EFF=")+4, rawEff.length());
 		        			
 		        			List<String> allEffects = null;
