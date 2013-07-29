@@ -1,6 +1,7 @@
 package edu.mayo.bior.pipeline.Treat.format;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,17 +22,29 @@ import edu.mayo.pipes.history.History;
  */
 public class FormatterPipeFunction implements PipeFunction<History, History>
 {
-
-	private Map<JsonColumn, Integer> mJsonIndex;
-
+	private boolean mIsFirstRow = true;
 	
-	private boolean mIsFirst = true;
+	private List<JsonColumn> mOrderOfAddedColumns = new ArrayList<JsonColumn>();
+	private List<Formatter>  mAllPossibleFormatters = new ArrayList<Formatter>();
 	
 	// Keep track of the list of columns to add.  This may not be all of the columns
 	// returned from the formatters, since the user can specify a subset in the config file.
 	// If a subset of columns is specified in the config file, only those columns will be set in this list
 	private List<String> mColsFromConfig;
 	
+	/** NOTE: These should be be in the order expected in the output, NOT in the order of the JSON columns coming in.
+	 *  For example: Hapmap may be the first JSON column in the history, but dbSNP columns may occur first in the output.
+	 *  NOTE: This should NOT contain any columns, such as bior_vcf_to_json, that will not appear in the output  */
+	private List<ColumnFormatter> mColFormatters = new ArrayList<ColumnFormatter>();
+	
+	private class ColumnFormatter {
+		public int colIdx; // Index of the column in the input history - can be out of order - min=0 corresponding to the first column added by bior_annotate 
+		public JsonColumn jsonColIn;
+		public Formatter formatter;
+		public List<String> userSelectedColNames = new ArrayList<String>();
+		// Indexes of the formatter's json columns headers that match the userSelectedColNames - range: 0 to formatter.getHeaders().size()
+		public List<Integer> idxFormatterJsonHeader = new ArrayList<Integer>();
+	}
 	
 	/**
 	 * Constructor 
@@ -45,66 +58,115 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	 * 		If this is null, then there was no config file specified, so ALL columns will be outputted. 
 	 */
 	public FormatterPipeFunction(List<JsonColumn> order, List<String> colsFromConfig) {
-		mJsonIndex = index(order);
+		mOrderOfAddedColumns = order;
 		mColsFromConfig = colsFromConfig;
+		mColFormatters = createColFormatters(mOrderOfAddedColumns);
 	}
 	
-	/** Get the column headers that were added to the output.  	 */
+
 	public List<String> getColumnsAdded() {
-		List<String> allCols = getAllPossibleColumns();
-		if(mColsFromConfig == null)
-			return allCols;
-		
 		List<String> colsAdded = new ArrayList<String>();
-		for(String col : allCols) {
-			if(mColsFromConfig.contains(col))
-				colsAdded.add(col);
-		}
+		for(ColumnFormatter colFmt : mColFormatters)
+			colsAdded.addAll(colFmt.userSelectedColNames);
 		return colsAdded;
 	}
-	
-	public History compute(History history)
-	{
-		// remove JSON columns from History + metadata
-		List<String> jsonCols = removeJSON(mJsonIndex.size(), history, mIsFirst);
-		
-		for(Formatter fmt: getAllPossibleFormatters())	{
-			// get the JSON column that data will be pulled from
-			JsonColumn col = fmt.getJSONColumn();
-			
-			// If the list of JSON columns contains the one we want to pull from...
-			// (if it does NOT, then the user may have selected to not output from that source)
-			if( mJsonIndex.containsKey(col) ) {
-				// 1st time through, add column metadata
-				if (mIsFirst)
-					addHeaders(fmt);
-				
-				// get JSON for formatter
-				String json = jsonCols.get(mJsonIndex.get(col));
-				
-				// process JSON to get formatted values and add to History
-				List<String> headers = fmt.getHeaders();
-				List<String> values  = fmt.format(json);
-				for(int i=0; i < headers.size(); i++) {
-					if( mColsFromConfig == null || mColsFromConfig.contains(headers.get(i)) )
-						history.add(values.get(i));
-				}
-			}
-		}
-		// Don't change the mIsFirst flag until here.  If we do it inside the loop
-		// it will only add the columns from the first formatter and then stop
-		mIsFirst = false;
 
-		return history;
+	
+	/** ONLY return the list of headers the user wanted - note */
+	private List<String> getHeadersUserWanted(JsonColumn jsonCol) {
+		List<String> headers = new ArrayList<String>();
+		Formatter fmt = getFormatterMatchingColumn(jsonCol);
+		// Formatter will be null if JsonColumn.IGNORE or JsonColumn.VARIANT, so just return empty list
+		if(fmt == null)
+			return headers;
+		// If there was not config file OR the column was specified in the config file, then add it
+		for(String colHeader : fmt.getHeaders()) {
+			if(mColsFromConfig == null  ||  mColsFromConfig.contains(colHeader))
+				headers.add(colHeader);
+		}
+		return headers;
 	}
 	
-	private void addHeaders(Formatter formatter) {
-		for (String header: formatter.getHeaders())	{
-			// Add the header if the config file was not specified (which means user wants all output columns)
-			// or if the user had specifically wanted that column as output
-			if(mColsFromConfig == null  ||  mColsFromConfig.contains(header)) {
-				History.getMetaData().getColumns().add(new ColumnMetaData(header));
+	/**
+	 * Get all of the formatters that match the given columns that were added
+	 * @param order
+	 * @return
+	 */
+	private Formatter getFormatterMatchingColumn(JsonColumn jsonCol) {
+		for(Formatter fmt : mAllPossibleFormatters) {
+			if(jsonCol.equals(fmt.getJSONColumn()))
+				return fmt;
+		}
+		// Not found, so return null
+		return null;
+	}
+
+	private List<ColumnFormatter> createColFormatters(List<JsonColumn> orderOfColumnsAdded) {
+		Map<JsonColumn, Integer> jsonToColIdxMap = createOrderIndex(orderOfColumnsAdded);
+		
+		// The list of all formatters determines the order that the columns should appear in
+		mAllPossibleFormatters = getAllPossibleFormatters();
+		
+		List<ColumnFormatter> colFormatters = new ArrayList<ColumnFormatter>();
+		for(Formatter fmt : mAllPossibleFormatters) {
+			Integer colIdx = jsonToColIdxMap.get(fmt.getJSONColumn());
+			// If the JsonColumn was not in the list (wasn't added), then just skip it
+			if(colIdx == null)
+				continue;
+
+			// Get user-selected headers for this JsonColumn
+			List<String> userSelectedHeaders = getHeadersUserWanted(fmt.getJSONColumn());
+			
+			// If there are no headers wanted from this JsonColumn, then skip column
+			if(userSelectedHeaders == null || userSelectedHeaders.size() == 0)
+				continue;
+			
+			ColumnFormatter colFmt = new ColumnFormatter();
+			colFormatters.add(colFmt);
+			colFmt.colIdx = colIdx;
+			colFmt.formatter = fmt;
+			colFmt.jsonColIn = fmt.getJSONColumn();
+			colFmt.userSelectedColNames = userSelectedHeaders;
+			
+			List<String> fmtHeaders = fmt.getHeaders();
+			for(int i = 0; i < fmtHeaders.size(); i++) {
+				if( userSelectedHeaders.contains(fmtHeaders.get(i)) )
+					colFmt.idxFormatterJsonHeader.add(i);
 			}
+		}
+
+		return colFormatters;
+	}
+	
+	public History compute(History history) {
+		// Make a copy of the history, but only up to the original data (before the columns bior_annotate added)
+		// We will add the columns after that
+		int preAnnotateSize = history.size() - mOrderOfAddedColumns.size();
+		History newHistory = new History(history.subList(0, preAnnotateSize));
+		
+		if(mIsFirstRow) {
+			addHeaders();
+			mIsFirstRow = false;
+		}
+		
+		for(ColumnFormatter colFmt : mColFormatters) {
+			int colIdx = colFmt.colIdx + preAnnotateSize;
+
+			List<String> fmtValues  = colFmt.formatter.format(history.get(colIdx));
+			for(Integer idxHeader : colFmt.idxFormatterJsonHeader) {
+				newHistory.add(fmtValues.get(idxHeader));
+			}
+		}
+		return newHistory;
+	}
+
+	
+
+	private void addHeaders() {
+		for(ColumnFormatter colFmt : mColFormatters) {
+			List<String> cols = colFmt.userSelectedColNames;
+			for(String col : cols)
+				History.getMetaData().getColumns().add(new ColumnMetaData(col));
 		}
 	}
 
@@ -120,53 +182,16 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	 * @param order
 	 * 		The order of JSON columns added <b>after</b> the original user's columns.
 	 */
-	private Map<JsonColumn, Integer> index(List<JsonColumn> order) {
+	private Map<JsonColumn, Integer> createOrderIndex(List<JsonColumn> order) {
 		Map<JsonColumn, Integer> index = new HashMap<JsonColumn, Integer>();
-		
 		for (int i=0; i < order.size(); i++) {
 			index.put(order.get(i), i);
 		}
-		
 		return index;
 	}
 	
-	/**
-	 * Removes all JSON columns from the history and its column metadata.  The 
-	 * JSON data is passed back in the same order as it was in the History.
-	 * @param numJsonCols
-	 * 		The total number of JSON columns. 
-	 * @param h
-	 * 		The History.
-	 * @param removeMetadata
-	 * 		Flag that determines whether the Column metadata will be removed as well.  This should only be done once.
-	 * @return
-	 * 		List of the JSON column data in the <b>same</b> order they were originally added.
-	 */
-	private List<String> removeJSON(int numJsonCols, History h, boolean removeMetadata) {
-		List<String> list = new ArrayList<String>();
 
-		int firstJsonColIdx = h.size() - numJsonCols;
-		
-		// go in reverse-order from end of History for "safe" removes
-		for (int colIdx=h.size() - 1; colIdx >= firstJsonColIdx; colIdx--) {
-			String value = h.get(colIdx).trim();
-
-			list.add(value);
-			
-			if (removeMetadata)
-				// remove metadata
-				History.getMetaData().getColumns().remove(colIdx);
-			
-			// remove data
-			h.remove(colIdx);
-		}
-		
-		Collections.reverse(list);
-		
-		return list;
-	}
-	
-	
+	/** Note: This is used by TreatPipeline to check the user's config file for any errors */
 	public static List<String> getAllPossibleColumns() {
 		ArrayList<String> allPossibleColumns = new ArrayList<String>();
 		for (Formatter f: getAllPossibleFormatters())
@@ -174,7 +199,8 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 		return allPossibleColumns;
 	}
 	
-	public static List<Formatter> getAllPossibleFormatters() {
+	
+	private static List<Formatter> getAllPossibleFormatters() {
 		List<Formatter> allFormatters = new ArrayList<Formatter>();
 
 		allFormatters.add(new DbsnpFormatter());

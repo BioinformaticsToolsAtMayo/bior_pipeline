@@ -7,6 +7,7 @@ package edu.mayo.bior.pipeline.Treat;
  *
  */
 public enum JsonColumn {
+	IGNORE, // This is a special column to ignore the column that gets added at this position
 	VARIANT, // JSON added by VCF2VariantPipe	
 	NCBI_GENE,
 	HGNC,

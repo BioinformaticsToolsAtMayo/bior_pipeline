@@ -115,6 +115,7 @@ public class VEPEXE implements PipeFunction<String,String>{
 
 	public String compute(String vcfLine)
 	{
+		//sLogger.info("VEP in: " + vcfLine);
 		
 		// For cases where VEP will not send a response to STDOUT,
 		// VEP will be bypassed
@@ -127,6 +128,8 @@ public class VEPEXE implements PipeFunction<String,String>{
 		try
 		{
 			
+			//sLogger.info("VEP out: " + vcfLine);
+
 			mVep.send(vcfLine);
 
 			try

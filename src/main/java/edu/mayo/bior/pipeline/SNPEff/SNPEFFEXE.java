@@ -101,16 +101,20 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 
 	public String compute(String a) {
 		try {
+			//log.info("SnpEff in: " + a);
 			String error = canCreateSeqChange(a);
 			if(error == null){
+				//log.info("SnpEff sending: " + a);
 				snpeff.send(a);
 				String result =  snpeff.receive();
+				//log.info("SnpEff out: " + result);
 				return result;
 			}else {
 				System.err.println("SnpEff could not process line: " + a);
 				System.err.println("    " + error);
                 log.warn("SnpEff could not process line: " + a);
                 log.warn("    " + error);
+				//log.info("SnpEff out: " + a + "\t" + error);
 				return a + "\t" + error;
 			}
 		} catch (Exception ex) {

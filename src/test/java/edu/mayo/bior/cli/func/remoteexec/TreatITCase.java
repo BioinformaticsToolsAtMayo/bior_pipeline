@@ -22,9 +22,11 @@ import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.exec.AbnormalExitException;
+import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.test.FileCompareUtils;
 import edu.mayo.pipes.util.test.PipeTestUtils;
 
 /**
@@ -69,11 +71,93 @@ public class TreatITCase extends RemoteFunctionalTest
 				);
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
 		List<String> actual = PipeTestUtils.getResults(pipes);
+		System.out.println("Actual size: " + actual.size());
 		List<String> expected = splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv")));
 		assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 	
+
+	@Test
+	/** This test is mainly to check that fanout does not cause hangs on a huge number of fanout lines */
+	public void testPipeline_rsIdOnly_10000() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
+	{
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testPipeline_rsIdOnly_10000():");
+		System.out.println("Annotate pipeline with a single output column (dbsnp rsId)...");
+		Pipeline pipes = new Pipeline(
+				new CatPipe(),
+				new HistoryInPipe(),
+				new TreatPipeline("src/test/resources/treat/configtest/dbsnpOnly.config"),
+				new HistoryOutPipe()
+				//new PrintPipe()
+				);
+		pipes.setStarts(Arrays.asList("src/test/resources/treat/10000.1tomany.vcf"));
+		List<String> actual = PipeTestUtils.getResults(pipes);
+		// Just check that we didn't get a hang (may want to verify the first and last lines match)
+		System.out.println("Actual size: " + actual.size());
+		assertEquals(10001, actual.size());
+		List<String> linesIn = FileCompareUtils.loadFile("src/test/resources/treat/10000.1tomany.vcf");
+		// Verify we have a 1-to-1 match with the input thru to the output
+		for(int i=0; i < actual.size(); i++) {
+			//System.out.println("line " + i);
+			assertTrue("Start of line[" + i + "] does NOT match output\n initial: " + linesIn.get(i)
+					+ "\n actual: " + actual.get(i),
+					actual.get(i).startsWith(linesIn.get(i)));
+		}
+		System.out.println("<<<<<----------- Test passed -----");
+	}
+
+	
+	
+	@Test
+    public void testCmd_WithSmallSubsetConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testCmd_WithSmallSubsetConfigFile():");
+		System.out.println("AnnotateCommand With ConfigFile (small subset)...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv"));
+		
+		String configFilePath = "src/test/resources/treat/configtest/smallSubset.config";
+		
+		// execute command with config file option - default
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
+
+		// TEMP - dump to file to look at output later
+		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
+
+		if (out.exit != 0)
+			fail(out.stderr);
+
+		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		//assertMatch(splitLines(expected), splitLines(out.stdout));
+		System.out.println("<<<<<----------- Test passed -----");
+    }
+	
+
+	@Test
+    public void testCmd_WithSmallSubsetDependenciesConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testCmd_WithSmallSubsetDependenciesConfigFile():");
+		System.out.println("AnnotateCommand With ConfigFile (small subset with some data sources dependent on others before it)...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv"));
+		
+		String configFilePath = "src/test/resources/treat/configtest/subset.config";
+		
+		// execute command with config file option - default
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
+
+		// TEMP - dump to file to look at output later
+		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
+
+		if (out.exit != 0)
+			fail(out.stderr);
+
+		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		//assertMatch(splitLines(expected), splitLines(out.stdout));
+		System.out.println("<<<<<----------- Test passed -----");
+    }
 
 	@Test
     public void testCmd_WithAllConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
@@ -86,9 +170,10 @@ public class TreatITCase extends RemoteFunctionalTest
 		String configFilePath = "src/test/resources/treat/configtest/all.config";
 		
 		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
 
-		FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
+		// TEMP - dump to file to look at output later
+		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
 
 		if (out.exit != 0)
 			fail(out.stderr);
@@ -107,7 +192,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
 		
 		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput); //with 'config' option
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l"); //with 'config' option
 
 		if (out.exit != 0)
 			fail(out.stderr);
@@ -184,8 +269,8 @@ public class TreatITCase extends RemoteFunctionalTest
 		int numDiffs = 0;
 		System.out.println("# Lines: (expected: " + expected.size() + ", actual: " + actual.size() + ")");
 		for(int i=0; i < Math.max(expected.size(), actual.size()); i++) {
-			String lineExpect = expected.size() >= i ? expected.get(i) : "";
-			String lineActual = actual.size()   >= i ? actual.get(i)   : "";
+			String lineExpect = expected.size() > i ? expected.get(i) : "";
+			String lineActual = actual.size()   > i ? actual.get(i)   : "";
 			
 			boolean foundColMismatch = false;
 			

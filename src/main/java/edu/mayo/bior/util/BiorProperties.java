@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 public class BiorProperties {
 
 	public enum Key { 
+		AnnotateMaxLinesInFlight,
 		SnpEffJar,
 		SnpEffConfig,
 		BiorVepPerl,
