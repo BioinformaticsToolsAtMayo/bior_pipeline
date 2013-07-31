@@ -1,0 +1,29 @@
+### Note here that the column produced by bior_same_variant will get moved to the end by bior_drill
+### Run this from the project home directory
+### The output after this should be equivalent to 2_afterBiorCmds.vcf
+### NOTE: The end drill into the genes column will have to use the filename prefix "genes" from "genes.tsv.bgz" catalog name since it does not have the shortname because no properties files for the catalog are available.  Also, this limits the bior fields that can be added to the header metadata, as most are unknown.
+cat src/test/resources/metadata/1_original.vcf | bior_vcf_to_json | bior_same_variant -d src/test/resources/metadata/00-All_GRCh37.tsv.bgz | bior_drill -k -p INFO.RSPOS | bior_overlap -c -3 -d src/test/resources/genes.tsv.bgz | bior_drill -p GeneID > 2.tmp.vcf
+
+### Now, run it through bior_tjson_to_vcf to collapse all columns down into the INFO column
+### The output after this should be equivalent to 3_afterToVcf.vcf
+### NOTE: When done, each field added to INFO column must have a metadata row.  Also, these 4 fields are required in each metadata row:
+###   ID
+###   Type
+###   Number
+###   Description (and this must be a non-empty string)
+### NOTE: Any keys with values of "." will NOT be added to the INFO column
+### NOTE: Only drilled columns (not JSON columns) will be added to the INFO column
+### NOTE: If the INFO column only contained "." before, make sure the "." is removed before adding the other values
+cat 2.tmp.vcf | bior_tjson_to_vcf > 3.tmp.vcf
+
+### NOTE: There may be duplicates now - make sure to only add one (ex: dbSNP137.INFO.SSR)
+### All "##BIOR=" rows should be removed and replaced with "##INFO=..." rows
+### Any duplicate "##INFO=..." rows should be removed (only one of each row), but key AND value must match (don't remove if they don't match)
+### If there are no properties files to refer to, or the command was bior_vcf_to_tjson, 
+###   then we should just use the old method of naming, such as bior.VCFTOTJSON.INFO.SAO  or bior.BiorDrill.INFO.SAO
+### Edge cases:
+###  * Two columns with same name, but different operations or data sources
+###     - Say we do overlap against dbsnp, then sameVariant against dbsnp, then drill the rsId from the sameVariant column.
+###         - If the column is removed on a bior_drill call, which metadata line do we remove, and which do we refer to when constructing the info col?
+###         - Could just leave both metadata lines, (not remove either), but this still leaves the problem of which one we use to construct INFO.
+###         - Could look for keys with same name and put a 2 or 3 or 4 on end. 
