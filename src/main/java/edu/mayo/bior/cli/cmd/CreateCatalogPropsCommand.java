@@ -6,10 +6,11 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.cli.InvalidOptionArgValueException;
 
-public class CreateCatalogPropsCommand {
+public class CreateCatalogPropsCommand implements CommandPlugin {
 
 	// Catalog path
 	private static final char OPTION_CATALOG = 'd';
