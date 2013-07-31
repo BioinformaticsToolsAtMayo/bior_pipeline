@@ -298,7 +298,7 @@ public class TreatPipeline extends Pipeline<History, History>
 
 
 	private String setBiorLiteCmdDir() throws IOException {
-		mBiorLiteHome = System.getProperty("BIOR_LITE_HOME");
+		mBiorLiteHome = System.getenv().get("BIOR_LITE_HOME");
 		// If not given, then auto-detect inside maven target folder
 		if( mBiorLiteHome == null ||  mBiorLiteHome.trim().length() == 0 ) {
 			File targetFolder = new File("target");
