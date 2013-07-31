@@ -2,12 +2,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<parent>
-		<artifactId>mayo-commons-cli-pom</artifactId>
-		<groupId>edu.mayo</groupId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-	
 	<groupId>edu.mayo.bior</groupId>
 	<artifactId>bior_pipeline</artifactId>
 	<version>0.0.3-SNAPSHOT</version>
@@ -22,7 +16,9 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
-			</plugin>		
+			</plugin>
+			
+			<!-- runs functional tests -->		
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.6</version>
@@ -35,35 +31,99 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+			<!-- Generates shell scripts for each command class -->	
+			<plugin>
+				<groupId>edu.mayo</groupId>
+				<artifactId>mayo-commons-cli-plugin</artifactId>
+				<version>0.0.1</version>
+
+				<!-- configuration parameters -->
+				<configuration>
+					
+					<!-- REQUIRED: (example: $FOOBAR_HOME) -->
+					<envHomeVariable>$BIOR_LITE_HOME</envHomeVariable>
+					
+					<!-- OPTIONAL: JVM minor version check -->
+					<minorJavaVersion>6</minorJavaVersion>
+					
+					<!-- OPTIONAL: JVM options -->
+					<jvmOpts>-Xmx128m</jvmOpts>
+					
+				</configuration>
+				
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+              				<goal>build_scripts</goal>
+            			</goals>
+					</execution>
+				</executions>
+				
+			</plugin>
+			
+			<!-- Assemble all necessary files into a zip file for ez deployment -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.3</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>cli-distribution</descriptorRef>
+					</descriptorRefs>
+				</configuration>				
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>edu.mayo</groupId>
+						<artifactId>mayo-commons-cli-plugin</artifactId>
+						<version>0.0.1</version>
+					</dependency>
+				</dependencies>				
+			</plugin>
+			
+			<!-- Unzips the zip file built by the maven-assembly-plugin for use by the integration-test phase -->
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
 				<executions>
 					<execution>
-						<phase>integration-test</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
 						<configuration>
 							<target>
-								<echo>Copy Dan </echo>
-								<copy file="src/main/scripts/bior_create_catalog" tofile="target/bior_pipeline-0.0.3-SNAPSHOT/bin/bior_create_catalog"/>				
-								<chmod file="target/bior_pipeline-0.0.3-SNAPSHOT/bin/bior_create_catalog" perm="+rx"/>
+								<echo>Unzipping distribution</echo>
+
+								<!-- use exec task over unzip task to preserve perms -->
+								<exec executable="unzip">
+									<arg value="target/${project.name}*.zip" />
+									<arg value="-d" />
+									<arg value="target" />
+								</exec>
 							</target>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>			
 		</plugins>
 	</build>
 
 
 	<dependencies>
-            <dependency>
-                    <groupId>ca.mcgill.mcb.pcingola</groupId>
-                    <artifactId>snpEff</artifactId>
-                    <version>3.1</version>
-                </dependency>
+		<dependency>
+			<groupId>ca.mcgill.mcb.pcingola</groupId>
+			<artifactId>snpEff</artifactId>
+			<version>3.1</version>
+		</dependency>
 		<dependency>
 			<groupId>edu.mayo</groupId>
 			<artifactId>pipes</artifactId>
@@ -88,6 +148,11 @@
 			<groupId>com.ibm.icu</groupId>
 			<artifactId>icu4j</artifactId>
 			<version>51.1</version>
-		</dependency>    
+		</dependency>
+		<dependency>
+			<groupId>edu.mayo</groupId>
+			<artifactId>mayo-commons-cli</artifactId>
+			<version>0.0.1</version>
+		</dependency>		    
 	</dependencies>
 </project>
