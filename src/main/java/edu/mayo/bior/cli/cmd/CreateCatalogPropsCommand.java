@@ -48,10 +48,8 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	
 	public void execute(CommandLine line, Options opts) throws InvalidOptionArgValueException, InvalidDataException, IOException {		
 		// Catalog path and key are required		
-		//String bgzipPath = line.getOptionValue(OPTION_CATALOG);
-		String bgzipPath = "src/test/resources/genes.tsv.bgz";
-		
-		String msg;
+		String bgzipPath = line.getOptionValue(OPTION_CATALOG);
+		//String bgzipPath = "src/test/resources/genes.tsv.bgz";
 		
 		File catalogFile = new File(bgzipPath);
 		
