@@ -1,0 +1,33 @@
+### Goals:
+###  	* Always fill in a "##BIOR=" metadata row for every bior command we run
+### 	* Fill in as much metadata as possible
+###		* All commands handling catalogs will save the catalogpath to the metadata, and will lookup properties from <catalogFilename>.datasource.properties.
+### 	* bior_drill will look at the metadata to try to find the catalog path from which to lookup the <catalogFilename>.columns.properties file
+
+
+### Using TWO bior_vcf_to_json commands.  NOTE: bior_drill will switch the columns when using the -k
+bior_vcf_to_json | bior_drill -k -p INFO.SSR | bior_vcf_to_json
+	Columns:	bior.toTJson	bior.toTJson.INFO.SSR	bior.toTJson.2	
+
+bior_bed_to_json | bior_drill -k -p INFO.SSR
+	Columns:	bior.toTJson.INFO.SSR	bior.toTJson
+
+### With catalog that has properties files.   NOTE: bior_drill will read the metadata to pull out the shortname
+bior_vcf_to_json | bior_overlap -d dbSNP/137/00-All-GRCh37.tsv.bgz | bior_drill -k -p INFO.SSR
+	Columns: 	bior.toTJson	bior.dbsnp137.INFO.SSR	bior.dbsnp137	
+	
+### With catalog that does NOT have properties files (then go by the prefix on the catalog filename)
+bior_vcf_to_json | bior_overlap -d dbSNP/137/00-All-GRCh37.tsv.bgz | bior_drill -k -p INFO.SSR
+	Columns: 	bior.toTJson	bior.00-All-GRCh37.INFO.SSR		bior.00-All-GRCh37
+
+### What if we were to use bior_drill on a column when there is NO metadata associated with that column?  
+### (Say column was "myJson") 
+### We could fill in the "Key" value in the metadata, but since no catalogPath is available in the metadata, 
+###   no description would be available, so put "(unknown)"
+bior_drill -p INFO.SSR
+	Columns:	bior.myJson.INFO.SSR
+	
+### When using VEP or SnpEff, we will have properties files that are embedded within the project
+bior_vcf_to_json | bior_vep
+	Columns:	bior.toTJson	bior.vep
+	
