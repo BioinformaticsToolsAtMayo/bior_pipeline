@@ -4,16 +4,24 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.tinkerpop.pipes.util.Pipeline;
+
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.cli.InvalidOptionArgValueException;
+import edu.mayo.pipes.UNIX.CatGZPipe;
 
 public class CreateCatalogPropsCommand implements CommandPlugin {
 
@@ -21,127 +29,169 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	private static final char OPTION_CATALOG = 'd';
 	
 	private enum DatasourcePropsAttibs {
-		CatalogShortUniqueName("CatalogShortUniqueName="," "),
-		CatalogDescription("CatalogDescription="," "),
-		Patch("Path="," "),
-		CatalogSource("CatalogSource="," "),
-		CatalogVersion("CatalogVersion="," "),
-		CatalogBuild("CatalogBuild="," ");
-		
-		private String key;
-	    private String description;
-	    
-	    private DatasourcePropsAttibs(String key, String desc){
-	    	this.key = key;
-	    	this.description = desc;
-	    }
+		CatalogShortUniqueName,
+		CatalogDescription,
+		Patch,
+		CatalogSource,
+		CatalogVersion,
+		CatalogBuild;
 		
 	    @Override
 	    public String toString() {
-	        final StringBuilder sb = new StringBuilder();
-	        sb.append(key);
-	        sb.append(description);
-	        //sb.append("/n");
-	        return sb.toString();
+	    	String s = super.toString();
+	    	return s + "=";
 	    }
 	};
 	
 	public void init(Properties props) throws Exception {
 	}
 	
-	public void execute(CommandLine line, Options opts) throws InvalidOptionArgValueException, InvalidDataException {		
-	}
-	
-	public void execute() throws InvalidOptionArgValueException, InvalidDataException, IOException {
-
+	public void execute(CommandLine line, Options opts) throws InvalidOptionArgValueException, InvalidDataException, IOException {		
 		// Catalog path and key are required		
 		//String bgzipPath = line.getOptionValue(OPTION_CATALOG);
 		String bgzipPath = "src/test/resources/genes.tsv.bgz";
 		
 		String msg;
 		
-		//Create datasource.props file
-		if (createDatasourceProps(bgzipPath)) {
-			msg = "Successfully created datasource properties file for catalog - " + bgzipPath;
+		File catalogFile = new File(bgzipPath);
+		
+		if( catalogFile.exists() ) {
+			String catalogFullFilename = catalogFile.getName();
+			String catalogFilename = catalogFullFilename.substring(0, catalogFullFilename.indexOf("."));
+			String catalogFilePath = catalogFile.getParent();
+			
+			// Create the datasource.props file
+			createDatasourcePropsFile(catalogFile, catalogFilename, catalogFilePath);
+			
+			// Create the columns.props file
+			createColumnPropsFile(catalogFile, catalogFilename, catalogFilePath);
+			
 		} else {
-			msg = "FAILED!! creating datasource properties file for catalog - " + bgzipPath;
+			throw new InvalidOptionArgValueException(
+					//opts.getOption(OPTION_CATALOG + ""),
+					null,
+					bgzipPath,
+					"Catalog file could not be found: " + bgzipPath
+					);
 		}
-		
-		//Create the columns.props file
-		
 	}
 
 	/**
 	 * 
-	 * @param userCatalogPath Catalog file name and path as give by the user in the command 
+	 * @param catalogFile
+	 * @param catalogFilename
+	 * @param catalogFilePath
 	 * @throws InvalidOptionArgValueException
 	 * @throws InvalidDataException
 	 * @throws IOException
 	 */
-	private boolean createDatasourceProps(String userCatalogPath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+	private void createDatasourcePropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
 		
-		File catalogFile = new File(userCatalogPath);
+		//Check to see if "catalogFilePath" is WRITABLE
+		File dir = new File(catalogFilePath);
+		if (!dir.exists() || !dir.isDirectory() || !dir.canWrite()) {
+			throw new IOException("Source file directory doesn't exist or is not writable: " + catalogFilePath);
+	    }
 		
-		if( catalogFile.exists() ) {
-			String catalogFullFilename = catalogFile.getName();
-			
-			String catalogFilename = catalogFullFilename.substring(0, catalogFullFilename.indexOf("."));
-			String catalogFilePath = catalogFile.getParent();
-						
-			System.out.println("Cat:"+catalogFilename+"::"+catalogFilePath);
-			
-			//Check to see if "catalogFilePath" is WRITABLE
-			File dir = new File(catalogFilePath);
-			if (!dir.exists() || !dir.isDirectory() || !dir.canWrite()) {
-				throw new IOException("Source file directory doesn't exist or is not writable: " + catalogFilePath);
-		    }
-			
-			//Create the props file
-			File datasourcePropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename+".datasource"+".properties");
-			datasourcePropsFile.createNewFile();
-			System.out.println(datasourcePropsFile.exists());
-			
-			//write all values from the enum to the file
-			List<DatasourcePropsAttibs> dsAttribs = Arrays.asList(DatasourcePropsAttibs.values());
-			StringBuilder sb = new StringBuilder();
-			
-			sb.append("# Datasource properties file for Catalog - ");
-			sb.append(catalogFilename);
-			sb.append(". Please fill in the description to the below keys.");
-			
-			for(int i=0;i<dsAttribs.size();i++) {
-				sb.append(dsAttribs.get(i));
-				sb.append("\n");
-			}
-			
-			//write all keys in enum to the file
-			FileWriter fw = new FileWriter(datasourcePropsFile.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(sb.toString());
-			bw.close();
-			
-			return true;
-		} else {			
-			throw new InvalidOptionArgValueException(
-					//opts.getOption(OPTION_CATALOG + ""),
-					null,
-					userCatalogPath,
-					"Catalog file could not be found: " + userCatalogPath
-					);			
-		}	
+		//Create the props file
+		File datasourcePropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename+".datasource"+".properties");
+		datasourcePropsFile.createNewFile();
+		//System.out.println(datasourcePropsFile.exists());
 		
+		//write all values from the enum to the file
+		List<DatasourcePropsAttibs> dsAttribs1 = Arrays.asList(DatasourcePropsAttibs.values());
+		List<String> dsAttribs = new ArrayList<String>();
+		for (DatasourcePropsAttibs val : dsAttribs1) {
+			dsAttribs.add(val.toString());
+		}
+
+		String content = buildContent(catalogFilename, "Datasource", dsAttribs);
+		
+		this.writeToFile(datasourcePropsFile, content);
+
+		//return true;
+	}
+	
+
+	/**
+	 * 
+	 * @param catalogFile
+	 * @param catalogFilename
+	 * @param catalogFilePath
+	 * @throws InvalidOptionArgValueException
+	 * @throws InvalidDataException
+	 * @throws IOException
+	 */
+	private void createColumnPropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+		
+		Pipeline pipe = new Pipeline(new CatGZPipe("gzip"));
+		pipe.setStarts(Arrays.asList(catalogFile.getPath()));
+		
+		String jsonLine = null;
+		while(pipe.hasNext()) {
+			String nextVal = (String)pipe.next();
+			if (!nextVal.startsWith("#")) {
+				String[] aVal = nextVal.split("\t");
+				jsonLine = aVal[3];
+				//System.out.println(jsonLine);
+				
+				break;
+			}			
+		}
+		
+		List<String> jKeys = new ArrayList<String>();
+	    JsonObject root = new JsonParser().parse(jsonLine).getAsJsonObject();
+
+	    for (Map.Entry<String,JsonElement> entry : root.entrySet()) {
+	    	//TODO handle arrays within the json
+	    	jKeys.add(entry.getKey()+"=");
+	    }    
+
+	    //Create the props file
+	    File columnPropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename+".columns"+".properties");
+	    columnPropsFile.createNewFile();
+
+		String content = buildContent(catalogFilename, "Column", jKeys);
+		
+		this.writeToFile(columnPropsFile, content);			
+		
+		//return true;		
+	}
+	
+	
+	/**
+	 * Write content to a file
+	 * @param source
+	 * @param content
+	 * @throws IOException
+	 */
+	private void writeToFile(File source, String content) throws IOException {		
+		//write all keys in enum to the file
+		FileWriter fw = new FileWriter(source.getAbsoluteFile());
+		BufferedWriter bw = new BufferedWriter(fw);
+		bw.write(content);
+		bw.close();
 	}
 	
 	/**
 	 * 
-	 * @param userCatalogPath
-	 * @throws InvalidOptionArgValueException
-	 * @throws InvalidDataException
-	 * @throws IOException
+	 * @param catalogFilename
+	 * @param type - Datasource or Columns
+	 * @param listValues
+	 * @return
 	 */
-	private void createColumnProps(String userCatalogPath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+	private String buildContent(String catalogFilename, String type, List<String> listValues) {
+		StringBuilder sb = new StringBuilder();
 		
-		File catalogFile = new File(userCatalogPath);
-
+		sb.append("# " + type + " properties file for Catalog - ");
+		sb.append(catalogFilename);
+		sb.append(". Please fill in the description to the below keys.\n");
+		
+		for(int i=0;i<listValues.size();i++) {
+			sb.append(listValues.get(i));
+			sb.append("\n");
+		}
+		
+		return sb.toString();
 	}
 }
