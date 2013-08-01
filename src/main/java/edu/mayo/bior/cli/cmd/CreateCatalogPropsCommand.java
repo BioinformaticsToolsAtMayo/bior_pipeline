@@ -13,6 +13,8 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -31,11 +33,10 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	private enum DatasourcePropsAttibs {
 		CatalogShortUniqueName,
 		CatalogDescription,
-		Patch,
 		CatalogSource,
 		CatalogVersion,
 		CatalogBuild;
-		
+				
 	    @Override
 	    public String toString() {
 	    	String s = super.toString();
@@ -48,8 +49,9 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	
 	public void execute(CommandLine line, Options opts) throws InvalidOptionArgValueException, InvalidDataException, IOException {		
 		// Catalog path and key are required		
-		String bgzipPath = line.getOptionValue(OPTION_CATALOG);
+		//String bgzipPath = line.getOptionValue(OPTION_CATALOG);
 		//String bgzipPath = "src/test/resources/genes.tsv.bgz";
+		String bgzipPath = "src/test/resources/ESPFuncTest.tsv.bgz";
 		
 		File catalogFile = new File(bgzipPath);
 		
@@ -83,7 +85,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	 * @throws InvalidDataException
 	 * @throws IOException
 	 */
-	private void createDatasourcePropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+	protected void createDatasourcePropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
 		
 		//Check to see if "catalogFilePath" is WRITABLE
 		File dir = new File(catalogFilePath);
@@ -120,7 +122,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	 * @throws InvalidDataException
 	 * @throws IOException
 	 */
-	private void createColumnPropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+	protected void createColumnPropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
 		
 		Pipeline pipe = new Pipeline(new CatGZPipe("gzip"));
 		pipe.setStarts(Arrays.asList(catalogFile.getPath()));
@@ -131,7 +133,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 			if (!nextVal.startsWith("#")) {
 				String[] aVal = nextVal.split("\t");
 				jsonLine = aVal[3];
-				//System.out.println(jsonLine);
+				System.out.println(jsonLine);
 				
 				break;
 			}			
@@ -139,10 +141,25 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		
 		List<String> jKeys = new ArrayList<String>();
 	    JsonObject root = new JsonParser().parse(jsonLine).getAsJsonObject();
-
+	    
 	    for (Map.Entry<String,JsonElement> entry : root.entrySet()) {
 	    	//TODO handle arrays within the json
-	    	jKeys.add(entry.getKey()+"=");
+	    	
+	    	String key = entry.getKey();
+            JsonElement value = entry.getValue();
+	    	
+	    	if (key.contains("INFO")) {
+	    		JsonArray jarr = new JsonArray();
+	    		jarr.add(value);
+	    		
+	    		//System.out.println(jarr.get(0));
+	    		JsonObject obj1 = jarr.get(0).getAsJsonObject();
+	    		for (Map.Entry<String,JsonElement> infokey : obj1.entrySet()) {
+	    			jKeys.add("INFO."+infokey.getKey());
+	    		}	    		
+	    	} else {
+	    		jKeys.add(key+"=");
+	    	}	    	
 	    }    
 
 	    //Create the props file
