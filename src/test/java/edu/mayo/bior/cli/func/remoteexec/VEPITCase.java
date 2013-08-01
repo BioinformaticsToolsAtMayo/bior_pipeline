@@ -99,7 +99,7 @@ public class VEPITCase extends RemoteFunctionalTest {
 		// Expected from: CSQ=A|ENSG00000260583|ENST00000567517|Transcript|upstream_gene_variant|||||||LINC00515|4432|||,A|ENSG00000154719|ENST00000352957|Transcript|intron_variant|||||||MRPL39||||,A|ENSG00000154719|ENST00000307301|Transcript|missense_variant|1043|1001|334|T/M|aCg/aTg||MRPL39||tolerated(0.05)|benign(0.001)|
 		List<String> expected = Arrays.asList(
 				"##fileformat=VCFv4.0",
-				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	VEP",
+				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	BIOR.VEP",
 				"21	26960070	rs116645811	G	A	.	.	.	"
 					+ "{\"CSQ\":"
 					+  "[{\"Allele\":\"A\",\"Gene\":\"ENSG00000260583\",\"Feature\":\"ENST00000567517\",\"Feature_type\":\"Transcript\",\"Consequence\":\"upstream_gene_variant\",\"HGNC\":\"LINC00515\",\"DISTANCE\":\"4432\"},"

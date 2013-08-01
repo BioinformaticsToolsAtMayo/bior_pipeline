@@ -1,16 +1,5 @@
 ##fileformat=VCFv4.0
-## 0th:  We have no header line (single #) - THIS SHOULD BE OK FROM SNPEFF, BUT WHAT ABOUT OUR CODE?
-## 1st:  Character in minBP column
-## 2nd:  No Ref
-##       No Alt
-##       No Ref or Alt
-## 3rd:  Unrecognized chromosome  (is the M chromosome valid?)
-## 4th:  No INFO column (not even a dot) - THIS SHOULD BE OK as long as preceded by a tab
-## 5th:  Info column has a dot - THIS SHOULD BE OK
-## 9th:  Multiple insertions / deletions - insertion is first as expected (Should be ok)
-## 10th: Six alt alleles  (THIS OK???)
-## 11th: No rsId (SHOULD IT BE '-' OR '.'???)
-## 12th: Multiple blank lines at end
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
 1	X	rs70954422	G	A	.	.	RSPOS=922306;RV;dbSNPBuildID=130;SSR=0;SAO=0;VP=050100000009000102000800;WGT=1;VC=MNV;SLO;CFL;GNO;OTHERKG
 2	727460	rs3890738	.	A	.	.	.
 2	727460	rs3890738	A	.	.	.	.

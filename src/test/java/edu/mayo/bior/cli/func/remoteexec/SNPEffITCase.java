@@ -204,7 +204,10 @@ public class SNPEffITCase extends RemoteFunctionalTest {
 		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/badVariants.vcf"));
 		List<String> actual = PipeTestUtils.pipeOutputToStrings(p);
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/badVariants.expected.vcf");
-		//printOutput(actual);
+                for (String ac : actual)	{	
+              System.out.println(ac);
+}
+                printOutput(actual);
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
 	

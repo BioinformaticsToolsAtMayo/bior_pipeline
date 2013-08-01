@@ -22,7 +22,7 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
 		assertEquals("", out.stderr);
 
 		String header = getHeader(out.stdout);
-		
+	        System.out.println(header);	
 		assertEquals(
 				"##fileformat=VCFv4.0" +"\n" +
 				"##fileDate=20090805" +"\n" +
@@ -43,7 +43,7 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
 		
 		// JSON should be added as last column (9th)
 		String[] cols = data.split("\t");
-		
+		System.out.println("Columns should be 9 but it is " + cols.length);
 		assertEquals(9, cols.length);
 		
 		String json = cols[cols.length - 1];
