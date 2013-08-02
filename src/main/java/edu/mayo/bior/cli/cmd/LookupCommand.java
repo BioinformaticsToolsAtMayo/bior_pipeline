@@ -7,12 +7,19 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import com.tinkerpop.pipes.Pipe;
+
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.cli.InvalidOptionArgValueException;
 import edu.mayo.pipes.JSON.lookup.LookupPipe;
 import edu.mayo.pipes.JSON.lookup.lookupUtils.IndexUtils;
+import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.metadata.Metadata;
+import edu.mayo.pipes.util.metadata.Metadata.CmdType;
 
 public class LookupCommand implements CommandPlugin {
 
@@ -25,11 +32,13 @@ public class LookupCommand implements CommandPlugin {
 	private static final char OPTION_CASE_SENSITIVE = 's';
 	
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
+	private String operation;
 	
 	public void init(Properties props) throws Exception {
+		operation = props.getProperty("command.name");
 	}
 
-	public void execute(CommandLine line, Options opts) throws InvalidOptionArgValueException, InvalidDataException {		
+	public void execute(CommandLine line, Options opts) throws InvalidOptionArgValueException, InvalidDataException, IOException {		
 		String catalogFilePath = line.getOptionValue(OPTION_CATALOG_FILE);
 		
 		if ( ! new File(catalogFilePath).exists() ) {	
@@ -88,9 +97,13 @@ public class LookupCommand implements CommandPlugin {
         }
 
         boolean isCaseSensitive = line.hasOption(OPTION_CASE_SENSITIVE);
-
-        LookupPipe pipe = new LookupPipe(catalogFilePath, indexFilePath, column, isCaseSensitive);
 		
-		mPipeline.execute(pipe);		
+		Metadata metadata = new Metadata(CmdType.Query, new File(catalogFilePath).getCanonicalPath(), operation);
+		
+		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
+		Pipe<History, History>  logic     = new LookupPipe(catalogFilePath, indexFilePath, column, isCaseSensitive);
+		Pipe<History, String>   postLogic = new HistoryOutPipe();
+		
+		mPipeline.execute(preLogic, logic, postLogic);		
 	}
 }

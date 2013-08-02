@@ -1,5 +1,6 @@
 package edu.mayo.bior.cli.cmd;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -14,6 +15,10 @@ import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
 import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.metadata.Metadata;
+import edu.mayo.pipes.util.metadata.Metadata.CmdType;
 
 public class SameVariantCommand implements CommandPlugin {
 
@@ -21,8 +26,10 @@ public class SameVariantCommand implements CommandPlugin {
 	private static final char OPTION_TABIX_FILE = 'd';
 	
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
+	private String operation;
 
 	public void init(Properties props) throws Exception {
+		operation = props.getProperty("command.name");
 	}
 
 	public void execute(CommandLine line, Options opts) throws Exception {
@@ -44,6 +51,7 @@ public class SameVariantCommand implements CommandPlugin {
 		// construct a new pipeline that contains one or more SameVariantPipes
 		int historyPosition = column;
 		List<Pipe> chain = new ArrayList<Pipe>();
+		ArrayList<Metadata> metadataList = new ArrayList<Metadata>();
 		for (String tabixFile: tabixFiles) {
 			chain.add(new SameVariantPipe(tabixFile, historyPosition));
 			
@@ -56,9 +64,13 @@ public class SameVariantCommand implements CommandPlugin {
 				// positive, 
 				historyPosition++;
 			}
+			metadataList.add(new Metadata(CmdType.Query, new File(tabixFile).getCanonicalPath(), operation));
 		}		
-		Pipeline<History, History> sameVariantPipeline = new Pipeline<History, History>(chain); 
-				
-		mPipeline.execute(sameVariantPipeline);
+		
+		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadataList);
+		Pipe<History, History>  logic     = new Pipeline<History, History>(chain);
+		Pipe<History, String>   postLogic = new HistoryOutPipe();
+		
+		mPipeline.execute(preLogic, logic, postLogic);		
 	}
 }
