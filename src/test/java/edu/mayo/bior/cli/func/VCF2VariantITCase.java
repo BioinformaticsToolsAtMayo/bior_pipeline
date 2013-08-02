@@ -35,8 +35,8 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
 				"##INFO=<ID=AA,Number=1,Type=String,Description=\"Ancestral Allele\">" +"\n" +
 				"##INFO=<ID=DB,Number=0,Type=Flag,Description=\"dbSNP membership, build 129\">" +"\n" +
 				"##INFO=<ID=H2,Number=0,Type=Flag,Description=\"HapMap2 membership\">" +"\n" +
-				"##BIOR=<ID=BIOR.VCF2VariantPipe,Operation=\"bior_vcf_to_tjson\",DataType=\"JSON\">" +
-				"#CHROM POS     ID        REF ALT    QUAL FILTER INFO"+"\tVCF2VariantPipe"+"\n", 
+				"##BIOR=<ID=bior.ToTJson,Operation=\"bior_vcf_to_tjson\",DataType=\"JSON\",ShortUniqueName=\"ToTJson\">" +
+				"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tbior.ToTJson"+"\n", 
 				header);
 		
 		// pull out just data rows
