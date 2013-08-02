@@ -4,6 +4,7 @@
  */
 package edu.mayo.bior.cli.cmd;
 
+import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.cli.CommandPlugin;
@@ -15,8 +16,15 @@ import edu.mayo.pipes.JSON.inject.JsonType;
 import edu.mayo.pipes.JSON.inject.LiteralInjector;
 import edu.mayo.pipes.SplitPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
 import edu.mayo.pipes.bioinformatics.vocab.CoreAttributes;
 import edu.mayo.pipes.bioinformatics.vocab.Type;
+import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.metadata.Metadata;
+import edu.mayo.pipes.util.metadata.Metadata.CmdType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
@@ -29,8 +37,10 @@ import org.apache.commons.cli.Options;
  */
 public class Tab2JSONCommand implements CommandPlugin {
     private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
-	
+	private String operation;
+    
 	public void init(Properties props) throws Exception {
+		operation = props.getProperty("command.name");
 	}
         
         
@@ -128,9 +138,14 @@ public class Tab2JSONCommand implements CommandPlugin {
             config = line.getOptionValue('c');    
         }
         Injector[] injectors = parseConfigFile(config);
-        InjectIntoJsonPipe inject = new InjectIntoJsonPipe(true, injectors);
+
+		Metadata metadata = new Metadata(CmdType.ToTJson, operation);
 		
-		mPipeline.execute(inject);
+		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
+		Pipe<History, History>  logic     = new InjectIntoJsonPipe(true, injectors);
+		Pipe<History, String>   postLogic = new HistoryOutPipe();
+		
+		mPipeline.execute(preLogic, logic, postLogic);        
 	}
     
 }
