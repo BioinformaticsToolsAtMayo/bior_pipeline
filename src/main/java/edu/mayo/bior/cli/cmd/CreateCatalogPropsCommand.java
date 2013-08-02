@@ -79,8 +79,8 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		if (!dir.exists() || !dir.isDirectory() || !dir.canWrite()) {
 			throw new InvalidOptionArgValueException(
 				opts.getOption(OPTION_CATALOG + ""),				
-				catalogFilePath,
-				"Source file directory doesn't exist or is not writable: " + catalogFilePath					
+				catalogFile.getCanonicalPath(),
+				"Source file directory doesn't exist or is not writable: " + catalogFile.getCanonicalPath()					
 			);
 	    }
 		
@@ -90,8 +90,8 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		if (datasourcePropsFile.exists()) {
 			throw new InvalidOptionArgValueException(
 				opts.getOption(OPTION_CATALOG + ""),				
-				catalogFilePath,
-				"Datasource properties file already exists for this catalog - " + catalogFilePath
+				catalogFile.getCanonicalPath(),
+				"Datasource properties file already exists for this catalog - " + catalogFile.getCanonicalPath()
 			);
 		}		
 		datasourcePropsFile.createNewFile();
