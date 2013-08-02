@@ -13,7 +13,6 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,16 +30,27 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	private static final char OPTION_CATALOG = 'd';
 	
 	private enum DatasourcePropsAttibs {
-		CatalogShortUniqueName,
-		CatalogDescription,
-		CatalogSource,
-		CatalogVersion,
-		CatalogBuild;
-				
+		CatalogShortUniqueName("CatalogShortUniqueName"," "),
+		CatalogDescription("CatalogDescription"," "),
+		CatalogSource("CatalogSource"," "),
+		CatalogVersion("CatalogVersion"," "),
+		CatalogBuild("CatalogBuild"," ");
+		
+		private String aKey;
+		private String aDesc;
+		
+		private DatasourcePropsAttibs(String aKey, String aDesc) {
+			this.aKey = aKey;
+			this.aDesc = aDesc;
+		}
+		
 	    @Override
 	    public String toString() {
-	    	String s = super.toString();
-	    	return s + "=";
+	    	final StringBuilder sb = new StringBuilder();
+	    	sb.append(aKey);
+	    	sb.append("=");
+	    	sb.append(aDesc);
+	    	return sb.toString();
 	    }
 	};
 	
@@ -49,8 +59,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	
 	public void execute(CommandLine line, Options opts) throws InvalidOptionArgValueException, InvalidDataException, IOException {		
 		// Catalog path and key are required		
-		String bgzipPath = line.getOptionValue(OPTION_CATALOG);
-		//String bgzipPath = "src/test/resources/genes.tsv.bgz";
+		String bgzipPath = line.getOptionValue(OPTION_CATALOG);		
 		//String bgzipPath = "src/test/resources/ESPFuncTest.tsv.bgz";
 		
 		File catalogFile = new File(bgzipPath);
@@ -90,11 +99,25 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		//Check to see if "catalogFilePath" is WRITABLE
 		File dir = new File(catalogFilePath);
 		if (!dir.exists() || !dir.isDirectory() || !dir.canWrite()) {
-			throw new IOException("Source file directory doesn't exist or is not writable: " + catalogFilePath);
+			throw new InvalidOptionArgValueException(
+				//opts.getOption(OPTION_CATALOG + ""),
+				null,
+				catalogFilePath,
+				"Source file directory doesn't exist or is not writable: " + catalogFilePath					
+			);
 	    }
 		
 		//Create the props file
 		File datasourcePropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename+".datasource"+".properties");
+		
+		if (datasourcePropsFile.exists()) {
+			throw new InvalidOptionArgValueException(
+				//opts.getOption(OPTION_CATALOG + ""),
+				null,
+				catalogFilePath,
+				"Datasource properties file already exists for this catalog - " + catalogFilePath
+			);
+		}		
 		datasourcePropsFile.createNewFile();
 		//System.out.println(datasourcePropsFile.exists());
 		
@@ -164,6 +187,15 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 
 	    //Create the props file
 	    File columnPropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename+".columns"+".properties");
+	    if (columnPropsFile.exists()) {
+			throw new InvalidOptionArgValueException(
+				//opts.getOption(OPTION_CATALOG + ""),
+				null,
+				catalogFilePath,
+				"Column properties file already exists for this catalog - " + catalogFilePath
+			);
+		}	
+	    
 	    columnPropsFile.createNewFile();
 
 		String content = buildContent(catalogFilename, "Column", jKeys);
