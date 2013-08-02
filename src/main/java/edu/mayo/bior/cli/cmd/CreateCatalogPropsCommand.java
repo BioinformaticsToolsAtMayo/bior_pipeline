@@ -23,37 +23,16 @@ import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.cli.InvalidOptionArgValueException;
 import edu.mayo.pipes.UNIX.CatGZPipe;
+import edu.mayo.pipes.util.metadata.AddMetadataLines.BiorMetaControlledVocabulary;
 
 public class CreateCatalogPropsCommand implements CommandPlugin {
 
 	// Catalog path
 	private static final char OPTION_CATALOG = 'd';
 	
-	private enum DatasourcePropsAttibs {
-		CatalogShortUniqueName("CatalogShortUniqueName"," "),
-		CatalogDescription("CatalogDescription"," "),
-		CatalogSource("CatalogSource"," "),
-		CatalogVersion("CatalogVersion"," "),
-		CatalogBuild("CatalogBuild"," ");
-		
-		private String aKey;
-		private String aDesc;
-		
-		private DatasourcePropsAttibs(String aKey, String aDesc) {
-			this.aKey = aKey;
-			this.aDesc = aDesc;
-		}
-		
-	    @Override
-	    public String toString() {
-	    	final StringBuilder sb = new StringBuilder();
-	    	sb.append(aKey);
-	    	sb.append("=");
-	    	sb.append(aDesc);
-	    	return sb.toString();
-	    }
-	};
-	
+	//BIOR vocabulary is defined here
+	private List<BiorMetaControlledVocabulary> biorMetaControlledVocabulary = Arrays.asList(BiorMetaControlledVocabulary.values());
+			
 	public void init(Properties props) throws Exception {
 	}
 	
@@ -77,11 +56,11 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 			
 		} else {
 			throw new InvalidOptionArgValueException(
-					//opts.getOption(OPTION_CATALOG + ""),
-					null,
-					bgzipPath,
-					"Catalog file could not be found: " + bgzipPath
-					);
+				//opts.getOption(OPTION_CATALOG + ""),
+				null,
+				bgzipPath,
+				"Catalog file could not be found: " + bgzipPath
+			);
 		}
 	}
 
@@ -122,16 +101,13 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		//System.out.println(datasourcePropsFile.exists());
 		
 		//write all values from the enum to the file
-		List<DatasourcePropsAttibs> dsAttribs1 = Arrays.asList(DatasourcePropsAttibs.values());
 		List<String> dsAttribs = new ArrayList<String>();
-		for (DatasourcePropsAttibs val : dsAttribs1) {
-			dsAttribs.add(val.toString());
+		for (BiorMetaControlledVocabulary val : biorMetaControlledVocabulary) {
+			dsAttribs.add(val.toString()+"=");
 		}
 
 		String content = buildContent(catalogFilename, "Datasource", dsAttribs);
-		
 		this.writeToFile(datasourcePropsFile, content);
-
 		//return true;
 	}
 	
@@ -197,11 +173,8 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		}	
 	    
 	    columnPropsFile.createNewFile();
-
 		String content = buildContent(catalogFilename, "Column", jKeys);
-		
 		this.writeToFile(columnPropsFile, content);			
-		
 		//return true;		
 	}
 	
