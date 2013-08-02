@@ -8,9 +8,16 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
+import com.tinkerpop.pipes.Pipe;
+
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
 import edu.mayo.cli.CommandPlugin;
+import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.metadata.Metadata;
+import edu.mayo.pipes.util.metadata.Metadata.CmdType;
 
 public class SNPEffCommand implements CommandPlugin{
 
@@ -59,13 +66,14 @@ public class SNPEffCommand implements CommandPlugin{
 	private static final  String OPTION_DASH = "-";
 
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
-
+	private String operation;
+	
 	private static final Logger sLogger = Logger.getLogger(SNPEffCommand.class);
 
 	
 	public void init(Properties props) throws Exception {
+		operation = props.getProperty("command.name");
 	}
-
 
 	public void execute(CommandLine line, Options opts) throws Exception {
 		
@@ -75,12 +83,17 @@ public class SNPEffCommand implements CommandPlugin{
 			 pickworst = Boolean.FALSE;			 
 		}
 		
+		Metadata metadata = new Metadata(CmdType.Tool, operation);				
 		try {
 		
 			snpEffPipe = new SNPEFFPipeline(getCommandLineOptions(line),pickworst);
-	    //	snpEffPipe = new SNPEFFPipeline(null);
+
+			Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
+			Pipe<History, History>  logic     = snpEffPipe;
+			Pipe<History, String>   postLogic = new HistoryOutPipe();
 			
-			mPipeline.execute(snpEffPipe);
+			mPipeline.execute(preLogic, logic, postLogic);
+			
 		} catch(Exception e) {
 			sLogger.error("Could not execute SNPEffCommand.  " + e.getMessage());
 			throw e;
