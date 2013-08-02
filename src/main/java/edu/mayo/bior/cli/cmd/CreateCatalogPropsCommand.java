@@ -49,15 +49,14 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 			String catalogFilePath = catalogFile.getParent();
 			
 			// Create the datasource.props file
-			createDatasourcePropsFile(catalogFile, catalogFilename, catalogFilePath);
+			createDatasourcePropsFile(opts, catalogFile, catalogFilename, catalogFilePath);
 			
 			// Create the columns.props file
-			createColumnPropsFile(catalogFile, catalogFilename, catalogFilePath);
+			createColumnPropsFile(opts, catalogFile, catalogFilename, catalogFilePath);
 			
 		} else {
 			throw new InvalidOptionArgValueException(
-				//opts.getOption(OPTION_CATALOG + ""),
-				null,
+				opts.getOption(OPTION_CATALOG + ""),				
 				bgzipPath,
 				"Catalog file could not be found: " + bgzipPath
 			);
@@ -73,14 +72,13 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	 * @throws InvalidDataException
 	 * @throws IOException
 	 */
-	protected void createDatasourcePropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+	protected void createDatasourcePropsFile(Options opts, File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
 		
 		//Check to see if "catalogFilePath" is WRITABLE
 		File dir = new File(catalogFilePath);
 		if (!dir.exists() || !dir.isDirectory() || !dir.canWrite()) {
 			throw new InvalidOptionArgValueException(
-				//opts.getOption(OPTION_CATALOG + ""),
-				null,
+				opts.getOption(OPTION_CATALOG + ""),				
 				catalogFilePath,
 				"Source file directory doesn't exist or is not writable: " + catalogFilePath					
 			);
@@ -91,8 +89,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		
 		if (datasourcePropsFile.exists()) {
 			throw new InvalidOptionArgValueException(
-				//opts.getOption(OPTION_CATALOG + ""),
-				null,
+				opts.getOption(OPTION_CATALOG + ""),				
 				catalogFilePath,
 				"Datasource properties file already exists for this catalog - " + catalogFilePath
 			);
@@ -121,7 +118,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	 * @throws InvalidDataException
 	 * @throws IOException
 	 */
-	protected void createColumnPropsFile(File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+	protected void createColumnPropsFile(Options opts,File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
 		
 		Pipeline pipe = new Pipeline(new CatGZPipe("gzip"));
 		pipe.setStarts(Arrays.asList(catalogFile.getPath()));
@@ -132,7 +129,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 			if (!nextVal.startsWith("#")) {
 				String[] aVal = nextVal.split("\t");
 				jsonLine = aVal[3];
-				System.out.println(jsonLine);
+				//System.out.println(jsonLine);
 				
 				break;
 			}			
@@ -142,8 +139,6 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	    JsonObject root = new JsonParser().parse(jsonLine).getAsJsonObject();
 	    
 	    for (Map.Entry<String,JsonElement> entry : root.entrySet()) {
-	    	//TODO handle arrays within the json
-	    	
 	    	String key = entry.getKey();
             JsonElement value = entry.getValue();
 	    	
@@ -165,8 +160,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	    File columnPropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename+".columns"+".properties");
 	    if (columnPropsFile.exists()) {
 			throw new InvalidOptionArgValueException(
-				//opts.getOption(OPTION_CATALOG + ""),
-				null,
+				opts.getOption(OPTION_CATALOG + ""),
 				catalogFilePath,
 				"Column properties file already exists for this catalog - " + catalogFilePath
 			);
