@@ -107,8 +107,8 @@ public class DrillITCase extends BaseFunctionalTest {
         String[] headerLines = header.split("\n");
         assertEquals(4, headerLines.length);
         assertEquals(prevCmdHeader, headerLines[0]);		
-		assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137.INFO.RSPOS\",Operation=\"DrillPipe\",DataType=\"STRING\",Field=\"INFO.RSPOS\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
-		assertEquals(String.format("##BIOR=<ID=\"dbSNP137.INFO.dbSNPBuildID\",Operation=\"DrillPipe\",DataType=\"STRING\",Field=\"INFO.dbSNPBuildID\",Path=\"%s\">", catCanonicalPath), headerLines[2]);
+		assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137.INFO.RSPOS\",Operation=\"DrillPipe\",DataType=\"STRING\",Field=\"INFO.RSPOS\",FieldDescription=\"Chromosome position reported in dbSNP\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
+		assertEquals(String.format("##BIOR=<ID=\"dbSNP137.INFO.dbSNPBuildID\",Operation=\"DrillPipe\",DataType=\"STRING\",Field=\"INFO.dbSNPBuildID\",FieldDescription=\"First dbSNP build for RS\",Path=\"%s\">", catCanonicalPath), headerLines[2]);
 		assertEquals("#bior.dbSNP137.INFO.RSPOS\tbior.dbSNP137.INFO.dbSNPBuildID", headerLines[3]);
 
 		// pull out just data rows		
