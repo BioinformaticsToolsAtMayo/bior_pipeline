@@ -132,7 +132,7 @@ public class SameVariantITCase extends BaseFunctionalTest
          String[] headerLines = header.split("\n");
          assertEquals(3, headerLines.length);
          assertEquals("##fileformat=VCFv4.0", headerLines[0]);
-         assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
+         assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Description=\"dbSNP version 137, Patch 10, Human\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
          assertEquals("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tJUNIT_JSON\tbior.dbSNP137", headerLines[2]);         
      }
  
