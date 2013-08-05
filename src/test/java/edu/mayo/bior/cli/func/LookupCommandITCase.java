@@ -29,7 +29,7 @@ public class LookupCommandITCase extends BaseFunctionalTest {
         String header = getHeader(out.stdout);
         String[] headerLines = header.split("\n");
         assertEquals(2, headerLines.length);
-        assertEquals(String.format("##BIOR=<ID=\"bior.genes\",Operation=\"bior_lookup\",DataType=\"JSON\",ShortUniqueName=\"genes\",Path=\"%s\"", catCanonicalPath), headerLines[0]);
+        assertEquals(String.format("##BIOR=<ID=\"bior.genes\",Operation=\"bior_lookup\",DataType=\"JSON\",ShortUniqueName=\"genes\",Path=\"%s\">", catCanonicalPath), headerLines[0]);
         assertEquals("#CHROM\tSTART\tEND\tHGNC_ID\tbior.genes", headerLines[1]);         
 
         // pull out just data rows
@@ -62,7 +62,7 @@ public class LookupCommandITCase extends BaseFunctionalTest {
         String header = getHeader(out.stdout);
         String[] headerLines = header.split("\n");
         assertEquals(2, headerLines.length);
-        assertEquals(String.format("##BIOR=<ID=\"bior.genes\",Operation=\"bior_lookup\",DataType=\"JSON\",ShortUniqueName=\"genes\",Path=\"%s\"", catCanonicalPath), headerLines[0]);
+        assertEquals(String.format("##BIOR=<ID=\"bior.genes\",Operation=\"bior_lookup\",DataType=\"JSON\",ShortUniqueName=\"genes\",Path=\"%s\">", catCanonicalPath), headerLines[0]);
         assertEquals("#CHROM\tSTART\tEND\tHGNC_ID\tbior.genes", headerLines[1]);         
 
         // pull out just data rows
