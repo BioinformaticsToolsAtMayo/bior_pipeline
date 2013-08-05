@@ -32,7 +32,7 @@ public class SameVariantITCase extends BaseFunctionalTest
          String[] headerLines = header.split("\n");
          assertEquals(3, headerLines.length);
          assertEquals("##fileformat=VCFv4.0", headerLines[0]);
-         assertEquals(String.format("##BIOR=<ID=\"bior.sameVariantCatalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"sameVariantCatalog\",Path=\"%s\"", catCanonicalPath), headerLines[1]);
+         assertEquals(String.format("##BIOR=<ID=\"bior.sameVariantCatalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"sameVariantCatalog\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
          assertEquals("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tJUNIT_JSON\tbior.sameVariantCatalog", headerLines[2]);         
          
          // pull out just data rows
@@ -63,7 +63,7 @@ public class SameVariantITCase extends BaseFunctionalTest
          String[] headerLines = header.split("\n");
          assertEquals(3, headerLines.length);
          assertEquals("##fileformat=VCFv4.0", headerLines[0]);
-         assertEquals(String.format("##BIOR=<ID=\"bior.sameVariantCatalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"sameVariantCatalog\",Path=\"%s\"", catCanonicalPath), headerLines[1]);
+         assertEquals(String.format("##BIOR=<ID=\"bior.sameVariantCatalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"sameVariantCatalog\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
          assertEquals("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tJUNIT_JSON\tbior.sameVariantCatalog", headerLines[2]);         
 
          // pull out just data rows
@@ -98,8 +98,8 @@ public class SameVariantITCase extends BaseFunctionalTest
          String[] headerLines = header.split("\n");
          assertEquals(4, headerLines.length);
          assertEquals("##fileformat=VCFv4.0", headerLines[0]);
-         assertEquals(String.format("##BIOR=<ID=\"bior.sameVariantCatalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"sameVariantCatalog\",Path=\"%s\"", catCanonicalPath1), headerLines[1]);
-         assertEquals(String.format("##BIOR=<ID=\"bior.example_dbSNP_catalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"example_dbSNP_catalog\",Path=\"%s\"", catCanonicalPath2), headerLines[2]);
+         assertEquals(String.format("##BIOR=<ID=\"bior.sameVariantCatalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"sameVariantCatalog\",Path=\"%s\">", catCanonicalPath1), headerLines[1]);
+         assertEquals(String.format("##BIOR=<ID=\"bior.example_dbSNP_catalog\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"example_dbSNP_catalog\",Path=\"%s\">", catCanonicalPath2), headerLines[2]);
          assertEquals("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tJUNIT_JSON\tbior.sameVariantCatalog\tbior.example_dbSNP_catalog", headerLines[3]);         
 
          // pull out just data rows
@@ -132,7 +132,7 @@ public class SameVariantITCase extends BaseFunctionalTest
          String[] headerLines = header.split("\n");
          assertEquals(3, headerLines.length);
          assertEquals("##fileformat=VCFv4.0", headerLines[0]);
-         assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\"", catCanonicalPath), headerLines[1]);
+         assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137\",Operation=\"bior_same_variant\",DataType=\"JSON\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
          assertEquals("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tJUNIT_JSON\tbior.dbSNP137", headerLines[2]);         
      }
  
