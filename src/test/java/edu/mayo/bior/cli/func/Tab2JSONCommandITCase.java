@@ -13,8 +13,8 @@ import com.jayway.jsonpath.JsonPath;
 public class Tab2JSONCommandITCase extends BaseFunctionalTest
 {
 	@Test
-	public void test() throws IOException, InterruptedException {
-		
+	public void test() throws IOException, InterruptedException
+	{
 		String config = 
 				"1	COL1	STRING	COLUMN	.	. " + "\n" +
 				"2	COL2	NUMBER	COLUMN	.	. " + "\n" +
