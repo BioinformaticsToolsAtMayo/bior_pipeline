@@ -1,0 +1,17 @@
+# Column properties file for Catalog - genes. Please fill in the description to the below keys.
+_type=The object type (variant, gene, drug, pathway, etc) (BioR field)
+_landmark=The landmark or chromosome on which the item appears (BioR field)
+_strand=The strand direction that this variant occurs on ("+" for forward, or "-" for reverse) (BioR field)
+_minBP=The minimum (starting) 1-based base pair position within the chromosome (BioR field)
+_maxBP=The maximum (ending) 1-based base pair position within the chromosome (BioR field)
+gene=
+note=
+pseudo=
+GeneID=
+HGNC=
+gene_synonym=
+miRBase=
+HPRD=
+MIM=
+exception=
+IMGT/GENE-DB=
