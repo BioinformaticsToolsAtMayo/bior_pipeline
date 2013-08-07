@@ -1,6 +1,10 @@
 package edu.mayo.bior.cli.cmd;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -22,7 +26,6 @@ import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
 import edu.mayo.pipes.util.metadata.Metadata;
-import edu.mayo.pipes.util.metadata.Metadata.CmdType;
 
 public class VEPCommand  implements CommandPlugin {
 
@@ -67,10 +70,13 @@ public class VEPCommand  implements CommandPlugin {
 			pickworst = Boolean.FALSE;
 		}
 		VEPPipeline vepPipeline = null;
-
-		Metadata metadata = new Metadata(CmdType.Tool, operation);				
-		
+				
 		try {
+			File dataSourceProps = loadResource("/tools/vep.datasource.properties");
+			File columnProps     = loadResource("/tools/columns.properties");
+			
+			Metadata metadata = new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), operation);
+			
 			vepPipeline = new VEPPipeline(getCommandLineOptions(line),pickworst);
 			
 			Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
@@ -91,6 +97,8 @@ public class VEPCommand  implements CommandPlugin {
 			sLogger.error(e.getMessage());
 		} catch (InvalidDataException e) {
 			sLogger.error(e.getMessage());
+		} catch (URISyntaxException e) {
+			sLogger.error(e.getMessage());
 		} finally {
 			// tell VEP we're done so it doesn't hang
 			if(vepPipeline != null) {
@@ -102,6 +110,29 @@ public class VEPCommand  implements CommandPlugin {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Locates resource at the specified classpath location.
+	 * 
+	 * @param classpathLocation
+	 * 		Classpath based path to the resource.
+	 * @return
+	 * 		File that represents the resource.
+	 * 
+	 * @throws FileNotFoundException
+	 * @throws URISyntaxException
+	 */
+	private File loadResource(String classpathLocation) throws FileNotFoundException, URISyntaxException
+	{
+		// locate resources via classpath
+		URL url = VEPCommand.class.getResource(classpathLocation);
+		if (url == null)
+		{
+			throw new FileNotFoundException(String.format("Failed to locate resource at classpath location %s ", classpathLocation));
+		}
+		
+		return new File(url.toURI());
 	}
 	
 	private String[] getCommandLineOptions(CommandLine line) {
