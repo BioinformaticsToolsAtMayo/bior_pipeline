@@ -23,7 +23,7 @@ public class BED2JSONCommandITCase extends BaseFunctionalTest
 		String header = getHeader(out.stdout);
 		assertEquals(
 				"##BIOR=<ID=\"bior.ToTJson\",Operation=\"bior_bed_to_tjson\",DataType=\"JSON\",ShortUniqueName=\"ToTJson\">" + "\n" +
- 				"#COL1	COL2	COL3	bior.ToTJson" + "\n", 
+ 				"#chrom	chromStart	chromEnd	name	score	strand	thickStart	thickEnd	itemRgb	blockCount	blockSizes	blockStarts	bior.ToTJson" + "\n", 
 				header);
 		
 		// pull out just data rows
