@@ -23,7 +23,7 @@ public abstract class BaseFunctionalTest {
 	private static final String ENV_VAR_BIOR_LITE_HOME = "BIOR_LITE_HOME";
 	
 	// stores the $BIOR_LITE_HOME value
-	private static String sHomePath;
+	protected static String sHomePath;
 
 	// UNIX environment variables
 	private static Map<String, String> sEnvVars = new HashMap<String, String>();
