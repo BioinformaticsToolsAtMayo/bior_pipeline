@@ -35,7 +35,7 @@ public class BED2JSONCommand implements CommandPlugin {
 
 	public void execute(CommandLine line, Options opts) throws Exception {
 		
-		Metadata metadata = new Metadata(CmdType.ToTJson, operation);
+		Metadata metadata = new Metadata(operation);
 		
 		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
 		Pipe<History, History>  logic     = new BED2JSONPipe();

@@ -64,7 +64,7 @@ public class SameVariantCommand implements CommandPlugin {
 				// positive, 
 				historyPosition++;
 			}
-			metadataList.add(new Metadata(CmdType.Query, new File(tabixFile).getCanonicalPath(), operation));
+			metadataList.add(new Metadata(new File(tabixFile).getCanonicalPath(), operation));
 		}		
 		
 		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadataList);

@@ -83,7 +83,7 @@ public class SNPEffCommand implements CommandPlugin{
 			 pickworst = Boolean.FALSE;			 
 		}
 		
-		Metadata metadata = new Metadata(CmdType.Tool, operation);				
+		Metadata metadata = new Metadata(operation);				
 		try {
 		
 			snpEffPipe = new SNPEFFPipeline(getCommandLineOptions(line),pickworst);

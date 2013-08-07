@@ -60,7 +60,7 @@ public class OverlapPipelineCommand implements CommandPlugin {
 			maxxtend = Integer.parseInt(line.getOptionValue(OPTION_MAXXTEND));
 		}
 		
-		Metadata metadata = new Metadata(CmdType.Query, new File(tabixFile).getCanonicalPath(), operation);
+		Metadata metadata = new Metadata(new File(tabixFile).getCanonicalPath(), operation);
 		
 		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
 		Pipe<History, History>  logic     = new OverlapPipe(tabixFile, minxtend, maxxtend, column);

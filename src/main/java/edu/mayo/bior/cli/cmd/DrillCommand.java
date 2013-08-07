@@ -51,7 +51,7 @@ public class DrillCommand implements CommandPlugin {
                 }
 
         String[] pathArr = paths.toArray(new String[0]);
-		Metadata metadata = new Metadata(CmdType.Drill, col, operation, keepJSON, pathArr);
+		Metadata metadata = new Metadata(col, operation, keepJSON, pathArr);
 		
 		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
 		Pipe<History, History>  logic     = new DrillPipe(keepJSON, pathArr, col);

@@ -98,7 +98,7 @@ public class LookupCommand implements CommandPlugin {
 
         boolean isCaseSensitive = line.hasOption(OPTION_CASE_SENSITIVE);
 		
-		Metadata metadata = new Metadata(CmdType.Query, new File(catalogFilePath).getCanonicalPath(), operation);
+		Metadata metadata = new Metadata(new File(catalogFilePath).getCanonicalPath(), operation);
 		
 		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
 		Pipe<History, History>  logic     = new LookupPipe(catalogFilePath, indexFilePath, column, isCaseSensitive);

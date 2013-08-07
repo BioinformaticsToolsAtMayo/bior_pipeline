@@ -139,7 +139,7 @@ public class Tab2JSONCommand implements CommandPlugin {
         }
         Injector[] injectors = parseConfigFile(config);
 
-		Metadata metadata = new Metadata(CmdType.ToTJson, operation);
+		Metadata metadata = new Metadata(operation);
 		
 		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
 		Pipe<History, History>  logic     = new InjectIntoJsonPipe(true, injectors);
