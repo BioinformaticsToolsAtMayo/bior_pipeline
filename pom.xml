@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>edu.mayo</groupId>
 				<artifactId>mayo-commons-cli-plugin</artifactId>
-				<version>0.0.1</version>
+				<version>0.0.2</version>
 
 				<!-- configuration parameters -->
 				<configuration>
@@ -84,7 +84,7 @@
 					<dependency>
 						<groupId>edu.mayo</groupId>
 						<artifactId>mayo-commons-cli-plugin</artifactId>
-						<version>0.0.1</version>
+						<version>0.0.2</version>
 					</dependency>
 				</dependencies>				
 			</plugin>
@@ -127,7 +127,7 @@
 		<dependency>
 			<groupId>edu.mayo</groupId>
 			<artifactId>pipes</artifactId>
-			<version>0.0.3-SNAPSHOT</version>
+			<version>2.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
