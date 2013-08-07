@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -222,6 +223,37 @@ public class VEPITCase extends RemoteFunctionalTest {
 
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
+
+	@Test
+	/** Test the whole bior_vep command with worst effect ONLY for each variant
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public void testHeader() throws IOException, InterruptedException, URISyntaxException
+	{
+		// NOTE:  This test case should only run on biordev - where it can run VEP
+
+		File biorLiteHome = new File(sHomePath);
+		File dataSourceProps = new File(biorLiteHome, "conf/tools/vep.datasource.properties");
+		File columnProps     = new File(biorLiteHome, "conf/tools/vep.columns.properties");		
+		
+		String stdin = 
+				"##fileformat=VCFv4.0" + "\n" +
+				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO" + "\n" +
+				"21	26960070	rs116645811	G	A	.	.	.";
+
+		CommandOutput out = executeScript("bior_vep", stdin, "--log");
+
+		assertEquals(out.stderr, 0, out.exit);
+		assertEquals("", out.stderr);
+		
+		String[] outputLines = out.stdout.split("\n");
+
+		assertEquals(4, outputLines.length);
+		assertEquals("##fileformat=VCFv4.0", outputLines[0]);
+		assertEquals(String.format("##BIOR=<ID=\"bior.vep\",Operation=\"bior_vep\",DataType=\"JSON\",ShortUniqueName=\"vep\",Description=\"Tool from Ensembl that predicts the functional consequences of known and unknown variants.\",Version=\"2.7\",Build=\"Ensembl Release 69\",DataSourceProperties=\"%s\",ColumnProperties=\"%s\">", dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath()), outputLines[1]);		
+		assertEquals("#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	bior.vep", outputLines[2]);
+	}	
 	
 	public static void printComparison(Pipeline pipeline, List<String> expected, List<String> actual) {
 		if(pipeline != null)
