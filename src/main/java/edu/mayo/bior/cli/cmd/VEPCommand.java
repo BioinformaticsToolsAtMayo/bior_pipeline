@@ -1,15 +1,9 @@
 package edu.mayo.bior.cli.cmd;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -19,9 +13,8 @@ import com.tinkerpop.pipes.Pipe;
 
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.VEP.VEPPipeline;
+import edu.mayo.bior.util.ClasspathUtil;
 import edu.mayo.cli.CommandPlugin;
-import edu.mayo.cli.InvalidDataException;
-import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
@@ -63,7 +56,7 @@ public class VEPCommand  implements CommandPlugin {
 	}
 
 	
-	public void execute (CommandLine line,Options options) {
+	public void execute (CommandLine line,Options options) throws Exception {
 		
 		boolean pickworst = Boolean.TRUE;
 		if (line.hasOption(OPTION_PICKWORST)){
@@ -72,8 +65,8 @@ public class VEPCommand  implements CommandPlugin {
 		VEPPipeline vepPipeline = null;
 				
 		try {
-			File dataSourceProps = loadResource("/tools/vep.datasource.properties");
-			File columnProps     = loadResource("/tools/columns.properties");
+			File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
+			File columnProps     = ClasspathUtil.loadResource("/tools/vep.columns.properties");
 			
 			Metadata metadata = new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), operation);
 			
@@ -85,20 +78,6 @@ public class VEPCommand  implements CommandPlugin {
 			
 			mPipeline.execute(preLogic, logic, postLogic);
 			
-		} catch (IOException e) {
-			sLogger.error(e.getMessage());
-		} catch (InterruptedException e) {
-			sLogger.error(e.getMessage());
-		} catch (BrokenBarrierException e) {
-			sLogger.error(e.getMessage());
-		} catch (TimeoutException e) {
-			sLogger.error(e.getMessage());
-		} catch (AbnormalExitException e) {
-			sLogger.error(e.getMessage());
-		} catch (InvalidDataException e) {
-			sLogger.error(e.getMessage());
-		} catch (URISyntaxException e) {
-			sLogger.error(e.getMessage());
 		} finally {
 			// tell VEP we're done so it doesn't hang
 			if(vepPipeline != null) {
@@ -111,30 +90,7 @@ public class VEPCommand  implements CommandPlugin {
 			}
 		}
 	}
-	
-	/**
-	 * Locates resource at the specified classpath location.
-	 * 
-	 * @param classpathLocation
-	 * 		Classpath based path to the resource.
-	 * @return
-	 * 		File that represents the resource.
-	 * 
-	 * @throws FileNotFoundException
-	 * @throws URISyntaxException
-	 */
-	private File loadResource(String classpathLocation) throws FileNotFoundException, URISyntaxException
-	{
-		// locate resources via classpath
-		URL url = VEPCommand.class.getResource(classpathLocation);
-		if (url == null)
-		{
-			throw new FileNotFoundException(String.format("Failed to locate resource at classpath location %s ", classpathLocation));
-		}
 		
-		return new File(url.toURI());
-	}
-	
 	private String[] getCommandLineOptions(CommandLine line) {
 		
 		List<String> cmdoptions = new ArrayList<String>();
