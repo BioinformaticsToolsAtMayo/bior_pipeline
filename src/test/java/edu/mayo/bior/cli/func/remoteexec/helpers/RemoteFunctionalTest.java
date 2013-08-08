@@ -30,7 +30,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	/** NOTE: All tests must be listed here if they are to be run!!!! */
 	private Class[] REMOTE_TESTS = {
 		edu.mayo.bior.cli.func.remoteexec.SNPEffITCase.class,
-		edu.mayo.bior.cli.func.remoteexec.VEPITCase.class, 
+		edu.mayo.bior.cli.func.remoteexec.VEPCommandITCase.class, 
 		edu.mayo.bior.cli.func.remoteexec.TreatITCase.class,
 		edu.mayo.bior.cli.func.remoteexec.ManyCmdsITCase.class
 	};
