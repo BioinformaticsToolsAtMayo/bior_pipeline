@@ -4,35 +4,25 @@
  */
 package edu.mayo.bior.pipeline.SNPEff;
 
-import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
 
 import com.google.gson.JsonObject;
-import com.tinkerpop.pipes.AbstractPipe;
 import com.tinkerpop.pipes.Pipe;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.pipeline.SNPEff.SNPEffHelper.InfoFieldKey;
+import edu.mayo.bior.pipeline.VCFProgramPipes.VCFProgram2HistoryPipe;
 import edu.mayo.exec.UnixStreamCommand;
-import edu.mayo.pipes.HeaderPipe;
-import edu.mayo.pipes.PrintPipe;
-import edu.mayo.pipes.JSON.DrillPipe;
-import edu.mayo.pipes.UNIX.CatPipe;
-import edu.mayo.pipes.UNIX.GrepEPipe;
-import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.History;
-import edu.mayo.pipes.history.HistoryInPipe;
-import edu.mayo.pipes.history.HistoryOutPipe;
 /**
  *
  * @author m089716
@@ -101,25 +91,12 @@ public class SNPEffPostProcessPipeline {
 	public static class SNPEffTransformPipe implements PipeFunction<History, History> {
 
 		boolean showMostSignificantEffectOnly = true;
-		boolean colmetadata = false;
 		public SNPEffTransformPipe(boolean showMostSignificantEffectOnly) {
 			this.showMostSignificantEffectOnly = showMostSignificantEffectOnly;
 		}
 				
        // @Override
         public History compute(History history) {
-            //throw new UnsupportedOperationException("Not supported yet.");
-        	if (colmetadata == false){  
-        	List<ColumnMetaData> colmeta =	history.getMetaData().getColumns();
-    		  if (colmeta.get(7).getColumnName().equalsIgnoreCase("SNPEff"))  {
-    			  
-    			  
-    			  colmeta.remove(7);
-    			  colmeta.add(new ColumnMetaData("BIOR.SNPEff"));
-    			  
-    		  }
-    		 colmetadata= true; 
-        	}
         //	History.getMetaData().setOriginalHeader(m)
         	String parsedEffValue = this.parseEFFColumnData(history);
         	//add the parsed-effect-value as a json string to the end of history
