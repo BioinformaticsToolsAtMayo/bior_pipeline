@@ -63,7 +63,7 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		List<String> actual = Arrays.asList(actualStr.split("\n"));
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/manycmds/manycmds.out.vcf");
 	
-		VEPITCase.printComparison(null, expected, actual);
+		VEPCommandITCase.printComparison(null, expected, actual);
 
 		PipeTestUtils.assertListsEqual(expected, actual);
 	}
