@@ -2,7 +2,6 @@ package edu.mayo.bior.pipeline.VEP;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
@@ -13,7 +12,6 @@ import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.exec.AbnormalExitException;
-import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.History;
 
 /**
@@ -49,13 +47,11 @@ public class VEPPipeline  extends Pipeline {
 
 	class VepPostPipe implements PipeFunction<String,History> {
 		private VepFunctions mVepFunctions = new VepFunctions();
-		private boolean isFirstLine = true;
 		
 		/** Create a json array from VEP output, convert it to array, and if mIsWorstCaseOnly is set, 
 		 *  then return the worst element from the array. 
 		 * 	If there are no scores to compare, then return empty json. */
 		public History compute(String histFromVep) {
-			addHeaderMetaData();
 			String vepCsq = histFromVep.split("\t")[7];
 			JsonArray csqAsJsonArray = mVepFunctions.vepCsqToJsonList(vepCsq);
 			String vepOut = mIsWorstCaseOnly 
@@ -64,14 +60,6 @@ public class VEPPipeline  extends Pipeline {
 			History original = mLastLineQ.remove();
 			original.add(vepOut);
 			return original;
-		}
-
-		/** Add "VEP" to the end of the column header row */
-		private void addHeaderMetaData() {
-			if( isFirstLine ) {
-				isFirstLine = false;
-				History.getMetaData().getColumns().add(new ColumnMetaData("BIOR.VEP"));
-			}
 		}
 	}
 
