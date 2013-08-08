@@ -31,7 +31,7 @@ public class BED2JSONCommandITCase extends BaseFunctionalTest
 		
 		// JSON should be added as last column (9th)
 		String[] cols = data.split("\t");
-		assertEquals(4, cols.length);
+		assertEquals(13, cols.length);
 		
 		String json = cols[cols.length - 1];
 		System.out.println(json);
@@ -46,7 +46,7 @@ public class BED2JSONCommandITCase extends BaseFunctionalTest
         assertEquals("5000",	JsonPath.compile("thickEnd").read(json));
         assertEquals("0",		JsonPath.compile("itemRgb").read(json));
         assertEquals("2",		JsonPath.compile("blockCount").read(json));
-        assertEquals("567,488",	JsonPath.compile("blockSizes").read(json));
+        assertEquals("567,488,",	JsonPath.compile("blockSizes").read(json));
         assertEquals("0,3512",	JsonPath.compile("blockStarts").read(json));
 	}
 }
