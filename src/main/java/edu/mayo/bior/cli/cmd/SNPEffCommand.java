@@ -1,5 +1,6 @@
 package edu.mayo.bior.cli.cmd;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -12,12 +13,12 @@ import com.tinkerpop.pipes.Pipe;
 
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.SNPEff.SNPEFFPipeline;
+import edu.mayo.bior.util.ClasspathUtil;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
 import edu.mayo.pipes.util.metadata.Metadata;
-import edu.mayo.pipes.util.metadata.Metadata.CmdType;
 
 public class SNPEffCommand implements CommandPlugin{
 
@@ -82,8 +83,12 @@ public class SNPEffCommand implements CommandPlugin{
 		if(line.hasOption(OPTION_PICKALL)){
 			 pickworst = Boolean.FALSE;			 
 		}
+
+		File dataSourceProps = ClasspathUtil.loadResource("/tools/snpeff.datasource.properties");
+		File columnProps     = ClasspathUtil.loadResource("/tools/snpeff.columns.properties");
 		
-		Metadata metadata = new Metadata(operation);				
+		Metadata metadata = new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), operation);
+		
 		try {
 		
 			snpEffPipe = new SNPEFFPipeline(getCommandLineOptions(line),pickworst);
