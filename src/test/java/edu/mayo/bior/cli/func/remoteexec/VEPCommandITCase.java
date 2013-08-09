@@ -215,5 +215,23 @@ public class VEPCommandITCase extends RemoteFunctionalTest {
 			assertEquals(9, cols.length);
 			assertEquals("{}", cols[8]);
 		}
-	}	
+	}
+
+    public File getDataSourceProps() {
+        return dataSourceProps;
+    }
+
+    public void setDataSourceProps(File dataSourceProps) {
+        this.dataSourceProps = dataSourceProps;
+    }
+
+    public File getColumnProps() {
+        return columnProps;
+    }
+
+    public void setColumnProps(File columnProps) {
+        this.columnProps = columnProps;
+    }
+        
+        
 }
