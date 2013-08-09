@@ -158,5 +158,32 @@ public class SNPEFFPipelineITCase extends RemoteFunctionalTest
 			System.out.println(s);
 		}
 		System.out.println("]");
-	}	
+	}
+
+    public File getDataSourceProps() {
+        return dataSourceProps;
+    }
+
+    public void setDataSourceProps(File dataSourceProps) {
+        this.dataSourceProps = dataSourceProps;
+    }
+
+    public File getColumnProps() {
+        return columnProps;
+    }
+
+    public void setColumnProps(File columnProps) {
+        this.columnProps = columnProps;
+    }
+
+    public Metadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
+    }
+        
+        
+        
 }
