@@ -11,14 +11,60 @@ import org.junit.Test;
 
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
+import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.util.test.FileCompareUtils;
 import edu.mayo.pipes.util.test.PipeTestUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * @author Michael Meiners (m054457)
  * Date created: Apr 26, 2013
  */
 public class ManyCmdsITCase extends RemoteFunctionalTest {
+  
+    public final String VCF_IN 		= "src/test/resources/tools/manycmds/manycmds.input.vcf";
+    public final String DBSNP_CATALOG     	= "src/test/resources/treat/brca1.dbsnp.tsv.gz";
+    public final String GENES_CATALOG   	= "src/test/resources/genes.tsv.bgz";
+    private HashMap<String,String> hm = new HashMap();
+    
+    @Before
+    public void setUp()throws IOException{
+        SNPEFFPipelineITCase snpeff = new SNPEFFPipelineITCase();
+        snpeff.setUp();
+        VEPPipelineITCase vep = new VEPPipelineITCase();
+        vep.setUp();
+        File in = new File(VCF_IN);
+        File dbSNP = new File(DBSNP_CATALOG);
+        File gene = new File(GENES_CATALOG);
+        hm.put("REPLACEMEmanycmds.input.vcf", in.getCanonicalPath());
+        hm.put("REPLACEMEbrca1.dbsnp.tsv.gz", dbSNP.getCanonicalPath());
+        hm.put("REPLACEMEgenes.tsv.bgz", gene.getCanonicalPath());
+        hm.put("REPLACEMEsnpeff.datasource.properties", snpeff.getDataSourceProps().getCanonicalPath());
+        hm.put("REPLACEMEsnpeff.column.properties", snpeff.getColumnProps().getCanonicalPath());
+        hm.put("REPLACEMEvep.datasource.properties", vep.getDataSourceProps().getCanonicalPath());
+        hm.put("REPLACEMEvep.column.properties", vep.getColumnProps().getCanonicalPath());
+    }
+    
+    @After
+    public void tearDown()
+    {
+	History.clearMetaData();
+    }
+    
+    public String replaceHash(String input) {
+        String output = input;
+        for(String key : hm.keySet() ){
+            if(input.contains(key)){
+                output = output.replaceAll(key, hm.get(key));
+            }
+        }
+        return output;
+    }
+
+    
 
 	@Test
 	public void testManyCmds() throws IOException, InterruptedException { 
@@ -42,9 +88,7 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		//		bior_index
 		//		bior_squish
 		//      bior_pretty_print
-		final String VCF_IN 		= "src/test/resources/tools/manycmds/manycmds.input.vcf";
-		final String DBSNP_CATALOG 	= "src/test/resources/treat/brca1.dbsnp.tsv.gz";
-		final String GENES_CATALOG 	= "src/test/resources/genes.tsv.bgz";
+
 		String cmd = String.format(
 				"cat %s  | bior_vcf_to_tjson  | bior_same_variant -d %s  | bior_overlap -d %s  | " +
 				"bior_drill -p HGNC  | bior_lookup -d %s -p HGNC  | bior_vep | bior_snpeff | bior_drill -p Effect_impact ",
@@ -61,10 +105,14 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		
 		String actualStr = out.stdout;
 		List<String> actual = Arrays.asList(actualStr.split("\n"));
-		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/manycmds/manycmds.out.vcf");
+		List<String> expectedIN = FileCompareUtils.loadFile("src/test/resources/tools/manycmds/manycmds.out.vcf");
+                ArrayList<String> expectedFixed = new ArrayList<String>();
+                for(String s : expectedIN){
+                    expectedFixed.add(this.replaceHash(s));
+                }
 	
-		VEPCommandITCase.printComparison(null, expected, actual);
+		VEPCommandITCase.printComparison(null, expectedFixed, actual);
 
-		PipeTestUtils.assertListsEqual(expected, actual);
+		PipeTestUtils.assertListsEqual(expectedFixed, actual);
 	}
 }
