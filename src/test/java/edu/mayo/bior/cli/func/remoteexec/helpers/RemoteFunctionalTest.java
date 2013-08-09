@@ -131,8 +131,8 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		}
 		
 		// Only run the testcase if on local system
-		return mIsDevServer;
-		//return true; //TODO: TEMP - this is to run all remote tests on your local machine.  Change this back before checking in code!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//return mIsDevServer;
+		return true; //TODO: TEMP - this is to run all remote tests on your local machine.  Change this back before checking in code!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	}
 
 	/** We are probably on a laptop or user system and thus need to copy all current

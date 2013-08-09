@@ -46,8 +46,8 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		final String DBSNP_CATALOG 	= "src/test/resources/treat/brca1.dbsnp.tsv.gz";
 		final String GENES_CATALOG 	= "src/test/resources/genes.tsv.bgz";
 		String cmd = String.format(
-				"cat %s  | bior_vcf_to_json  | bior_same_variant -d %s  | bior_overlap -d %s  | " +
-				"bior_drill -p HGNC  | bior_lookup -d %s -p HGNC  | bior_vep  | bior_snpeff",
+				"cat %s  | bior_vcf_to_tjson  | bior_same_variant -d %s  | bior_overlap -d %s  | " +
+				"bior_drill -p HGNC  | bior_lookup -d %s -p HGNC  | bior_vep | bior_snpeff | bior_drill -p Effect_impact ",
 				VCF_IN,
 				DBSNP_CATALOG,
 				GENES_CATALOG,
