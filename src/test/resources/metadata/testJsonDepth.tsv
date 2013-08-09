@@ -1,5 +1,0 @@
-#CHROM	MINBP	MAXBP	JSON
-1	10	10	{"_type":"variant","_landmark":1,"_maxBP":10}
-2	20	21	{"_type":"variant","_landmark":2,"_strand":"+","_minBP":20,"_maxBP":21}
-3	30	35	{"_type":"variant","_landmark":3,"_strand":"-","_minBP":30,"_maxBP":35,"INFO":{"SAO":1.0,"SSR":2.0,"DEEP":{"LEAF":true}}}
-
