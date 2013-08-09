@@ -151,5 +151,33 @@ public class VEPPipelineITCase extends RemoteFunctionalTest {
 		vepPipe.terminate();
 		
 		assertEquals(aCSQ[7], expected);		
-	}	
+	}
+
+    public File getDataSourceProps() {
+        return dataSourceProps;
+    }
+
+    public void setDataSourceProps(File dataSourceProps) {
+        this.dataSourceProps = dataSourceProps;
+    }
+
+    public File getColumnProps() {
+        return columnProps;
+    }
+
+    public void setColumnProps(File columnProps) {
+        this.columnProps = columnProps;
+    }
+
+    public Metadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
+    }
+        
+        
+        
+        
 }
