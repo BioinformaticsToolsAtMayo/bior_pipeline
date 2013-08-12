@@ -40,20 +40,21 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	    // Modify Metadata only once
 		if (modifyMetadata == false){
 	    	totalcolumns = History.getMetaData().getColumns().size();
-	    
+	        List<String> columns = getBIORColumnsFromMetadata();
+	        if (columns.size() > 0)
 	    		//check if INFO column is there and standard index is 7 and get indexes of BIOR Added Columns 
 	    	    if (totalcolumns > 7 && History.getMetaData().getColumns().get(7).getColumnName().equalsIgnoreCase("INFO")){
 	    	    	
 	    	    	for (int i =7; i < totalcolumns;i++) {
 	    	    	String colname =History.getMetaData().getColumns().get(i).getColumnName();
-	    	    		if (colname.toLowerCase().contains("bior")) {
-	    	    		  
+	    	    //		if (colname.toLowerCase().contains("bior")) {
+	    	    		if (columns.contains(colname)) {  
 	    	    		  biorindexes.put(i,colname) ;
 	    	    	 } 
 	    	    		
 	    	    	} 
-	    //remove the columns from ColumnHeader    
-	    removeColumnHeader(History.getMetaData(),biorindexes );
+	    //remove the columns from ColumnHeader and Modify metadata    
+	    addColumnheaders((removeColumnHeader(History.getMetaData(),biorindexes )).getOriginalHeader());
 	    modifyMetadata = true;
 	    }
 	   
@@ -62,20 +63,23 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	    }
 		
 	    history =  removecolumns(modifyhistory(history,biorindexes),biorindexes);
-		history =  addColumnheaders(history);
+		//history =  addColumnheaders(history);
 	    return history;
 	    	
 		
 		
 	}
 
-	private History addColumnheaders(History history) {
+	private void addColumnheaders(List<String> colmeta) {
 	   
-		List<String> colmeta = history.getMetaData().getOriginalHeader();
+	//	List<String> colmeta = history.getMetaData().getOriginalHeader();
 	
-		
+		List<String> infoMeta = new ArrayList<String>();
+		List<String> biorList = new ArrayList<String>();
 		for (String info: colmeta){
-
+            if (info.startsWith("##BIOR=<ID")) {
+            	biorList.add(info);
+            }
 			if (info.startsWith("##BIOR=<ID") && info.contains("drill")){
 		 
 		 String ast = info.split("<")[1];
@@ -85,7 +89,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 		 HashMap<String,String> meta = new HashMap<String,String>();
          for (String as:ast2){
         	String[] ast3 = as.split("=");
-        	meta.put(ast3[0], ast3[1]);
+        	 meta.put(ast3[0], ast3[1]);
          }
 		
          StringBuilder st = new StringBuilder();
@@ -101,17 +105,20 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
          st.append(meta.get("CatalogVersion"));
          st.append(",CatalogBuild=");
          st.append(meta.get("CatalogBuild"));
-         st.append(",CatalogPath");
+         st.append(",CatalogPath=");
          st.append(meta.get("CatalogPath"));
-         st.append("\">");
+         st.append(">");
          
-   
-		 colmeta.add(st.toString())	;
+         
+		 infoMeta.add(st.toString().replaceAll("null", ""))	;
 			}
 		}
+		int inde = colmeta.size();
 		
-		history.getMetaData().setOriginalHeader(colmeta);
-		return history;
+		if (colmeta.addAll(inde-1, infoMeta) && colmeta.removeAll(biorList)) {
+		History.getMetaData().setOriginalHeader(colmeta);
+		}
+		
 	}
 
 	
@@ -149,13 +156,26 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	}
 
 	
-	
+	private List<String> getBIORColumnsFromMetadata() {
+	  List<String> metadata =	History.getMetaData().getOriginalHeader();
+	  List<String> columns = new ArrayList<String>();
+	  for (String info: metadata){
+          if (info.startsWith("##BIOR=<ID")) {
+        	  String[] ast = info.split("<")[1].replace(">", "").split(",");
+ 
+     		  String[] ast3 = ast[0].split("=");
+          	  columns.add(ast3[1]);
+          }
+	  }
+	  
+	  return columns;
+	  }
 	
 	
 	//Modify the history string(VCF row) by appending the columns into INFO 
 	
 	
-	private History modifyhistory(History history, Map<Integer,String> biorindexes) {
+	private History modifyhistory(History history, Map<Integer,String> biorindexes2) {
 		
 		Set<Integer> indexes =   biorindexes.keySet();
 		
@@ -170,8 +190,13 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 			}
 			
 			if (val != null && !val.isEmpty() && !val.contentEquals(".") && !val.startsWith("{")) {
-			String newValue = history.get(7).concat(";" + biorindexes.get(value) +"=" + val);	
-			history.set(7,newValue) ;
+		   
+			String newValue= history.get(7).concat(";" + biorindexes.get(value) +"=" + val);	
+		    
+		   if (newValue.startsWith(".;"))	
+		        history.set(7,newValue.replaceFirst(".;", "")) ;
+		    else  
+		    	 history.set(7, newValue);
 			
 			}
 		  	
