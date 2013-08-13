@@ -103,7 +103,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
          * @param history
          * @return 
          */
-	private Map<Integer,String> getBiorColumnsIndexes(int totalcolumn,List<String> biorcolumn,History history) {
+	public Map<Integer,String> getBiorColumnsIndexes(int totalcolumn,List<String> biorcolumn,History history) {
 		Map<Integer,String> biorindex = new HashMap<Integer,String>();
 		
 		if (totalcolumn > 7 && History.getMetaData().getColumns().get(7).getColumnName().equalsIgnoreCase("INFO")){
