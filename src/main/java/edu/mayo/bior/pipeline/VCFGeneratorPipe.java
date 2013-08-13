@@ -28,7 +28,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	int totalcolumns;
 	
 	boolean modifyMetadata = false;
-	List<String> biorcolumns = new ArrayList<String>();
+	List<String> biorcolumnsFromMetadata = new ArrayList<String>();
     List<String> colsFromHeader = new ArrayList<String>();
 	
 	
@@ -41,44 +41,44 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	    // Modify Metadata only once
 		if (!modifyMetadata){
 	    	totalcolumns = History.getMetaData().getColumns().size();
-	    	biorcolumns = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader());  
-	    	colsFromHeader = getBIORColumnsFromHeader(totalcolumns,history,biorcolumns);
-	    	biorindexes = getBiorColumnsIndexes(totalcolumns,biorcolumns,history);
-	        
-	    	if (biorcolumns != null ) {
+	    	biorcolumnsFromMetadata = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader());  
+	    	colsFromHeader = getBIORColumnsFromHeader(totalcolumns,history,biorcolumnsFromMetadata);
+	    	biorindexes = getBiorColumnsIndexes(totalcolumns,biorcolumnsFromMetadata,history);
+	        //checks if biorcolumns is not null
+	    	if (biorcolumnsFromMetadata != null ) {
 	    	
-	    	if (biorcolumns.containsAll(colsFromHeader) && biorcolumns.size() == colsFromHeader.size()){
+	    	if (biorcolumnsFromMetadata.containsAll(colsFromHeader) && biorcolumnsFromMetadata.size() == colsFromHeader.size()){
 	        
 	        
     	    	History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(),biorindexes )).getOriginalHeader(),null,null));
 	        
-	        } else if (biorcolumns.containsAll(colsFromHeader) && biorcolumns.size() > colsFromHeader.size()) {
+	        } else if (biorcolumnsFromMetadata.containsAll(colsFromHeader) && biorcolumnsFromMetadata.size() > colsFromHeader.size()) {
 	        	
 	        	
-	        	    List<String> biorcolumn = biorcolumns;
+	        	    List<String> biorcolumn = biorcolumnsFromMetadata;
 	        	    biorcolumn.removeAll(colsFromHeader);
 	        	    History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(),biorindexes )).getOriginalHeader(),null,biorcolumn));  
 	        
-	        } else if (colsFromHeader.containsAll(biorcolumns) && colsFromHeader.size() > biorcolumns.size()) {
+	        } else if (colsFromHeader.containsAll(biorcolumnsFromMetadata) && colsFromHeader.size() > biorcolumnsFromMetadata.size()) {
 	        	
 	        	
 	        	List<String> addDefaultColumn = colsFromHeader;
-        	    addDefaultColumn.removeAll(biorcolumns);
+        	    addDefaultColumn.removeAll(biorcolumnsFromMetadata);
         	    History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(),biorindexes )).getOriginalHeader(),addDefaultColumn,null));  
 	        
-	        } else if (!colsFromHeader.containsAll(biorcolumns) || !biorcolumns.containsAll(colsFromHeader)) {
+	        } else if (!colsFromHeader.containsAll(biorcolumnsFromMetadata) || !biorcolumnsFromMetadata.containsAll(colsFromHeader)) {
 	        	
 	        	  
-	               List<String> biorcolumn = biorcolumns;
+	               List<String> biorcolumn = biorcolumnsFromMetadata;
 	        	   biorcolumn.removeAll(colsFromHeader);
 	        	   List<String> addDefaultColumn = colsFromHeader;
-	        	   addDefaultColumn.removeAll(biorcolumns);
+	        	   addDefaultColumn.removeAll(biorcolumnsFromMetadata);
 	        	   History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(),biorindexes )).getOriginalHeader(),addDefaultColumn,biorcolumn));      
 	        	
 	        }
 	    } else {
 	    	
-	    	
+	    	//No ##BIOR available since bior
 	    	History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(),biorindexes )).getOriginalHeader(),colsFromHeader,null)); 
 	    
 	    }
