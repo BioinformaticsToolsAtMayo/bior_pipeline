@@ -41,8 +41,8 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	    // Modify Metadata only once
 		if (!modifyMetadata){
 	    	totalcolumns = History.getMetaData().getColumns().size();
-	    	biorcolumnsFromMetadata = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader());  
-	    	colsFromHeader = getBIORColumnsFromHeader(totalcolumns,history,biorcolumnsFromMetadata);
+	    	biorcolumnsFromMetadata = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader()); 
+	    	colsFromHeader = getBIORColumnsFromHeader(totalcolumns,history.getMetaData().getOriginalHeader(),biorcolumnsFromMetadata);
 	    	biorindexes = getBiorColumnsIndexes(totalcolumns,biorcolumnsFromMetadata,history);
 	        //checks if biorcolumns is not null
 	    	if (biorcolumnsFromMetadata != null ) {
@@ -167,17 +167,17 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
          st.append(meta.get("ID"));
          st.append(",Number=.,");
          st.append("Type=String,");
-         st.append("Description=");
+         st.append("Description=\"");
          st.append(meta.get("Description"));
-         st.append(",CatalogShortUniqueName=");
+         st.append("\",CatalogShortUniqueName=\"");
          st.append(meta.get("CatalogShortUniqueName"));
-         st.append(",CatalogVersion=");
+         st.append("\",CatalogVersion=\"");
          st.append(meta.get("CatalogVersion"));
-         st.append(",CatalogBuild=");
+         st.append("\",CatalogBuild=\"");
          st.append(meta.get("CatalogBuild"));
-         st.append(",CatalogPath=");
+         st.append("\",CatalogPath=\"");
          st.append(meta.get("CatalogPath"));
-         st.append(">");
+         st.append("\">");
          
          
 		 infoMeta.add(st.toString().replaceAll("null", ""))	;
@@ -195,15 +195,15 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 		         st1.append(",Number=.,");
 		         st1.append("Type=String,");
 		         st1.append("Description=");
-		         st1.append("Not available");
+		     //    st1.append("");
 		         st1.append(",CatalogShortUniqueName=");
-		         st1.append("Not Available");
+		     //    st1.append("");
 		         st1.append(",CatalogVersion=");
-		         st1.append(" ");
+		      //   st1.append("");
 		         st1.append(",CatalogBuild=");
-		         st1.append(" ");
+		    //     st1.append("");
 		         st1.append(",CatalogPath=");
-		         st1.append(" ");
+		    //     st1.append("");
 		         st1.append(">");
 		         infoMeta.add(st1.toString().replaceAll("null", ""))	;
 			}
@@ -274,12 +274,17 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	  }
 	
 	//Extracts the List of BioR Columns looking at column header
-	private List<String> getBIORColumnsFromHeader(int totalcolumn,History history,List<String> biorcolumn) {
+	private List<String> getBIORColumnsFromHeader(int totalcolumn,List<String> originalheader,List<String> biorcolumn) {
 	 List<String> columns = new ArrayList<String>();
-	 
-	 for (int j =0;j < totalcolumn; j++){
+	 int indexsize = originalheader.size();
+	 String columnheader = originalheader.get(indexsize-1);
+	 if (originalheader.get(indexsize -1).startsWith("#CHROM")) {
+	
+	   String[] column = columnheader.split("\t");	 
+	  List<String> columnlist = Arrays.asList(column);
+	  for (String colname: columnlist){
 	        
-	        String colname =History.getMetaData().getColumns().get(j).getColumnName(); 
+	     //   String colname =History.getMetaData().getColumns().get(j).getColumnName(); 
 	        	   
 	              if (colname.contains("bior") || colname.contains("BIOR")) {
 	        	    	
@@ -292,7 +297,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	         
 	          }
 	 
-	 
+	 }
 	 return columns;
 		
 	}
