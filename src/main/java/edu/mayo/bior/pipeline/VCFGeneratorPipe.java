@@ -96,6 +96,13 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	}
 
 	// Returns a Map of BioR column index and name
+        /**
+         * 
+         * @param totalcolumn - total
+         * @param biorcolumn - of those columns in the history, this is a list of the BioR columns (determined by 
+         * @param history
+         * @return 
+         */
 	private Map<Integer,String> getBiorColumnsIndexes(int totalcolumn,List<String> biorcolumn,History history) {
 		Map<Integer,String> biorindex = new HashMap<Integer,String>();
 		
@@ -247,7 +254,12 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 		
 	}
 
-	//Extracts the List of Bior Columns looking at Metadata (##BIOR lines)
+
+        /**
+         * Extracts the List of Bior Columns looking at Metadata (##BIOR lines)
+         * @param metadata - the original header lines including ##BIOR lines
+         * @return 
+         */
 	private List<String> getBIORColumnsFromMetadata(List<String> metadata) {
 	  List<String> columns = new ArrayList<String>();
 	  for (String info: metadata){
