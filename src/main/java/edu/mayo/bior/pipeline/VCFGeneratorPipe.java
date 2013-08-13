@@ -260,7 +260,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
          * @param metadata - the original header lines including ##BIOR lines
          * @return 
          */
-	private List<String> getBIORColumnsFromMetadata(List<String> metadata) {
+	public List<String> getBIORColumnsFromMetadata(List<String> metadata) {
 	  List<String> columns = new ArrayList<String>();
 	  for (String info: metadata){
           if (info.startsWith("##BIOR=<ID")) {
