@@ -127,9 +127,8 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	    return biorindex;
 	}
 	
-	
-	//Add ##INFO columns to the Metadata lines
-	/* 
+
+	/* Add ##INFO columns to the Metadata lines
 	 * @param colmeta (List<String> of current metadata)
 	 * @param retain (List of BioRColumns that has no ##BIOR...Constructs default ##INFO)
 	 * @param remove (List of BioRColumns that are only mentioned in ##BIOR but not in ColumnHeader(no data available))
