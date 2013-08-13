@@ -42,7 +42,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 		if (!modifyMetadata){
 	    	totalcolumns = History.getMetaData().getColumns().size();
 	    	biorcolumnsFromMetadata = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader()); 
-	    	colsFromHeader = getBIORColumnsFromHeader(totalcolumns,history.getMetaData().getOriginalHeader(),biorcolumnsFromMetadata);
+	    	colsFromHeader = getBIORColumnsFromHeader(history.getMetaData().getOriginalHeader(),biorcolumnsFromMetadata);
 	    	biorindexes = getBiorColumnsIndexes(totalcolumns,biorcolumnsFromMetadata,history);
 	        //checks if biorcolumns is not null
 	    	if (biorcolumnsFromMetadata != null ) {
