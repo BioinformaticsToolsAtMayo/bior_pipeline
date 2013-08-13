@@ -274,7 +274,13 @@ public class VCFGeneratorPipe extends AbstractPipe<History,History> {
 	  }
 	
 	//Extracts the List of BioR Columns looking at column header
-	private List<String> getBIORColumnsFromHeader(int totalcolumn,List<String> originalheader,List<String> biorcolumn) {
+        /**
+         *   
+         * @param originalheader - header passed to historyIn
+         * @param biorcolumn     - all the ##bior rows in the header
+         * @return the columns from the header that are bior columns.
+         */
+	private List<String> getBIORColumnsFromHeader(List<String> originalheader,List<String> biorcolumn) {
 	 List<String> columns = new ArrayList<String>();
 	 int indexsize = originalheader.size();
 	 String columnheader = originalheader.get(indexsize-1);
