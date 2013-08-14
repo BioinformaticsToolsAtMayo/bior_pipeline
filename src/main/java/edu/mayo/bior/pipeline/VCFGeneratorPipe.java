@@ -102,7 +102,6 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
      */
     public Map<Integer, String> getBiorColumnsIndexes(int totalcolumn, List<String> biorcolumn, List<String> originalheader) {
 
-
         Map<Integer, String> biorindex = new HashMap<Integer, String>();
         int indexsize = originalheader.size();
         String columnheader = originalheader.get(indexsize - 1);
@@ -111,25 +110,14 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
             String[] column = columnheader.split("\t");
             List<String> columnlist = Arrays.asList(column);
 
-
             for (int i = 7; i < totalcolumn; i++) {
-
                 String colname = columnlist.get(i);
-
                 if (colname.contains("bior") || colname.contains("BIOR")) {
-
                     biorindex.put(i, colname);
-
                 } else if (biorcolumn.contains(colname)) {
-
-
                     biorindex.put(i, colname);
-
                 }
-
-
             }
-
         }
         return biorindex;
     }
