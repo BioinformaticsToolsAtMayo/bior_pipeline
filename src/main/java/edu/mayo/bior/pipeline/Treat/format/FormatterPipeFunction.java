@@ -1,8 +1,6 @@
 package edu.mayo.bior.pipeline.Treat.format;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,20 +8,18 @@ import java.util.Map;
 import com.tinkerpop.pipes.PipeFunction;
 
 import edu.mayo.bior.pipeline.Treat.JsonColumn;
-import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.util.metadata.Metadata;
 
 /**
  * Takes RAW JSON annotation data from the History and formats it into the
  * expected TREAT output format.
  * 
- * @author duffp
+ * @author duffp, Michael Meiners
  *
  */
 public class FormatterPipeFunction implements PipeFunction<History, History>
 {
-	private boolean mIsFirstRow = true;
-	
 	private List<JsonColumn> mOrderOfAddedColumns = new ArrayList<JsonColumn>();
 	private List<Formatter>  mAllPossibleFormatters = new ArrayList<Formatter>();
 	
@@ -36,7 +32,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	 *  For example: Hapmap may be the first JSON column in the history, but dbSNP columns may occur first in the output.
 	 *  NOTE: This should NOT contain any columns, such as bior_vcf_to_json, that will not appear in the output  */
 	private List<ColumnFormatter> mColFormatters = new ArrayList<ColumnFormatter>();
-	
+
 	private class ColumnFormatter {
 		public int colIdx; // Index of the column in the input history - can be out of order - min=0 corresponding to the first column added by bior_annotate 
 		public JsonColumn jsonColIn;
@@ -44,6 +40,27 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 		public List<String> userSelectedColNames = new ArrayList<String>();
 		// Indexes of the formatter's json columns headers that match the userSelectedColNames - range: 0 to formatter.getHeaders().size()
 		public List<Integer> idxFormatterJsonHeader = new ArrayList<Integer>();
+		
+		/** Get the drill paths that match only the header column names that the user selected.
+		 *  This may be a subset of all the possible drill paths for the formatter since the user may
+		 *  choose 1 to many columns to extract from the JSON.  This is useful for matching 
+		 * @return
+		 */
+		public List<String> getDrillPathsMatchingUserSelectedColumnSubset() {
+			List<String> drillPathsForCol = new ArrayList<String>();
+			for(String userCol : userSelectedColNames) {
+				for(int i=0; i < formatter.getHeaders().size(); i++) {
+					if( userCol.equalsIgnoreCase(formatter.getHeaders().get(i)) ) {
+						String drillPath = formatter.getJsonDrillPaths().get(i);
+						// If it is an array, just strip off the array portion
+						if( drillPath.endsWith("]") && drillPath.contains("[") )
+							drillPath = drillPath.substring(0, drillPath.indexOf("["));
+						drillPathsForCol.add(drillPath);
+					}
+				}
+			}
+			return drillPathsForCol;
+		}
 	}
 	
 	/**
@@ -56,6 +73,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	 * @param colsFromConfig
 	 * 		The list of columns the user wants to see in the output (as specified in the config file)
 	 * 		If this is null, then there was no config file specified, so ALL columns will be outputted. 
+	 * @param metadataFromJsonColumns 
 	 */
 	public FormatterPipeFunction(List<JsonColumn> order, List<String> colsFromConfig) {
 		mOrderOfAddedColumns = order;
@@ -139,15 +157,15 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	}
 	
 	public History compute(History history) {
+		// For any lines starting with #, just send to output
+		if(history.size() > 0 && history.get(0).startsWith("#")) {
+			return history;
+		}
+
 		// Make a copy of the history, but only up to the original data (before the columns bior_annotate added)
 		// We will add the columns after that
 		int preAnnotateSize = history.size() - mOrderOfAddedColumns.size();
 		History newHistory = new History(history.subList(0, preAnnotateSize));
-		
-		if(mIsFirstRow) {
-			addHeaders();
-			mIsFirstRow = false;
-		}
 		
 		for(ColumnFormatter colFmt : mColFormatters) {
 			int colIdx = colFmt.colIdx + preAnnotateSize;
@@ -160,14 +178,22 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 		return newHistory;
 	}
 
-	
-
-	private void addHeaders() {
-		for(ColumnFormatter colFmt : mColFormatters) {
-			List<String> cols = colFmt.userSelectedColNames;
-			for(String col : cols)
-				History.getMetaData().getColumns().add(new ColumnMetaData(col));
+	/** Given metadata from the JSON columns, construct metadata for the user-supplied columns.
+	 *  This will be used by the TreatPipeline to return Metadata list for HistoryInPipe */
+	public List<Metadata> getMetadataForUserColumns(List<String> catalogPathsForColumns) {
+		List<Metadata> metas = new ArrayList<Metadata>();
+		for(ColumnFormatter fmt : mColFormatters) {  // Matches one whole JSON column
+			// For each JSON column, we will add a Metadata object
+			String catalogPath = catalogPathsForColumns.get(fmt.colIdx);
+			// Skip if the catalog path is null, which means it was a drill column
+			if( null == catalogPath || catalogPath.trim().length() == 0 )
+				continue;
+			metas.add(  new Metadata("bior_annotate", 
+				catalogPath, 
+				fmt.userSelectedColNames.toArray(new String[0]), 
+				fmt.getDrillPathsMatchingUserSelectedColumnSubset().toArray(new String[0])) );
 		}
+		return metas;
 	}
 
 	/**

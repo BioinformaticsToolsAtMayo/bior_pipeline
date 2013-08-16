@@ -2,6 +2,7 @@ package edu.mayo.bior.cli.cmd;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -64,6 +65,8 @@ public class AnnotateCommand implements CommandPlugin {
 					configFilePath, 
 					ex.getMessage()
 					);
+		} catch (URISyntaxException e) {
+			throw new IOException("Could not load properties file for catalog or tool: " + e.getMessage());
 		}
 	}
 	

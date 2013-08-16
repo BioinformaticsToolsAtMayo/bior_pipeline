@@ -1,6 +1,6 @@
 package edu.mayo.bior.pipeline.Treat.format;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.jayway.jsonpath.JsonPath;
@@ -9,37 +9,38 @@ import edu.mayo.bior.pipeline.Treat.JsonColumn;
 
 public class DbsnpClinvarFormatter implements Formatter
 {
+	
+	private static final String[] JSON_DRILL_PATHS = {
+		"INFO.CLNSIG[0]",
+		"INFO.CLNDBN[0]"
+	};
+		
 	// JSON paths
-	private static final JsonPath PATH_CLNSIG  = JsonPath.compile("INFO.CLNSIG[0]");
-	private static final JsonPath PATH_CLNDBN  = JsonPath.compile("INFO.CLNDBN[0]");	
+	private static final JsonPath PATH_CLNSIG  = JsonPath.compile(JSON_DRILL_PATHS[0]);
+	private static final JsonPath PATH_CLNDBN  = JsonPath.compile(JSON_DRILL_PATHS[1]);	
 
 	public JsonColumn getJSONColumn() {
 		return JsonColumn.DBSNP_CLINVAR;
 	}	
 	
-	public List<String> getHeaders()
-	{
-		List<String> headers = new ArrayList<String>();
-		
-		headers.add("dbSNP.ClinicalSig");
-		headers.add("dbSNP.DiseaseVariant");
-		
-		return headers;
+	public List<String> getHeaders() {
+		return Arrays.asList(
+				"dbSNP.ClinicalSig",
+				"dbSNP.DiseaseVariant"
+				);
 	}
 	
-	public List<String> format(String json)
-	{
-		List<String> values = new ArrayList<String>();
-
-		// execute drills
-		String clnsig   = FormatUtils.drill(PATH_CLNSIG,  json);
-		String clndbn   = FormatUtils.drill(PATH_CLNDBN,  json);
-				
-		values.add(translateCLNSIG(clnsig));
-		values.add(translateCLNDBN(clndbn));
-		
-		return values;
+	public List<String> format(String json) {
+		return Arrays.asList(
+				translateCLNSIG( FormatUtils.drill(PATH_CLNSIG,  json) ),
+				translateCLNDBN( FormatUtils.drill(PATH_CLNDBN,  json) )
+				);
 	}
+	
+	public List<String> getJsonDrillPaths() {
+		return Arrays.asList(JSON_DRILL_PATHS);
+	}	
+
 
 	/**
 	 * Translates code value from INFO.CLNSIG field.
@@ -53,14 +54,11 @@ public class DbsnpClinvarFormatter implements Formatter
 		try
 		{
 			code = Integer.parseInt(clnsig);
-		}
-		catch (NumberFormatException e)
-		{
+		} catch (NumberFormatException e) {
 			return clnsig;
 		}
 		
-		switch (code)
-		{
+		switch (code) {
 			case 0:    return "unknown";
 			case 1:    return "untested";
 			case 2:    return "non-pathogenic";
@@ -83,12 +81,9 @@ public class DbsnpClinvarFormatter implements Formatter
 	{	
 		clndbn = clndbn.trim();
 		
-		if ((clndbn.length() > 0) && (clndbn.charAt(0) != '.'))
-		{
+		if ((clndbn.length() > 0) && (clndbn.charAt(0) != '.'))	{
 			return "1";
-		}
-		else
-		{
+		} else {
 			return "0";
 		}
 	}

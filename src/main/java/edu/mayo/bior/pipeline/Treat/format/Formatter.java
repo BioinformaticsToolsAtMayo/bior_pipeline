@@ -29,6 +29,11 @@ public interface Formatter {
 	 */
 	public List<String> getHeaders();
 	
+	/** Get the JSON drill paths that will be used to extract the values for each added column.
+	 *  NOTE: The order or the JSON drill paths MUST match the order of the headers that are added!!!
+	 * @return JSON drill paths 	 */
+	public List<String> getJsonDrillPaths();
+	
 	/**
 	 * Formats the given catalog JSON annotation data into one or more output values.
 	 * 

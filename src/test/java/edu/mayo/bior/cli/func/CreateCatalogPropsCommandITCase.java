@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.cli.Option;
@@ -18,67 +20,73 @@ import edu.mayo.pipes.util.PropertiesFileUtil;
 
 public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 	
-	private File mDsPropsFile  = new File("src/test/resources/genes.datasource.properties");
-    private File mColPropsFile = new File("src/test/resources/genes.columns.properties");
-
-	private File mTestJsonDepthDsPropsFile  = new File("src/test/resources/metadata/testJsonDepth.datasource.properties");
-    private File mTestJsonDepthColPropsFile = new File("src/test/resources/metadata/testJsonDepth.columns.properties");
+	private String DIR = "src/test/resources/metadata/createCatalogProps/";
+	private String GENE_CTLG_PREFIX 	= DIR + "genes";
+	private String DEEPJSON_CTLG_PREFIX = DIR + "testJsonDepth";
+	private String LONGDOTS_CTLG_PREFIX = DIR + "ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37";
+	
+	private enum Prop {
+		columns,
+		datasource
+	};
 
 	@Test
 	public void testCommand() throws IOException, InterruptedException {
-		String stdin = "src/test/resources/genes.tsv.bgz";
-
-	    CommandOutput out = executeScript("bior_create_catalog_props", stdin, "-d", stdin);
+		String catalog = GENE_CTLG_PREFIX + ".tsv.bgz";
+	    CommandOutput out = executeScript("bior_create_catalog_props", catalog, "-d", catalog);
         assertEquals(out.stderr, 0, out.exit);
         assertEquals("", out.stderr);
         
-        //the above command should create this file
-        Properties dsPropsActual   = new PropertiesFileUtil(mDsPropsFile.getCanonicalPath()).getProperties();
-        Properties dsPropsExpected = new PropertiesFileUtil("src/test/resources/genes.datasource.properties.expected").getProperties();
-        assertPropertiesSame(dsPropsExpected, dsPropsActual);
+        // Compare datasource props file
+        assertPropertiesSame(GENE_CTLG_PREFIX, Prop.datasource);
         
-        //the above command should create this file
-        Properties colPropsActual   = new PropertiesFileUtil(mColPropsFile.getCanonicalPath()).getProperties();
-        Properties colPropsExpected = new PropertiesFileUtil("src/test/resources/genes.columns.properties.expected").getProperties();
-        assertPropertiesSame(colPropsExpected, colPropsActual);
+        // Compare columns props file
+        assertPropertiesSame(GENE_CTLG_PREFIX, Prop.columns);
 	}
 
 	@Test
-	public void testNoCommand() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException {
-		String catalog = "src/test/resources/genes.tsv.bgz";
+	public void testNoCommand() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException, URISyntaxException {
+		String catalog = GENE_CTLG_PREFIX + ".tsv.bgz";
 
 		CreateCatalogPropsCommand creator = new CreateCatalogPropsCommand();
 		Option opt = new Option("d", "catalog path");
 		creator.execNoCmd(catalog, opt);
         
-        //the above command should create this file
-        Properties dsPropsActual   = new PropertiesFileUtil(mDsPropsFile.getCanonicalPath()).getProperties();
-        Properties dsPropsExpected = new PropertiesFileUtil("src/test/resources/genes.datasource.properties.expected").getProperties();
-        assertPropertiesSame(dsPropsExpected, dsPropsActual);
+        // Compare datasource props file
+        assertPropertiesSame(GENE_CTLG_PREFIX, Prop.datasource);
         
-        //the above command should create this file
-        Properties colPropsActual   = new PropertiesFileUtil(mColPropsFile.getCanonicalPath()).getProperties();
-        Properties colPropsExpected = new PropertiesFileUtil("src/test/resources/genes.columns.properties.expected").getProperties();
-        assertPropertiesSame(colPropsExpected, colPropsActual);
+        // Compare columns props file
+        assertPropertiesSame(GENE_CTLG_PREFIX, Prop.columns);
 	}
 
 	@Test
-	public void testNoCmd_DeepJson() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException {
-		String catalog = "src/test/resources/metadata/testJsonDepth.tsv.bgz";
+	public void testNoCommandLongNameWithDots() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException, URISyntaxException {
+		String catalog = LONGDOTS_CTLG_PREFIX + ".tsv.bgz";
 
 		CreateCatalogPropsCommand creator = new CreateCatalogPropsCommand();
 		Option opt = new Option("d", "catalog path");
 		creator.execNoCmd(catalog, opt);
         
-        //the above command should create this file
-        Properties dsPropsActual   = new PropertiesFileUtil(mTestJsonDepthDsPropsFile.getCanonicalPath()).getProperties();
-        Properties dsPropsExpected = new PropertiesFileUtil("src/test/resources/metadata/testJsonDepth.datasource.properties.expected").getProperties();
-        assertPropertiesSame(dsPropsExpected, dsPropsActual);
+        // Compare datasource props file
+        assertPropertiesSame(LONGDOTS_CTLG_PREFIX, Prop.datasource);
         
-        //the above command should create this file
-        Properties colPropsActual   = new PropertiesFileUtil(mTestJsonDepthColPropsFile.getCanonicalPath()).getProperties();
-        Properties colPropsExpected = new PropertiesFileUtil("src/test/resources/metadata/testJsonDepth.columns.properties.expected").getProperties();
-        assertPropertiesSame(colPropsExpected, colPropsActual);
+        // Compare columns props file
+        assertPropertiesSame(LONGDOTS_CTLG_PREFIX, Prop.columns);
+	}
+
+	@Test
+	public void testNoCmd_DeepJson() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException, URISyntaxException {
+		String catalog = DEEPJSON_CTLG_PREFIX + ".tsv.bgz";
+
+		CreateCatalogPropsCommand creator = new CreateCatalogPropsCommand();
+		Option opt = new Option("d", "catalog path");
+		creator.execNoCmd(catalog, opt);
+        
+        // Compare datasource props file
+        assertPropertiesSame(DEEPJSON_CTLG_PREFIX, Prop.datasource);
+        
+        // Compare columns props file
+        assertPropertiesSame(DEEPJSON_CTLG_PREFIX, Prop.columns);
 	}
 
 
@@ -93,11 +101,16 @@ public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 	}
 	
 	private void removeTempPropFiles() {
-        mDsPropsFile.delete();
-        mColPropsFile.delete();
-        
-        mTestJsonDepthDsPropsFile.delete();
-        mTestJsonDepthColPropsFile.delete();
+		for(String prefix : Arrays.asList(GENE_CTLG_PREFIX, DEEPJSON_CTLG_PREFIX, LONGDOTS_CTLG_PREFIX) ) {
+			new File(prefix + ".datasource.properties").delete();
+			new File(prefix + ".columns.properties").delete();
+		}
+	}
+	
+	private void assertPropertiesSame(String propertiesPathPrefix, Prop propExt) throws IOException {
+        Properties propsActual   = new PropertiesFileUtil(propertiesPathPrefix + "." + propExt.toString() + ".properties").getProperties();
+        Properties propsExpected = new PropertiesFileUtil(propertiesPathPrefix + "." + propExt.toString() + ".properties.expected").getProperties();
+        assertPropertiesSame(propsExpected, propsActual);
 	}
 	
 	private void assertPropertiesSame(Properties expected, Properties actual) {

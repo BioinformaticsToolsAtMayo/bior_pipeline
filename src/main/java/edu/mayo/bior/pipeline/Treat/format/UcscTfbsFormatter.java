@@ -1,6 +1,6 @@
 package edu.mayo.bior.pipeline.Treat.format;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.jayway.jsonpath.JsonPath;
@@ -9,32 +9,24 @@ import edu.mayo.bior.pipeline.Treat.JsonColumn;
 
 public class UcscTfbsFormatter implements Formatter
 {
+	private static final String[] JSON_DRILL_PATHS = { "score" }; 
+		
 	// JSON paths
-	private static final JsonPath PATH_SCORE  = JsonPath.compile("score");	
+	private static final JsonPath PATH_SCORE  = JsonPath.compile(JSON_DRILL_PATHS[0]);	
 	
 	public JsonColumn getJSONColumn() {
 		return JsonColumn.UCSC_TFBS;
 	}
 
-	public List<String> getHeaders()
-	{
-		List<String> headers = new ArrayList<String>();
-		
-		headers.add("UCSC.tfbs");
-		
-		return headers;
+	public List<String> getHeaders() {
+		return Arrays.asList( "UCSC.tfbs" );
 	}
 	
-	public List<String> format(String json)
-	{
-		List<String> values = new ArrayList<String>();
-		
-		// execute drills
-		String score  = FormatUtils.drill(PATH_SCORE, json);
-				
-		values.add(score);
-
-		return values;
+	public List<String> format(String json) {
+		return Arrays.asList( FormatUtils.drill(PATH_SCORE, json) );
 	}
 
+	public List<String> getJsonDrillPaths() {
+		return Arrays.asList(JSON_DRILL_PATHS);
+	}	
 }

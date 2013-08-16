@@ -36,44 +36,40 @@ public class VEPFormatter implements Formatter
 		return JsonColumn.VEP;
 	}
 
-	public List<String> getHeaders()
-	{
-		List<String> headers = new ArrayList<String>();
-		
-		headers.add("VEP.Allele");
-		headers.add("VEP.Gene");
-		headers.add("VEP.Feature");
-		headers.add("VEP.Feature_type");
-		headers.add("VEP.Consequence");
-		headers.add("VEP.cDNA_position");
-		headers.add("VEP.CDS_position");
-		headers.add("VEP.Protein_position");
-		headers.add("VEP.Amino_acids");
-		headers.add("VEP.Codons");
-		headers.add("VEP.HGNC");
-		headers.add("SIFT.TERM");
-		headers.add("SIFT.Score");
-		headers.add("PolyPhen.TERM");
-		headers.add("PolyPhen.Score");
-		
-		return headers;
+	public List<String> getHeaders() {
+		return Arrays.asList( 
+				"VEP.Allele",
+				"VEP.Gene",
+				"VEP.Feature",
+				"VEP.Feature_type",
+				"VEP.Consequence",
+				"VEP.cDNA_position",
+				"VEP.CDS_position",
+				"VEP.Protein_position",
+				"VEP.Amino_acids",
+				"VEP.Codons",
+				"VEP.HGNC",
+				"SIFT.TERM",
+				"SIFT.Score",
+				"PolyPhen.TERM",
+				"PolyPhen.Score"
+				);
 	}
 	
-	public List<String> format(String json)
-	{
-		
+	public List<String> format(String json) {
 		List<String> values = new ArrayList<String>();
-		
-		for (JsonPath path: mPaths)
-		{
+		for (JsonPath path: mPaths)	{
 			// execute drill
-			String value = FormatUtils.drill(path, json);
-			
-			// save value
-			values.add(value);
+			values.add( FormatUtils.drill(path, json) );
 		}
-		
 		return values;
 	}
-
+	
+	public List<String> getJsonDrillPaths() {
+		List<String> jsonPaths = new ArrayList<String>();
+		for(JsonPath path : mPaths) {
+			jsonPaths.add(path.getPath());
+		}
+		return jsonPaths;
+	}
 }

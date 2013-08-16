@@ -1,6 +1,7 @@
 package edu.mayo.bior.cli.func.remoteexec;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -22,7 +23,7 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
 public class Bior2VCFITCase extends RemoteFunctionalTest {
 	
 	@Test
-	public void test() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+	public void test() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
 		
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),

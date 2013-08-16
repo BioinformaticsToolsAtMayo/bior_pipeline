@@ -6,6 +6,8 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
@@ -38,14 +40,15 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
 public class TreatITCase extends RemoteFunctionalTest
 {
 	@Test
-	public void testPipeline_SubsetConfig() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
+	public void testPipeline_SubsetConfig() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_SubsetConfig():");
 		System.out.println("Annotate pipeline with a subset config file...");
+		TreatPipeline annotatePipe = new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config");
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
-				new HistoryInPipe(),
-				new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config"),
+				new HistoryInPipe( new ArrayList(annotatePipe.getMetdata()) ),
+				annotatePipe,
 				new HistoryOutPipe()
 				//new PrintPipe()
 				);
@@ -57,7 +60,7 @@ public class TreatITCase extends RemoteFunctionalTest
 	}
 
 	@Test
-	public void testPipeline_subsetWithDependencies() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
+	public void testPipeline_subsetWithDependencies() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException
 	{
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_subsetWithDependencies():");
@@ -80,15 +83,16 @@ public class TreatITCase extends RemoteFunctionalTest
 
 	@Test
 	/** This test is mainly to check that fanout does not cause hangs on a huge number of fanout lines */
-	public void testPipeline_rsIdOnly_10000() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
+	public void testPipeline_rsIdOnly_10000() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException
 	{
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_rsIdOnly_10000():");
 		System.out.println("Annotate pipeline with a single output column (dbsnp rsId)...");
+		TreatPipeline treatPipe = new TreatPipeline("src/test/resources/treat/configtest/dbsnpOnly.config");
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
-				new HistoryInPipe(),
-				new TreatPipeline("src/test/resources/treat/configtest/dbsnpOnly.config"),
+				new HistoryInPipe( new ArrayList(treatPipe.getMetdata()) ),
+				treatPipe,
 				new HistoryOutPipe()
 				//new PrintPipe()
 				);
@@ -261,7 +265,9 @@ public class TreatITCase extends RemoteFunctionalTest
     
 	private List<String> splitLines(String s) throws IOException {
 		return Arrays.asList(s.split("\r\n|\n|\r"));
-	}	
+	}
+	
+	
 	
 	/** Compare all lines and columns.
 	 * If there are '*' characters in the expected output, then don't compare these */
@@ -283,31 +289,27 @@ public class TreatITCase extends RemoteFunctionalTest
 			for(int j = 0; j < maxCols; j++) {
 				String expCol = expectCols.length > j ? expectCols[j] : "";
 				String actCol = actualCols.length > j ? actualCols[j] : "";
-				String delim = j < maxCols-1 ? "\t" : "";
-				expectedStr.append(expCol + delim);
-				actualStr.append(  actCol + delim);
+
 				int maxLen = Math.max(expCol.length(), actCol.length());
-				int numDelims = (maxLen / 8) + 1;
+				
 				boolean isEqual = "*".equals(expCol) || expCol.equals(actCol);
-				if (isEqual)
-				{
-					diffStr.append(StringUtils.repeat("\t", numDelims));
-				}
-				else
-				{
-					foundColMismatch = true;
-					diffStr.append(StringUtils.repeat("^", maxLen)+"\t" );
-				}				
+				if( ! isEqual ) 
+					foundColMismatch = true; 
+				
+				// Expected, Actual, Diff should all be same length (add 2 extra spaces to end)
+				expectedStr.append(expCol + StringUtils.repeat(" ", (maxLen+2)-expCol.length()));
+				actualStr.append(  actCol + StringUtils.repeat(" ", (maxLen+2)-actCol.length()));
+				diffStr.append(	   StringUtils.repeat( (isEqual ? " " : "^"), maxLen) + "  " );
 			}
 			
 			if(foundColMismatch)
 			{
 				numDiffs++;
-				System.out.println("--- Line " + (i+1) + " - Diff ---");
+				System.out.println("--- Line " + (i+1) + " - Diff -----------------------------------");
 				System.out.println(expectedStr);
 				System.out.println(actualStr);
-				System.out.println("Actl/tab: " + lineActual);
 				System.out.println(diffStr);
+				System.out.println("Actl/tab: " + lineActual);
 			}
 		}
 		if(numDiffs == 0)

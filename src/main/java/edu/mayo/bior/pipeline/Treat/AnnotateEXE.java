@@ -63,13 +63,21 @@ public class AnnotateEXE implements PipeFunction<History,History>{
 		mAnnotate.launch();
 		
 		// All original header lines should be stripped out by HistoryInPipe 
-		// Send an initial line so we can catch the header: 
+		// Send an initial line so we can catch the header and first dummy line (prime the pump!): 
 		mAnnotate.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		mAnnotate.send("1\t1\trs0\tG\tA\t0.0\t.\t.");
 		//mAnnotate.send("1\t564458\trs77440582\tG\tC\t.\t.\t.");
-		String s1 = mAnnotate.receive(); // Header "#CHROM	POS	ID ......"
-		String s2 = mAnnotate.receive(); // Dummy line: "chr1....."
-		String s3 = "";
+		
+		// Now catch all lines beginning with "##" and "#", then catch the first dummy line 
+		// 1) "##BIOR="
+		// 2) "##BIOR="
+		// .....
+		//n-1)"#CHROM	POS	ID ......"
+		// n) "1        1   rs0 ....."
+		String result = "#";
+		while(result.startsWith("#")) {
+			result = mAnnotate.receive();
+		}
 	}
 
 	public History compute(History vcfLineHistory)
@@ -128,6 +136,14 @@ public class AnnotateEXE implements PipeFunction<History,History>{
 		try {
 			String result = mAnnotate.receive(RECEIVE_TIMEOUT, TimeUnit.SECONDS);
 			History h = new History(result);
+			
+			// WE should NOT have any header lines coming thru since the constructor should have primed them out, but just in case...
+			// If we get back a metadata or column header line 
+			// (which we will at first because the commands add ##BIOR lines and a new header line), 
+			// THEN just return it as-is (no processing)
+			if( result.startsWith("#") )
+				return h;
+			
 			// If the first 5 cols are NOT the same as the first item in the mInFlightQ, 
 			// then remove that first element in the mInFlightQ
 			// (This means we've fully finished that line and can send another if at the max in-flight limit)
@@ -135,9 +151,11 @@ public class AnnotateEXE implements PipeFunction<History,History>{
 				mInFlightQ.remove(0);
 			sLogger.info("AnnotateEXE received line (# in flight: " + mInFlightQ.size() + "): " + result);
 
-			if( result.contains(mEndLine) )
+			if( result.contains(mEndLine) ) {
+				// terminate() will be called when exception is caught in computer() method
 				throw new NoSuchElementException("AnnotateEXE: Received the end line - no more valid data being processed by bior_annotate, so end.");
-
+			}
+			
 			return h;
 		} catch (TimeoutException te)	{
 			sLogger.warn(String.format("Timeout of %s seconds reached when receiving VCF line.  Last line sent was: %s",

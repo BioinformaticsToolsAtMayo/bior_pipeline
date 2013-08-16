@@ -1,6 +1,6 @@
 package edu.mayo.bior.pipeline.Treat.format;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.jayway.jsonpath.JsonPath;
@@ -9,11 +9,18 @@ import edu.mayo.bior.pipeline.Treat.JsonColumn;
 
 public class DbsnpFormatter implements Formatter
 {
+	private static final String[] JSON_DRILL_PATHS = {
+		"ID",
+		"INFO.dbSNPBuildID",
+		"INFO.SSR",
+		"INFO.SAO"
+	};
+	
 	// JSON paths
-	private static final JsonPath PATH_RSID  = JsonPath.compile("ID");
-	private static final JsonPath PATH_BUILD = JsonPath.compile("INFO.dbSNPBuildID");
-	private static final JsonPath PATH_SSR   = JsonPath.compile("INFO.SSR");
-	private static final JsonPath PATH_SAO   = JsonPath.compile("INFO.SAO");
+	private static final JsonPath PATH_RSID  = JsonPath.compile(JSON_DRILL_PATHS[0]);
+	private static final JsonPath PATH_BUILD = JsonPath.compile(JSON_DRILL_PATHS[1]);
+	private static final JsonPath PATH_SSR   = JsonPath.compile(JSON_DRILL_PATHS[2]);
+	private static final JsonPath PATH_SAO   = JsonPath.compile(JSON_DRILL_PATHS[3]);
 
 	public JsonColumn getJSONColumn() {
 		return JsonColumn.DBSNP_ALL;
@@ -21,32 +28,25 @@ public class DbsnpFormatter implements Formatter
 	
 	public List<String> getHeaders()
 	{
-		List<String> headers = new ArrayList<String>();
-		
-		headers.add("rsID");
-		headers.add("dbSNP.build");
-		headers.add("dbSNP.SuspectRegion");
-		headers.add("dbSNP.SNP_Allele_Origin");
-		
-		return headers;
+		return Arrays.asList(
+				"rsID",
+				"dbSNP.build",
+				"dbSNP.SuspectRegion",
+				"dbSNP.SNP_Allele_Origin"
+				);
 	}
 	
-	public List<String> format(String json)
-	{
-		List<String> values = new ArrayList<String>();
+	public List<String> getJsonDrillPaths() {
+		return Arrays.asList(JSON_DRILL_PATHS);
+	}	
 
-		// execute drills
-		String rsID  = FormatUtils.drill(PATH_RSID, json);
-		String build = FormatUtils.drill(PATH_BUILD, json);
-		String ssr   = FormatUtils.drill(PATH_SSR,  json);
-		String sao   = FormatUtils.drill(PATH_SAO, json);
-				
-		values.add(rsID);
-		values.add(build);
-		values.add(translateSSR(ssr));
-		values.add(translateSAO(sao));
-
-		return values;
+	public List<String> format(String json) {
+		return Arrays.asList(
+				FormatUtils.drill(PATH_RSID, json),
+				FormatUtils.drill(PATH_BUILD, json),
+				translateSSR( FormatUtils.drill(PATH_SSR,  json) ),
+				translateSAO( FormatUtils.drill(PATH_SAO, json) )
+				);
 	}
 	
 	/**
@@ -58,17 +58,13 @@ public class DbsnpFormatter implements Formatter
 	private String translateSSR(String ssrCode)
 	{		
 		int code;
-		try
-		{
+		try	{
 			code = Integer.parseInt(ssrCode);
-		}
-		catch (NumberFormatException e)
-		{
+		}catch (NumberFormatException e) {
 			return ssrCode;
 		}
 
-		switch (code)
-		{
+		switch (code) {
 			case 0:  return "unspecified";
 			case 1:  return "Paralog";
 			case 2:  return "byEST";
@@ -88,22 +84,19 @@ public class DbsnpFormatter implements Formatter
 	private String translateSAO(String saoCode)
 	{		
 		int code;
-		try
-		{
+		try	{
 			code = Integer.parseInt(saoCode);
-		}
-		catch (NumberFormatException e)
-		{
+		}catch (NumberFormatException e) {
 			return saoCode;
 		}
 
-		switch (code)
-		{
+		switch (code) {
 			case 0:  return "unspecified";
 			case 1:  return "Germline";
 			case 2:  return "Somatic";
 			case 3:  return "Both";
 			default: return saoCode;
 		}
-	}	
+	}
+
 }

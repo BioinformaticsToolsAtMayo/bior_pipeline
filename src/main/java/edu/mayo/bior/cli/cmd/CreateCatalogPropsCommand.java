@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.tinkerpop.pipes.util.Pipeline;
 
+import edu.mayo.bior.util.ClasspathUtil;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.cli.InvalidOptionArgValueException;
@@ -51,26 +53,31 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		String catalogBgzipPath = line.getOptionValue(OPTION_CATALOG);
 		Option catalogOption = opts.getOption(OPTION_CATALOG + "");
 
-		execNoCmd(catalogBgzipPath, catalogOption);
+		try {
+			execNoCmd(catalogBgzipPath, catalogOption);
+		} catch (URISyntaxException e) {
+			throw new IOException("Could not find the columns defaults properties file");
+		}
 	}
 
 	public void execNoCmd(String catalogBgzipPath, Option catalogOption)
 			throws InvalidOptionArgValueException, InvalidDataException,
-			IOException
+			IOException, URISyntaxException
 	{
 		File catalogFile = new File(catalogBgzipPath);
 		
 		if( catalogFile.exists() ) {
 			String catalogFullFilename = catalogFile.getName();
-			String catalogFilename = catalogFullFilename.substring(0, catalogFullFilename.indexOf("."));
+			String catalogFilenamePrefix = catalogFullFilename.replace(".tsv.bgz", "");
 			String catalogFilePath = catalogFile.getParent();
 			
 			// Create the datasource.props file
-			createDatasourcePropsFile(catalogOption, catalogFile, catalogFilename, catalogFilePath);
+			createDatasourcePropsFile(catalogOption, catalogFile, catalogFilenamePrefix, catalogFilePath);
 			
 			// Create the columns.props file
-			createColumnPropsFile(catalogOption, catalogFile, catalogFilename, catalogFilePath);
+			createColumnPropsFile(catalogOption, catalogFile, catalogFilenamePrefix, catalogFilePath);
 			
+			System.out.println("Done.");
 		} else {
 			throw new InvalidOptionArgValueException(
 				catalogOption,				
@@ -83,13 +90,13 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	/**
 	 * 
 	 * @param catalogFile
-	 * @param catalogFilename
+	 * @param catalogFilenamePrefix
 	 * @param catalogFilePath
 	 * @throws InvalidOptionArgValueException
 	 * @throws InvalidDataException
 	 * @throws IOException
 	 */
-	protected void createDatasourcePropsFile(Option catalogOption, File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
+	protected void createDatasourcePropsFile(Option catalogOption, File catalogFile, String catalogFilenamePrefix, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
 		
 		//Check to see if "catalogFilePath" is WRITABLE
 		File dir = new File(catalogFilePath);
@@ -101,8 +108,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 			);
 	    }
 		
-		//Create the props file
-		File datasourcePropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename + ".datasource" + ".properties");
+		File datasourcePropsFile = new File(catalogFilePath + File.separator + catalogFilenamePrefix + ".datasource" + ".properties");
 		
 		if (datasourcePropsFile.exists()) {
 			throw new InvalidOptionArgValueException(
@@ -111,6 +117,8 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 				"Datasource properties file already exists for this catalog - " + catalogFile.getCanonicalPath()
 			);
 		}
+	    System.out.println("Writing datasource properties file: " + datasourcePropsFile.getCanonicalPath());
+
 		datasourcePropsFile.createNewFile();
 		//System.out.println(datasourcePropsFile.exists());
 		
@@ -123,7 +131,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 				BiorMetaControlledVocabulary.BUILD.toString()
 				);
 
-		String content = buildContent(catalogFilename, "Datasource", dsAttribs, null);
+		String content = buildContent(catalogFilenamePrefix, "Datasource", dsAttribs, null);
 		this.writeToFile(datasourcePropsFile, content);
 		//return true;
 	}
@@ -137,9 +145,24 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	 * @throws InvalidOptionArgValueException
 	 * @throws InvalidDataException
 	 * @throws IOException
+	 * @throws URISyntaxException 
 	 */
-	protected void createColumnPropsFile(Option catalogOption,File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException {
-		
+	protected void createColumnPropsFile(Option catalogOption,File catalogFile, String catalogFilename, String catalogFilePath) throws InvalidOptionArgValueException, InvalidDataException, IOException, URISyntaxException {
+	    File columnPropsFile = new File(catalogFilePath + File.separator + catalogFilename+".columns"+".properties");
+	    if (columnPropsFile.exists()) {
+			throw new InvalidOptionArgValueException(
+				catalogOption,
+				catalogFilePath,
+				"Column properties file already exists for this catalog - " + catalogFilePath
+			);
+		}
+	    System.out.println("Writing columns    properties file: " + columnPropsFile.getCanonicalPath());
+	    final long ONE_MB = 1 * 1024 * 1024;
+	    final long CATALOG_SIZE_MB = catalogFile.length() / ONE_MB;
+	    if( CATALOG_SIZE_MB > 10 )
+	    	System.out.println("  WARNING: Catalog is large (" + CATALOG_SIZE_MB + "MB).  This may take a while to process)...");
+	    
+	    // Get all JSON keys from the catalog
 		Pipeline pipe = new Pipeline(new CatGZPipe("gzip"));
 		pipe.setStarts(Arrays.asList(catalogFile.getPath()));
 		
@@ -161,22 +184,13 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 					allJsonKeys.add(jsonPath);
 			}
 		}
-		
+
 	    //Create the props file
-	    File columnPropsFile = new File(catalogFilePath + catalogFile.separator + catalogFilename+".columns"+".properties");
-	    if (columnPropsFile.exists()) {
-			throw new InvalidOptionArgValueException(
-				catalogOption,
-				catalogFilePath,
-				"Column properties file already exists for this catalog - " + catalogFilePath
-			);
-		}	
-	    
-	    columnPropsFile.createNewFile();
-	    Properties defaults = new PropertiesFileUtil("src/main/resources/allCatalogs.columns.properties").getProperties();
+	    File colDefaultsProps = ClasspathUtil.loadResource("/allCatalogs.columns.properties");
+	    Properties defaults = new PropertiesFileUtil(colDefaultsProps.getCanonicalPath()).getProperties();
 		String content = buildContent(catalogFilename, "Column", allJsonKeys, defaults);
+	    columnPropsFile.createNewFile();
 		this.writeToFile(columnPropsFile, content);			
-		//return true;		
 	}
 	
 	
@@ -190,14 +204,15 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	    JsonObject root = new JsonParser().parse(jsonStr).getAsJsonObject();
 	    
 	    for (Map.Entry<String,JsonElement> entry : root.entrySet()) {
+	    	// Key may be several layers deep (such as INFO.OBJ.SOMEKEY), so build the full JSON path
 	    	String key = (parentJsonPath == null || parentJsonPath.length() == 0  ?  ""  :  parentJsonPath + ".") + entry.getKey();
             JsonElement value = entry.getValue();
 	    	
             // If it is a complex object, then break it down further
-            if(value instanceof JsonPrimitive)
-	    		jsonKeys.add(key);
-            else
+            if( value instanceof JsonObject )
             	jsonKeys.addAll(getJsonKeys(value.getAsJsonObject().toString(), key));
+            else // should be a primitive or an array
+	    		jsonKeys.add(key);
 	    }
 	    return jsonKeys;
 	}
@@ -229,7 +244,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 		
 		sb.append("# " + type + " properties file for Catalog - ");
 		sb.append(catalogFilename);
-		sb.append(". Please fill in the description to the below keys.\n");
+		sb.append(". Please fill in the description to the keys below.\n");
 		
 		for(String key : listValues) {
 			String desc = defaultDescriptions == null  ?  null  :  defaultDescriptions.getProperty(key);
