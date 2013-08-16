@@ -1,3 +1,8 @@
+##BIOR=<ID="rsID",Operation="bior_annotate",DataType="JSON",Field="ID",FieldDescription="",ShortUniqueName="",Source="",Version="",Build="",Description="",Path="/data5Local/bsi/catalogs/bior/v1/dbSNP/137/00-All_GRCh37.tsv.bgz">
+##BIOR=<ID="dbSNP.SuspectRegion",Operation="bior_annotate",DataType="JSON",Field="INFO.SSR",FieldDescription="",ShortUniqueName="",Source="",Version="",Build="",Description="",Path="/data5Local/bsi/catalogs/bior/v1/dbSNP/137/00-All_GRCh37.tsv.bgz">
+##BIOR=<ID="dbSNP.ClinicalSig",Operation="bior_annotate",DataType="JSON",Field="INFO.CLNSIG",FieldDescription="",ShortUniqueName="",Source="",Version="",Build="",Description="",Path="/data5Local/bsi/catalogs/bior/v1/dbSNP/137/clinvar_20130226_GRCh37.tsv.bgz">
+##BIOR=<ID="dbSNP.DiseaseVariant",Operation="bior_annotate",DataType="JSON",Field="INFO.CLNDBN",FieldDescription="",ShortUniqueName="",Source="",Version="",Build="",Description="",Path="/data5Local/bsi/catalogs/bior/v1/dbSNP/137/clinvar_20130226_GRCh37.tsv.bgz">
+##BIOR=<ID="1000Genomes.EUR_AF",Operation="bior_annotate",DataType="JSON",Field="INFO.EUR_AF",FieldDescription="",ShortUniqueName="",Source="",Version="",Build="",Description="",Path="/data5Local/bsi/catalogs/bior/v1/1000_genomes/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37.tsv.bgz">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	rsID	dbSNP.SuspectRegion	dbSNP.ClinicalSig	dbSNP.DiseaseVariant	1000Genomes.EUR_AF
 1	216424275	rs696723	C	G	.	.	.	rs696723	unspecified	untested	0	0.01
 1	10593296	rs2480782	G	T	.	.	.	rs2480782	unspecified	.	0	0.07
