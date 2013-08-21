@@ -282,9 +282,9 @@ public class VCFGeneratorPipeTest {
     }
 
     public final List<String> correctHeaderOut = Arrays.asList(
-        "##INFO=<ID=bior.dbSNP137.INFO.RSPOS,Number=1,Type=Integer,Description=\"dbSNP version 137, Patch 10, Human\">",
-        "##INFO=<ID=bior.dbSNP137.INFO.RV,Number=1,Type=Flag,Description=\"dbSNP version 137, Patch 10, Human\">",
-        "##INFO=<ID=bior.dbSNP137.INFO.GMAF,Number=1,Type=Float,Description=\"dbSNP version 137, Patch 10, Human\">"
+        "##INFO=<ID=bior.dbSNP137.INFO.RSPOS,Number=1,Type=Integer,Description=\"Chromosome position reported in dbSNP\">",
+        "##INFO=<ID=bior.dbSNP137.INFO.RV,Number=1,Type=Flag,Description=\"RV Desc\">",
+        "##INFO=<ID=bior.dbSNP137.INFO.GMAF,Number=1,Type=Float,Description=\"GMAF Desc\">"
     );
 
     public final List<String> correctDataOut = Arrays.asList(

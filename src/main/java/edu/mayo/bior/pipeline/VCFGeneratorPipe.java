@@ -196,7 +196,14 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
     public String buildInfoFromBioRAttr(LinkedHashMap<String,String> attr){
         String fielddesc = attr.get(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString());
         if(fielddesc == null || fielddesc.length() < 1){ //if the description is empty
-            attr.put(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString(), DEFAULT_DESCRIPTION);
+            //try to give it the description
+            fielddesc = attr.get(AddMetadataLines.BiorMetaControlledVocabulary.DESCRIPTION.toString());
+            if(fielddesc == null || fielddesc.length() < 1){
+                attr.put(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString(), DEFAULT_DESCRIPTION);
+            }else { //give it the default
+                attr.put(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString(), fielddesc);
+            }
+
         }
         String datatype = attr.get(AddMetadataLines.BiorMetaControlledVocabulary.DATATYPE.toString());
         if(datatype == null || datatype.length() < 1){
@@ -212,7 +219,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
                 attr.get("ID"),
                 attr.get(AddMetadataLines.BiorMetaControlledVocabulary.NUMBER.toString()),
                 attr.get(AddMetadataLines.BiorMetaControlledVocabulary.DATATYPE.toString()),
-                attr.get(AddMetadataLines.BiorMetaControlledVocabulary.DESCRIPTION.toString()));
+                attr.get(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString()));
     }
 
     /**
@@ -241,8 +248,6 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         return sb.toString();
     }
 
-    //removes columnMetadata from header
-
     /**
      * for a header line e.g. #CHROM, remove all bior/annotation columns.
      *
@@ -250,7 +255,6 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
      * @param biorindexes2
      * @return
      */
-
     public HistoryMetaData removeColumnHeader(HistoryMetaData metaData, Map<Integer, String> biorindexes2) {
         List<ColumnMetaData> columns = metaData.getColumns();
         List<Integer> indexes = new ArrayList<Integer>(biorindexes2.keySet());
@@ -263,45 +267,6 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         }
         return metaData;
     }
-
-    /** Writing new method **/
-    /*
-	private List<String> removeColumnHeader(List<String> metadata,Map<Integer, String> biorindexes2) {
-		
-		List<String> meta = metadata;
-		int size = meta.size();
-		System.out.println("Intial size " + size);
-		String columnheader = meta.get(size -1);
-		if (columnheader.startsWith("#CHROM")) {
-		List<String> columnarray =	Arrays.asList(columnheader.split("\t"));
-		List<String> columns = new ArrayList<String>();
-		columns.addAll(columnarray);
-		List<Integer> indexes =   new ArrayList<Integer>(biorindexes2.keySet());
-		Collections.sort(indexes);
-		int i = 0;
-		for (Integer j : indexes) {
-			
-			columns.remove(j - i);
-			i++;
-		} 
-			
-		
-		//meta.remove(meta.size()-1);
-		StringBuilder modifiedcolumnheader = new StringBuilder();
-		for (String col: columns){
-			modifiedcolumnheader.append(col + "\t");
-		}
-		meta.remove(size-1);
-		System.out.println(modifiedcolumnheader.toString());
-		System.out.println("Modified meta size" + meta.size());
-		meta.add(modifiedcolumnheader.toString());
-	}	
-		
-		//System.out.println("Modified meta size afer add" + meta.get(1));
-		return meta;
-	}
-
-	*/
 
     /**
      * Removes columns from history after appending them into INFO Column
