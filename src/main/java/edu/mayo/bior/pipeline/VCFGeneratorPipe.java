@@ -1,17 +1,11 @@
 package edu.mayo.bior.pipeline;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.text.ParseException;
+import java.util.*;
 
 import edu.mayo.pipes.history.ColumnMetaData;
+import edu.mayo.pipes.util.metadata.AddMetadataLines;
 import org.apache.log4j.Logger;
 
 import com.tinkerpop.pipes.AbstractPipe;
@@ -21,13 +15,12 @@ import edu.mayo.pipes.history.HistoryMetaData;
 
 public class VCFGeneratorPipe extends AbstractPipe<History, History> {
 
+    public final String DEFAULT_DESCRIPTION = "BioR property file missing description";
+    public final String DEFAULT_TYPE = "String";
+    public final String DEFAULT_NUMBER = ".";
     private static final Logger sLogger = Logger.getLogger(VCFGeneratorPipe.class);
     Map<Integer, String> biorindexes = new HashMap<Integer, String>();
-    Map<Integer, String> biorDrillindexes = new HashMap<Integer, String>();
-
     boolean modifyMetadata = false;
-    List<String> biorcolumnsFromMetadata = new ArrayList<String>();
-    List<String> colsFromHeader = new ArrayList<String>();
 
     @Override
     protected History processNextStart() throws NoSuchElementException {
@@ -37,18 +30,25 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
             history = changeHeader(history);
             modifyMetadata = true;
         }
-
-        history = (History) removeAnnotationColumns(modifyhistory(history, biorindexes), biorindexes);
+        history = modifyhistory(history, biorindexes);
+        history = (History) removeAnnotationColumns(history, biorindexes);
 
         return history;
     }
 
+//    public History changeHeader(History history){
+//        List<String> biorcolumnsFromMetadata = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader());
+//        List<String> colsFromHeader = getBIORColumnsFromHeader(History.getMetaData().getColumns(), biorcolumnsFromMetadata);
+//        return history;
+//    }
+
     public History changeHeader(History history) {
         int totalcolumns = History.getMetaData().getColumns().size();
-        biorcolumnsFromMetadata = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader());
-        colsFromHeader = getBIORColumnsFromHeader(history.getMetaData().getOriginalHeader(), biorcolumnsFromMetadata);
+        //System.err.println(History.getMetaData().getOriginalHeader().get(History.getMetaData().getOriginalHeader().size()-1));
+        List<String> biorcolumnsFromMetadata = getBIORColumnsFromMetadata(History.getMetaData().getOriginalHeader());
+        List<String> colsFromHeader = getBIORColumnsFromHeader(History.getMetaData().getColumns(), biorcolumnsFromMetadata);
         if (totalcolumns > 7 && History.getMetaData().getColumns().get(7).getColumnName().equalsIgnoreCase("INFO")) {
-            biorindexes = getBiorColumnsIndexes(totalcolumns, biorcolumnsFromMetadata, history.getMetaData().getOriginalHeader());
+            biorindexes = getBiorColumnsIndexes(history, biorcolumnsFromMetadata);
         }
         //checks if biorcolumns is not null
         if (biorcolumnsFromMetadata != null) {
@@ -64,7 +64,10 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
 
                 List<String> biorcolumn = biorcolumnsFromMetadata;
                 biorcolumn.removeAll(colsFromHeader);
-                History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(), biorindexes)).getOriginalHeader(), null, biorcolumn));
+                HistoryMetaData hmd = (removeColumnHeader(History.getMetaData(), biorindexes));
+                History.getMetaData().setOriginalHeader(
+                        addColumnheaders(hmd.getOriginalHeader(), null, biorcolumn)
+                );
 
             } else if (colsFromHeader.containsAll(biorcolumnsFromMetadata) && colsFromHeader.size() > biorcolumnsFromMetadata.size()) {
 
@@ -94,24 +97,21 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
     /**
      * Returns a Map of BioR column index and name
      *
-     * @param totalcolumn    - total
+     * @param h              - History object containing all metadata (currently static, but we may refactor)
      * @param biorcolumn     - these are the IDs in the ##BIOR columns, most will be bior.X but some may be any arbitrary string (e.g. output from bior_annotate)
      *                       get these by calling getBIORColumnsFromMetadata();
-     * @param originalheader
      * @return
      */
-    public Map<Integer, String> getBiorColumnsIndexes(int totalcolumn, List<String> biorcolumn, List<String> originalheader) {
-
+    public Map<Integer, String> getBiorColumnsIndexes(History h,  List<String> biorcolumn) {
+        int totalcolumn = History.getMetaData().getColumns().size();
+        List<ColumnMetaData> columns = History.getMetaData().getColumns();
+        List<String> originalheader = History.getMetaData().getOriginalHeader();
         Map<Integer, String> biorindex = new HashMap<Integer, String>();
         int indexsize = originalheader.size();
         String columnheader = originalheader.get(indexsize - 1);
-        if (originalheader.get(indexsize - 1).startsWith("#CHROM")) {
-
-            String[] column = columnheader.split("\t");
-            List<String> columnlist = Arrays.asList(column);
-
-            for (int i = 7; i < totalcolumn; i++) {
-                String colname = columnlist.get(i);
+        if (columnheader.startsWith("#CHROM")) {
+            for (int i = 0; i < columns.size(); i++) {
+                String colname = columns.get(i).getColumnName();
                 if (colname.contains("bior") || colname.contains("BIOR")) {
                     biorindex.put(i, colname);
                 } else if (biorcolumn.contains(colname)) {
@@ -130,8 +130,6 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
      * @returns List of modified metadata after adding ##INFO Columns
      */
     public List<String> addColumnheaders(List<String> colmeta, List<String> retain, List<String> remove) {
-
-
         List<String> infoMeta = new ArrayList<String>();
         List<String> biorList = new ArrayList<String>();
 
@@ -142,39 +140,17 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
             }
 
             if (info.startsWith("##BIOR=<ID") && info.contains("drill")) {
-                //Splits ##BIOR into list of Key=value pairs
-                String[] ast = info.split("<")[1].replace(">", "").split(",");
-
-
-                HashMap<String, String> meta = new HashMap<String, String>();
-
-                //Traverses through the key,value pairs and place them in map
-                for (String as : ast) {
-                    String[] ast1 = as.split("=");
-                    meta.put(ast1[0].replace("\"", ""), ast1[1].replace("\"", ""));
-                }
-
-                //Checks if the ID is not in list that has only Metadata and Builds the INFO
-                if (remove == null || !remove.contains(meta.get("ID"))) {
-                    StringBuilder st = new StringBuilder();
-                    st.append("##INFO=<ID=");
-                    st.append(meta.get("ID"));
-                    st.append(",Number=.,");
-                    st.append("Type=String,");
-                    st.append("Description=\"");
-                    st.append(meta.get("Description"));
-                    st.append("\",CatalogShortUniqueName=\"");
-                    st.append(meta.get("CatalogShortUniqueName"));
-                    st.append("\",CatalogVersion=\"");
-                    st.append(meta.get("CatalogVersion"));
-                    st.append("\",CatalogBuild=\"");
-                    st.append(meta.get("CatalogBuild"));
-                    st.append("\",CatalogPath=\"");
-                    st.append(meta.get("CatalogPath"));
-                    st.append("\">");
-
-
-                    infoMeta.add(st.toString().replaceAll("null", ""));
+                LinkedHashMap<String,String> attr = amdl.parseHeaderLine(info);
+                //If there is nothing to remove, then add a new ##INFO
+                if (remove == null ) {
+                    String newInfoRow =buildInfoFromBioRAttr(attr);
+                    //System.err.println(newInfoRow);
+                    infoMeta.add(newInfoRow);
+                //If remove does not contain the current line, then add new ##INFO
+                }else if(!remove.contains(attr.get("ID"))){
+                    String newInfoRow =buildInfoFromBioRAttr(attr);
+                    //System.err.println(newInfoRow);
+                    infoMeta.add(newInfoRow);
                 }
 
             }
@@ -182,31 +158,88 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
 
         // Builds default Info Metadata line when ##BIOR is not available
         if (retain != null && !retain.isEmpty()) {
-            for (String addDefault : retain) {
-                StringBuilder st1 = new StringBuilder();
-                st1.append("##INFO=<ID=");
-                st1.append(addDefault);
-                st1.append(",Number=.,");
-                st1.append("Type=String,");
-                st1.append("Description=");
-                st1.append(",CatalogShortUniqueName=");
-                st1.append(",CatalogVersion=");
-                st1.append(",CatalogBuild=");
-                st1.append(",CatalogPath=");
-                st1.append(">");
-                infoMeta.add(st1.toString().replaceAll("null", ""));
+            for (String key : retain) {
+                String newInfoRow = buildDefaultINFO(key);
+                //System.err.println(newInfoRow);
+                infoMeta.add(newInfoRow);
             }
         }
 
-
-        int index = colmeta.size();
+        int index = lastInfoLineNumber(colmeta);
 
         //add the info columns before the #CHROM column header
-        colmeta.addAll(index - 1, infoMeta);
+        colmeta.addAll(index, infoMeta);
         colmeta.removeAll(biorList);
         return colmeta;
     }
 
+
+    /**
+     * for a line without a ##BIOR line and returns a ##INFO line
+     * @return
+     */
+    public String buildDefaultINFO(String id){
+        return buildINFO(id,".","String",DEFAULT_DESCRIPTION);
+    }
+
+    AddMetadataLines amdl = new AddMetadataLines();
+    /**
+     * given a ##BIOR line, return a ##INFO line
+     * @param biorLine- the bior line that we will turn into an info line
+     * @return
+     */
+    public String buildINFOFromBioR(String biorLine){
+        LinkedHashMap<String,String> attr = amdl.parseHeaderLine(biorLine);
+        return buildInfoFromBioRAttr(attr);
+    }
+
+    public String buildInfoFromBioRAttr(LinkedHashMap<String,String> attr){
+        String fielddesc = attr.get(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString());
+        if(fielddesc == null || fielddesc.length() < 1){ //if the description is empty
+            attr.put(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString(), DEFAULT_DESCRIPTION);
+        }
+        String datatype = attr.get(AddMetadataLines.BiorMetaControlledVocabulary.DATATYPE.toString());
+        if(datatype == null || datatype.length() < 1){
+            attr.put(AddMetadataLines.BiorMetaControlledVocabulary.DATATYPE.toString(), DEFAULT_TYPE);//String
+        }else if(datatype.equalsIgnoreCase(ColumnMetaData.Type.Boolean.toString())){
+            attr.put(AddMetadataLines.BiorMetaControlledVocabulary.DATATYPE.toString(), "Flag");  //booleans are represented as flags in VCF
+        }
+        String number = attr.get(AddMetadataLines.BiorMetaControlledVocabulary.NUMBER.toString());
+        if(number == null || number.length() < 1){
+            attr.put(AddMetadataLines.BiorMetaControlledVocabulary.NUMBER.toString(), ".");
+        }
+        return buildINFO(
+                attr.get("ID"),
+                attr.get(AddMetadataLines.BiorMetaControlledVocabulary.NUMBER.toString()),
+                attr.get(AddMetadataLines.BiorMetaControlledVocabulary.DATATYPE.toString()),
+                attr.get(AddMetadataLines.BiorMetaControlledVocabulary.DESCRIPTION.toString()));
+    }
+
+    /**
+     *  Construct a ##INFO line:
+     *  e.g.
+     *  ##INFO=<ID=BIOR.genes.GeneID,Number=.,Type=String,Description="something">
+     */
+    public String buildINFO(String id, String number, String type, String description ){
+        if(description == null){
+            description = DEFAULT_DESCRIPTION;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("##INFO=<ID=");
+        sb.append(id);
+        sb.append(",Number=");
+        sb.append(number);
+        sb.append(",Type=");
+        sb.append(type);
+        sb.append(",Description=\"");
+        if(description.length() > 1){
+            sb.append(description);
+        }else {
+            sb.append(DEFAULT_DESCRIPTION);
+        }
+        sb.append("\">");
+        return sb.toString();
+    }
 
     //removes columnMetadata from header
 
@@ -219,16 +252,15 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
      */
 
     public HistoryMetaData removeColumnHeader(HistoryMetaData metaData, Map<Integer, String> biorindexes2) {
-
+        List<ColumnMetaData> columns = metaData.getColumns();
         List<Integer> indexes = new ArrayList<Integer>(biorindexes2.keySet());
-        Collections.sort(indexes);
-        int i = 0;
-        for (Integer j : indexes) {
-
-            metaData.getColumns().remove(j - i);
-            i++;
+        Collections.sort(indexes);    // 8 9 10 ...
+        Collections.reverse(indexes); // 10 9 8 ...
+        for (int j : indexes) {
+            ColumnMetaData cmd = columns.get(j);
+            //System.err.println(cmd.getColumnName());
+            columns.remove(cmd);
         }
-
         return metaData;
     }
 
@@ -278,14 +310,12 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
      * @param biorindexes ---indexes of BioR columns that needs to be removed
      * @return Modified history String
      */
-    private History removeAnnotationColumns(History h, Map<Integer, String> biorindexes) {
+    public History removeAnnotationColumns(History h, Map<Integer, String> biorindexes) {
         List<Integer> indexes = new ArrayList<Integer>(biorindexes.keySet());
-        Collections.sort(indexes);
-        int i = 0;
-        for (Integer j : indexes) {
-
-            h.remove(j - i);
-            i++;
+        Collections.sort(indexes);    //8 9 10 ...
+        Collections.reverse(indexes); //10 9 8 ...
+        for (int j : indexes) {
+            h.remove(j);
         }
         return h;
     }
@@ -299,9 +329,9 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
      */
     public List<String> getBIORColumnsFromMetadata(List<String> metadata) {
         List<String> columns = new ArrayList<String>();
-        for (String info : metadata) {
-            if (info.startsWith("##BIOR=<ID")) {
-                String[] ast = info.split("<")[1].replace(">", "").split(",")[0].split("=");
+        for (String c : metadata) {
+            if (c.startsWith("##BIOR=<ID")) {
+                String[] ast = c.split("<")[1].replace(">", "").split(",")[0].split("=");
                 columns.add(ast[1].replace("\"", ""));
             }
         }
@@ -312,18 +342,16 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
     /**
      * Extracts the List of BioR Columns looking at column header
      *
-     * @param originalheader - header passed to historyIn   e.g. #CHROM\tPOS\t...\tbior.foo\n
-     * @param biorcolumn     - all the ##bior rows in the header
+     * @param header - header passed to historyIn   e.g. #CHROM\tPOS\t...\tbior.foo\n
+     * @param biorcolumn     - any overides that are bior annotations, but are not prefixed with bior. (there must be a ##BIOR line designating them)
      * @return the columns from the header that are bior columns.
      */
-    public List<String> getBIORColumnsFromHeader(List<String> originalheader, List<String> biorcolumn) {
+    public List<String> getBIORColumnsFromHeader(List<ColumnMetaData> header, List<String> biorcolumn) {
         List<String> columns = new ArrayList<String>();
-        int indexsize = originalheader.size();
-        String columnheader = originalheader.get(indexsize - 1);
-        if (originalheader.get(indexsize - 1).startsWith("#CHROM")) {
-            String[] column = columnheader.split("\t");
-            List<String> columnlist = Arrays.asList(column);
-            for (String colname : columnlist) {
+        int indexsize = header.size();
+        if (header.get(0).getColumnName().startsWith("CHROM")) {
+            for (ColumnMetaData cmd : header) {
+                String colname = cmd.getColumnName();
                 //   String colname =History.getMetaData().getColumns().get(j).getColumnName();
                 if (colname.contains("bior") || colname.contains("BIOR")) {
                     columns.add(colname);
@@ -335,6 +363,20 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         return columns;
     }
 
+    private String infoDataPair(String key, String value){
+        StringBuilder sb = new StringBuilder();
+        //It is actually a Flag NOT a string
+        if(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")){
+            sb.append(";");
+            sb.append(key);
+        }else {
+            sb.append(";");
+            sb.append(key);
+            sb.append("=");
+            sb.append(value);
+        }
+        return sb.toString();
+    }
 
     /**
      * Modify the history string(VCF row) by appending the columns into INFO
@@ -356,7 +398,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
 
                 val = history.get(value);
                 if (val != null && !val.isEmpty() && !val.contentEquals(".") && !val.startsWith("{")) {
-                    String newValue = history.get(7).concat(";" + biorindexes2.get(value) + "=" + val);
+                    String newValue = history.get(7).concat(infoDataPair( biorindexes2.get(value), val ));  //TODO: potential performance issue!
                     if (newValue.startsWith(".;"))
                         history.set(7, newValue.replaceFirst(".;", ""));
                     else
@@ -368,6 +410,26 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         //	history = removeColumns(history,biorindexes2);
         return history;
 
+    }
+
+    /**
+     * returns the position of the last ##INFO row in the header
+     * @param originalHeader all of the lines int the original header
+     * @return
+     */
+    public int lastInfoLineNumber(List<String> originalHeader){
+        int last = 0;
+        int count =0;
+        for(String headerLine : originalHeader){
+            if(headerLine.startsWith("##INFO")){
+                last = count;
+            }
+            count++;
+        }
+        if(last == 0){
+            return originalHeader.size() -1;
+        }
+        return last+1;
     }
 
 }
