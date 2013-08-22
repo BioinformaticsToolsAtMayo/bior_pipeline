@@ -51,7 +51,7 @@ public class VEPCommandITCase extends RemoteFunctionalTest {
 	{
 		File biorLiteHome = new File(sHomePath);
 		dataSourceProps = new File(biorLiteHome, "conf/tools/vep.datasource.properties");
-		columnProps     = new File(biorLiteHome, "conf/tools/vep.columns.properties");		
+		columnProps     = new File(biorLiteHome, "conf/tools/vep.columns.tsv");		
 	}
 	
 	/**
