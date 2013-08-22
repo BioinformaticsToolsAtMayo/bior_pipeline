@@ -1,0 +1,10 @@
+Effect	String	1	Effect of this variant. {INTERGENIC, UPSTREAM, UTR_5_PRIME, UTR_5_DELETED, START_GAINED, SPLICE_SITE_ACCEPTOR, SPLICE_SITE_DONOR, START_LOST, SYNONYMOUS_START, CDS, GENE, TRANSCRIPT, EXON, EXON_DELETED, NON_SYNONYMOUS_CODING, SYNONYMOUS_CODING, FRAME_SHIFT, CODON_CHANGE, CODON_INSERTION, CODON_CHANGE_PLUS_CODON_INSERTION, CODON_DELETION, CODON_CHANGE_PLUS_CODON_DELETION, STOP_GAINED, SYNONYMOUS_STOP, STOP_LOST, INTRON, UTR_3_PRIME, UTR_3_DELETED, DOWNSTREAM, INTRON_CONSERVED, INTERGENIC_CONSERVED, INTRAGENIC, RARE_AMINO_ACID, NON_SYNONYMOUS_START}
+Effect_impact	String	1	Effects are categorized by 'impact' categories to help users find more significant variants. {HIGH, MODERATE, LOW, MODIFIER} 
+Functional_class	String	1	Functional class. {NONE, SILENT, MISSENSE, NONSENSE}  
+Codon_change	String	1	Codon change: old_codon/new_codon OR distance to transcript (in case of upstream / downstream).
+Amino_acid_change	String	1	Amino acid change: old_AA AA_position/new_AA (e.g. 'E30K').
+Gene_name	String	1	Gene name
+Gene_bioType	String	1	Transcript bioType, if available.
+Coding	String	1	This field is 'CODING' if any transcript of the gene is marked as protein coding. {CODING, NON_CODING}
+Transcript	String	1	Transcript ID (usually ENSEMBL IDs).
+Exon	String	1	Exon rank or Intron rank (e.g. '1' for the first exon, '2' for the second exon, etc.).
