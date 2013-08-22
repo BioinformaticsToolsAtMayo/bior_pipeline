@@ -9,6 +9,7 @@ import java.util.Properties;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
+import edu.mayo.bior.util.DependancyUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
@@ -54,7 +55,15 @@ public class AnnotateCommand implements CommandPlugin {
 						configFilePath, 
 						"The Config file path '" + configFilePath + "' does not exist (or is empty). Please specify a valid config file path."
 						);
-			}	
+			}else {
+                //if there is no config file, then we need to check if snpeff/vep is installed and bail if not
+                if(!DependancyUtil.isVEPInstalled()){
+                    System.exit(1);
+                }
+                if(!DependancyUtil.isSNPEffInstalled()){
+                    System.exit(1);
+                }
+            }
 		} 
 		 		
 		try {

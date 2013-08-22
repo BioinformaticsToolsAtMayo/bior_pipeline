@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
+import edu.mayo.bior.util.DependancyUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Charsets;
@@ -132,6 +134,10 @@ public class TreatPipeline extends Pipeline<History, History>
 		// 1ST JSON column is the original variant
 			order.add(JsonColumn.VARIANT);			pipeList.add(vcfToJson());
 		if(isNeedPipe(new VEPFormatter())) {
+            //if vep is not installed and they try to use it, then we need to bail!
+            if(!DependancyUtil.isVEPInstalled()){
+                System.exit(1);
+            }
 			order.add(JsonColumn.VEP);				pipeList.add(vep());
 		}
 		// Since the drill and cut are for HGNC lookup, we must check if HGNC is needed before we perform the drill and cut
@@ -144,6 +150,10 @@ public class TreatPipeline extends Pipeline<History, History>
 		}
 		// Since SNPEff takes a long time to load, AND that load is in the constructor, let's check if we need it first before calling the constructor
 		if(isNeedPipe(new SNPEffFormatter()) )	{
+            //check to see if it is even installed, if not bail!
+            if(!DependancyUtil.isSNPEffInstalled()){
+                System.exit(1);
+            }
 			order.add(JsonColumn.SNPEFF);			pipeList.add(snpeff());
 		}
 		// Using 1-order.size because we don't know how many columns the user passed in.
