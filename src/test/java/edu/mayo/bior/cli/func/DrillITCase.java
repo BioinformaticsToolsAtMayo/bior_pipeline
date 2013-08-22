@@ -66,7 +66,7 @@ public class DrillITCase extends BaseFunctionalTest {
         String[] headerLines = header.split("\n");
         assertEquals(3, headerLines.length);
         assertEquals(prevCmdHeader, headerLines[0]);		
-		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key3\",Operation=\"bior_drill\",,Field=\"key3\",DataType=\"String\",Number=\".\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[1]);
+		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key3\",Operation=\"bior_drill\",Field=\"key3\",DataType=\"String\",Number=\".\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[1]);
 		assertEquals("#bior.JSON_COL.key3	bior.JSON_COL", headerLines[2]);
 
 		// pull out just data rows
