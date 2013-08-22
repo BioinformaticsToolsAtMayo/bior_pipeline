@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -32,11 +33,12 @@ public class DrillITCase extends BaseFunctionalTest {
 
 		String header = getHeader(out.stdout);
         String[] headerLines = header.split("\n");
+        System.out.print(Arrays.asList(headerLines));
         assertEquals(5, headerLines.length);
         assertEquals(prevCmdHeader, headerLines[0]);		
-		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key1\",Operation=\"bior_drill\",DataType=\"STRING\",Field=\"key1\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[1]);
-		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key2\",Operation=\"bior_drill\",DataType=\"STRING\",Field=\"key2\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[2]);
-		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key3\",Operation=\"bior_drill\",DataType=\"STRING\",Field=\"key3\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[3]);
+		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key1\",Operation=\"bior_drill\",Field=\"key1\",DataType=\"String\",Number=\".\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[1]);
+		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key2\",Operation=\"bior_drill\",Field=\"key2\",DataType=\"String\",Number=\".\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[2]);
+		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key3\",Operation=\"bior_drill\",Field=\"key3\",DataType=\"String\",Number=\".\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[3]);
 		assertEquals("#bior.JSON_COL.key1\tbior.JSON_COL.key2\tbior.JSON_COL.key3", headerLines[4]);
 
 		// pull out just data rows		
@@ -64,7 +66,7 @@ public class DrillITCase extends BaseFunctionalTest {
         String[] headerLines = header.split("\n");
         assertEquals(3, headerLines.length);
         assertEquals(prevCmdHeader, headerLines[0]);		
-		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key3\",Operation=\"bior_drill\",DataType=\"STRING\",Field=\"key3\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[1]);
+		assertEquals("##BIOR=<ID=\"bior.JSON_COL.key3\",Operation=\"bior_drill\",,Field=\"key3\",DataType=\"String\",Number=\".\",FieldDescription=\"\",ShortUniqueName=\"JSON_COL\",Path=\"/path/to/catalog\">", headerLines[1]);
 		assertEquals("#bior.JSON_COL.key3	bior.JSON_COL", headerLines[2]);
 
 		// pull out just data rows
@@ -101,16 +103,16 @@ public class DrillITCase extends BaseFunctionalTest {
 				"}";	
 				
 		CommandOutput out = executeScript("bior_drill", stdin, "-p", "INFO.RSPOS", "-p", "INFO.dbSNPBuildID");
-
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
 
 		String header = getHeader(out.stdout);
+		System.out.println(header);
         String[] headerLines = header.split("\n");
         assertEquals(4, headerLines.length);
         assertEquals(prevCmdHeader, headerLines[0]);		
-		assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137.INFO.RSPOS\",Operation=\"bior_drill\",DataType=\"STRING\",Field=\"INFO.RSPOS\",FieldDescription=\"Chromosome position reported in dbSNP\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
-		assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137.INFO.dbSNPBuildID\",Operation=\"bior_drill\",DataType=\"STRING\",Field=\"INFO.dbSNPBuildID\",FieldDescription=\"First dbSNP build for RS\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\">", catCanonicalPath), headerLines[2]);
+		assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137.INFO.RSPOS\",Operation=\"bior_drill\",Field=\"INFO.RSPOS\",DataType=\"Integer\",Number=\"1\",FieldDescription=\"Chromosome position reported in dbSNP\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\">", catCanonicalPath), headerLines[1]);
+		assertEquals(String.format("##BIOR=<ID=\"bior.dbSNP137.INFO.dbSNPBuildID\",Operation=\"bior_drill\",Field=\"INFO.dbSNPBuildID\",DataType=\"Integer\",Number=\"1\",FieldDescription=\"First dbSNP build for RS\",ShortUniqueName=\"dbSNP137\",Source=\"dbSNP\",Version=\"137\",Build=\"GRCh37.p10\",Path=\"%s\">", catCanonicalPath), headerLines[2]);
 		assertEquals("#bior.dbSNP137.INFO.RSPOS\tbior.dbSNP137.INFO.dbSNPBuildID", headerLines[3]);
 
 		// pull out just data rows		
