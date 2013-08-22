@@ -100,6 +100,10 @@ public class BiorProperties {
         file = f;
     }
 
+    public static String getFile(){
+        return file;
+    }
+
     public BiorProperties() throws IOException {
         FileInputStream inStream = null;
         try {

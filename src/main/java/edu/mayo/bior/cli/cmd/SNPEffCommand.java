@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import edu.mayo.bior.util.DependancyUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
@@ -77,6 +78,10 @@ public class SNPEffCommand implements CommandPlugin{
 	}
 
 	public void execute(CommandLine line, Options opts) throws Exception {
+        System.err.println("SNPEFF Starting up... this will take about a minute");
+        if(!DependancyUtil.isSNPEffInstalled()){
+            System.exit(1);
+        }
 		
 		SNPEFFPipeline snpEffPipe = null;
 		boolean pickworst = Boolean.TRUE;
@@ -85,7 +90,7 @@ public class SNPEffCommand implements CommandPlugin{
 		}
 
 		File dataSourceProps = ClasspathUtil.loadResource("/tools/snpeff.datasource.properties");
-		File columnProps     = ClasspathUtil.loadResource("/tools/snpeff.columns.properties");
+		File columnProps     = ClasspathUtil.loadResource("/tools/snpeff.columns.tsv");
 		
 		Metadata metadata = new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), operation);
 		

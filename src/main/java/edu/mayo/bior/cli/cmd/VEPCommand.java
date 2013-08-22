@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import edu.mayo.bior.util.DependancyUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
@@ -57,6 +58,9 @@ public class VEPCommand  implements CommandPlugin {
 
 	
 	public void execute (CommandLine line,Options options) throws Exception {
+        if(!DependancyUtil.isVEPInstalled()){
+            System.exit(1);
+        }
 		
 		boolean pickworst = Boolean.TRUE;
 		if (line.hasOption(OPTION_PICKWORST)){
@@ -66,7 +70,7 @@ public class VEPCommand  implements CommandPlugin {
 				
 		try {
 			File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
-			File columnProps     = ClasspathUtil.loadResource("/tools/vep.columns.properties");
+			File columnProps     = ClasspathUtil.loadResource("/tools/vep.columns.tsv");
 			
 			Metadata metadata = new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), operation);
 			
