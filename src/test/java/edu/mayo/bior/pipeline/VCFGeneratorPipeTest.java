@@ -144,8 +144,26 @@ public class VCFGeneratorPipeTest {
         }
     }
 
+    @Test
+    public void testInfoDataPair(){
+        VCFGeneratorPipe v = new VCFGeneratorPipe();
+        String inf1 = v.infoDataPair("foo", "bar");
+        assertEquals(";foo=bar",inf1);
+        String inf2 = v.infoDataPair("foo", "a,b,c");
+        assertEquals(";foo=a,b,c",inf2);
+        String inf3 = v.infoDataPair("foo", "a b  c");
+        assertEquals(";foo=a_b__c",inf3);
+        String inf4 = v.infoDataPair("foo", "a;b;c");
+        assertEquals(";foo=a,b,c",inf4);
+        String inf5 = v.infoDataPair("foo", "a:b=c");
+        assertEquals(";foo=a:b:c",inf5);
+        String inf6 = v.infoDataPair("foo", "a -_b=,c;d");
+        assertEquals(";foo=a_-_b:,c,d",inf6);
 
-    //@Test
+    }
+
+
+    @Test
     public void testRemoveColumnHeader(){
         VCFGeneratorPipe v = new VCFGeneratorPipe();
         createHistory();
@@ -155,7 +173,7 @@ public class VCFGeneratorPipeTest {
         HistoryMetaData hmd = v.removeColumnHeader(History.getMetaData(), biorindexes);
         //System.out.println(hmd.getColumns().size());
         for(ColumnMetaData cmd : hmd.getColumns()){
-            String col = cmd.toString();
+            String col = cmd.getColumnName();
             assertTrue(!col.contains("bior."));
             assertTrue(!col.contains("INFO"));
         }

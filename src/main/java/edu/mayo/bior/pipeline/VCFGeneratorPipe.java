@@ -193,6 +193,11 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         return buildInfoFromBioRAttr(attr);
     }
 
+    /**
+     * build a ##INFO row given a parsed ##BIOR row
+     * @param attr the parsed hash of the ##BIOR row
+     * @return
+     */
     public String buildInfoFromBioRAttr(LinkedHashMap<String,String> attr){
         String fielddesc = attr.get(AddMetadataLines.BiorMetaControlledVocabulary.FIELDDESCRIPTION.toString());
         if(fielddesc == null || fielddesc.length() < 1){ //if the description is empty
@@ -328,7 +333,45 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         return columns;
     }
 
-    private String infoDataPair(String key, String value){
+    /**
+     * VCF Spec for info:
+     *
+     * INFO additional information: (String, no white-space, semi-colons, or equals-signs permitted;
+     * commas are permitted only as delimiters for lists of values)
+     * INFO fields are encoded as a semicolon-separated series of short keys with optional values in the format:
+     * <key>=<data>[,data].
+     * Arbitrary keys are permitted, although the following sub-fields are reserved (albeit optional):
+     AA : ancestral allele
+     AC : allele count in genotypes, for each ALT allele, in the same order as listed
+     AF : allele frequency for each ALT allele in the same order as listed: use this when estimated from primary data, not called genotypes
+     AN : total number of alleles in called genotypes
+     BQ : RMS base quality at this position
+     CIGAR : cigar string describing how to align an alternate allele to the reference allele
+     DB : dbSNP membership
+     DP : combined depth across samples, e.g. DP=154
+     END : end position of the variant described in this record (for use with symbolic alleles)
+     H2 : membership in hapmap2
+     H3 : membership in hapmap3
+     MQ : RMS mapping quality, e.g. MQ=52
+     MQ0 : Number of MAPQ == 0 reads covering this record
+     NS : Number of samples with data
+     SB : strand bias at this position
+     SOMATIC : indicates that the record is a somatic mutation, for cancer genomics
+     VALIDATED : validated by follow-up experiment
+     1000G : membership in 1000 Genomes
+     */
+    public final String delimForLists = ",";
+    public String infoDataPair(String key, String value){
+        String newval = value;
+        if(newval.contains(" ")){
+            newval = newval.replaceAll(" ","_");
+        }
+        if(newval.contains("=")){
+            newval = newval.replaceAll("=",":");
+        }
+        if(value.contains(";")){
+            newval = newval.replaceAll(";",delimForLists); //if the raw data being inserted contains semi-colons - then replace with pipe "|"
+        }
         StringBuilder sb = new StringBuilder();
         //It is actually a Flag NOT a string
         if(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")){
@@ -338,7 +381,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
             sb.append(";");
             sb.append(key);
             sb.append("=");
-            sb.append(value);
+            sb.append(newval);
         }
         return sb.toString();
     }
