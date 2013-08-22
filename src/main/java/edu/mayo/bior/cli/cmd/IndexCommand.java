@@ -53,32 +53,33 @@ public class IndexCommand implements CommandPlugin {
 		
 		// Index path is optional - use it if supplied, else create it from the bgzip catalog path
 		String indexDbPathOut = line.getOptionValue(OPTION_INDEX_PATH);
-                
-                File f2 = new File(indexDbPathOut);
-                if(f2.isDirectory()){
-                    throw new InvalidOptionArgValueException(
-					opts.getOption(OPTION_CATALOG + ""),
-					indexDbPathOut,
-					"The following file is a directory (it must be a file): " + indexDbPathOut
-					);
-                }
-                                
+                     
                 
 		if(indexDbPathOut == null) {
 			//if(catalogLineCount <= 1000000)
 				// TODO: Create a text file index instead
 			indexDbPathOut = IndexUtils.getH2DbIndexPath(bgzipPath, key);
+		} else {
+			 File f2 = new File(indexDbPathOut);
+             if(f2.isDirectory()){
+                 throw new InvalidOptionArgValueException(
+					opts.getOption(OPTION_CATALOG + ""),
+					indexDbPathOut,
+					"The following file is a directory (it must be a file): " + indexDbPathOut
+					);
+             }
+             if(!f2.getName().startsWith(
+                     f.getName().replaceAll(".tsv.bgz", "")
+                         )){
+                     System.err.println("Warning: Your file and your index do not have the same prefix.  Make sure you want to do this\n" +
+                             "File: " + bgzipPath +
+                             "\nIndex: " + indexDbPathOut
+                             );
+                     
+                 }
 		}
                 
-                if(!f2.getName().startsWith(
-                    f.getName().replaceAll(".tsv.bgz", "")
-                        )){
-                    System.err.println("Warning: Your file and your index do not have the same prefix.  Make sure you want to do this\n" +
-                            "File: " + bgzipPath +
-                            "\nIndex: " + indexDbPathOut
-                            );
-                    
-                }
+  
 		
 		IndexUtils.createParentDirectories(indexDbPathOut);
 		
