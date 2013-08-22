@@ -23,7 +23,7 @@ public class SNPEffCommandITCase extends RemoteFunctionalTest
 	{
 		File biorLiteHome = new File(sHomePath);
 		dataSourceProps = new File(biorLiteHome, "conf/tools/snpeff.datasource.properties");
-		columnProps     = new File(biorLiteHome, "conf/tools/snpeff.columns.properties");		
+		columnProps     = new File(biorLiteHome, "conf/tools/snpeff.columns.tsv");		
 	}
 
 	/**
