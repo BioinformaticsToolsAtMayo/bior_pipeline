@@ -195,6 +195,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			// Skip if the catalog path is null, which means it was a drill column
 			if( null == catalogPath || catalogPath.trim().length() == 0 )
 				continue;
+			   System.err.print(fmt.getClass().getSimpleName());
 			if (fmt.getClass().getSimpleName() == "VEPFormatter") {
 				
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
