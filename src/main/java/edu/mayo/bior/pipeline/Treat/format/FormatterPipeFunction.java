@@ -198,6 +198,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			System.err.print(fmt.formatter.getClass().getSimpleName());	
 			if (fmt.formatter.getClass().getSimpleName() == "VEPFormatter") {
 				
+				System.err.println("................VEP............");
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
 				File columnProps     = ClasspathUtil.loadResource("/tools/vep.columns.tsv");
 				
