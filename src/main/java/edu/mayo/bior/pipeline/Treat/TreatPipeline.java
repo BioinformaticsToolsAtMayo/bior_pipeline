@@ -106,6 +106,11 @@ public class TreatPipeline extends Pipeline<History, History>
 		initPipes();
 	}
 
+    private String generatedCommand = "";
+    public String getGeneratedCommand(){
+        return generatedCommand;
+    }
+
 	
 	/**
 	 * Initializes what pipes will be used for this pipeline.
@@ -229,6 +234,8 @@ public class TreatPipeline extends Pipeline<History, History>
 		String pipesAsStr = pipeAsString(pipeList);
 
 		sLogger.info("bior_annotate pipeline long cmd: " + pipesAsStr);
+        System.err.println(pipesAsStr);
+        this.generatedCommand = pipesAsStr;
 
 		Map<String,String> envVars = new HashMap<String,String>();
 		sLogger.info("BIOR_LITE_HOME: " + mBiorLiteHome);
@@ -327,7 +334,7 @@ public class TreatPipeline extends Pipeline<History, History>
 	/** Build the drill pipe string - keep the json column */
 	private String drill(String jsonPath) {
 		// Add "null" since this column is not used directly by formatters
-		mCatalogForColumn.add(null);
+		mCatalogForColumn.add(mCatalogForColumn.size()-1,null); //drill shifts columns, so we need to make the second to last column null
 		return mBiorCmdDir + AnnotateCmds.bior_drill + " -p " + jsonPath + " -k" + logFlag();
 	}
 	

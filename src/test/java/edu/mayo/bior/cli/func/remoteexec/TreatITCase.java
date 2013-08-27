@@ -13,8 +13,15 @@ import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
+import edu.mayo.bior.cli.PathReplace;
+import edu.mayo.bior.util.ClasspathUtil;
+import edu.mayo.pipes.UNIX.GrepEPipe;
+import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.util.metadata.Metadata;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.tinkerpop.pipes.util.Pipeline;
@@ -39,6 +46,17 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
  */
 public class TreatITCase extends RemoteFunctionalTest
 {
+
+    @Before
+    public void cleanupBefore(){
+        History.clearMetaData();
+    }
+
+    @After
+    public void cleanupAfter(){
+        History.clearMetaData();
+    }
+
 	@Test
 	public void testPipeline_SubsetConfig() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
@@ -49,27 +67,40 @@ public class TreatITCase extends RemoteFunctionalTest
 				new CatPipe(),
 				new HistoryInPipe( new ArrayList(annotatePipe.getMetdata()) ),
 				annotatePipe,
-				new HistoryOutPipe()
-				//new PrintPipe()
+				new HistoryOutPipe(),
+				new PrintPipe()
 				);
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
 		List<String> actual = PipeTestUtils.getResults(pipes);
 		List<String> expected = splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv")));
+        actual = PathReplace.replacePathDontCare(actual);
+        expected = PathReplace.replacePathDontCare(expected);
 		assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
+    //OMIM.ID
+    //# Hgnc - Ensembl Id
+    //Ensembl_Gene_ID
+    //# VEP HGNC - UniprotId
+    //    UniprotID
+    //# dbSNP - rsId
+    //    rsID
 	@Test
 	public void testPipeline_subsetWithDependencies() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException
 	{
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_subsetWithDependencies():");
 		System.out.println("Annotate pipeline with columns that have dependencies on other data sources (and are in a different order in the config file vs what bior_annotate expects)...");
-		Pipeline pipes = new Pipeline(
+        TreatPipeline anno = new TreatPipeline("src/test/resources/treat/configtest/subset.config");
+        String generatedCommand = anno.getGeneratedCommand();
+        System.out.println(generatedCommand);
+        Pipeline pipes = new Pipeline(
 				new CatPipe(),
-				new HistoryInPipe(),
-				new TreatPipeline("src/test/resources/treat/configtest/subset.config"),
-				new HistoryOutPipe()
+				new HistoryInPipe(new ArrayList<Metadata>(anno.getMetdata())),
+				anno,
+				new HistoryOutPipe(),
+                new GrepEPipe("##BIOR") //don't care about BIOR headers for this test
 				//new PrintPipe()
 				);
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
@@ -100,15 +131,9 @@ public class TreatITCase extends RemoteFunctionalTest
 		List<String> actual = PipeTestUtils.getResults(pipes);
 		// Just check that we didn't get a hang (may want to verify the first and last lines match)
 		System.out.println("Actual size: " + actual.size());
-		assertEquals(10001, actual.size());
+		assertEquals(10002, actual.size());
 		List<String> linesIn = FileCompareUtils.loadFile("src/test/resources/treat/10000.1tomany.vcf");
-		// Verify we have a 1-to-1 match with the input thru to the output
-		for(int i=0; i < actual.size(); i++) {
-			//System.out.println("line " + i);
-			assertTrue("Start of line[" + i + "] does NOT match output\n initial: " + linesIn.get(i)
-					+ "\n actual: " + actual.get(i),
-					actual.get(i).startsWith(linesIn.get(i)));
-		}
+        this.compareListsNoHeader(actual, linesIn,false);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -132,8 +157,9 @@ public class TreatITCase extends RemoteFunctionalTest
 
 		if (out.exit != 0)
 			fail(out.stderr);
-
-		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+        List<String> e = splitLines(expected);
+        List<String> s = splitLines(out.stdout);
+		compareListsNoHeader(e, s, true);
 		//assertMatch(splitLines(expected), splitLines(out.stdout));
 		System.out.println("<<<<<----------- Test passed -----");
     }
@@ -157,8 +183,9 @@ public class TreatITCase extends RemoteFunctionalTest
 
 		if (out.exit != 0)
 			fail(out.stderr);
-
-		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+        List<String> e = splitLines(expected);
+        List<String> r = splitLines(out.stdout);
+        compareListsNoHeader(e,r,true);
 		//assertMatch(splitLines(expected), splitLines(out.stdout));
 		System.out.println("<<<<<----------- Test passed -----");
     }
@@ -182,8 +209,9 @@ public class TreatITCase extends RemoteFunctionalTest
 		if (out.exit != 0)
 			fail(out.stderr);
 
-		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
 		//assertMatch(splitLines(expected), splitLines(out.stdout));
+        compareListsNoHeader(splitLines(expected),splitLines(out.stdout),true);
 		System.out.println("<<<<<----------- Test passed -----");
     }
 	
@@ -201,7 +229,8 @@ public class TreatITCase extends RemoteFunctionalTest
 		if (out.exit != 0)
 			fail(out.stderr);
 		
-		assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+        compareListsNoHeader(splitLines(expected),splitLines(out.stdout),true);
 		System.out.println("<<<<<----------- Test passed -----");
     }
     
@@ -358,5 +387,31 @@ public class TreatITCase extends RemoteFunctionalTest
 
 		return diff.toString();
 	}
-	
+
+    /**
+     * In some cases, we don't want to test if annotate header lines are correct, so we remove them in both expected and output before we compare output
+    */
+    public void compareListsNoHeader(List<String> expected, List<String> results, boolean biorLinesOnly){
+        String headerSignature = "#";
+        if(biorLinesOnly) headerSignature = "##BIOR";
+        int i = 0;
+        int j = 0;
+        while( i< expected.size() && j<results.size()){
+            String e = expected.get(i);
+            String r = expected.get(j);
+            while(e.startsWith(headerSignature)){
+                i++;
+                e = expected.get(i);
+            }
+            while(r.startsWith(headerSignature)){
+                j++;
+                r = expected.get(j);
+            }
+            assertEquals(e,r);
+            i++;
+            j++;
+        }
+
+    }
+
 }
