@@ -195,17 +195,15 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			// Skip if the catalog path is null, which means it was a drill column
 			if( null == catalogPath || catalogPath.trim().length() == 0 )
 				continue;
-			   System.err.print(fmt.formatter.getClass().getName());
-			   System.err.print(fmt.getClass().getCanonicalName());
-			   System.err.print(fmt.getClass().getSuperclass().getCanonicalName());
-			if (fmt.getClass().getSimpleName() == "VEPFormatter") {
+				
+			if (fmt.formatter.getClass().getSimpleName() == "VEPFormatter") {
 				
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
 				File columnProps     = ClasspathUtil.loadResource("/tools/vep.columns.tsv");
 				
 				metas.add( new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_annotate"));
 			
-			} else  if(fmt.getClass().getSimpleName() == "SNPEffFormatter"){
+			} else  if(fmt.formatter.getClass().getSimpleName() == "SNPEffFormatter"){
 			    
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/snpeff.datasource.properties");
 				File columnProps     = ClasspathUtil.loadResource("/tools/snpeff.columns.tsv");
