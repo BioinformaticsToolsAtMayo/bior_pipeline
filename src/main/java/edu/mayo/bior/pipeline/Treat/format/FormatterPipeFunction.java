@@ -196,7 +196,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			if( null == catalogPath || catalogPath.trim().length() == 0 )
 				continue;
 			System.err.print(fmt.formatter.getClass().getSimpleName());	
-			if (fmt.formatter.getClass().getSimpleName() == "VEPFormatter") {
+			if (fmt.formatter.getClass().getSimpleName().equalsIgnoreCase("VEPFormatter")) {
 				
 				System.err.println("................VEP............");
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
@@ -204,7 +204,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 				
 				metas.add( new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_annotate"));
 			
-			} else  if(fmt.formatter.getClass().getSimpleName() == "SNPEffFormatter"){
+			} else  if(fmt.formatter.getClass().getSimpleName().equalsIgnoreCase("SNPEffFormatter")){
 			    
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/snpeff.datasource.properties");
 				File columnProps     = ClasspathUtil.loadResource("/tools/snpeff.columns.tsv");
