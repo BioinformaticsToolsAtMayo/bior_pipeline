@@ -1,5 +1,9 @@
 package edu.mayo.bior.pipeline.Treat.format;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +12,7 @@ import java.util.Map;
 import com.tinkerpop.pipes.PipeFunction;
 
 import edu.mayo.bior.pipeline.Treat.JsonColumn;
+import edu.mayo.bior.util.ClasspathUtil;
 import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.util.metadata.Metadata;
 
@@ -179,8 +184,10 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 	}
 
 	/** Given metadata from the JSON columns, construct metadata for the user-supplied columns.
-	 *  This will be used by the TreatPipeline to return Metadata list for HistoryInPipe */
-	public List<Metadata> getMetadataForUserColumns(List<String> catalogPathsForColumns) {
+	 *  This will be used by the TreatPipeline to return Metadata list for HistoryInPipe 
+	 * @throws URISyntaxException 
+	 * @throws IOException */
+	public List<Metadata> getMetadataForUserColumns(List<String> catalogPathsForColumns) throws URISyntaxException, IOException {
 		List<Metadata> metas = new ArrayList<Metadata>();
 		for(ColumnFormatter fmt : mColFormatters) {  // Matches one whole JSON column
 			// For each JSON column, we will add a Metadata object
@@ -188,12 +195,30 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			// Skip if the catalog path is null, which means it was a drill column
 			if( null == catalogPath || catalogPath.trim().length() == 0 )
 				continue;
-			metas.add(  new Metadata("bior_annotate", 
-				catalogPath, 
-				fmt.userSelectedColNames.toArray(new String[0]), 
-				fmt.getDrillPathsMatchingUserSelectedColumnSubset().toArray(new String[0])) );
+			if (fmt.getClass().getSimpleName() == "VEPFormatter") {
+				
+				File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
+				File columnProps     = ClasspathUtil.loadResource("/tools/vep.columns.tsv");
+				
+				metas.add( new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_annotate"));
+			
+			} else  if(fmt.getClass().getSimpleName() == "SNPEffFormatter"){
+			    
+				File dataSourceProps = ClasspathUtil.loadResource("/tools/snpeff.datasource.properties");
+				File columnProps     = ClasspathUtil.loadResource("/tools/snpeff.columns.tsv");
+				
+				metas.add( new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_annotate"));
+				 
+				
+			} else {
+			
+			    metas.add(  new Metadata("bior_annotate", 
+				  catalogPath, 
+				  fmt.userSelectedColNames.toArray(new String[0]), 
+				  fmt.getDrillPathsMatchingUserSelectedColumnSubset().toArray(new String[0])) );
+		      }
 		}
-		return metas;
+			return metas;
 	}
 
 	/**
