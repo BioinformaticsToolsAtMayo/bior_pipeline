@@ -20,6 +20,9 @@ import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.cli.InvalidOptionArgValueException;
 import edu.mayo.exec.AbnormalExitException;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.metadata.Metadata;
 
 public class AnnotateCommand implements CommandPlugin {
 	
@@ -67,7 +70,9 @@ public class AnnotateCommand implements CommandPlugin {
 		} 
 		 		
 		try {
-			mPipeline.execute(new TreatPipeline(configFilePath));
+		 TreatPipeline  treatPipeline =	new TreatPipeline(configFilePath);
+		 List<Metadata>  treatMetadata =treatPipeline.getMetdata(); 
+		 mPipeline.execute(new HistoryInPipe(treatMetadata),treatPipeline,new HistoryOutPipe());
 		} catch(IllegalArgumentException ex) {
 			throw new InvalidOptionArgValueException(
 					opts.getOption(OPTION_CONFIG_FILE + ""),
