@@ -195,22 +195,27 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			// Skip if the catalog path is null, which means it was a drill column
 			if( null == catalogPath || catalogPath.trim().length() == 0 )
 				continue;
-			System.err.print(fmt.formatter.getClass().getSimpleName());	
+		
 			if (fmt.formatter.getClass().getSimpleName().contains("VEPFormatter")) {
 				
-				System.err.println("................VEP............");
+				
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
 				File columnProps     = ClasspathUtil.loadResource("/tools/vep.columns.tsv");
+
+			    metas.add(  new Metadata("bior_annotate", 
+				  dataSourceProps.getCanonicalPath(),columnProps.getCanonicalPath(), 
+				  fmt.userSelectedColNames.toArray(new String[0]), 
+				  fmt.getDrillPathsMatchingUserSelectedColumnSubset().toArray(new String[0])));
 				
-				metas.add( new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_annotate"));
-			
-			} else  if(fmt.formatter.getClass().getSimpleName().equalsIgnoreCase("SNPEffFormatter")){
+			} else  if(fmt.formatter.getClass().getSimpleName().contains("SNPEffFormatter")){
 			    
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/snpeff.datasource.properties");
 				File columnProps     = ClasspathUtil.loadResource("/tools/snpeff.columns.tsv");
 				
-				metas.add( new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_annotate"));
-				 
+				  metas.add(  new Metadata("bior_annotate", 
+						  dataSourceProps.getCanonicalPath(),columnProps.getCanonicalPath(), 
+						  fmt.userSelectedColNames.toArray(new String[0]), 
+						  fmt.getDrillPathsMatchingUserSelectedColumnSubset().toArray(new String[0])));
 				
 			} else {
 			
