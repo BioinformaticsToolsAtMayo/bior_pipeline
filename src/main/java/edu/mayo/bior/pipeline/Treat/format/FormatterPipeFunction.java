@@ -196,7 +196,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 			if( null == catalogPath || catalogPath.trim().length() == 0 )
 				continue;
 			System.err.print(fmt.formatter.getClass().getSimpleName());	
-			if (fmt.formatter.getClass().getSimpleName().equalsIgnoreCase("VEPFormatter")) {
+			if (fmt.formatter.getClass().getSimpleName().contains("VEPFormatter")) {
 				
 				System.err.println("................VEP............");
 				File dataSourceProps = ClasspathUtil.loadResource("/tools/vep.datasource.properties");
