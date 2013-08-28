@@ -4,6 +4,11 @@ package edu.mayo.bior.pipeline;
 import java.text.ParseException;
 import java.util.*;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import edu.mayo.pipes.history.ColumnMetaData;
 import edu.mayo.pipes.util.metadata.AddMetadataLines;
 import org.apache.log4j.Logger;
@@ -52,14 +57,14 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         }
         //checks if biorcolumns is not null
         if (biorcolumnsFromMetadata != null) {
-
+            //Happy Path biorcolumnsFromMetadata === colsFromHeader
             if (biorcolumnsFromMetadata.containsAll(colsFromHeader) && biorcolumnsFromMetadata.size() == colsFromHeader.size()) {
                 HistoryMetaData hmd = removeColumnHeader(History.getMetaData(), biorindexes);
                 History.getMetaData().setOriginalHeader(
                         addColumnheaders(
                                 hmd.getOriginalHeader(), null, null)
                 );
-
+            //There are more biorcolumnsFromMetadata columns than colsFromHeader - remove the extra ##BIOR don't convert them into info, but convert those that are in colsFromHeader
             } else if (biorcolumnsFromMetadata.containsAll(colsFromHeader) && biorcolumnsFromMetadata.size() > colsFromHeader.size()) {
 
                 List<String> biorcolumn = biorcolumnsFromMetadata;
@@ -68,13 +73,14 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
                 History.getMetaData().setOriginalHeader(
                         addColumnheaders(hmd.getOriginalHeader(), null, biorcolumn)
                 );
-
+            //There are move colsFromHeader and there is no available biorcolumnsFromMetadata - build default ##INFO for those that don't have metadata
             } else if (colsFromHeader.containsAll(biorcolumnsFromMetadata) && colsFromHeader.size() > biorcolumnsFromMetadata.size()) {
 
                 List<String> addDefaultColumn = colsFromHeader;
                 addDefaultColumn.removeAll(biorcolumnsFromMetadata);
                 History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(), biorindexes)).getOriginalHeader(), addDefaultColumn, null));
 
+            //biorcolumnsFromMetadata is a subset of colsFromHeader => we need to build some default ##INFO lines - so intersect the sets then build ##INFO based on the intersection
             } else if (!colsFromHeader.containsAll(biorcolumnsFromMetadata) || !biorcolumnsFromMetadata.containsAll(colsFromHeader)) {
 
                 List<String> biorcolumn = biorcolumnsFromMetadata;
@@ -87,6 +93,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         } else {
 
             //No ##BIOR available since bior
+            //build all default ##INFO because we don't have any metadata
             History.getMetaData().setOriginalHeader(addColumnheaders((removeColumnHeader(History.getMetaData(), biorindexes)).getOriginalHeader(), colsFromHeader, null));
 
         }
@@ -139,7 +146,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
                 biorList.add(info);
             }
 
-            if (info.startsWith("##BIOR=<ID") && info.contains("drill")) {
+            if (info.startsWith("##BIOR=<ID") && info.contains("bior_drill") || info.startsWith("##BIOR=<ID") && info.contains("bior_annotate") ) {
                 LinkedHashMap<String,String> attr = amdl.parseHeaderLine(info);
                 //If there is nothing to remove, then add a new ##INFO
                 if (remove == null ) {
@@ -363,6 +370,14 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
     public final String delimForLists = ",";
     public String infoDataPair(String key, String value){
         String newval = value;
+
+        //in the special case it is a json array
+        if(newval.startsWith("[") && newval.endsWith("]") && newval.length() > 1){
+            newval = handleJsonArray(newval);
+        }else if(newval.contains(",")){
+            newval = newval.replaceAll(",","|");
+        }
+
         if(newval.contains(" ")){
             newval = newval.replaceAll(" ","_");
         }
@@ -382,6 +397,36 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
             sb.append(key);
             sb.append("=");
             sb.append(newval);
+        }
+        return sb.toString();
+    }
+
+    private Gson gson = new Gson();
+    public String handleJsonArray(String jarr){
+        StringBuilder sb = new StringBuilder();
+        JsonElement jelement = new JsonParser().parse("{ \"arr\" : " + jarr + "}");
+        JsonObject jobject = jelement.getAsJsonObject();
+        JsonArray jarray = jobject.getAsJsonArray("arr");
+        for(int i=0; i<jarray.size();i++){
+            JsonElement e = jarray.get(i);
+            //if it is an array of strings
+            if(jarr.contains("\"")){
+                sb.append(e.toString().replaceAll("\"",""));
+                if(i<jarray.size()-1){
+                    sb.append(",");
+                }
+            }else { // it is a number, we don't care about arrays of flags/booleans
+                Double d = e.getAsDouble();
+                String dstring =  d.toString();
+                if(dstring.endsWith(".0")){
+                    sb.append(dstring.substring(0, dstring.length()-2));
+                }else {
+                    sb.append(dstring);
+                }
+                if(i<jarray.size()-1){
+                    sb.append(",");
+                }
+            }
         }
         return sb.toString();
     }

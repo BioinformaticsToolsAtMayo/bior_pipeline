@@ -379,4 +379,60 @@ public class VCFGeneratorPipeTest {
         }
     }
 
+    public final List<String> arrayInput = Arrays.asList(
+            "##fileformat=VCFv4.0",
+            "##BIOR=<ID=\"bior.JsonArray\",Operation=\"bior_foo\",Number=.,ShortUniqueName=JsonArray>",   //data type not defined to make sure test works for float, string and int
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tbior.JsonArray",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData\t[\"A\",\"B\",\"C\"]",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData\t[1,2,3]",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData\t[1.1,2.2,3.3]"
+    );
+
+    public final List<String> arrayOutput = Arrays.asList(
+            "##fileformat=VCFv4.0",
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData;bior.JsonArray=A,B,C",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData;bior.JsonArray=1,2,3",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData;bior.JsonArray=1.1,2.2,3.3"
+    );
+
+    @Test
+    public void testSanatizeJSONArray(){
+        //if the user somehow creates a json array and wants that injected into the info column, then this will test that that is sanitized
+        System.out.println("Testing Sanatize JSON Array");
+        Pipeline p = new Pipeline(
+                new HistoryInPipe(),
+                new VCFGeneratorPipe(),
+                new HistoryOutPipe()
+        );
+        p.setStarts(arrayInput);
+        for(int i=0; p.hasNext();i++){
+            String s = (String) p.next();
+            //System.out.println(s);
+            assertEquals(arrayOutput.get(i),s);
+        }
+
+    }
+
+    @Test
+    public void testVCFizeAnnotate(){
+        System.out.println("Testing to see if we can VCFize an annotate output");
+        Pipeline p = new Pipeline(
+            new CatPipe(),
+            new HistoryInPipe(),
+            new VCFGeneratorPipe(),
+            new HistoryOutPipe()
+            //new PrintPipe()
+        );
+        p.setStarts(Arrays.asList("src/test/resources/vcfizer/annotate.vcf"));
+        Pipeline p2 = new Pipeline(new CatPipe());
+        p2.setStarts(Arrays.asList("src/test/resources/vcfizer/annotateVcfized.vcf"));
+        boolean check = false;
+        while(p.hasNext()&&p2.hasNext()){
+            assertEquals(p2.next(),p.next());
+            check = true;
+        }
+        assertTrue(check);//test not finished
+    }
+
 }
