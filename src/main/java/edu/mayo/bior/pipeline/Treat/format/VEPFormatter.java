@@ -68,8 +68,10 @@ public class VEPFormatter implements Formatter
 	public List<String> getJsonDrillPaths() {
 		List<String> jsonPaths = new ArrayList<String>();
 		for(JsonPath path : mPaths) {
-			jsonPaths.add(path.getPath());
+			
+			jsonPaths.add(path.getPath().replace("$.", ""));
 		}
 		return jsonPaths;
+	  
 	}
 }
