@@ -26,6 +26,7 @@ import org.junit.Before;
 public class ManyCmdsITCase extends RemoteFunctionalTest {
   
     public final String VCF_IN 		= "src/test/resources/tools/manycmds/manycmds.input.vcf";
+    public final String TREAT_IN = "src/test/resources/tools/manycmds/treatInputData";
     public final String DBSNP_CATALOG     	= "src/test/resources/treat/brca1.dbsnp.tsv.gz";
     public final String GENES_CATALOG   	= "src/test/resources/genes.tsv.bgz";
     private HashMap<String,String> hm = new HashMap();
@@ -126,5 +127,27 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		VEPCommandITCase.printComparison(null, expectedFixed, actualFixed);
 
 		PipeTestUtils.assertListsEqual(expectedFixed, actualFixed);
+	}
+	
+//	@Test 
+	public void testAnnotateWithVCFiser() throws IOException, InterruptedException {
+		System.out.println("_____________________---------------");
+		System.out.println("----Test Annotate with vcfiser------");
+		
+		String cmd = String.format(" cat %s | bior_annotate | bior_tjson_to_vcf",TREAT_IN);
+		System.out.println("Command: " + cmd);
+		CommandOutput out = executeScriptWithPipes(cmd);
+		assertEquals(0,out.exit);
+		String actualStr = out.stdout;
+		List<String> actual = Arrays.asList(actualStr.split("\n"));
+		List<String> expectedIN = FileCompareUtils.loadFile("src/test/resources/tools/manycmds/treatVcfiserOutput");
+                ArrayList<String> expectedFixed = new ArrayList<String>();
+                for(String s : expectedIN){
+                    expectedFixed.add(this.replaceHash(s));
+                }
+        
+       VEPCommandITCase.printComparison(null, expectedFixed, actual); 
+        PipeTestUtils.assertListsEqual(expectedFixed, actual);
+		
 	}
 }
