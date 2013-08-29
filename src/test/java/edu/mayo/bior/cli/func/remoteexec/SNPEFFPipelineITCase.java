@@ -41,7 +41,8 @@ public class SNPEFFPipelineITCase extends RemoteFunctionalTest
 		File biorLiteHome = new File(sHomePath);
 		dataSourceProps = new File(biorLiteHome, "conf/tools/snpeff.datasource.properties");
 		columnProps     = new File(biorLiteHome, "conf/tools/snpeff.columns.properties");
-		metadata = new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_snpeff");		
+		metadata = new Metadata(dataSourceProps.getCanonicalPath(), columnProps.getCanonicalPath(), "bior_snpeff");
+        History.clearMetaData();
 	}	
 
 	@After

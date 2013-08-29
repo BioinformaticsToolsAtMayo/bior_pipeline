@@ -243,7 +243,9 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 			}
 
 			return error;
-		}
+		}if(fields.length < 4){
+            return "Malformed VCF SNPEFFERR this line is too short to be valid VCF: " + line;
+        }
 
 		return null;
 	}
