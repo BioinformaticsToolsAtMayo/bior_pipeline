@@ -129,7 +129,7 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		PipeTestUtils.assertListsEqual(expectedFixed, actualFixed);
 	}
 	
-//	@Test 
+	@Test 
 	public void testAnnotateWithVCFiser() throws IOException, InterruptedException {
 		System.out.println("_____________________---------------");
 		System.out.println("----Test Annotate with vcfiser------");
