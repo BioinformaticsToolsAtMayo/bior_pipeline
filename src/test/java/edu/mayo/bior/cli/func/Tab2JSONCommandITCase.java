@@ -15,7 +15,8 @@ public class Tab2JSONCommandITCase extends BaseFunctionalTest
 	@Test
 	public void test() throws IOException, InterruptedException
 	{
-		String config = 
+        System.out.println("Tab2JSONCommandITCase.test");
+        String config =
 				"1	COL1	STRING	COLUMN	.	. " + "\n" +
 				"2	COL2	NUMBER	COLUMN	.	. " + "\n" +
 				"3	COL3	BOOLEAN	COLUMN	.	. " + "\n";

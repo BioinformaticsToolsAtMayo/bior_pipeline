@@ -10,8 +10,8 @@ public class CompressITCase extends BaseFunctionalTest
 {
 	@Test
 	public void testNormalPath() throws IOException, InterruptedException {
-		
-		// have JSON for STDIN
+        System.out.println("CompressITCase.testNormalPath");
+        // have JSON for STDIN
 		String stdin = 
 				"#COL1\tCOL2\tCOL3\n" +
 				"dataA\t1\tA\n" +
@@ -37,8 +37,8 @@ public class CompressITCase extends BaseFunctionalTest
 
 	@Test
 	public void testSeparator() throws IOException, InterruptedException {
-		
-		// have JSON for STDIN
+        System.out.println("CompressITCase.testSeparator");
+        // have JSON for STDIN
 		String stdin = 
 				"#COL1\tCOL2\tCOL3\n" +
 				"dataA\t1\tA\n" +
@@ -58,8 +58,8 @@ public class CompressITCase extends BaseFunctionalTest
 	
 	@Test
 	public void testEscape() throws IOException, InterruptedException {
-		
-		// have JSON for STDIN
+        System.out.println("CompressITCase.testEscape");
+        // have JSON for STDIN
 		String stdin = 
 				"#COL1\tCOL2\n" +
 				"dataA\t1,A\n" +
@@ -79,8 +79,8 @@ public class CompressITCase extends BaseFunctionalTest
 	
 	@Test
 	public void testReverse() throws IOException, InterruptedException {
-		
-		// have JSON for STDIN
+        System.out.println("CompressITCase.testReverse");
+        // have JSON for STDIN
 		String stdin = 
 				"#COL1\tCOL2\n" +
 				"dataA\t1\n" +
@@ -102,8 +102,8 @@ public class CompressITCase extends BaseFunctionalTest
 	
 	@Test
 	public void testAlign() throws IOException, InterruptedException {
-		
-		// have JSON for STDIN
+        System.out.println("CompressITCase.testAlign");
+        // have JSON for STDIN
 		String stdin = 
 				"#COL1\tCOL2\tCOL3\n" +
 				"dataA\t1\t.\n" +

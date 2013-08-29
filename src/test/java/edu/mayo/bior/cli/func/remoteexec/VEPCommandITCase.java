@@ -154,7 +154,8 @@ public class VEPCommandITCase extends RemoteFunctionalTest {
 	 */
 	public void testHeader() throws IOException, InterruptedException, URISyntaxException
 	{
-		// NOTE:  This test case should only run on biordev - where it can run VEP		
+        System.out.println("VepCommandITCase.testHeader");
+        // NOTE:  This test case should only run on biordev - where it can run VEP
 		String stdin = 
 				"##fileformat=VCFv4.0" + "\n" +
 				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO" + "\n" +

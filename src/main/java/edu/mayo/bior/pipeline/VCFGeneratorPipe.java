@@ -367,7 +367,7 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
      VALIDATED : validated by follow-up experiment
      1000G : membership in 1000 Genomes
      */
-    public final String delimForLists = ",";
+    public final String delimForLists = "|";
     public String infoDataPair(String key, String value){
         String newval = value;
 

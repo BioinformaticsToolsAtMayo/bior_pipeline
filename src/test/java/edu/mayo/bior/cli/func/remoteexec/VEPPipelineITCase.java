@@ -78,7 +78,8 @@ public class VEPPipelineITCase extends RemoteFunctionalTest {
 	
 	@Test
 	public void singleLine() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
-		VEPPipeline vepPipe = new VEPPipeline(null, false);
+        System.out.println("VEPPipelineITCase.singleline");
+        VEPPipeline vepPipe = new VEPPipeline(null, false);
 		Pipeline pipe = new Pipeline( new HistoryInPipe(metadata), vepPipe, new HistoryOutPipe() );
 		pipe.setStarts(  Arrays.asList(
 				"##fileformat=VCFv4.0",
@@ -105,7 +106,8 @@ public class VEPPipelineITCase extends RemoteFunctionalTest {
 	
 	@Test
 	public void pipelineFanout() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
-		VEPPipeline vepPipe = new VEPPipeline(null, false);
+        System.out.println("VEPPipelineITCase.pipelineFanout");
+        VEPPipeline vepPipe = new VEPPipeline(null, false);
 		Pipeline pipe = new Pipeline( new HistoryInPipe(metadata), vepPipe, new HistoryOutPipe() );
 		List<String> input = FileCompareUtils.loadFile("src/test/resources/tools/vep/vepsample.vcf");
 		pipe.setStarts(input);
@@ -119,7 +121,8 @@ public class VEPPipelineITCase extends RemoteFunctionalTest {
 		
 	@Test
 	public void pipelineWorst() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
-		List<String> input = FileCompareUtils.loadFile("src/test/resources/tools/vep/vepsample.vcf");
+        System.out.println("VEPPipelineITCase.pipelineWorst");
+        List<String> input = FileCompareUtils.loadFile("src/test/resources/tools/vep/vepsample.vcf");
 		VEPPipeline vepPipe = new VEPPipeline(null, true);
 		Pipeline pipe = new Pipeline(
 				new HistoryInPipe(metadata),
@@ -137,7 +140,8 @@ public class VEPPipelineITCase extends RemoteFunctionalTest {
 	
 	@Test
 	public void test_VEPErrorMessage() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
-		VEPPipeline vepPipe = new VEPPipeline(null, false);
+        System.out.println("VEPPipelineITCase.test_VEPErrorMessage");
+        VEPPipeline vepPipe = new VEPPipeline(null, false);
 		Pipeline pipe = new Pipeline( new HistoryInPipe(metadata), vepPipe, new HistoryOutPipe() );
 		pipe.setStarts(  Arrays.asList(
 				"##fileformat=VCFv4.0",

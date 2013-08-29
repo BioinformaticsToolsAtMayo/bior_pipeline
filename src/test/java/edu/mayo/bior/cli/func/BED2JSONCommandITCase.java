@@ -13,7 +13,8 @@ public class BED2JSONCommandITCase extends BaseFunctionalTest
 	@Test
 	public void test() throws IOException, InterruptedException
 	{
-		String stdin = "chr22	1000	5000	cloneA	960	+	1000	5000	0	2	567,488,	0,3512" + "\n";
+        System.out.println("BED2JSONCommandITCasetest");
+        String stdin = "chr22	1000	5000	cloneA	960	+	1000	5000	0	2	567,488,	0,3512" + "\n";
 		
 		CommandOutput out = executeScript("bior_bed_to_tjson", stdin);
 

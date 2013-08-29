@@ -108,11 +108,23 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		List<String> expectedIN = FileCompareUtils.loadFile("src/test/resources/tools/manycmds/manycmds.out.vcf");
                 ArrayList<String> expectedFixed = new ArrayList<String>();
                 for(String s : expectedIN){
+                    if(s.startsWith("##BIOR")){
+                        s = s.replaceAll("Path=.*","Path=@@PATH>");
+                        s = s.replaceAll("DataSourceProperties=.*>.*","DataSourceProperties=@@PATH>");
+                    }
                     expectedFixed.add(this.replaceHash(s));
                 }
+        ArrayList<String> actualFixed = new ArrayList<String>();
+        for(String s : actual){
+            if(s.startsWith("##BIOR")){
+                s = s.replaceAll("Path=.*","Path=@@PATH>");
+                s = s.replaceAll("DataSourceProperties=.*>.*","DataSourceProperties=@@PATH>");
+            }
+            actualFixed.add(s);
+        }
 	
-		VEPCommandITCase.printComparison(null, expectedFixed, actual);
+		VEPCommandITCase.printComparison(null, expectedFixed, actualFixed);
 
-		PipeTestUtils.assertListsEqual(expectedFixed, actual);
+		PipeTestUtils.assertListsEqual(expectedFixed, actualFixed);
 	}
 }

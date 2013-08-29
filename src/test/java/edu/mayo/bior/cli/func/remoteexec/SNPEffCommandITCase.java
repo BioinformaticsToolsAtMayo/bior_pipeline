@@ -21,7 +21,8 @@ public class SNPEffCommandITCase extends RemoteFunctionalTest
 	@Before
 	public void setUp()
 	{
-		File biorLiteHome = new File(sHomePath);
+        System.out.println("SNPEffCommandITCaseSetup");
+        File biorLiteHome = new File(sHomePath);
 		dataSourceProps = new File(biorLiteHome, "conf/tools/snpeff.datasource.properties");
 		columnProps     = new File(biorLiteHome, "conf/tools/snpeff.columns.tsv");		
 	}
@@ -44,7 +45,8 @@ public class SNPEffCommandITCase extends RemoteFunctionalTest
 	@Test
 	public void blackListedFlag() throws IOException, InterruptedException
 	{
-		// NOTE:  This test case should only run on biordev - where it can run VEP
+        System.out.println("SNPEffCommandITCaseBlackListedFlag");
+        // NOTE:  This test case should only run on biordev - where it can run VEP
 		String stdin = loadFile(new File("src/test/resources/tools/snpeff/variantsSingleAndMultiChange.vcf"));
 
 		// Add the "-fi" flag
@@ -56,7 +58,8 @@ public class SNPEffCommandITCase extends RemoteFunctionalTest
 	/** Test the command line for SNPEff */
 	public void cmdLineWithMultiIndels() throws IOException, InterruptedException
 	{
-		// NOTE:  This test case should only run on biordev - where it can run VEP
+        System.out.println("SNPEffCommandITCaseCMDLineWithMultiIndels");
+        // NOTE:  This test case should only run on biordev - where it can run VEP
 		String stdin = loadFile(new File("src/test/resources/tools/snpeff/variantsSingleAndMultiChange.vcf"));
 
 		CommandOutput out = executeScript("bior_snpeff", stdin, "-genome_version", "GRCh37.64");

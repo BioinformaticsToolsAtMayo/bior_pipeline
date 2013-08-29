@@ -13,8 +13,9 @@ public class VCF2VariantITCase extends BaseFunctionalTest {
 
 	@Test
 	public void test() throws IOException, InterruptedException {
-		
-		String stdin = loadFile(new File("src/test/resources/test.vcf"));
+        System.out.println("VCF2VariantITCase.test");
+
+        String stdin = loadFile(new File("src/test/resources/test.vcf"));
 
 		CommandOutput out = executeScript("bior_vcf_to_tjson", stdin);
 

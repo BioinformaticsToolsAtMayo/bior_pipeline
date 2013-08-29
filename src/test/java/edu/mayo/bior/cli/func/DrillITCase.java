@@ -25,8 +25,8 @@ public class DrillITCase extends BaseFunctionalTest {
 	
 	@Test
 	public void testNormalPath() throws IOException, InterruptedException {
-		
-		CommandOutput out = executeScript("bior_drill", stdin, "-p", "key1", "-p", "key2", "-p", "key3");
+        System.out.println("DrillITCase.testNormalPath");
+        CommandOutput out = executeScript("bior_drill", stdin, "-p", "key1", "-p", "key2", "-p", "key3");
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
@@ -54,8 +54,8 @@ public class DrillITCase extends BaseFunctionalTest {
 
 	@Test
 	public void testKeepJson() throws IOException, InterruptedException {
-		
-		CommandOutput out = executeScript("bior_drill", stdin, "-k", "-p", "key3");
+        System.out.println("DrillITCase.testKeepJson");
+        CommandOutput out = executeScript("bior_drill", stdin, "-k", "-p", "key3");
 
 		assertEquals(out.stderr, 0, out.exit);
 		assertEquals("", out.stderr);
@@ -86,6 +86,7 @@ public class DrillITCase extends BaseFunctionalTest {
 	
 	@Test
 	public void testCatalogWithProps() throws IOException, InterruptedException {
+        System.out.println("DrillITCase.testCatalogWithProps");
         String catRelativePath  = "src/test/resources/metadata/00-All_GRCh37.tsv.bgz";
         String catCanonicalPath = (new File(catRelativePath)).getCanonicalPath();
 		

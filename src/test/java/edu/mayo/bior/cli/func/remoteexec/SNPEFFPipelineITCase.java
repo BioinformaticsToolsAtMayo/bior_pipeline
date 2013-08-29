@@ -69,7 +69,8 @@ public class SNPEFFPipelineITCase extends RemoteFunctionalTest
 	/** Test the treat input VCF */
 	public void treatVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
 	{
-		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe(metadata)), new HistoryOutPipe(), true);
+        System.out.println("SNPEFFPipelineITCase.treatVcf");
+        SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe(metadata)), new HistoryOutPipe(), true);
 		p.setStarts(Arrays.asList("src/test/resources/tools/treat/treatInput.vcf"));
 		List<String> actual = PipeTestUtils.getResults(p);
 		List<String> expected = loadExpectedOutputFile(new File("src/test/resources/tools/snpeff/treat.expected.vcf"));

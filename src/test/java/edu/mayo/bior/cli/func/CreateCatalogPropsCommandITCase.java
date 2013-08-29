@@ -34,7 +34,8 @@ public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void testCmd() throws IOException, InterruptedException {
-		String catalog = GENE_CTLG_PREFIX + ".tsv.bgz";
+        System.out.println("CreateCatalogPropsCommandITCase.testCmd");
+        String catalog = GENE_CTLG_PREFIX + ".tsv.bgz";
 	    CommandOutput out = executeScript("bior_create_catalog_props", catalog, "-d", catalog);
         assertEquals(out.stderr, 0, out.exit);
         assertEquals("", out.stderr);
@@ -45,7 +46,8 @@ public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void testCmd_vcfAndTargetDir() throws IOException, InterruptedException {
-		String catalog = LONGDOTS_CTLG_PREFIX + ".tsv.bgz";
+        System.out.println("CreateCatalogPropsCommandITCase.testCmd_vcfAndTargetDir");
+        String catalog = LONGDOTS_CTLG_PREFIX + ".tsv.bgz";
 		String vcf = "src/test/resources/metadata/createCatalogProps/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37.vcf";
 		String targetDir = "src/test/resources/metadata/createCatalogProps/testTargetFolder/";
 	    CommandOutput out = executeScript("bior_create_catalog_props", catalog, "-d", catalog, "-v", vcf, "-t", targetDir);
@@ -60,7 +62,8 @@ public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 	
 	@Test
 	public void testNoCmd() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException, URISyntaxException {
-		String catalog = GENE_CTLG_PREFIX + ".tsv.bgz";
+        System.out.println("CreateCatalogPropsCommandITCase.testNoCmd");
+        String catalog = GENE_CTLG_PREFIX + ".tsv.bgz";
 
 		CreateCatalogPropsCommand creator = new CreateCatalogPropsCommand();
 		creator.execNoCmd(catalog, null, null, false);
@@ -71,7 +74,8 @@ public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void testNoCmd_LongNameWithDots() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException, URISyntaxException {
-		String catalog = LONGDOTS_CTLG_PREFIX + ".tsv.bgz";
+        System.out.println("CreateCatalogPropsCommandITCase.testNoCmd_LongNameWithDots");
+        String catalog = LONGDOTS_CTLG_PREFIX + ".tsv.bgz";
 
 		CreateCatalogPropsCommand creator = new CreateCatalogPropsCommand();
 		creator.execNoCmd(catalog, null, null, false);
@@ -83,7 +87,8 @@ public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 	@Test
 	/** Test multiple JSON levels as well as a catalog that has a header line */
 	public void testNoCmd_DeepJson() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException, URISyntaxException {
-		String catalog = DEEPJSON_CTLG_PREFIX + ".tsv.bgz";
+        System.out.println("CreateCatalogPropsCommandITCase.testNoCmd_DeepJson");
+        String catalog = DEEPJSON_CTLG_PREFIX + ".tsv.bgz";
 
 		CreateCatalogPropsCommand creator = new CreateCatalogPropsCommand();
 		creator.execNoCmd(catalog, null, null, false);
@@ -94,7 +99,8 @@ public class CreateCatalogPropsCommandITCase extends BaseFunctionalTest {
 
 	@Test
 	public void testNoCmd_vcfAndTargetDir() throws IOException, InterruptedException, InvalidOptionArgValueException, InvalidDataException, URISyntaxException {
-		String catalog = LONGDOTS_CTLG_PREFIX + ".tsv.bgz";
+        System.out.println("CreateCatalogPropsCommandITCase.testNoCmd_vcfAndTargetDir");
+        String catalog = LONGDOTS_CTLG_PREFIX + ".tsv.bgz";
 		String vcf = "src/test/resources/metadata/createCatalogProps/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37.vcf";
 		String targetDir = "src/test/resources/metadata/createCatalogProps/testTargetFolder/";
 		

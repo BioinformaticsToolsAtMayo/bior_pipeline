@@ -35,8 +35,8 @@ public class VEPEXEITCase extends RemoteFunctionalTest {
 	@Test
 	/** Test only the output of VEP itself based on input (no JSON conversion, just the raw output) */
 	public void vepExeOnlyPipe() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
-
-		double start = System.currentTimeMillis();
+        System.out.println("VEPEXEITCase.vepExeOnlyPipe");
+        double start = System.currentTimeMillis();
 		String[] vepCmd = VEPEXE.getVEPCommand(null);
 		System.out.println("VEP Command: " + Arrays.asList(vepCmd));
 		VEPEXE vepExe = new VEPEXE(vepCmd);

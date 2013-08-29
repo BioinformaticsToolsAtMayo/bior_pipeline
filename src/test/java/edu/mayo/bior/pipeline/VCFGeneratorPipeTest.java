@@ -150,15 +150,15 @@ public class VCFGeneratorPipeTest {
         String inf1 = v.infoDataPair("foo", "bar");
         assertEquals(";foo=bar",inf1);
         String inf2 = v.infoDataPair("foo", "a,b,c");
-        assertEquals(";foo=a,b,c",inf2);
+        assertEquals(";foo=a|b|c",inf2);
         String inf3 = v.infoDataPair("foo", "a b  c");
         assertEquals(";foo=a_b__c",inf3);
         String inf4 = v.infoDataPair("foo", "a;b;c");
-        assertEquals(";foo=a,b,c",inf4);
+        assertEquals(";foo=a|b|c",inf4);
         String inf5 = v.infoDataPair("foo", "a:b=c");
         assertEquals(";foo=a:b:c",inf5);
         String inf6 = v.infoDataPair("foo", "a -_b=,c;d");
-        assertEquals(";foo=a_-_b:,c,d",inf6);
+        assertEquals(";foo=a_-_b:|c|d",inf6);
 
     }
 

@@ -24,8 +24,8 @@ public class Bior2VCFITCase extends RemoteFunctionalTest {
 	
 	@Test
 	public void test() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
-		
-		Pipeline pipes = new Pipeline(
+        System.out.println("Bior2VCFITCaseTest");
+        Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe(),
 				new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config"),
