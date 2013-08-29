@@ -1,0 +1,59 @@
+Catalog or Tool	Version	Call tool?	Use Library?	Modify Code or Src?	License	License URL	URL	Notes
+VEP	2.7	X	-	-	Modified Apache	http://useast.ensembl.org/info/about/legal/code_licence.html	https://github.com/ensembl-variation/VEP_plugins	
+SnpEff (tool)	?	X	-	-	LGPL v3	http://snpeff.sourceforge.net/SnpEff_manual.html#install		
+SnpEff (jar only)	3.1	X	-	-	LGPL v3	http://snpeff.sourceforge.net/SnpEff_manual.html#install		
+dbSNP	137				(ok)		http://www.ncbi.nlm.nih.gov/projects/SNP/	
+HGMD  (commercial license!)								Release publisher???
+1000 Genomes	5/21/2011	-	-	-	??		http://www.1000genomes.org/	
+BGI	hg19	-	-	-	??			
+Cosmic	v63	-	-	-	??			
+ESP	build37	-	-	-	??			
+Hapmap	2010-08_phaseII+III	-	-	-	??			
+HGNC	2012_08_12	-	-	-	??			
+Mirbase	release19_GRCh37.p5	-	-	-	??			
+NCBIGene	GRCh37_p10	-	-	-	??			
+Omim	2013_02_27	-	-	-	??			
+Ucsc	hg19	-	-	-	??			
+KEGG (pathways) - (now commercial license!)	2013_07_11	-	-	-	??			
+Drugbank (pharmacogenetics)  -- (user catalog)		-	-	-	??	http://www.drugbank.ca/about		DrugBank is offered to the public as a freely available resource. Use and re-distribution of the data, in whole or in part, for commercial purposes requires explicit permission of the authors and explicit acknowledgment of the source material (DrugBank) and the original publication (see below). We ask that users who download significant portions of the database cite the DrugBank paper in any resulting publications. 
+PharmGKB  (pharmacogenetics) -- (user catalog)	2013_07_03				??			Unavailible for maintanance
+exome_overlap -- (user catalog)								
+ExomeVariantServer -- (user catalog)								
+								
+SAM tools (Tabix)	1.5.6	X	X	X	BSD License, MIT License	http://sourceforge.net/projects/samtools/		Small modifications for exception handling - could pull out if needed
+GATK  (pick-worst post-processing)	2.2				GATK License (from Broad) - may need to go back to v1.6	http://gatkforums.broadinstitute.org/discussion/2091/upcoming-changes-to-the-license-the-retirement-of-gatk-lite-by-v-2-4		"GATK MIT Open vs Broad Restricted
+OK, we don't use this code"
+								
+JARS:								
+alignment-1.8.2.jar	1.8.2	-	X	-	LGPL	http://biojava.org/wiki/BioJava:License		BioJava
+bytecode-1.8.2.jar  (BioJava)	1.8.2	-	X	-	LGPL	http://biojava.org/wiki/BioJava:License		BioJava
+cloning-1.9.0.jar	1.9	-	X	No	Apache	https://code.google.com/p/cloning/		
+commons-cli-1.2.jar	1.2	-	yes	-	Apache 2.0	http://www.apache.org/licenses/	http://commons.apache.org/proper/commons-cli/index.html	
+commons-compress-1.4.1.jar	1.4.1	-	yes	-	Apache 2.0	http://www.apache.org/licenses/	http://commons.apache.org/proper/commons-compress/index.html	
+commons-dbcp-1.2.2.jar	1.2.2	-	yes	-	Apache 2.0	http://www.apache.org/licenses/	http://commons.apache.org/proper/commons-dbcp/index.html	
+commons-io-2.4.jar	2.4	-	yes	-	Apache 2.0	http://www.apache.org/licenses/	http://commons.apache.org/proper/commons-io/	
+commons-lang-2.6.jar	2.6	-	yes	-	Apache 2.0	http://www.apache.org/licenses/	http://commons.apache.org/proper/commons-lang/index.html	
+commons-pool-1.3.jar	1.3	-	yes	-	Apache 2.0	http://www.apache.org/licenses/	http://commons.apache.org/proper/commons-pool/	
+core-1.8.2.jar	1.8.2	-	X	No	LGPL	http://biojava.org/wiki/BioJava:License		BioJava
+gson-2.2.2.jar	2.2.2	-	X	No	Apache License 2.0	http://code.google.com/p/google-gson/		
+guava-12.0.jar	12	-	X	No	Apache License 2.0	http://code.google.com/p/guava-libraries/		
+h2-1.3.168.jar	1.3.168	yes	yes	-	"modified Mozilla Public License
+modified Eclipse Public License"	http://www.h2database.com/html/license.html	http://www.h2database.com/html/main.html	NOTE: need to have a license file added to distribution
+hamcrest-core-1.1.jar	1.1	-	yes	-	New BSD License	http://opensource.org/licenses/BSD-3-Clause	http://code.google.com/p/hamcrest/	ok to release
+icu4j-51.1.jar					custom	http://source.icu-project.org/repos/icu/icu/trunk/license.html	http://site.icu-project.org	ok to release - ICU license
+jsch-0.1.44.jar	0.1.44	-	yes	-	BSD style	http://www.jcraft.com/jsch/LICENSE.txt	http://www.jcraft.com/jsch/	ok to release
+json-path-0.8.1.jar	0.8.1	-	yes	-	Apache 2.0	http://www.apache.org/licenses/LICENSE-2.0	http://code.google.com/p/json-path/	
+json-smart-1.1.1.jar	1.1.1	-	yes	no	Apache 2.0	http://www.apache.org/licenses/LICENSE-2.0	http://code.google.com/p/json-smart/	
+jsr305-1.3.9.jar	1.3.9	-	yes	no	LGPL	http://findbugs.sourceforge.net	http://findbugs.sourceforge.net	
+junit-4.10.jar	4.1	-	yes	no	IBM Public Common 1.0	http://junit.sourceforge.net/doc/faq/faq.htm	http://sourceforge.net/projects/junit/	ok to release
+log4j-1.2.16.jar	1.2.16	-	yes	no	Apache 2.0	http://www.apache.org/licenses/	http://logging.apache.org/log4j/1.2/	
+mayo-commons-cli-0.0.2.jar								
+mayo-commons-exec-0.0.8-20130731.192447-21.jar								
+mayo-commons-sage-0.0.1-20130808.181515-81.jar								
+objenesis-1.2.jar	1.2	-	yes	no	Apache 2.0	http://objenesis.org/license.html	http://objenesis.org	
+pipes-2.0.0.jar   (Tinkerpop Pipes)	2.0.0	-	Yes	No	Apache	https://github.com/tinkerpop/pipes/blob/master/LICENSE.txt		
+samtools-1.5.6.jar		Yes	Yes	yes	BSD License, MIT License	http://sourceforge.net/projects/samtools/	http://sourceforge.net/projects/samtools/	
+slf4j-api-1.6.4.jar	1.6.4	-	yes	no	MIT	http://www.slf4j.org/license.html	http://www.slf4j.org	
+slf4j-log4j12-1.6.4.jar	1.6.4	-	yes	no	MIT	http://www.slf4j.org/license.html	http://www.slf4j.org	
+slf4j-simple-1.6.4.jar	1.6.4	-	yes	no	MIT	http://www.slf4j.org/license.html	http://www.slf4j.org	
+xz-1.0.jar	1	-	yes	no	custom	http://tukaani.org/xz/java.html	http://tukaani.org	From the website: "thus you can do whatever you want with it."
