@@ -1,7 +1,7 @@
 ### Column properties file for Catalog - genes. Please fill in and/or edit the descriptions to the keys below.
 ##-----------------------------------------------------
 ##ColumnName=The key or column name
-##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, JSONArray, String, Integer, Float, Boolean)
+##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean)
 ##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1,2,..,n  or '.' for variable or unknown number of values
 ##Description=The description of the ColumnName
 ##-----------------------------------------------------
@@ -12,10 +12,10 @@ _minBP	Integer	1	The minimum (starting) 1-based base pair position within the ch
 _strand	String	1	The strand direction that this variant occurs on ("+" for forward, or "-" for reverse) (BioR field)
 _type	String	1	The object type (variant, gene, drug, pathway, etc) (BioR field)
 gene	String	1	
-gene_synonym	String	.	
-GeneID	Integer	1	
-HGNC	Integer	1	
-HPRD	Integer	1	
+gene_synonym	String	1	
+GeneID	String	1	
+HGNC	String	1	
+HPRD	String	1	
 miRBase	String	1	
 note	String	1	
 pseudo	String	1	

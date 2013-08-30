@@ -1,7 +1,7 @@
 ### Column properties file for Catalog - testJsonDepth. Please fill in and/or edit the descriptions to the keys below.
 ##-----------------------------------------------------
 ##ColumnName=The key or column name
-##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, JSONArray, String, Integer, Float, Boolean)
+##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean)
 ##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1,2,..,n  or '.' for variable or unknown number of values
 ##Description=The description of the ColumnName
 ##-----------------------------------------------------
@@ -11,6 +11,16 @@ _maxBP	Integer	1	The maximum (ending) 1-based base pair position within the chro
 _minBP	Integer	1	The minimum (starting) 1-based base pair position within the chromosome (BioR field)
 _strand	String	1	The strand direction that this variant occurs on ("+" for forward, or "-" for reverse) (BioR field)
 _type	String	1	The object type (variant, gene, drug, pathway, etc) (BioR field)
+emptyArray	String	.	
+floatList	Float	.
 INFO.DEEP.LEAF	Boolean	0	
 INFO.SAO	Float	1	
 INFO.SSR	Float	1	
+intListAsSingleString	String	1	
+intWithDiffOccurs	Integer	.	
+floatWithEmptyFirstArray	Float	.	
+longSingleString	String	1	
+oneArray	Integer	.	
+stringFloats	String	.	
+stringInts	String	.	
+twoArray	String	.	

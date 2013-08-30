@@ -27,6 +27,6 @@ _id	String	1	BioR required field - rsId (from ID field)
 _type	String	1	BioR required field - type of object (variant, gene, drug, etc)
 _landmark	String	1	BioR required field - chromosome (from CHROM field)
 _refAllele	String	1	BioR required field - reference allele (from REF field)
-_altAlleles	JSONArray	.	BioR required field - alternate alleles (from ALT field) - JSON array
+_altAlleles	String	.	BioR required field - alternate alleles (from ALT field) - JSON array
 _minBP	Integer	1	BioR required field - minimum base-pair (1-based) (from POS field)
 _maxBP	Integer	1	BioR required field - maximum base-pair (1-based) (POS + length(REF))

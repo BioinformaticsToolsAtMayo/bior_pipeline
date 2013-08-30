@@ -2,4 +2,14 @@
 1	10	10	{"_type":"variant","_landmark":1,"_maxBP":10}
 2	20	21	{"_type":"variant","_landmark":2,"_strand":"+","_minBP":20,"_maxBP":21}
 3	30	35	{"_type":"variant","_landmark":3,"_strand":"-","_minBP":30,"_maxBP":35,"INFO":{"SAO":1.0,"SSR":2.0,"DEEP":{"LEAF":true}}}
-
+4	40	45	{"intWithDiffOccurs":[1], "intListAsSingleString":"1,2,3"}
+5	50	51	{"intWithDiffOccurs":[1,2]}
+6	60	61	{"stringInts":["1","2"]}
+7	70	71	{"stringFloats":["1.0","2.0"]}
+8	80	81	{"floatList":[1.0,2.0,3.0]}
+9	90	91	{"floatWithEmptyFirstArray":[]}
+10	100	101	{"floatWithEmptyFirstArray":[3.1]}
+11	110	111	{"emptyArray":[]}
+12	120	121	{"emptyArray":[],"oneArray":[1],"twoArray":["A","B"],"longSingleString":"A sentence, with, an internal escaped quote \", and commas"}
+13	130	131	{"emptyArray":[],"oneArray":[2],"twoArray":["B","C"],"longSingleString":"A,sentence"}
+14	140	141	{"emptyArray":[],"oneArray":[3],"twoArray":["C","D"],"longSingleString":"A"}

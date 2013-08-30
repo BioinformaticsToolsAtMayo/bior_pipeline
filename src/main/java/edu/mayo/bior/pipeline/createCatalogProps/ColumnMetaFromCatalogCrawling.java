@@ -13,7 +13,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tinkerpop.pipes.util.Pipeline;
 
+import edu.mayo.pipes.UNIX.CatAnythingPipe;
 import edu.mayo.pipes.UNIX.CatGZPipe;
+import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.history.ColumnMetaData;
 
 /** Crawls an existing catalog, grabbing all column names, and attempts to guess the type and number from all data in the file
@@ -34,19 +36,20 @@ public class ColumnMetaFromCatalogCrawling {
 	}
 	
 
-	/** Process each line in the catalog bgzip file, noting the JSON path, field type, and count (will need to split by delimiters)
+	/** Process each line in the catalog bgzip (or tsv) file, noting the JSON path, field type, and count (will need to split by delimiters)
 	 * @param catalogBgzFilePath
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<ColumnMetaData> getColumnMetadata(String catalogBgzipFilePath) throws IOException {
+	public List<ColumnMetaData> getColumnMetadata(String catalogFilePath) throws IOException {
 		HashMap<String,ColumnTypeCounter> colMap = new HashMap<String, ColumnTypeCounter>();
 
-		Pipeline pipe = new Pipeline(new CatGZPipe("gzip"));
-		pipe.setStarts(Arrays.asList(new File(catalogBgzipFilePath).getCanonicalPath()));
+		boolean isGzip = catalogFilePath.endsWith(".bgz") || catalogFilePath.endsWith(".gz");
+		Pipeline pipe = new Pipeline( isGzip ? new CatGZPipe("gzip") : new CatPipe() );
+		pipe.setStarts(Arrays.asList(new File(catalogFilePath).getCanonicalPath()));
 		
 		// Read each line from the catalog
-		System.out.println("Reading lines from catalog:  .=10k  o=100k  O=1M  X=10M");
+		System.out.println("Reading lines from catalog:  .=10k  o=100k  |=1M  X=10M");
 		int numLines = 0;
 		while(pipe.hasNext()) {
 			String row = (String)(pipe.next());
@@ -62,15 +65,15 @@ public class ColumnMetaFromCatalogCrawling {
 			// Print an indicator of # of lines read
 			numLines++;
 			if( numLines % 10000000 == 0 )
-				System.out.print("X");
+				System.out.println("X");
 			else if( numLines % 1000000 == 0 )
-				System.out.print("O");
+				System.out.println("|");
 			else if( numLines % 100000 == 0 )
 				System.out.print("o");
 			else if( numLines % 10000 == 0 )
 				System.out.print(".");
 		}
-		System.out.println();
+		System.out.println("\n# catalog lines crawled: " + numLines);
 
 		// Resolve the type of each item and the count for # of occurrences
 		List<ColumnMetaData> colMetaList = new ArrayList<ColumnMetaData>();
@@ -82,6 +85,8 @@ public class ColumnMetaFromCatalogCrawling {
 		
 		return colMetaList;
 	}
+	
+
 	
 	/** Given a JSON string, pull out all keys.  Ex: {"CHR":1,"POS":111,"INFO":{"SAO":1.0,"SSR":2.0}}<br>
 	 *  and values, and add them to the HashMap that maps columnName to ColumnTypeCounter object

@@ -84,7 +84,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 
 		// If the target dir is not specified, then use the same dir as the catalog
 		if( targetDirPath == null || targetDirPath.length() == 0 )
-			targetDirPath = new File(catalogBgzipPath).getParent();
+			targetDirPath = new File(catalogBgzipPath).getCanonicalFile().getParent();
 		
 		// Throw exception if target directory  does not exist
 		File targetDir = new File(targetDirPath).getCanonicalFile();
@@ -100,7 +100,11 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 			throw new IOException("Target directory is not writable: " + targetDir);
 		
 		String catalogFullFilename = catalogFile.getName();
-		String catalogFilenamePrefix = catalogFullFilename.replace(".tsv.bgz", "");
+		String catalogFilenamePrefix = catalogFullFilename;
+		if( catalogFullFilename.endsWith(".tsv") )
+			catalogFilenamePrefix = catalogFullFilename.substring(0, catalogFullFilename.lastIndexOf(".tsv"));
+		else if( catalogFullFilename.endsWith(".tsv.bgz") )
+			catalogFilenamePrefix = catalogFullFilename.substring(0, catalogFullFilename.lastIndexOf(".tsv.bgz"));
 		File columnsPropsFile = new File(targetDir.getCanonicalPath() + File.separator + catalogFilenamePrefix + COLUMNS_EXTENSION);
 		File datasrcPropsFile = new File(targetDir.getCanonicalPath() + File.separator + catalogFilenamePrefix + DATASOURCE_EXTENSION);
 
@@ -153,8 +157,6 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	 * @throws IOException
 	 */
 	protected void createDatasourcePropsFile(File datasourcePropsFile) throws InvalidOptionArgValueException, InvalidDataException, IOException {
-	    System.out.println("Writing datasource properties file: " + datasourcePropsFile.getCanonicalPath());
-
 		datasourcePropsFile.createNewFile();
 		
 		//write all values from the enum to the file
@@ -189,9 +191,8 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	 * @throws URISyntaxException 
 	 */
 	protected void createColumnPropsFile(File columnPropsFile, File catalogFile, File originalVcfFile, boolean isVcfSpecified) throws InvalidOptionArgValueException, InvalidDataException, IOException, URISyntaxException {
-	    System.out.println("Writing columns    properties file: " + columnPropsFile.getCanonicalPath());
-
 	    List<ColumnMetaData> colMetaList = mergeCrawlerWithVcf(catalogFile, originalVcfFile, isVcfSpecified);
+	    colMetaList = mergeWithDefaults(colMetaList);
 	    
 	    StringBuilder content = getColumnContents(columnPropsFile, colMetaList);
 
@@ -224,21 +225,39 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	    }
 		return colMetaList;
 	}
-
-	private StringBuilder getColumnContents(File columnPropsFile,
-			List<ColumnMetaData> colMetaList) throws FileNotFoundException,
-			URISyntaxException, IOException {
+	
+	/** Merge with default column meta data for BioR and VCF fields.  
+	 *  The defaults take preference over the crawled and VCF values.
+	 *  NOTE: The list is modified and returned.
+	 * @param colMetaList
+	 * @return
+	 * @throws URISyntaxException 
+	 * @throws IOException 
+	 */
+	private List<ColumnMetaData> mergeWithDefaults(List<ColumnMetaData> colMetaList) throws URISyntaxException, IOException {
 		// Load the defaults (known BioR and VCF columns)
 	    File colDefaultsProps = ClasspathUtil.loadResource("/allCatalogs" + COLUMNS_EXTENSION);
 	    HashMap<String, ColumnMetaData> defaultsColNameToMetaMap = new AddMetadataLines().parseColumnProperties(colDefaultsProps.getCanonicalPath());
+	    for(int i=0; i < colMetaList.size(); i++) {
+	    	String colName = colMetaList.get(i).columnName;
+	    	
+	    	// If the column name is present but matches one we have in the defaults file, then use the default
+	    	if( defaultsColNameToMetaMap.containsKey(colName) )
+	    		colMetaList.set(i, defaultsColNameToMetaMap.get(colName));
+	    }
+	    return colMetaList;
+	}
 
+	private StringBuilder getColumnContents(File columnPropsFile, List<ColumnMetaData> colMetaList) throws FileNotFoundException, URISyntaxException, IOException
+	{
 	    String catalogNamePrefix = columnPropsFile.getName().replace(COLUMNS_EXTENSION, "");
 	    StringBuilder content = new StringBuilder();
 	    content.append("### Column properties file for Catalog - " + catalogNamePrefix + ". Please fill in and/or edit the descriptions to the keys below.\n");
 	    content.append("##-----------------------------------------------------\n");
 	    content.append("##ColumnName=The key or column name\n");
-	    content.append("##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, JSONArray, String, Integer, Float, Boolean)\n");
-	    content.append("##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1,2,..,n  or '.' for variable or unknown number of values\n");
+	    content.append("##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean)\n");
+	    content.append("##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1,2,..,n  or '.' for variable or unknown number of values.\n");
+	    content.append("##      NOTE: If the count is 2 or more, or '.', make sure to check for JSONArray ('[a,b,c]') or a delimited string\n");
 	    content.append("##Description=The description of the ColumnName\n");
 	    content.append("##-----------------------------------------------------\n");
 	    content.append("#ColumnName	Type	Count	Description\n");
@@ -246,14 +265,8 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	    // Sort the list
 	    Collections.sort(colMetaList);
 	    // Merge with defaults - adding to the content string
-	    for(ColumnMetaData colMeta : colMetaList) {
-	    	String colName = colMeta.columnName;
-	    	// If the column name is present but matches one we have in the defaults file, then use the default
-	    	if( defaultsColNameToMetaMap.containsKey(colName) )
-	    		content.append(defaultsColNameToMetaMap.get(colName).toString() + "\n");
-	    	else
-	    		content.append(colMeta.toString() + "\n");
-	    }
+	    for(ColumnMetaData colMeta : colMetaList)
+	    	content.append(colMeta.toString() + "\n");
 		return content;
 	}
 

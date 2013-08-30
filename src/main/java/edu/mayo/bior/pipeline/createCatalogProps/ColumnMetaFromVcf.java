@@ -42,7 +42,9 @@ public class ColumnMetaFromVcf {
 			// Possible Types for INFO fields are: Integer, Float, Flag, Character, and String.
 			// Number can be: 1,2,..., A (one value per alt allele), G  (one value for each possible genotype (more relevant to the FORMAT tags))
 			ColumnMetaData colMeta = new ColumnMetaData();
-			colMeta.columnName = between(line, "##INFO=<ID=", ",");
+			// Make sure to prepend "INFO." onto the front of each of the IDs, 
+			// otherwise the columnname will not match those that crawl in the catalog
+			colMeta.columnName = "INFO." + between(line, "##INFO=<ID=", ",");
 			String type = between(line, "Type=", ",");
 			if( type.equals("Integer") )
 				colMeta.type = ColumnMetaData.Type.Integer;
@@ -61,12 +63,18 @@ public class ColumnMetaFromVcf {
 		return colMetaList;
 	}
 	
-	
+	/** Find the string between two substrings. 
+	 *  Ex: full = "abcdefg", pre = "ab", post = "ef", then result = "cd"	 */
 	private String between(String full, String pre, String post) {
-		if(full.contains(pre) && full.contains(post) ) {
-			return full.substring(full.indexOf(pre) + pre.length(), full.indexOf(post, full.indexOf(pre)));
-		}
-		return "";
+		if( full == null || full.length() == 0 || post == null || post.length() == 0 )
+			return "";
+		
+		int start = full.indexOf(pre);
+		int stop  = full.indexOf(post, (start + pre.length()));
+		if( start == -1 || stop == -1 )
+			return "";
+		else 
+			return full.substring(start + pre.length(), stop);
 	}
 
 
