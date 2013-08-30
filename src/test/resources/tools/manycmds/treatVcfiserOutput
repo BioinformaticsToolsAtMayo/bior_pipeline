@@ -24,13 +24,13 @@
 ##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
 ##INFO=<ID=SB,Number=1,Type=Float,Description="Strand Bias">
 ##INFO=<ID=set,Number=1,Type=String,Description="Source VCF for the merged record in CombineVariants">
-##INFO=<ID=rsID,Number=.,Type=String,Description="Semi-colon separated list of unique identifiers.  If this is a dbSNP variant, the rs number(s) should be used.  (VCF field) ">
+##INFO=<ID=rsID,Number=.,Type=String,Description="Semi-colon separated list of unique identifiers.  If this is a dbSNP variant, the rs number(s) should be used.  (VCF field)">
 ##INFO=<ID=dbSNP.build,Number=1,Type=Integer,Description="First dbSNP Build for RS">
 ##INFO=<ID=dbSNP.SuspectRegion,Number=1,Type=Integer,Description="Variant Suspect Reason Codes (may be more than one value added together) 0 - unspecified, 1 - Paralog, 2 - byEST, 4 - oldAlign, 8 - Para_EST, 16 - 1kg_failed, 1024 - other">
 ##INFO=<ID=dbSNP.SNP_Allele_Origin,Number=1,Type=Integer,Description="Variant Allele Origin: 0 - unspecified, 1 - Germline, 2 - Somatic, 3 - Both">
 ##INFO=<ID=dbSNP.ClinicalSig,Number=.,Type=String,Description="Variant Clinical Significance, 0 - unknown, 1 - untested, 2 - non-pathogenic, 3 - probable-non-pathogenic, 4 - probable-pathogenic, 5 - pathogenic, 6 - drug-response, 7 - histocompatibility, 255 - other">
 ##INFO=<ID=dbSNP.DiseaseVariant,Number=.,Type=String,Description="Variant disease name">
-##INFO=<ID=COSMIC.Mutation_ID,Number=1,Type=Integer,Description="This id is used to identify a mutation within the COSMIC database and is assigned as the mutation is curated">
+##INFO=<ID=COSMIC.Mutation_ID,Number=1,Type=String,Description="This id is used to identify a mutation within the COSMIC database and is assigned as the mutation is curated">
 ##INFO=<ID=COSMIC.Mutation_CDS,Number=1,Type=String,Description="The change that has occurred in the nucleotide sequence as a result of the mutation">
 ##INFO=<ID=COSMIC.Mutation_AA,Number=1,Type=String,Description="The change that has occurred in the peptide sequence as a result of the mutation">
 ##INFO=<ID=COSMIC.strand,Number=1,Type=String,Description="Strand based on GRCh37 genome build">
@@ -39,8 +39,8 @@
 ##INFO=<ID=1000Genomes.AFR_AF,Number=1,Type=Float,Description="Allele Frequency for samples from AFR based on AC/AN">
 ##INFO=<ID=1000Genomes.EUR_AF,Number=1,Type=Float,Description="Allele Frequency for samples from EUR based on AC/AN">
 ##INFO=<ID=BGI200_Danish_MAF,Number=1,Type=Float,Description="Estimated Minor Allele Frequency">
-##INFO=<ID=ESP6500.EUR_MAF,Number=.,Type=String,Description="NHLBI GO Exome Sequencing Project (ESP) results to discover novel genes and mechanisms contributing to heart  lung and blood disorders">
-##INFO=<ID=ESP6500.AFR_MAF,Number=.,Type=String,Description="NHLBI GO Exome Sequencing Project (ESP) results to discover novel genes and mechanisms contributing to heart  lung and blood disorders">
+##INFO=<ID=ESP6500.EUR_MAF,Number=1,Type=Float,Description="NHLBI GO Exome Sequencing Project (ESP) results to discover novel genes and mechanisms contributing to heart  lung and blood disorders">
+##INFO=<ID=ESP6500.AFR_MAF,Number=1,Type=Float,Description="NHLBI GO Exome Sequencing Project (ESP) results to discover novel genes and mechanisms contributing to heart  lung and blood disorders">
 ##INFO=<ID=HapMap.CEU_MAF,Number=1,Type=Float,Description="Other allele frequency(Utah residents with Northern and Western European ancestry from the CEPH collection)">
 ##INFO=<ID=HapMap.YRI_MAF,Number=1,Type=Float,Description="Other Allele Frequency(Han Chinese in Beijing China)">
 ##INFO=<ID=HapMap.JPT_MAF,Number=1,Type=Float,Description="Other Allele Frequency(Japanese in Tokyo Japan)">
