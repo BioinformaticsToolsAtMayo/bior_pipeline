@@ -406,16 +406,12 @@ public class VCFGeneratorPipeTest {
                 new HistoryOutPipe()
         );
         p.setStarts(arrayInput);
-        for(int i=0; p.hasNext();i++){
-            String s = (String) p.next();
-            //System.out.println(s);
-            assertEquals(arrayOutput.get(i),s);
-        }
-
+        List<String> actual = PipeTestUtils.getResults(p);
+        PipeTestUtils.assertListsEqual(arrayOutput, actual);
     }
 
     @Test
-    public void testVCFizeAnnotate(){
+    public void testVCFizeAnnotate() throws IOException{
         System.out.println("Testing to see if we can VCFize an annotate output");
         Pipeline p = new Pipeline(
             new CatPipe(),
@@ -425,14 +421,10 @@ public class VCFGeneratorPipeTest {
             //new PrintPipe()
         );
         p.setStarts(Arrays.asList("src/test/resources/vcfizer/annotate.vcf"));
-        Pipeline p2 = new Pipeline(new CatPipe());
-        p2.setStarts(Arrays.asList("src/test/resources/vcfizer/annotateVcfized.vcf"));
-        boolean check = false;
-        while(p.hasNext()&&p2.hasNext()){
-            assertEquals(p2.next(),p.next());
-            check = true;
-        }
-        assertTrue(check);//test not finished
+        
+        List<String> expected = FileCompareUtils.loadFile("src/test/resources/vcfizer/annotateVcfized.vcf");
+        List<String> actual = PipeTestUtils.getResults(p);
+        PipeTestUtils.assertListsEqual(expected, actual);
     }
 
 }
