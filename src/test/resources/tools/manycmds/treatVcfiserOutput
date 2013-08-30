@@ -45,9 +45,9 @@
 ##INFO=<ID=HapMap.YRI_MAF,Number=1,Type=Float,Description="Other Allele Frequency(Han Chinese in Beijing China)">
 ##INFO=<ID=HapMap.JPT_MAF,Number=1,Type=Float,Description="Other Allele Frequency(Japanese in Tokyo Japan)">
 ##INFO=<ID=HapMap.CHB_MAF,Number=1,Type=Float,Description="Other Allele Frequency(Yoruban in Ibadan  Nigeria)">
-##INFO=<ID=Entrez.GeneID,Number=1,Type=Integer,Description="Entrez Gene ID">
+##INFO=<ID=Entrez.GeneID,Number=1,Type=String,Description="Entrez Gene ID">
 ##INFO=<ID=Gene_Symbol,Number=1,Type=String,Description="Official Gene Symbol provided by HGNC">
-##INFO=<ID=Approved_Gene_Name,Number=.,Type=String,Description="The official gene name that has been approved by the HGNC and is publicly available">
+##INFO=<ID=Approved_Gene_Name,Number=1,Type=String,Description="The official gene name that has been approved by the HGNC and is publicly available">
 ##INFO=<ID=Ensembl_Gene_ID,Number=1,Type=String,Description="This column contains a manually curated Ensembl Gene ID">
 ##INFO=<ID=OMIM.ID,Number=1,Type=Integer,Description="Phenotype MIM Number">
 ##INFO=<ID=OMIM.Disease,Number=1,Type=String,Description="Phenotypes observed">
@@ -77,8 +77,8 @@
 ##INFO=<ID=PolyPhen.Score,Number=1,Type=Float,Description="The PolyPhen score.">
 ##INFO=<ID=UniprotID,Number=1,Type=String,Description="The UniProt identifier provided by the EBI.">
 ##INFO=<ID=SNPEFF.Effect,Number=1,Type=String,Description="Effect of this variant. {INTERGENIC, UPSTREAM, UTR_5_PRIME, UTR_5_DELETED, START_GAINED, SPLICE_SITE_ACCEPTOR, SPLICE_SITE_DONOR, START_LOST, SYNONYMOUS_START, CDS, GENE, TRANSCRIPT, EXON, EXON_DELETED, NON_SYNONYMOUS_CODING, SYNONYMOUS_CODING, FRAME_SHIFT, CODON_CHANGE, CODON_INSERTION, CODON_CHANGE_PLUS_CODON_INSERTION, CODON_DELETION, CODON_CHANGE_PLUS_CODON_DELETION, STOP_GAINED, SYNONYMOUS_STOP, STOP_LOST, INTRON, UTR_3_PRIME, UTR_3_DELETED, DOWNSTREAM, INTRON_CONSERVED, INTERGENIC_CONSERVED, INTRAGENIC, RARE_AMINO_ACID, NON_SYNONYMOUS_START}">
-##INFO=<ID=SNPEFF.Effect_impact,Number=1,Type=String,Description="Effects are categorized by 'impact' categories to help users find more significant variants. {HIGH, MODERATE, LOW, MODIFIER} ">
-##INFO=<ID=SNPEFF.Functional_class,Number=1,Type=String,Description="Functional class. {NONE, SILENT, MISSENSE, NONSENSE}  ">
+##INFO=<ID=SNPEFF.Effect_impact,Number=1,Type=String,Description="Effects are categorized by 'impact' categories to help users find more significant variants. {HIGH, MODERATE, LOW, MODIFIER}">
+##INFO=<ID=SNPEFF.Functional_class,Number=1,Type=String,Description="Functional class. {NONE, SILENT, MISSENSE, NONSENSE}">
 ##INFO=<ID=SNPEFF.Codon_change,Number=1,Type=String,Description="Codon change: old_codon/new_codon OR distance to transcript (in case of upstream / downstream).">
 ##INFO=<ID=SNPEFF.Amino_acid_change,Number=1,Type=String,Description="Amino acid change: old_AA AA_position/new_AA (e.g. 'E30K').">
 ##INFO=<ID=SNPEFF.Gene_name,Number=1,Type=String,Description="Gene name">
