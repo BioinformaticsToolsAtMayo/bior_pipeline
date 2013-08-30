@@ -256,8 +256,7 @@ public class CreateCatalogPropsCommand implements CommandPlugin {
 	    content.append("##-----------------------------------------------------\n");
 	    content.append("##ColumnName=The key or column name\n");
 	    content.append("##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean)\n");
-	    content.append("##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1,2,..,n  or '.' for variable or unknown number of values.\n");
-	    content.append("##      NOTE: If the count is 2 or more, or '.', make sure to check for JSONArray ('[a,b,c]') or a delimited string\n");
+	    content.append("##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1 (JSON,Integer,Float,String), or '.' (JsonArrays - which will be resolved to other primitives such as String,Integer,Float)\n");
 	    content.append("##Description=The description of the ColumnName\n");
 	    content.append("##-----------------------------------------------------\n");
 	    content.append("#ColumnName	Type	Count	Description\n");

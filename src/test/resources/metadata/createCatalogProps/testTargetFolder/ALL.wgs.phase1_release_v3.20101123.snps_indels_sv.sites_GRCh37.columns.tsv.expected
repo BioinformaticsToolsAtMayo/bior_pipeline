@@ -1,8 +1,8 @@
 ### Column properties file for Catalog - ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37. Please fill in and/or edit the descriptions to the keys below.
 ##-----------------------------------------------------
 ##ColumnName=The key or column name
-##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean)
-##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1,2,..,n  or '.' for variable or unknown number of values
+##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean) 
+##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1 (JSON,Integer,Float,String), or '.' (JsonArrays - which will be resolved to other primitives such as String,Integer,Float)
 ##Description=The description of the ColumnName
 ##-----------------------------------------------------
 #ColumnName	Type	Count	Description
