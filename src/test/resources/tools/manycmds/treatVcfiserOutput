@@ -39,8 +39,8 @@
 ##INFO=<ID=1000Genomes.AFR_AF,Number=1,Type=Float,Description="Allele Frequency for samples from AFR based on AC/AN">
 ##INFO=<ID=1000Genomes.EUR_AF,Number=1,Type=Float,Description="Allele Frequency for samples from EUR based on AC/AN">
 ##INFO=<ID=BGI200_Danish_MAF,Number=1,Type=Float,Description="Estimated Minor Allele Frequency">
-##INFO=<ID=ESP6500.EUR_MAF,Number=1,Type=Float,Description="NHLBI GO Exome Sequencing Project (ESP) results to discover novel genes and mechanisms contributing to heart  lung and blood disorders">
-##INFO=<ID=ESP6500.AFR_MAF,Number=1,Type=Float,Description="NHLBI GO Exome Sequencing Project (ESP) results to discover novel genes and mechanisms contributing to heart  lung and blood disorders">
+##INFO=<ID=ESP6500.EUR_MAF,Number=1,Type=Float,Description="European American Minor Allele Frequency (in percent)">
+##INFO=<ID=ESP6500.AFR_MAF,Number=1,Type=Float,Description="African American Minor Allele Frequency (in percent)">
 ##INFO=<ID=HapMap.CEU_MAF,Number=1,Type=Float,Description="Other allele frequency(Utah residents with Northern and Western European ancestry from the CEPH collection)">
 ##INFO=<ID=HapMap.YRI_MAF,Number=1,Type=Float,Description="Other Allele Frequency(Han Chinese in Beijing China)">
 ##INFO=<ID=HapMap.JPT_MAF,Number=1,Type=Float,Description="Other Allele Frequency(Japanese in Tokyo Japan)">
