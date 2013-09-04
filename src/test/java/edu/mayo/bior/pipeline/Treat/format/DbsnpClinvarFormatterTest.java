@@ -46,8 +46,8 @@ public class DbsnpClinvarFormatterTest extends BaseFormatterTest {
 		
 		String[] expectedValues =
 			{
-				"pathogenic",
-				"1"
+				"5",
+				"Myasthenia\\x2c limb-girdle\\x2c familial"
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);
@@ -67,7 +67,7 @@ public class DbsnpClinvarFormatterTest extends BaseFormatterTest {
 		String[] expectedValues =
 			{
 				".",
-				"0"
+				"."
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);

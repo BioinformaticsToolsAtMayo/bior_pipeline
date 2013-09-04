@@ -50,8 +50,8 @@ public class DbsnpFormatterTest extends BaseFormatterTest {
 			{
 				"rsABCDEF",
 				"119",
-				"byEST",
-				"Somatic"
+				"2",
+				"2"
 			};
 		
 		validateFormattedValues(mFormatter, json, expectedValues);
