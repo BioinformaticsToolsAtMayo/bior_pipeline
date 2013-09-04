@@ -57,6 +57,9 @@ public class TreatITCase extends RemoteFunctionalTest
         History.clearMetaData();
     }
 
+    //REMEMBER TO CONNECT TO THE RCF BEFORE YOU TRY TO DO THIS COMMAND!
+    //CONNECTING TO THE RCF DRIVES OVER SAMBA IS DONE ON A MAC BY GOING TO FINDER -> CONNECT TO SERVER THEN:
+    //smb://rcfcluster-cifs/data5/bsi/
 	@Test
 	public void testPipeline_SubsetConfig() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
 		System.out.println("\n-------------------------------------------------------->>>>>");

@@ -55,6 +55,9 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
         if (totalcolumns > 7 && History.getMetaData().getColumns().get(7).getColumnName().equalsIgnoreCase("INFO")) {
             biorindexes = getBiorColumnsIndexes(history, biorcolumnsFromMetadata);
         }
+        if(headerLinesForHeaderKeys == null){
+            populateHeaderLinesForHeaderKeys();
+        }
         //checks if biorcolumns is not null
         if (biorcolumnsFromMetadata != null) {
             //Happy Path biorcolumnsFromMetadata === colsFromHeader
@@ -146,7 +149,10 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
                 biorList.add(info);
             }
 
-            if (info.startsWith("##BIOR=<ID") && info.contains("bior_drill") || info.startsWith("##BIOR=<ID") && info.contains("bior_annotate") ) {
+            if (info.startsWith("##BIOR=<ID") && info.contains("bior_drill")
+                    || info.startsWith("##BIOR=<ID") && info.contains("bior_annotate")
+                    || info.startsWith("##BIOR=<ID") && info.contains("bior_compress")
+                    ) {
                 LinkedHashMap<String,String> attr = amdl.parseHeaderLine(info);
                 //If there is nothing to remove, then add a new ##INFO
                 if (remove == null ) {
@@ -370,10 +376,18 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
     public final String delimForLists = "|";
     public String infoDataPair(String key, String value){
         String newval = value;
+        LinkedHashMap<String, String> attrs = headerLinesForHeaderKeys.get(key);
 
         //in the special case it is a json array
         if(newval.startsWith("[") && newval.endsWith("]") && newval.length() > 1){
             newval = handleJsonArray(newval);
+        }else if(attrs != null){
+            String delim = attrs.get(AddMetadataLines.BiorMetaControlledVocabulary.DELIMITER.toString());
+            if(delim.equalsIgnoreCase("|")){
+                //it is a regex, we need to fix it
+                delim = "\\|";
+            }
+            newval = newval.replaceAll(delim,",");
         }else if(newval.contains(",")){
             newval = newval.replaceAll(",","|");
         }
@@ -429,6 +443,24 @@ public class VCFGeneratorPipe extends AbstractPipe<History, History> {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * generate a key-value hash for the ##BIOR lines in the header (we have a similar hash for column number, but this one is for
+     * those lines that specify that some column should be treated as an array.
+     */
+    private HashMap<String,LinkedHashMap<String, String>> headerLinesForHeaderKeys = null;
+    public void populateHeaderLinesForHeaderKeys(){
+        AddMetadataLines amdl = new AddMetadataLines();
+        headerLinesForHeaderKeys = new HashMap<String,LinkedHashMap<String, String>>();
+        List<String> header = History.getMetaData().getOriginalHeader();
+        for(String line : header){
+            String delim = AddMetadataLines.BiorMetaControlledVocabulary.DELIMITER.toString();
+            if(line.contains(delim)){
+                LinkedHashMap<String, String> kv = amdl.parseHeaderLine(line);
+                headerLinesForHeaderKeys.put(kv.get(AddMetadataLines.BiorMetaControlledVocabulary.ID.toString()),kv);
+            }
+        }
     }
 
     /**

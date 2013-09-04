@@ -234,7 +234,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		String pipesAsStr = pipeAsString(pipeList);
 
 		sLogger.info("bior_annotate pipeline long cmd: " + pipesAsStr);
-        System.err.println(pipesAsStr);
+        //System.err.println(pipesAsStr);
         this.generatedCommand = pipesAsStr;
 
 		Map<String,String> envVars = new HashMap<String,String>();

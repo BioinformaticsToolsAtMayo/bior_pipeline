@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.*;
 
+import com.tinkerpop.pipes.Pipe;
 import edu.mayo.pipes.JSON.DrillPipe;
 import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
@@ -147,6 +148,8 @@ public class VCFGeneratorPipeTest {
     @Test
     public void testInfoDataPair(){
         VCFGeneratorPipe v = new VCFGeneratorPipe();
+        createHistory();
+        v.populateHeaderLinesForHeaderKeys(); //need to call this, never a problem in a pipeline
         String inf1 = v.infoDataPair("foo", "bar");
         assertEquals(";foo=bar",inf1);
         String inf2 = v.infoDataPair("foo", "a,b,c");
@@ -425,6 +428,40 @@ public class VCFGeneratorPipeTest {
         List<String> expected = FileCompareUtils.loadFile("src/test/resources/vcfizer/annotateVcfized.vcf");
         List<String> actual = PipeTestUtils.getResults(p);
         PipeTestUtils.assertListsEqual(expected, actual);
+    }
+
+
+    public final List<String> vcfizeCompressInput = Arrays.asList(
+            "##fileformat=VCFv4.0",
+            "##BIOR=<ID=\"bior.JsonArray\",Operation=\"bior_compress\",DataType=\"String\",Field=\"JsonArray\",FieldDescription=\"List of Strings\",ShortUniqueName=\"JsonArray\",Delimiter=\"|\",Path=\"REPLACEMEgenes.tsv.bgz\">",
+            "##BIOR=<ID=\"bior.JsonArray2\",Operation=\"bior_compress\",DataType=\"String\",Field=\"JsonArray2\",FieldDescription=\"List of Numbers\",ShortUniqueName=\"JsonArray2\",Delimiter=\",\",Path=\"REPLACEMEgenes.tsv.bgz\">",
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tbior.JsonArray\tbior.JsonArray2",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData\tA|B|C\t1,2,3"
+    );
+
+    public final List<String> vcfizeCompressOutput = Arrays.asList(
+            "##fileformat=VCFv4.0",
+            "##INFO=<ID=bior.JsonArray,Number=.,Type=String,Description=\"List of Strings\">",
+            "##INFO=<ID=bior.JsonArray2,Number=.,Type=String,Description=\"List of Numbers\">",
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO",
+            "chr1\t10000\trs00020\tA\tC\t0\t.\tInfoData;bior.JsonArray=A,B,C;bior.JsonArray2=1,2,3"
+    );
+
+    @Test
+    public void testVCFizeCompress(){
+        System.out.println("Compress output converts some number fields into strings (usually with pipe) test to make sure that this works");
+        Pipe p = new Pipeline(
+                new HistoryInPipe(),
+                new VCFGeneratorPipe(),
+                new HistoryOutPipe()
+                //new PrintPipe()
+        );
+        p.setStarts(vcfizeCompressInput);
+        for(int i=0; p.hasNext();i++){
+            String s = (String) p.next();
+            assertEquals(vcfizeCompressOutput.get(i),s);
+        }
+
     }
 
 }
