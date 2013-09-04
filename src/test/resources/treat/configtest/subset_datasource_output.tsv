@@ -1,2 +1,2 @@
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLES	rsID	dbSNP.SuspectRegion	dbSNP.DiseaseVariant	1000Genomes.ASN_AF	1000Genomes.AMR_AF	HapMap.CEU_MAF
-chr1	216424275	rs696723	C	G	.	.	.	.	.	rs696723	unspecified	0	.	0.02	0.016
+chr1	216424275	rs696723	C	G	.	.	.	.	.	rs696723	0	.	.	0.02	0.016

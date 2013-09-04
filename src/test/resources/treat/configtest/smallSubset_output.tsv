@@ -1,31 +1,31 @@
-##BIOR=<ID="rsID",Operation="bior_annotate",DataType="String",Field="ID",Number=".",FieldDescription="Semi-colon separated list of unique identifiers.  If this is a dbSNP variant, the rs number(s) should be used.  (VCF field)",ShortUniqueName="dbSNP137",Source="dbSNP",Version="137",Build="GRCh37.p5",Description="NCBI's dbSNP Variant Database",Path=@@Path">
+##BIOR=<ID="rsID",Operation="bior_annotate",DataType="String",Field="ID",Number=".",FieldDescription="Semi-colon separated list of unique identifiers.  If this is a dbSNP variant, the rs number(s) should be used.  (VCF field) ",ShortUniqueName="dbSNP137",Source="dbSNP",Version="137",Build="GRCh37.p5",Description="NCBI's dbSNP Variant Database",Path=@@Path">
 ##BIOR=<ID="dbSNP.SuspectRegion",Operation="bior_annotate",DataType="Integer",Field="INFO.SSR",Number="1",FieldDescription="Variant Suspect Reason Codes (may be more than one value added together) 0 - unspecified, 1 - Paralog, 2 - byEST, 4 - oldAlign, 8 - Para_EST, 16 - 1kg_failed, 1024 - other",ShortUniqueName="dbSNP137",Source="dbSNP",Version="137",Build="GRCh37.p5",Description="NCBI's dbSNP Variant Database",Path=@@Path">
 ##BIOR=<ID="dbSNP.ClinicalSig",Operation="bior_annotate",DataType="String",Field="INFO.CLNSIG",Number=".",FieldDescription="Variant Clinical Significance, 0 - unknown, 1 - untested, 2 - non-pathogenic, 3 - probable-non-pathogenic, 4 - probable-pathogenic, 5 - pathogenic, 6 - drug-response, 7 - histocompatibility, 255 - other",ShortUniqueName="dbSNP137_clinvar",Source="dbSNP",Version="137",Build="GRCh37.p5",Description="Variations from common_all.vcf.gz that are clinical",Path=@@Path">
 ##BIOR=<ID="dbSNP.DiseaseVariant",Operation="bior_annotate",DataType="String",Field="INFO.CLNDBN",Number=".",FieldDescription="Variant disease name",ShortUniqueName="dbSNP137_clinvar",Source="dbSNP",Version="137",Build="GRCh37.p5",Description="Variations from common_all.vcf.gz that are clinical",Path=@@Path">
 ##BIOR=<ID="1000Genomes.EUR_AF",Operation="bior_annotate",DataType="Float",Field="INFO.EUR_AF",Number="1",FieldDescription="Allele Frequency for samples from EUR based on AC/AN",ShortUniqueName="1kG_3",Source="1000Genomes",Version="3",Build="GRCh37",Description="1000 Genomes Project goal is to find most genetic variants that have frequencies of at least 1% in the populations studied.",Path=@@Path">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	rsID	dbSNP.SuspectRegion	dbSNP.ClinicalSig	dbSNP.DiseaseVariant	1000Genomes.EUR_AF
-1	216424275	rs696723	C	G	.	.	.	rs696723	unspecified	untested	0	0.01
-1	10593296	rs2480782	G	T	.	.	.	rs2480782	unspecified	.	0	0.07
-5	112162854	rs2229992	T	C	99	.	.	rs2229992	unspecified	other	1	0.6
-1	9323910	rs6688832	G	A	99	.	.	rs6688832	unspecified	unknown	1	0.25
-5	89979589	rs4916684	G	A	99	.	.	rs4916684	unspecified	untested	0	0.68
-1	762273	rs3115849	G	A	99	.	.	rs3115849	unspecified	.	0	0.84
-1	12907370	rs2076063	A	T	99	.	.	rs2076063	Paralog	.	0	.
-12	88890671	rs995030	A	G	6.02	.	.	rs995030	unspecified	.	0	0.81
-1	876499	rs4372192	A	G	66.21	.	.	rs4372192	unspecified	.	0	0.95
-11	1017069	rs80333708	G	A	99	.	.	rs80333708	unspecified	.	0	.
-1	1859131	rs4648734	C	T	99	.	.	rs4648734	unspecified	.	0	0.24
-1	762632	rs3131948	T	A	9.02	.	.	rs61768173	unspecified	.	0	0.81
-1	881627	rs2272757	G	A	99	.	.	rs2272757	unspecified	.	0	0.63
-1	1027070	rs11260590	G	A	65.56	.	.	rs11260590	unspecified	.	0	0.1
-21	10793906	rs146787155	G	C	99	.	.	rs146787155	unspecified	.	0	.
-1	12251808	rs653667	T	G	60.19	.	.	rs653667	unspecified	.	0	0.36
-2	207647981	rs2241347	C	T	6.02	.	.	rs2241347	unspecified	.	0	0.19
-1	171076966	rs2266782	G	A	99	.	.	rs2266782	unspecified	255\|5	1	0.38
-5	140725523	rs112486508	C	T	99	.	.	rs112486508	unspecified	untested	0	0.04
-1	989423	-	G	A	63.25	.	.	.	.	.	0	.
-1	935459	rs3128113	A	G	75.41	.	.	rs3128113	unspecified	.	0	0.78
-1	877831	rs6672356	T	C	60.18	.	.	rs6672356	unspecified	.	0	0.99
-1	26608828	rs1134584	G	A	99	.	.	rs1134584	unspecified	.	0	0.49
-1	873558	rs1110052	G	T	.	.	.	rs1110052	unspecified	.	0	0.69
-1	564458	rs77440582	G	C	.	.	.	rs77440582	unspecified	.	0	.
+1	216424275	rs696723	C	G	.	.	.	rs696723	0	1	.	0.01
+1	10593296	rs2480782	G	T	.	.	.	rs2480782	0	.	.	0.07
+5	112162854	rs2229992	T	C	99	.	.	rs2229992	0	255	Familial colorectal cancer	0.6
+1	9323910	rs6688832	G	A	99	.	.	rs6688832	0	0	Reclassified - variant of unknown significance	0.25
+5	89979589	rs4916684	G	A	99	.	.	rs4916684	0	1	.	0.68
+1	762273	rs3115849	G	A	99	.	.	rs3115849	0	.	.	0.84
+1	12907370	rs2076063	A	T	99	.	.	rs2076063	1	.	.	.
+12	88890671	rs995030	A	G	6.02	.	.	rs995030	0	.	.	0.81
+1	876499	rs4372192	A	G	66.21	.	.	rs4372192	0	.	.	0.95
+11	1017069	rs80333708	G	A	99	.	.	rs80333708	0	.	.	.
+1	1859131	rs4648734	C	T	99	.	.	rs4648734	0	.	.	0.24
+1	762632	rs3131948	T	A	9.02	.	.	rs61768173	0	.	.	0.81
+1	881627	rs2272757	G	A	99	.	.	rs2272757	0	.	.	0.63
+1	1027070	rs11260590	G	A	65.56	.	.	rs11260590	0	.	.	0.1
+21	10793906	rs146787155	G	C	99	.	.	rs146787155	0	.	.	.
+1	12251808	rs653667	T	G	60.19	.	.	rs653667	0	.	.	0.36
+2	207647981	rs2241347	C	T	6.02	.	.	rs2241347	0	.	.	0.19
+1	171076966	rs2266782	G	A	99	.	.	rs2266782	0	255\|5	Trimethylaminuria\x2c mild\|Trimethylaminuria	0.38
+5	140725523	rs112486508	C	T	99	.	.	rs112486508	0	1	.	0.04
+1	989423	-	G	A	63.25	.	.	.	.	.	.	.
+1	935459	rs3128113	A	G	75.41	.	.	rs3128113	0	.	.	0.78
+1	877831	rs6672356	T	C	60.18	.	.	rs6672356	0	.	.	0.99
+1	26608828	rs1134584	G	A	99	.	.	rs1134584	0	.	.	0.49
+1	873558	rs1110052	G	T	.	.	.	rs1110052	0	.	.	0.69
+1	564458	rs77440582	G	C	.	.	.	rs77440582	0	.	.	.
