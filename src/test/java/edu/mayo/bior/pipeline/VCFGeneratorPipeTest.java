@@ -427,9 +427,7 @@ public class VCFGeneratorPipeTest {
         
         List<String> expected = FileCompareUtils.loadFile("src/test/resources/vcfizer/annotateVcfized.vcf");
         List<String> actual = PipeTestUtils.getResults(p);
-      //     for (String st: actual){
-      //  	System.err.println(st);
-      //  }       
+       
            PipeTestUtils.assertListsEqual(expected, actual);
     }
 
