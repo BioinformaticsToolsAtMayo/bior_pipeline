@@ -32,8 +32,10 @@ public class DbsnpClinvarFormatter implements Formatter
 	
 	public List<String> format(String json) {
 		return Arrays.asList(
-				translateCLNSIG( FormatUtils.drill(PATH_CLNSIG,  json) ),
-				translateCLNDBN( FormatUtils.drill(PATH_CLNDBN,  json) )
+				 FormatUtils.drill(PATH_CLNSIG,  json),
+				 FormatUtils.drill(PATH_CLNDBN,  json)
+		//		translateCLNSIG( FormatUtils.drill(PATH_CLNSIG,  json) ),
+		//		translateCLNDBN( FormatUtils.drill(PATH_CLNDBN,  json) )
 				);
 	}
 	

@@ -44,8 +44,10 @@ public class DbsnpFormatter implements Formatter
 		return Arrays.asList(
 				FormatUtils.drill(PATH_RSID, json),
 				FormatUtils.drill(PATH_BUILD, json),
-				translateSSR( FormatUtils.drill(PATH_SSR,  json) ),
-				translateSAO( FormatUtils.drill(PATH_SAO, json) )
+				 FormatUtils.drill(PATH_SSR,  json),
+				 FormatUtils.drill(PATH_SAO, json)
+	//			translateSSR( FormatUtils.drill(PATH_SSR,  json) ),
+	//			translateSAO( FormatUtils.drill(PATH_SAO, json) )
 				);
 	}
 	
