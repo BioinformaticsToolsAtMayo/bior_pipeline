@@ -5,9 +5,13 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
+import com.tinkerpop.pipes.util.Pipeline;
+
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.pipes.history.CompressPipe;
+import edu.mayo.pipes.history.HistoryInPipe;
+import edu.mayo.pipes.history.HistoryOutPipe;
 import edu.mayo.pipes.util.FieldSpecification;
 import edu.mayo.pipes.util.FieldSpecification.FieldDirection;
 
@@ -62,8 +66,14 @@ public class CompressCommand implements CommandPlugin
 			useSetCompression = false;
 		}
 
-		CompressPipe pipe = new CompressPipe(fieldSpec, delimiter, escapeDelimiter, useSetCompression);
-		 		
-		mPipeline.execute(pipe);		
+		CompressPipe compressPipe = new CompressPipe(fieldSpec, delimiter, escapeDelimiter, useSetCompression);
+
+		Pipeline pipeline = new Pipeline(
+				new HistoryInPipe(compressPipe.getMetadata()),
+				compressPipe,
+				new HistoryOutPipe()
+				);
+		
+		mPipeline.execute(pipeline);
 	}	
 }
