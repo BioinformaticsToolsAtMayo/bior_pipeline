@@ -1,9 +1,9 @@
 
 NAME
-	bior_index -- Creates an index from a given catalog
+	bior_index_catalog -- Creates an index from a given catalog
 
 SYNOPSIS
-	bior_index --database <DATABASE> --path <PATH> [--log] [--help] [--index <INDEX>]
+	bior_index_catalog --database <DATABASE> --path <PATH> [--log] [--help] [--index <INDEX>]
 
 DESCRIPTION
 	Creates a searchable index for a key contained within the JSON column of a given catalog.  The
@@ -35,11 +35,11 @@ DESCRIPTION
 
 EXAMPLE
 	This is a basic example of creating an index based on a key contained within the catalog's
-	JSON structure.  Here, the bior_index command creates an index on the HGNC id within the
-	NCBIGene catalog's JSON column.
+	JSON structure.  Here, the bior_index_catalog command creates an index on the HGNC id within
+	the NCBIGene catalog's JSON column.
 	
-	bior_index  -d $BIOR_CATALOG/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC 
+	bior_index_catalog  -d $BIOR_CATALOG/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC 
 	OR
-	bior_index  -d $BIOR_CATALOG/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC  -i
+	bior_index_catalog  -d $BIOR_CATALOG/NCBIGene/GRCh37_p10/genes.tsv.bgz  -p HGNC  -i
 	/data/myindexes/genes.HGNC.idx.h2.db 
 

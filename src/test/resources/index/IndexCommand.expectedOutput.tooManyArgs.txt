@@ -1,6 +1,6 @@
-Error executing bior_index
+Error executing bior_index_catalog
 
-Usage: bior_index --database <DATABASE> --path <PATH> [--log] [--help] [--index <INDEX>]
+Usage: bior_index_catalog --database <DATABASE> --path <PATH> [--log] [--help] [--index <INDEX>]
 
 Invalid number of argument values specified.
 

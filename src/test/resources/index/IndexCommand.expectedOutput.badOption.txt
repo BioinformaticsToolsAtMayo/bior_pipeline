@@ -1,4 +1,4 @@
-Error executing bior_index
+Error executing bior_index_catalog
 
 Unrecognized option: -k
 
