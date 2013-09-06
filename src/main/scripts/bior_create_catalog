@@ -3,6 +3,11 @@
 # exit if any statement returns a non-zero exit code
 set -e
 
+if [[ $* == *-h* ]];
+then
+    java -Dlog4j.defaultInitOverride=true -Xmx128m -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.cli.CommandLineApp edu.mayo.bior.cli.cmd.CreateCatalogCommand $0 $@
+    exit;
+fi
 #check to make sure dependancies are installed and on the path
 command -v tabix >/dev/null 2>&1 || { echo >&2 "I require tabix but it's not installed/on your path.  Aborting."; exit 1; }
 command -v bgzip >/dev/null 2>&1 || { echo >&2 "I require bgzip but it's not installed/on your path.  Aborting."; exit 1; }
@@ -12,7 +17,7 @@ command -v grep >/dev/null 2>&1 || { echo >&2 "I require grep but it's not insta
 
 INPUT=
 OUTPUT=
-while getopts “hc:o:i:” OPTION
+while getopts â€œhc:o:i:â€� OPTION
 do
      case $OPTION in
          o)
@@ -41,11 +46,7 @@ if [ $MINOR_VERSION -lt $REQUIRED_MINOR_VERSION ]; then
 	exit 1
 fi
 
-if [[ $* == *-h* ]];
-then
-    java -Dlog4j.defaultInitOverride=true -Xmx128m -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.cli.CommandLineApp edu.mayo.bior.cli.cmd.CreateCatalogCommand $0 $@
-    exit;
-fi
+
 
 #if user did not provide values for input and output, then give them help
 #if [[ -z $INPUT ]] || [[ -z $OUTPUT ]]
