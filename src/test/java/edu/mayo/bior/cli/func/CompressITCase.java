@@ -3,10 +3,15 @@ package edu.mayo.bior.cli.func;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.tinkerpop.pipes.util.Pipeline;
+import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
+import edu.mayo.pipes.UNIX.CatPipe;
 import org.junit.Test;
 
-public class CompressITCase extends BaseFunctionalTest
+public class CompressITCase extends RemoteFunctionalTest
 {
 	@Test
 	public void testNormalPath() throws IOException, InterruptedException {
@@ -124,5 +129,35 @@ public class CompressITCase extends BaseFunctionalTest
 		assertEquals("", out.stderr);
 
 		assertEquals(expected, out.stdout);
-	}	
+	}
+
+    public final String VCF_IN 		= "src/test/resources/treat/gold.vcf";
+    public final String DBSNP_CATALOG     	= "src/test/resources/treat/brca1.dbsnp.tsv.gz";
+    public final String GENES_CATALOG   	= "src/test/resources/genes.tsv.bgz";
+
+    @Test
+    public void testPipedCompressMetadata() throws IOException, InterruptedException {
+        System.out.println("Test Piped Compress Metadata");
+        String cmd = String.format(
+                "cat %s  | bior_vcf_to_tjson  |  bior_overlap -d %s  | bior_overlap -d %s | " +
+                " bior_drill -p gene | bior_drill -p gene -c -2 | cut -f 1-8,10 | bior_compress 9 | bior_tjson_to_vcf ",
+                VCF_IN,
+                GENES_CATALOG,
+                GENES_CATALOG
+        );
+        List<String> expected = new ArrayList<String>();
+        Pipeline p = new Pipeline(new CatPipe());
+        while(p.hasNext()){String s = (String)p.next(); expected.add(s);}
+        /*
+        cut -f 1-8,10-12
+         */
+        System.out.println("Command: " + cmd);
+        CommandOutput out = executeScriptWithPipes(cmd);
+        String[] lines = out.stdout.split("\n");
+        int count = 0;
+        for(String line : expected){
+            assertEquals(line, lines[count]);
+            count++;
+        }
+    }
 }
