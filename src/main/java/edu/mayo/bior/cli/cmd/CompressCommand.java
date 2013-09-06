@@ -67,13 +67,10 @@ public class CompressCommand implements CommandPlugin
 		}
 
 		CompressPipe compressPipe = new CompressPipe(fieldSpec, delimiter, escapeDelimiter, useSetCompression);
-
-		Pipeline pipeline = new Pipeline(
-				new HistoryInPipe(compressPipe.getMetadata()),
-				compressPipe,
-				new HistoryOutPipe()
-				);
-		
-		mPipeline.execute(pipeline);
+		// Make sure to use the execute that takes 3 parms, else it will try to do two HistoryInPipes
+		mPipeline.execute(
+			new HistoryInPipe(compressPipe.getMetadata()),
+			compressPipe,
+			new HistoryOutPipe());
 	}	
 }
