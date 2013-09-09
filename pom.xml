@@ -36,7 +36,7 @@
 			<plugin>
 				<groupId>edu.mayo</groupId>
 				<artifactId>mayo-commons-cli-plugin</artifactId>
-				<version>0.0.3</version>
+				<version>0.0.4</version>
 
 				<!-- configuration parameters -->
 				<configuration>
@@ -51,14 +51,14 @@
 					<!-- can be overridden in command properties file with jvm.opts property -->
 					<jvmOpts>-Xmx128m</jvmOpts>
 					
-<!-- OPTIONAL: Script commands executed directly before the JVM is launched. -->
-<!-- can be overridden in command properties file with pre.jvm property -->
-<preJvm>
+<!-- OPTIONAL: Script commands invoked at the start of the generated script. -->
+<!-- can be overridden in command properties file with start.commands property -->
+<startCommands>
 # Fix for excessive virtual memory usage
 # newer glibc will allocate 64MB per thread
 # this will limit 64MB to all threads for a process  
 export MALLOC_ARENA_MAX=1
-</preJvm>
+</startCommands>
 										
 				</configuration>
 				
@@ -94,7 +94,7 @@ export MALLOC_ARENA_MAX=1
 					<dependency>
 						<groupId>edu.mayo</groupId>
 						<artifactId>mayo-commons-cli-plugin</artifactId>
-						<version>0.0.3</version>
+						<version>0.0.4</version>
 					</dependency>
 				</dependencies>				
 			</plugin>
