@@ -2,6 +2,11 @@
 
 # exit if any statement returns a non-zero exit code
 set -e
+if [[ $* == *-h* ]];
+then
+    java -Dlog4j.defaultInitOverride=true -Xmx128m -cp $BIOR_LITE_HOME/conf:$BIOR_LITE_HOME/lib/* edu.mayo.cli.CommandLineApp edu.mayo.bior.cli.cmd.CreateCatalogCommand $0 $@
+    exit;
+fi
 
 if [[ $* == *-h* ]];
 then
