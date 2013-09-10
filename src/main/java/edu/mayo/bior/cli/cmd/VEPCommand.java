@@ -23,6 +23,24 @@ import edu.mayo.pipes.util.metadata.Metadata;
 
 public class VEPCommand  implements CommandPlugin {
 
+/*
+###==================================================
+### Options:  (***=differs in first letter)
+###     -a  --all
+### *** -b  --allow_non_variant
+###     -c  --check_alleles
+### *** -e  --check_existing
+###     -f  --fork
+###     -h  --help
+###     -l  --log
+###     -n  --no_intergenic
+### *** -o  --coding_only
+### *** -p  --freq_pop
+###     -t  --terms
+###==================================================
+ */
+	
+	
 	// Buffer size not allowed by user - must be 1 to prevent hangs
     //private static final String OPTION_BUFFER_SIZE = 	"b";
     private static final String OPTION_FORK = 			"f";

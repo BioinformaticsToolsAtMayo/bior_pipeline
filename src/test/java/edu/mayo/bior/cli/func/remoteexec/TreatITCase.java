@@ -13,11 +13,6 @@ import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
-import edu.mayo.bior.cli.PathReplace;
-import edu.mayo.bior.util.ClasspathUtil;
-import edu.mayo.pipes.UNIX.GrepEPipe;
-import edu.mayo.pipes.history.History;
-import edu.mayo.pipes.util.metadata.Metadata;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -26,6 +21,7 @@ import org.junit.Test;
 
 import com.tinkerpop.pipes.util.Pipeline;
 
+import edu.mayo.bior.cli.PathReplace;
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
@@ -33,8 +29,11 @@ import edu.mayo.cli.InvalidDataException;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
+import edu.mayo.pipes.UNIX.GrepEPipe;
+import edu.mayo.pipes.history.History;
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.history.HistoryOutPipe;
+import edu.mayo.pipes.util.metadata.Metadata;
 import edu.mayo.pipes.util.test.FileCompareUtils;
 import edu.mayo.pipes.util.test.PipeTestUtils;
 

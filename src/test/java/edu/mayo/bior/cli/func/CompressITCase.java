@@ -6,13 +6,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tinkerpop.pipes.util.Pipeline;
-import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
-import edu.mayo.pipes.UNIX.CatPipe;
 import org.junit.Test;
 
-public class CompressITCase extends RemoteFunctionalTest
+import com.tinkerpop.pipes.util.Pipeline;
+
+import edu.mayo.pipes.UNIX.CatPipe;
+
+public class CompressITCase extends BaseFunctionalTest
 {
+	
 	@Test
 	public void testNormalPath() throws IOException, InterruptedException {
         System.out.println("CompressITCase.testNormalPath");
@@ -26,18 +28,20 @@ public class CompressITCase extends RemoteFunctionalTest
 				"dataB\t101\tX\n" +
 				"dataC\t333\tZ\n";
 
-		String expected = 
+		String expected =
+				"##BIOR=<ID=\"COL2\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\"|\",EscapedDelimiter=\"\\|\">\n" +
+				"##BIOR=<ID=\"COL3\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\"|\",EscapedDelimiter=\"\\|\">\n" +
 				"#COL1\tCOL2\tCOL3\n" +
 				"dataA\t1|2|3\tA|B|C\n" +
 				"dataB\t100|101\tW|X\n" +
 				"dataC\t333\tZ\n";
 		
-		CommandOutput out = executeScript("bior_compress", stdin, "2,3");
+		CommandOutput out = executeScript("bior_compress", stdin, "2,3", "--log");
 
-		assertEquals(out.stderr, 0, out.exit);
-		assertEquals("", out.stderr);
-
-		assertEquals(expected, out.stdout);
+		assertEquals("Exit code was not zero. " + out.stderr, 0, out.exit);
+		assertEquals("StdErr was NOT null/empty, so there was a problem.", "", out.stderr);
+		assertEquals("Expected did NOT match actual output!\nExpected:\n" + expected + "\n====================\n" + out.stdout, 
+				expected, out.stdout);
 	}	
 
 	@Test
@@ -50,15 +54,17 @@ public class CompressITCase extends RemoteFunctionalTest
 				"dataA\t2\tB\n" +
 				"dataA\t3\tC\n";
 		String expected = 
+				"##BIOR=<ID=\"COL2\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\",\",EscapedDelimiter=\"\\|\">\n" +
+				"##BIOR=<ID=\"COL3\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\",\",EscapedDelimiter=\"\\|\">\n" +
 				"#COL1\tCOL2\tCOL3\n" +
 				"dataA\t1,2,3\tA,B,C\n";
 		
-		CommandOutput out = executeScript("bior_compress", stdin,"--separator", ",", "2,3");
+		CommandOutput out = executeScript("bior_compress", stdin,"--separator", ",", "2,3", "--log");
 
-		assertEquals(out.stderr, 0, out.exit);
-		assertEquals("", out.stderr);
-
-		assertEquals(expected, out.stdout);
+		assertEquals("Exit code was not zero. " + out.stderr, 0, out.exit);
+		assertEquals("StdErr was NOT null/empty, so there was a problem.", "", out.stderr);
+		assertEquals("Expected did NOT match actual output!\nExpected:\n" + expected + "\n====================\n" + out.stdout, 
+				expected, out.stdout);
 	}
 	
 	@Test
@@ -71,15 +77,16 @@ public class CompressITCase extends RemoteFunctionalTest
 				"dataA\t2,B\n" +
 				"dataA\t3,C\n";
 		String expected = 
+				"##BIOR=<ID=\"COL2\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\",\",EscapedDelimiter=\"#\">\n" +
 				"#COL1\tCOL2\n" +
 				"dataA\t1#A,2#B,3#C\n";
 		
-		CommandOutput out = executeScript("bior_compress", stdin,"--separator", ",", "--escape", "#", "2");
+		CommandOutput out = executeScript("bior_compress", stdin,"--separator", ",", "--escape", "#", "2", "--log");
 
-		assertEquals(out.stderr, 0, out.exit);
-		assertEquals("", out.stderr);
-
-		assertEquals(expected, out.stdout);
+		assertEquals("Exit code was not zero. " + out.stderr, 0, out.exit);
+		assertEquals("StdErr was NOT null/empty, so there was a problem.", "", out.stderr);
+		assertEquals("Expected did NOT match actual output!\nExpected:\n" + expected + "\n====================\n" + out.stdout, 
+				expected, out.stdout);
 	}
 	
 	@Test
@@ -92,17 +99,18 @@ public class CompressITCase extends RemoteFunctionalTest
 				"dataA\t2\n" +
 				"dataB\t3\n";
 		String expected = 
+				"##BIOR=<ID=\"COL2\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\"|\",EscapedDelimiter=\"\\|\">\n" +
 				"#COL1\tCOL2\n" +
 				"dataA\t1|2\n" +
 				"dataB\t3\n";
 		
 		// pick field 1 (RIGHT_TO_LEFT), so that's actually the 2nd column as the compress column
-		CommandOutput out = executeScript("bior_compress", stdin, "--reverse", "1");
+		CommandOutput out = executeScript("bior_compress", stdin, "--reverse", "1", "--log");
 
-		assertEquals(out.stderr, 0, out.exit);
-		assertEquals("", out.stderr);
-
-		assertEquals(expected, out.stdout);
+		assertEquals("Exit code was not zero. " + out.stderr, 0, out.exit);
+		assertEquals("StdErr was NOT null/empty, so there was a problem.", "", out.stderr);
+		assertEquals("Expected did NOT match actual output!\nExpected:\n" + expected + "\n====================\n" + out.stdout, 
+				expected, out.stdout);
 	}	
 	
 	@Test
@@ -119,18 +127,20 @@ public class CompressITCase extends RemoteFunctionalTest
 				"dataB\t333\t.\n";
 
 		String expected = 
+				"##BIOR=<ID=\"COL2\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\"|\",EscapedDelimiter=\"\\|\">\n" +
+				"##BIOR=<ID=\"COL3\",Operation=\"bior_compress\",DataType=\"String\",Number=\".\",Delimiter=\"|\",EscapedDelimiter=\"\\|\">\n" +
 				"#COL1\tCOL2\tCOL3\n" +
 				"dataA\t1|.|3\t.|.|.\n" +
 				"dataB\t100|101|333\tW|W|.\n";
 		
-		CommandOutput out = executeScript("bior_compress", stdin, "--align", "2,3");
+		CommandOutput out = executeScript("bior_compress", stdin, "--align", "2,3", "--log");
 
-		assertEquals(out.stderr, 0, out.exit);
-		assertEquals("", out.stderr);
-
-		assertEquals(expected, out.stdout);
+		assertEquals("Exit code was not zero. " + out.stderr, 0, out.exit);
+		assertEquals("StdErr was NOT null/empty, so there was a problem.", "", out.stderr);
+		assertEquals("Expected did NOT match actual output!\nExpected:\n" + expected + "\n====================\n" + out.stdout, 
+				expected, out.stdout);
 	}
-
+	
     public final String VCF_IN 		= "src/test/resources/treat/gold.vcf";
     public final String DBSNP_CATALOG     	= "src/test/resources/treat/brca1.dbsnp.tsv.gz";
     public final String GENES_CATALOG   	= "src/test/resources/genes.tsv.bgz";

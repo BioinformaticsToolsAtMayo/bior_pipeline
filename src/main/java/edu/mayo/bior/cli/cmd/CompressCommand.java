@@ -27,8 +27,11 @@ public class CompressCommand implements CommandPlugin
 		
 	private UnixStreamPipeline mPipeline = new UnixStreamPipeline();
 	
-	public void init(Properties props) throws Exception
-	{
+	private String mOperation;
+
+	
+	public void init(Properties props) throws Exception	{
+		mOperation = props.getProperty("command.name");
 	}
 
 	public void execute(CommandLine line, Options opts) throws Exception
@@ -66,7 +69,7 @@ public class CompressCommand implements CommandPlugin
 			useSetCompression = false;
 		}
 
-		CompressPipe compressPipe = new CompressPipe(fieldSpec, delimiter, escapeDelimiter, useSetCompression);
+		CompressPipe compressPipe = new CompressPipe(mOperation, fieldSpec, delimiter, escapeDelimiter, useSetCompression);
 		// Make sure to use the execute that takes 3 parms, else it will try to do two HistoryInPipes
 		mPipeline.execute(
 			new HistoryInPipe(compressPipe.getMetadata()),

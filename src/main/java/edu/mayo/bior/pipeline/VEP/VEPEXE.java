@@ -5,7 +5,11 @@
 package edu.mayo.bior.pipeline.VEP;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BrokenBarrierException;
@@ -62,7 +66,8 @@ public class VEPEXE implements PipeFunction<String,String>{
 		BiorProperties biorProps = new BiorProperties();
 
 		//VEP_COMMAND="$BIOR_VEP_PERL_HOME/perl $BIOR_VEP_HOME/variant_effect_predictor.pl -i /dev/stdin -o STDOUT -dir $BIOR_VEP_HOME/cache/ -vcf --hgnc -polyphen b -sift b --offline --buffer_size $VEP_BUFFER_SIZE"
-		final String[] command = {
+		// NOTE: Need to type-cast the Arrays.asList() to an ArrayList, otherwise the list will NOT be modifiable!!!
+		List<String> command = new ArrayList<String>(Arrays.asList(
 				// On Dan's Mac, first part of cmd: "/usr/bin/perl"
 				biorProps.get(Key.BiorVepPerl),
 				biorProps.get(Key.BiorVep),
@@ -80,14 +85,21 @@ public class VEPEXE implements PipeFunction<String,String>{
 				"b",
 				"--offline",
 				"--buffer_size",
-				VEP_BUFFER_SIZE,
-		};
-		String[] allCommands = (String[]) ArrayUtils.addAll(command, userOptions);
+				VEP_BUFFER_SIZE
+		));
+		if( userOptions != null )
+			command.addAll(Arrays.asList(userOptions));
+		command.addAll(getMacFlagsIfNecessary());
+		
+		return command.toArray(new String[command.size()]);
+	}
 
+
+	private static List<String> getMacFlagsIfNecessary() {
 		String os = System.getProperty("os.name"); 
+		List<String> macFlags = new ArrayList<String>();
 		if (os.equals("Mac OS X"))
 		{
-
 			// MAC ONLY
 			// @see https://github.com/arq5x/gemini/blob/master/docs/content/functional_annotation.rst
 			// 
@@ -97,21 +109,13 @@ public class VEPEXE implements PipeFunction<String,String>{
 			// 
 			// "--compress gunzip -c"
 			// 
-
-			String[] macOptions = 
-				{
-					"--compress",
-					"gunzip -c"					
-				};
+			macFlags.add("--compress");
+			macFlags.add("gunzip -c");
 
 			sLogger.info(String.format("Running on %s.  Adding Mac-specific options.", os));
-			
-			allCommands = (String[]) ArrayUtils.addAll(allCommands, macOptions);			
 		}
-		
-		return allCommands;
+		return macFlags;
 	}
-
 
 	public String compute(String vcfLine)
 	{

@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeoutException;
 
-import edu.mayo.bior.util.DependancyUtil;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Charsets;
@@ -45,7 +43,7 @@ import edu.mayo.bior.pipeline.Treat.format.VEPFormatter;
 import edu.mayo.bior.pipeline.Treat.format.VEPHgncFormatter;
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.bior.util.BiorProperties.Key;
-import edu.mayo.bior.util.ClasspathUtil;
+import edu.mayo.bior.util.DependancyUtil;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.history.CompressPipe;
 import edu.mayo.pipes.history.History;
@@ -68,7 +66,8 @@ public class TreatPipeline extends Pipeline<History, History>
 		bior_lookup,
 		bior_same_variant,
 		bior_overlap,
-		bior_drill
+		bior_drill,
+		bior_compress
 	};
 
 	private BiorProperties	mProps;	
@@ -243,6 +242,8 @@ public class TreatPipeline extends Pipeline<History, History>
 		
 		// Transform JSON cols into final output
 		FormatterPipeFunction formatterPipe = new FormatterPipeFunction(order, mConfigColumnsToOutput);
+		// NOTE: Don't need a metadata object for the compress pipe since annotate always does a compress,
+		//       and this is taken care of when constructing the annotate metadata line.
 		mMetadataToAdd = formatterPipe.getMetadataForUserColumns(mCatalogForColumn);
 		// specify final output cols to compress - compress to have 1-to-1 variants match
 		FieldSpecification fSpec = new FieldSpecification(formatterPipe.getColumnsAdded().size() + "-", FieldDirection.RIGHT_TO_LEFT);
@@ -252,7 +253,7 @@ public class TreatPipeline extends Pipeline<History, History>
 				new EndLineGeneratorPipe(DUMMY_LINE, true),
 				new TransformFunctionPipe(new AnnotateEXE(new String[] { "/bin/sh", "-c", pipesAsStr }, envVars, DUMMY_LINE, getMaxLinesInFlight())),
 				new TransformFunctionPipe(formatterPipe),
-				new CompressPipe(fSpec, "|", "\\|", true)
+				new CompressPipe(AnnotateCmds.bior_compress.toString(), fSpec, "|", "\\|", true)
 			).getPipes() );
 	}
 
