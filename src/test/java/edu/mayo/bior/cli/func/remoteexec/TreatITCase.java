@@ -48,6 +48,7 @@ public class TreatITCase extends RemoteFunctionalTest
 
     @Before
     public void cleanupBefore(){
+        System.out.println("Make sure you have the required catalogs installed and in your path (or mounted over SMB) before you attempt to run the TREAT/ANNOTATE TESTS");
         History.clearMetaData();
     }
 
