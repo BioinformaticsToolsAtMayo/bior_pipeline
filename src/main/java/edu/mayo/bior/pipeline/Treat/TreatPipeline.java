@@ -139,26 +139,29 @@ public class TreatPipeline extends Pipeline<History, History>
 			order.add(JsonColumn.VARIANT);			pipeList.add(vcfToJson());
 		if(isNeedPipe(new VEPFormatter())) {
             //if vep is not installed and they try to use it, then we need to bail!
-            if(!DependancyUtil.isVEPInstalled()){
-                System.exit(1);
+            if(DependancyUtil.isVEPInstalled()){
+                order.add(JsonColumn.VEP);
+                pipeList.add(vep());
             }
-			order.add(JsonColumn.VEP);				pipeList.add(vep());
+
 		}
 		// Since the drill and cut are for HGNC lookup, we must check if HGNC is needed before we perform the drill and cut
 		if(isNeedPipe(new VEPHgncFormatter()) ) {
-			// Drill to add Ensembl Gene X-REF col
-			// The drill will keep the json, but will switch it and the drill column so the json is last. 
-			// Therefore, add the drilled column to the order list as "IGNORE", but make it 2nd-last
-			order.add(order.size()-1, JsonColumn.IGNORE); pipeList.add(drill("Gene")); 
-			order.add(JsonColumn.VEP_HGNC);			pipeList.add(lookup(Key.hgncFile, Key.hgncEnsemblGeneIndexFile, "Ensembl_Gene_ID"));
+            if(DependancyUtil.isVEPInstalled()){
+                // Drill to add Ensembl Gene X-REF col
+                // The drill will keep the json, but will switch it and the drill column so the json is last.
+                // Therefore, add the drilled column to the order list as "IGNORE", but make it 2nd-last
+                order.add(order.size()-1, JsonColumn.IGNORE); pipeList.add(drill("Gene"));
+                order.add(JsonColumn.VEP_HGNC);			pipeList.add(lookup(Key.hgncFile, Key.hgncEnsemblGeneIndexFile, "Ensembl_Gene_ID"));
+            }
 		}
 		// Since SNPEff takes a long time to load, AND that load is in the constructor, let's check if we need it first before calling the constructor
 		if(isNeedPipe(new SNPEffFormatter()) )	{
             //check to see if it is even installed, if not bail!
-            if(!DependancyUtil.isSNPEffInstalled()){
-                System.exit(1);
+            if(DependancyUtil.isSNPEffInstalled()){
+                order.add(JsonColumn.SNPEFF);
+                pipeList.add(snpeff());
             }
-			order.add(JsonColumn.SNPEFF);			pipeList.add(snpeff());
 		}
 		// Using 1-order.size because we don't know how many columns the user passed in.
 		// We want to reference the vcf2variant column, but it is easier to reference it from the end
