@@ -151,8 +151,12 @@ public class TreatPipeline extends Pipeline<History, History>
                 // Drill to add Ensembl Gene X-REF col
                 // The drill will keep the json, but will switch it and the drill column so the json is last.
                 // Therefore, add the drilled column to the order list as "IGNORE", but make it 2nd-last
-                order.add(order.size()-1, JsonColumn.IGNORE); pipeList.add(drill("Gene"));
-                order.add(JsonColumn.VEP_HGNC);			pipeList.add(lookup(Key.hgncFile, Key.hgncEnsemblGeneIndexFile, "Ensembl_Gene_ID"));
+                order.add(order.size()-1, JsonColumn.IGNORE);
+                pipeList.add(drill("Gene"));
+                if(fileThere(Key.hgncFile,"catalog") && fileThere(Key.hgncEnsemblGeneIndexFile,"index")){
+                    order.add(JsonColumn.VEP_HGNC);
+                    pipeList.add(lookup(Key.hgncFile, Key.hgncEnsemblGeneIndexFile, "Ensembl_Gene_ID"));
+                }
             }
 		}
 		// Since SNPEff takes a long time to load, AND that load is in the constructor, let's check if we need it first before calling the constructor
@@ -165,66 +169,70 @@ public class TreatPipeline extends Pipeline<History, History>
 		}
 		// Using 1-order.size because we don't know how many columns the user passed in.
 		// We want to reference the vcf2variant column, but it is easier to reference it from the end
-		if(isNeedPipe(new DbsnpFormatter())) { 
-			order.add(JsonColumn.DBSNP_ALL);		pipeList.add(sameVariant(Key.dbsnpFile, order)); 	
+		if(isNeedPipe(new DbsnpFormatter())) {
+            if(fileThere(Key.dbsnpFile,"catalog")){
+                order.add(JsonColumn.DBSNP_ALL);
+                pipeList.add(sameVariant(Key.dbsnpFile, order));
+            }
 		}
-		if(isNeedPipe(new DbsnpClinvarFormatter())) {
-			order.add(JsonColumn.DBSNP_CLINVAR);	pipeList.add(sameVariant(Key.dbsnpClinvarFile, order)); 
+		if(fileThere(Key.dbsnpClinvarFile,"catalog") && isNeedPipe(new DbsnpClinvarFormatter())) {
+			order.add(JsonColumn.DBSNP_CLINVAR);
+            pipeList.add(sameVariant(Key.dbsnpClinvarFile, order));
 		}
-		if(isNeedPipe(new CosmicFormatter())) {
+		if(fileThere(Key.cosmicFile,"catalog") && isNeedPipe(new CosmicFormatter())) {
 			order.add(JsonColumn.COSMIC);			pipeList.add(sameVariant(Key.cosmicFile, order)); 
 		}
-		if(isNeedPipe(new UcscBlacklistedFormatter())) {
+		if(fileThere(Key.blacklistedFile,"catalog") && isNeedPipe(new UcscBlacklistedFormatter())) {
 			order.add(JsonColumn.UCSC_BLACKLISTED);	pipeList.add(overlap(Key.blacklistedFile, order));
 		}
-		if(isNeedPipe(new UcscConservationFormatter())) {
+		if(fileThere(Key.conservationFile,"catalog") && isNeedPipe(new UcscConservationFormatter())) {
 			order.add(JsonColumn.UCSC_CONSERVATION);pipeList.add(overlap(Key.conservationFile, order));
 		}
-		if(isNeedPipe(new UcscEnhancerFormatter())) {
+		if(fileThere(Key.enhancerFile,"catalog") && isNeedPipe(new UcscEnhancerFormatter())) {
 			order.add(JsonColumn.UCSC_ENHANCER);	pipeList.add(overlap(Key.enhancerFile, order));
 		}
-		if(isNeedPipe(new UcscTfbsFormatter())) {
+		if(fileThere(Key.tfbsFile,"catalog") && isNeedPipe(new UcscTfbsFormatter())) {
 			order.add(JsonColumn.UCSC_TFBS);		pipeList.add(overlap(Key.tfbsFile, order));
 		}
-		if(isNeedPipe(new UcscTssFormatter())) {
+		if(fileThere(Key.tssFile,"catalog") && isNeedPipe(new UcscTssFormatter())) {
 			order.add(JsonColumn.UCSC_TSS);			pipeList.add(overlap(Key.tssFile, order));
 		}
-		if(isNeedPipe(new UcscUniqueFormatter())) {
+		if(fileThere(Key.uniqueFile,"catalog") && isNeedPipe(new UcscUniqueFormatter())) {
 			order.add(JsonColumn.UCSC_UNIQUE);		pipeList.add(overlap(Key.uniqueFile, order));
 		}
-		if(isNeedPipe(new UcscRepeatFormatter())) {
+		if(fileThere(Key.repeatFile,"catalog") && isNeedPipe(new UcscRepeatFormatter())) {
 			order.add(JsonColumn.UCSC_REPEAT);		pipeList.add(overlap(Key.repeatFile, order));
 		}
-		if(isNeedPipe(new UcscRegulationFormatter())) {
+		if(fileThere(Key.regulationFile,"catalog") && isNeedPipe(new UcscRegulationFormatter())) {
 			order.add(JsonColumn.UCSC_REGULATION);	pipeList.add(overlap(Key.regulationFile, order));
 		}
-		if(isNeedPipe(new MirBaseFormatter())) {
+		if(fileThere(Key.mirBaseFile,"catalog") && isNeedPipe(new MirBaseFormatter())) {
 			order.add(JsonColumn.MIRBASE);			pipeList.add(overlap(Key.mirBaseFile, order));
 		}
-		if(isNeedPipe(new BgiFormatter())) {
+		if(fileThere(Key.bgiFile,"catalog") && isNeedPipe(new BgiFormatter())) {
 			// allele frequency annotation
 			order.add(JsonColumn.BGI);				pipeList.add(sameVariant(Key.bgiFile, order)); 
 		}
-		if(isNeedPipe(new EspFormatter())) {
+		if(fileThere(Key.espFile,"catalog") && isNeedPipe(new EspFormatter())) {
 			order.add(JsonColumn.ESP);				pipeList.add(sameVariant(Key.espFile, order)); 
 		}
-		if(isNeedPipe(new HapmapFormatter())) {
+		if(fileThere(Key.hapMapFile,"catalog") && isNeedPipe(new HapmapFormatter())) {
 			order.add(JsonColumn.HAPMAP);			pipeList.add(sameVariant(Key.hapMapFile, order)); 
 		}
-		if(isNeedPipe(new ThousandGenomesFormatter())) {
+		if(fileThere(Key.kGenomeFile,"catalog") && isNeedPipe(new ThousandGenomesFormatter())) {
 			order.add(JsonColumn.THOUSAND_GENOMES);	pipeList.add(sameVariant(Key.kGenomeFile, order)); 
 		}
-		if(isNeedPipe(new NcbiGeneFormatter())) {
+		if(fileThere(Key.genesFile,"catalog") && isNeedPipe(new NcbiGeneFormatter())) {
 			// annotation requiring walking X-REFs
 			order.add(JsonColumn.NCBI_GENE);		pipeList.add(overlap(Key.genesFile, order));
 		}
-		if(isNeedPipe(new HgncFormatter())) {
+		if(fileThere(Key.hgncFile,"catalog") && fileThere(Key.hgncIndexFile,"index") && isNeedPipe(new HgncFormatter())) {
 			// Drill to add Entrez GeneID X-REF
 			// Again, it will added to the 2nd-last position and ignored
 			order.add(order.size()-1,JsonColumn.IGNORE); pipeList.add(drill("GeneID")); 
 			order.add(JsonColumn.HGNC);				pipeList.add(lookup(Key.hgncFile, Key.hgncIndexFile, "Entrez_Gene_ID"));
 		}
-		if(isNeedPipe(new OmimFormatter()) ) {
+		if(fileThere(Key.omimFile,"catalog") && fileThere(Key.omimIndexFile,"index") &&  isNeedPipe(new OmimFormatter()) ) {
 			// Drill to add OMIM ID X-REF
 			// Again, add to 2nd-last position and ignore
 			order.add(order.size()-1,JsonColumn.IGNORE); pipeList.add(drill("mapped_OMIM_ID"));
@@ -238,6 +246,9 @@ public class TreatPipeline extends Pipeline<History, History>
 		sLogger.info("bior_annotate pipeline long cmd: " + pipesAsStr);
         //System.err.println(pipesAsStr);
         this.generatedCommand = pipesAsStr;
+        if(this.generatedCommand.contains("bior_snpeff")){
+            System.err.println("SNPEFF is requested, bior is starting it up, this will take about 1 min.");
+        }
 
 		Map<String,String> envVars = new HashMap<String,String>();
 		sLogger.info("BIOR_LITE_HOME: " + mBiorLiteHome);
@@ -406,6 +417,22 @@ public class TreatPipeline extends Pipeline<History, History>
 		String path =  mProps.get(Key.fileBase) + mProps.get(propKey);
 		return path;
 	}
+
+    /** Check to see if the file is there given a key in the bior.properties file
+     * @param propKey - name of the property in the bior.properties file
+     * @param type    - type of file (index, catalog)
+     */
+    private boolean fileThere(Key propKey, String type){
+        String path = getFile(propKey);
+        boolean setup = false;
+        if(type.equalsIgnoreCase("catalog")){
+            setup = DependancyUtil.isCatalogInstalled(path);
+        }
+        if(type.equalsIgnoreCase("index")){
+            setup = DependancyUtil.isIndexInstalled(path);
+        }
+        return setup;
+    }
 	
 	/** Load the config file that contains the columns that bior_annotate is to keep */
 	private List<String> loadConfig(String configFilePath) throws IOException {

@@ -12,6 +12,26 @@ import java.io.IOException;
  */
 public class DependancyUtil {
 
+    public static boolean isIndexInstalled(String indexPath){
+        return isPathDepInstalled(indexPath,"BioR Index that is requested is not installed (either download it or run bior_index_catalog): ");
+    }
+
+    public static boolean isCatalogInstalled(String catalogPath){
+        return isPathDepInstalled(catalogPath,"BioR Catalog that is requested is not installed: ");
+    }
+
+    public static boolean isPathDepInstalled(String path, String message){
+        if(path == null){
+            return false;
+        }
+        File f = new File(path);
+        if(f.exists() == false){
+            System.err.println(message + path);
+            return false;
+        }
+        return true;
+    }
+
     /**
      *
      * @param toolPath - this can be a full path, or a relative path
