@@ -1,0 +1,19 @@
+$ cat geneList.txt | bior_lookup -p gene -d data/NCBIGene/GRCh37_p10/genes.tsv.bgz | bior_pretty_print 
+#  COLUMN NAME     COLUMN VALUE
+-  -----------     ------------
+1  UNKNOWN_1       BRCA1
+2  bior.gene37p10  {
+                     "_type": "gene",
+                     "_landmark": "17",
+                     "_strand": "-",
+                     "_minBP": 41196312,
+                     "_maxBP": 41277500,
+                     "gene": "BRCA1",
+                     "gene_synonym": "BRCAI; BRCC1; BROVCA1; IRIS; PNCA4; PPP1R53; PSCP; RNF53",
+                     "note": "breast cancer 1, early onset; Derived by automated computational analysis using gene prediction method: BestRefseq.",
+                     "GeneID": "672",
+                     "HGNC": "1100",
+                     "HPRD": "00218",
+                     "MIM": "113705"
+                   }
+$

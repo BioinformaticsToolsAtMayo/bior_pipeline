@@ -1,0 +1,9 @@
+$ cat example.vcf | bior_vcf_to_tjson | bior_same_variant -d data/dbSNP/137/clinvarPart.tsv.bgz | bior_drill -p INFO.CLNSIG[0]
+##fileformat=VCFv4.0
+##BIOR=<ID="bior.ToTJson",Operation="bior_vcf_to_tjson",DataType="JSON",ShortUniqueName="ToTJson">
+##BIOR=<ID="bior.clinvar137",Operation="bior_same_variant",DataType="JSON",ShortUniqueName="clinvar137",Source="dbSNP",Description="dbSNP clinvar VCF file",Version="137",Build="GRCh37",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart2/data/dbSNP/137/clinvarPart.tsv.bgz">
+##BIOR=<ID="bior.clinvar137.INFO.CLNSIG[0]",Operation="bior_drill",Field="INFO.CLNSIG",DataType="String",Number=".",FieldDescription="VCF INFO.  A string that describes the variant's clinical significance, where  0 - unknown, 1 - untested, 2 - non-pathogenic, 3 - probable-non-pathogenic, 4 - probable-pathogenic, 5 - pathogenic, 6 - drug-response, 7 - histocompatibility, 255 - other.",ShortUniqueName="clinvar137",Source="dbSNP",Description="dbSNP clinvar VCF file",Version="137",Build="GRCh37",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart2/data/dbSNP/137/clinvarPart.tsv.bgz">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	bior.ToTJson	bior.clinvar137.INFO.CLNSIG[0]
+13	32907403	.	T	C	.	.	.	{"CHROM":"13","POS":"32907403","ID":".","REF":"T","ALT":"C","QUAL":".","FILTER":".","INFO":{".":true},"_id":".","_type":"variant","_landmark":"13","_refAllele":"T","_altAlleles":["C"],"_minBP":32907403,"_maxBP":32907403}	1
+15	3240324	.	N	C	.	.	.	{"CHROM":"15","POS":"3240324","ID":".","REF":"N","ALT":"C","QUAL":".","FILTER":".","INFO":{".":true},"_id":".","_type":"variant","_landmark":"15","_refAllele":"N","_altAlleles":["C"],"_minBP":3240324,"_maxBP":3240324}	.
+$ 

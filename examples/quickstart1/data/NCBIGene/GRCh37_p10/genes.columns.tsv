@@ -1,0 +1,24 @@
+### Column properties file for Catalog - genes. Please fill in and/or edit the descriptions to the keys below.
+##-----------------------------------------------------
+###ColumnName=The key or column name
+###Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean) 
+###Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1 (JSON,Integer,Float,String), or '.' (JsonArrays - which will be resolved to other primitives such as String,Integer,Float)
+###Description=The description of the ColumnName
+###-----------------------------------------------------
+##ColumnName	Type	Count	Description
+_landmark	String	1	Provides a context for the genomic coordinates _minBP and _maxBP.  Most often this is the chromosome where the feature appears  but could be a known genetic marker  gene  or other item. (BioR field)
+_maxBP	Integer	1	The maximum (ending) 1-based base pair position within the chromosome (BioR field)
+_minBP	Integer	1	The minimum (starting) 1-based base pair position within the chromosome (BioR field)
+_strand	String	1	The strand direction that this variant occurs on ("+" for forward  or "-" for reverse) (BioR field)
+_type	String	1	The object type (variant  gene  drug  pathway  etc) (BioR field)
+exception	String	1	Indicates if it is dicistronic gene
+gene	String	1	Official Gene Symbol provided by HGNC
+gene_synonym	String	1	Other Symbols for this gene
+GeneID	String	1	Entrez Gene ID
+HGNC	String	1	Corresponding HGNC ID
+HPRD	String	1	HUman Protein Reference Database ID
+IMGT/GENE-DB	String	1	Reference ID for IMGT/GENE-DB datasource
+MIM	String	1	OMIM database identifier
+miRBase	String	1	miRBase ID
+note	String	1	Offical Full Name provided by HGNC and computational derivation method
+pseudo	String	1	If gene type is psuedo

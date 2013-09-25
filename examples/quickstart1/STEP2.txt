@@ -1,0 +1,18 @@
+$ gzcat data/NCBIGene/GRCh37_p10/genes.tsv.bgz | bior_pretty_print 
+#  COLUMN NAME  COLUMN VALUE
+-  -----------  ------------
+1  #UNKNOWN_1   1
+2  #UNKNOWN_2   10954
+3  #UNKNOWN_3   11507
+4  #UNKNOWN_4   {
+                  "_type": "gene",
+                  "_landmark": "1",
+                  "_strand": "+",
+                  "_minBP": 10954,
+                  "_maxBP": 11507,
+                  "gene": "LOC100506145",
+                  "note": "Derived by automated computational analysis using gene prediction method: GNOMON. Supporting evidence includes similarity to: 1 Protein",
+                  "pseudo": "",
+                  "GeneID": "100506145"
+                }
+$

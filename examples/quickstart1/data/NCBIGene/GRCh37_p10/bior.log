@@ -1,0 +1,130 @@
+2013-08-09 15:38:41,177 [main] DEBUG edu.mayo.cli.CommandLineApp - JVM system property edu_mayo_bsu_sage_env=dev
+2013-08-09 15:38:41,183 [main] INFO  edu.mayo.cli.CommandLineApp - Loading plugin: edu.mayo.bior.cli.cmd.CreateCatalogPropsCommand
+2013-08-09 15:38:41,249 [main] ERROR edu.mayo.cli.CommandLineApp - 
+ENVIRONMENT VARIABLES:
+	MB_R=no
+	JAVA_HOME=/usr/java/jre1.6.0_18
+	MB_BERKELEYDB=no
+	SSH_CLIENT=10.145.55.18 51943 22
+	MB_OPENMPI=no
+	MB_SP=no
+	MB_MCNP5=no
+	PWD=/data5/bsi/catalogs/bior/v1/NCBIGene/GRCh37_p10
+	MB_ROCHE454=no
+	NLSPATH=/usr/dt/lib/nls/msg/%L/%N.cat
+	MB_PHYLIP=no
+	PATH=/home/m054457/bior_pipeline-0.0.3-SNAPSHOT/bin:/usr/local/biotools/blast/blast-2.2.13/bin:/usr/local/biotools/hmmer/hmmer-3.0/bin:/usr/local/biotools/misc/ver1/bin:/usr/local/biotools/emboss/EMBOSS-5.0.0/bin:/usr/local/biotools/bior_scripts/2.0.beta/bior_pipeline-0.0.3-SNAPSHOT/bin:/usr/java/jre1.6.0_18/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/m054457/bin
+	QTLIB=/usr/lib64/qt-3.3/lib
+	KDE_IS_PRELINKED=1
+	MB_WASHU=no
+	MB_BLAT=no
+	MB_SAS=no
+	MB_RIG=no
+	MB_REFDATA=no
+	MB_ROSETTA=no
+	MODULESHOME=/usr/share/Modules
+	MB_JAVA=no
+	MANPATH=/usr/local/biotools/hmmer/hmmer-3.0/man:
+	MB_DOCK=no
+	LOGNAME=m054457
+	MB_MODELLER=no
+	MB_SYBASE=no
+	BIOR_LITE_HOME=/home/m054457/bior_pipeline-0.0.3-SNAPSHOT
+	MB_SIMWALK=no
+	_=/usr/bin/java
+	MB_GIT=no
+	MB_CGATOOLS=no
+	MB_WISE2=no
+	PLPLOT_LIB=/usr/local/biotools/emboss/EMBOSS-5.0.0/share/EMBOSS
+	module=() {  eval `/usr/bin/modulecmd bash $*`
+}
+	MB_AUTODOCK=no
+	USER=m054457
+	MB_APPISTRY=no
+	BLASTMAT=/usr/local/biotools/blast/blast-2.2.13/data
+	MB_MAT=no
+	MB_NETCDF=no
+	LS_COLORS=rs=0:di=38;5;27:ln=38;5;51:mh=44;38;5;15:pi=40;38;5;11:so=38;5;13:do=38;5;5:bd=48;5;232;38;5;11:cd=48;5;232;38;5;3:or=48;5;232;38;5;9:mi=05;48;5;232;38;5;15:su=48;5;196;38;5;15:sg=48;5;11;38;5;16:ca=48;5;196;38;5;226:tw=48;5;10;38;5;16:ow=48;5;10;38;5;21:st=48;5;21;38;5;15:ex=38;5;34:*.tar=38;5;9:*.tgz=38;5;9:*.arj=38;5;9:*.taz=38;5;9:*.lzh=38;5;9:*.lzma=38;5;9:*.tlz=38;5;9:*.txz=38;5;9:*.zip=38;5;9:*.z=38;5;9:*.Z=38;5;9:*.dz=38;5;9:*.gz=38;5;9:*.lz=38;5;9:*.xz=38;5;9:*.bz2=38;5;9:*.tbz=38;5;9:*.tbz2=38;5;9:*.bz=38;5;9:*.tz=38;5;9:*.deb=38;5;9:*.rpm=38;5;9:*.jar=38;5;9:*.rar=38;5;9:*.ace=38;5;9:*.zoo=38;5;9:*.cpio=38;5;9:*.7z=38;5;9:*.rz=38;5;9:*.jpg=38;5;13:*.jpeg=38;5;13:*.gif=38;5;13:*.bmp=38;5;13:*.pbm=38;5;13:*.pgm=38;5;13:*.ppm=38;5;13:*.tga=38;5;13:*.xbm=38;5;13:*.xpm=38;5;13:*.tif=38;5;13:*.tiff=38;5;13:*.png=38;5;13:*.svg=38;5;13:*.svgz=38;5;13:*.mng=38;5;13:*.pcx=38;5;13:*.mov=38;5;13:*.mpg=38;5;13:*.mpeg=38;5;13:*.m2v=38;5;13:*.mkv=38;5;13:*.ogm=38;5;13:*.mp4=38;5;13:*.m4v=38;5;13:*.mp4v=38;5;13:*.vob=38;5;13:*.qt=38;5;13:*.nuv=38;5;13:*.wmv=38;5;13:*.asf=38;5;13:*.rm=38;5;13:*.rmvb=38;5;13:*.flc=38;5;13:*.avi=38;5;13:*.fli=38;5;13:*.flv=38;5;13:*.gl=38;5;13:*.dl=38;5;13:*.xcf=38;5;13:*.xwd=38;5;13:*.yuv=38;5;13:*.cgm=38;5;13:*.emf=38;5;13:*.axv=38;5;13:*.anx=38;5;13:*.ogv=38;5;13:*.ogx=38;5;13:*.aac=38;5;45:*.au=38;5;45:*.flac=38;5;45:*.mid=38;5;45:*.midi=38;5;45:*.mka=38;5;45:*.mp3=38;5;45:*.mpc=38;5;45:*.ogg=38;5;45:*.ra=38;5;45:*.wav=38;5;45:*.axa=38;5;45:*.oga=38;5;45:*.spx=38;5;45:*.xspf=38;5;45:
+	LANG=en_US.UTF-8
+	MB_VMD=no
+	TERM=xterm-256color
+	MB_SCON=no
+	MB_RUBY=no
+	KDEDIRS=/usr
+	MODULEPATH=/usr/share/Modules/modulefiles:/etc/modulefiles
+	MB_MAPP=no
+	MAIL=/var/spool/mail/m054457
+	MB_JBOSS=no
+	HOSTNAME=crick7.mayo.edu
+	MB_SUBVERSION=no
+	MB_MATLAB=no
+	MB_EMBOSS=yes
+	MB_HDF5=no
+	CVS_RSH=ssh
+	MB_FFTW=no
+	G_BROKEN_FILENAMES=1
+	MB_BLAST=yes
+	BLASTDB=/usr/local/biotools/blast/blast-2.2.13/data
+	MB_BIOR_SCRIPTS=2.0.beta
+	HISTSIZE=1000
+	MB_GROMACS=no
+	MB_NAMD=no
+	MB_REPEATMASKER=no
+	MB_SUNDIALS=no
+	MB_PERL=no
+	MB_POLYMAPR=no
+	MB_MGLTOOLS=no
+	SSH_ASKPASS=/usr/libexec/openssh/gnome-ssh-askpass
+	MB_CMAKE=no
+	MB_GRIDFTP=no
+	MB_TCOFFEE=no
+	SHLVL=2
+	XFILESEARCHPATH=/usr/dt/app-defaults/%L/Dt
+	MB_ICM=no
+	MB_MAFFT=no
+	MB_APT=no
+	MB_ATLAS=no
+	MB_GRACE=no
+	MB_CDHIT=no
+	SSH_TTY=/dev/pts/4
+	MB_HMMER=yes
+	MB_MISC=yes
+	MB_APBS=no
+	BIOR_CATALOG=/data5/bsi/catalogs/bior/v1
+	BLASTDIR=/usr/local/biotools/blast/blast-2.2.13
+	QTDIR=/usr/lib64/qt-3.3
+	MB_CONDOR=no
+	MB_OPENBABEL=no
+	SSH_CONNECTION=10.145.55.18 51943 129.176.213.102 22
+	LD_LIBRARY_PATH=/usr/local/biotools/misc/ver1/lib:
+	MB_GRAPHVIZ=no
+	SHELL=/bin/bash
+	MB_MPICH2=no
+	MB_POLYPHRED=no
+	QTINC=/usr/lib64/qt-3.3/include
+	MB_ACML=no
+	MB_SGE=no
+	MB_FREESURFER=no
+	HOME=/home/m054457
+	HISTCONTROL=ignoredups
+	MB_PYTHON=no
+	LESSOPEN=|/usr/bin/lesspipe.sh %s
+	MB_GAUSSIAN=no
+	MB_SAGE=no
+	LOADEDMODULES=
+	MB_AUTODOCK_VINA=no
+
+COMMAND:
+	Script=/home/m054457/bior_pipeline-0.0.3-SNAPSHOT/bin/bior_create_catalog_props
+	Arg=-d
+	Arg=genes.tsv.bgz
+	Arg=-l
+
+2013-08-09 15:38:41,250 [main] ERROR edu.mayo.cli.CommandLineApp - 
+java.lang.NullPointerException
+	at java.io.File.<init>(File.java:251)
+	at edu.mayo.bior.cli.cmd.CreateCatalogPropsCommand.createDatasourcePropsFile(CreateCatalogPropsCommand.java:95)
+	at edu.mayo.bior.cli.cmd.CreateCatalogPropsCommand.execNoCmd(CreateCatalogPropsCommand.java:69)
+	at edu.mayo.bior.cli.cmd.CreateCatalogPropsCommand.execute(CreateCatalogPropsCommand.java:54)
+	at edu.mayo.cli.CommandLineApp.execute(CommandLineApp.java:465)
+	at edu.mayo.cli.CommandLineApp.main(CommandLineApp.java:136)

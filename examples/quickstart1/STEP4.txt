@@ -1,0 +1,13 @@
+$ cat geneList.txt | bior_lookup -p gene -d data/NCBIGene/GRCh37_p10/genes.tsv.bgz | bior_drill -p _landmark -p _strand -p _minBP -p _maxBP > genePos.txt
+$ cat genePos.txt 
+##BIOR=<ID="bior.gene37p10",Operation="bior_lookup",DataType="JSON",ShortUniqueName="gene37p10",Source="NCBIGene",Description="NCBI's Gene Annotation directly from the gbs file",Version="37p10",Build="GRCh37.p10",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart1/data/NCBIGene/GRCh37_p10/genes.tsv.bgz">
+##BIOR=<ID="bior.gene37p10._landmark",Operation="bior_drill",Field="_landmark",DataType="String",Number="1",FieldDescription="Provides a context for the genomic coordinates _minBP and _maxBP.  Most often this is the chromosome where the feature appears  but could be a known genetic marker  gene  or other item. (BioR field)",ShortUniqueName="gene37p10",Source="NCBIGene",Description="NCBI's Gene Annotation directly from the gbs file",Version="37p10",Build="GRCh37.p10",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart1/data/NCBIGene/GRCh37_p10/genes.tsv.bgz">
+##BIOR=<ID="bior.gene37p10._strand",Operation="bior_drill",Field="_strand",DataType="String",Number="1",FieldDescription="The strand direction that this variant occurs on (\"+\" for forward  or \"-\" for reverse) (BioR field)",ShortUniqueName="gene37p10",Source="NCBIGene",Description="NCBI's Gene Annotation directly from the gbs file",Version="37p10",Build="GRCh37.p10",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart1/data/NCBIGene/GRCh37_p10/genes.tsv.bgz">
+##BIOR=<ID="bior.gene37p10._minBP",Operation="bior_drill",Field="_minBP",DataType="Integer",Number="1",FieldDescription="The minimum (starting) 1-based base pair position within the chromosome (BioR field)",ShortUniqueName="gene37p10",Source="NCBIGene",Description="NCBI's Gene Annotation directly from the gbs file",Version="37p10",Build="GRCh37.p10",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart1/data/NCBIGene/GRCh37_p10/genes.tsv.bgz">
+##BIOR=<ID="bior.gene37p10._maxBP",Operation="bior_drill",Field="_maxBP",DataType="Integer",Number="1",FieldDescription="The maximum (ending) 1-based base pair position within the chromosome (BioR field)",ShortUniqueName="gene37p10",Source="NCBIGene",Description="NCBI's Gene Annotation directly from the gbs file",Version="37p10",Build="GRCh37.p10",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart1/data/NCBIGene/GRCh37_p10/genes.tsv.bgz">
+#UNKNOWN_1	bior.gene37p10._landmark	bior.gene37p10._strand	bior.gene37p10._minBP	bior.gene37p10._maxBP
+BRCA1	17	-	41196312	41277500
+BRCA2	13	+	32889617	32973809
+CD28	2	+	204571198	204603635
+ZBTB7A	19	-	4045216	4066816
+$

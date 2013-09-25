@@ -1,0 +1,6 @@
+$ cat geneList.txt 
+BRCA1
+BRCA2
+CD28
+ZBTB7A
+$

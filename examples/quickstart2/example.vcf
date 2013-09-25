@@ -1,0 +1,4 @@
+##fileformat=VCFv4.0
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+13	32907403	.	T	C	.	.	.
+15	3240324	.	N	C	.	.	.

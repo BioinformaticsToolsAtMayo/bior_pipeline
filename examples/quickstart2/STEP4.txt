@@ -1,0 +1,8 @@
+$ cat example.vcf | bior_vcf_to_tjson | bior_same_variant -d data/dbSNP/137/clinvarPart.tsv.bgz
+##fileformat=VCFv4.0
+##BIOR=<ID="bior.ToTJson",Operation="bior_vcf_to_tjson",DataType="JSON",ShortUniqueName="ToTJson">
+##BIOR=<ID="bior.clinvarPart",Operation="bior_same_variant",DataType="JSON",ShortUniqueName="clinvarPart",Path="/Users/m102417/workspace/bior_pipeline/examples/quickstart2/data/dbSNP/137/clinvarPart.tsv.bgz">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	bior.ToTJson	bior.clinvarPart
+13	32907403	.	T	C	.	.	.	{"CHROM":"13","POS":"32907403","ID":".","REF":"T","ALT":"C","QUAL":".","FILTER":".","INFO":{".":true},"_id":".","_type":"variant","_landmark":"13","_refAllele":"T","_altAlleles":["C"],"_minBP":32907403,"_maxBP":32907403}	{"CHROM":"13","POS":"32907403","ID":"rs11571642","REF":"T","ALT":"C","QUAL":".","FILTER":".","INFO":{"RSPOS":32907403,"GMAF":0.0041,"dbSNPBuildID":120,"SSR":0,"SAO":0,"VP":"050160000300040117100100","GENEINFO":"BRCA2:675","WGT":0,"VC":"SNV","PM":true,"SLO":true,"REF":true,"SYN":true,"VLD":true,"GNO":true,"KGPhase1":true,"KGPROD":true,"OTHERKG":true,"PH3":true,"LSD":true,"CLNALLE":[1],"CLNHGVS":["NC_000013.10:g.32907403T>C"],"CLNSRC":["."],"CLNORIGIN":["."],"CLNSRCID":["."],"CLNSIG":["1"],"CLNDSDB":["."],"CLNDSDBID":["."],"CLNDBN":["."],"CLNACC":["."]},"_id":"rs11571642","_type":"variant","_landmark":"13","_refAllele":"T","_altAlleles":["C"],"_minBP":32907403,"_maxBP":32907403}
+15	3240324	.	N	C	.	.	.	{"CHROM":"15","POS":"3240324","ID":".","REF":"N","ALT":"C","QUAL":".","FILTER":".","INFO":{".":true},"_id":".","_type":"variant","_landmark":"15","_refAllele":"N","_altAlleles":["C"],"_minBP":3240324,"_maxBP":3240324}	{}
+$

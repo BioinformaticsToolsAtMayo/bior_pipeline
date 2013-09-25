@@ -1,0 +1,32 @@
+$ cat example.vcf | bior_vcf_to_tjson | bior_pretty_print
+#  COLUMN NAME   COLUMN VALUE
+-  -----------   ------------
+1  CHROM         13
+2  POS           32907403
+3  ID            .
+4  REF           T
+5  ALT           C
+6  QUAL          .
+7  FILTER        .
+8  INFO          .
+9  bior.ToTJson  {
+                   "CHROM": "13",
+                   "POS": "32907403",
+                   "ID": ".",
+                   "REF": "T",
+                   "ALT": "C",
+                   "QUAL": ".",
+                   "FILTER": ".",
+                   "INFO": {
+                     ".": true
+                   },
+                   "_id": ".",
+                   "_type": "variant",
+                   "_landmark": "13",
+                   "_refAllele": "T",
+                   "_altAlleles": [
+                     "C"
+                   ],
+                   "_minBP": 32907403,
+                   "_maxBP": 32907403
+                 }

@@ -1,0 +1,103 @@
+$ cat example.vcf | bior_vcf_to_tjson | bior_same_variant -d data/dbSNP/137/clinvarPart.tsv.bgz | bior_pretty_print 
+#   COLUMN NAME       COLUMN VALUE
+-   -----------       ------------
+1   CHROM             13
+2   POS               32907403
+3   ID                .
+4   REF               T
+5   ALT               C
+6   QUAL              .
+7   FILTER            .
+8   INFO              .
+9   bior.ToTJson      {
+                        "CHROM": "13",
+                        "POS": "32907403",
+                        "ID": ".",
+                        "REF": "T",
+                        "ALT": "C",
+                        "QUAL": ".",
+                        "FILTER": ".",
+                        "INFO": {
+                          ".": true
+                        },
+                        "_id": ".",
+                        "_type": "variant",
+                        "_landmark": "13",
+                        "_refAllele": "T",
+                        "_altAlleles": [
+                          "C"
+                        ],
+                        "_minBP": 32907403,
+                        "_maxBP": 32907403
+                      }
+10  bior.clinvarPart  {
+                        "CHROM": "13",
+                        "POS": "32907403",
+                        "ID": "rs11571642",
+                        "REF": "T",
+                        "ALT": "C",
+                        "QUAL": ".",
+                        "FILTER": ".",
+                        "INFO": {
+                          "RSPOS": 32907403,
+                          "GMAF": 0.0041,
+                          "dbSNPBuildID": 120,
+                          "SSR": 0,
+                          "SAO": 0,
+                          "VP": "050160000300040117100100",
+                          "GENEINFO": "BRCA2:675",
+                          "WGT": 0,
+                          "VC": "SNV",
+                          "PM": true,
+                          "SLO": true,
+                          "REF": true,
+                          "SYN": true,
+                          "VLD": true,
+                          "GNO": true,
+                          "KGPhase1": true,
+                          "KGPROD": true,
+                          "OTHERKG": true,
+                          "PH3": true,
+                          "LSD": true,
+                          "CLNALLE": [
+                            1
+                          ],
+                          "CLNHGVS": [
+                            "NC_000013.10:g.32907403T\u003eC"
+                          ],
+                          "CLNSRC": [
+                            "."
+                          ],
+                          "CLNORIGIN": [
+                            "."
+                          ],
+                          "CLNSRCID": [
+                            "."
+                          ],
+                          "CLNSIG": [
+                            "1"
+                          ],
+                          "CLNDSDB": [
+                            "."
+                          ],
+                          "CLNDSDBID": [
+                            "."
+                          ],
+                          "CLNDBN": [
+                            "."
+                          ],
+                          "CLNACC": [
+                            "."
+                          ]
+                        },
+                        "_id": "rs11571642",
+                        "_type": "variant",
+                        "_landmark": "13",
+                        "_refAllele": "T",
+                        "_altAlleles": [
+                          "C"
+                        ],
+                        "_minBP": 32907403,
+                        "_maxBP": 32907403
+                      }
+$

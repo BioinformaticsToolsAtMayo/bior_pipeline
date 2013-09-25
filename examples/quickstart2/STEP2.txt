@@ -1,0 +1,7 @@
+$ cat example.vcf | bior_vcf_to_tjson 
+##fileformat=VCFv4.0
+##BIOR=<ID="bior.ToTJson",Operation="bior_vcf_to_tjson",DataType="JSON",ShortUniqueName="ToTJson">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	bior.ToTJson
+13	32907403	.	T	C	.	.	.	{"CHROM":"13","POS":"32907403","ID":".","REF":"T","ALT":"T","QUAL":".","FILTER":".","INFO":{".":true},"_id":".","_type":"variant","_landmark":"13","_refAllele":"T","_altAlleles":["T"],"_minBP":32907403,"_maxBP":32907403}
+15	3240324	.	N	C	.	.	.	{"CHROM":"15","POS":"3240324","ID":".","REF":"N","ALT":"C","QUAL":".","FILTER":".","INFO":{".":true},"_id":".","_type":"variant","_landmark":"15","_refAllele":"N","_altAlleles":["C"],"_minBP":3240324,"_maxBP":3240324}
+$

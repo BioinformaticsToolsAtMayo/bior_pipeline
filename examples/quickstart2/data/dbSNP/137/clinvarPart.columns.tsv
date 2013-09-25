@@ -1,0 +1,53 @@
+### Column properties file for Catalog - clinvarPart. Please fill in and/or edit the descriptions to the keys below.
+##-----------------------------------------------------
+##ColumnName=The key or column name
+##Type=The type of the object, as can be determined from parsing the VCF file or taking and educated guess based on the catalog values (Possible values: JSON, String, Integer, Float, Boolean)
+##Count=The number of values that repeatedly occur  (Possible values: 0 (Boolean), 1 (JSON,Integer,Float,String), or '.' (JsonArrays - which will be resolved to other primitives such as String,Integer,Float)
+##Description=The description of the ColumnName
+##-----------------------------------------------------
+#ColumnName	Type	Count	Description
+_altAlleles	String	.	One or more alternate alleles (non-reference) in a JSON array (basically a comma-separated list) (BioR field)
+_id	String	1	An identifier (preferably unique) from the catalog  (BioR field)
+_landmark	String	1	Provides a context for the genomic coordinates _minBP and _maxBP.  Most often this is the chromosome where the feature appears, but could be a known genetic marker, gene, or other item. (BioR field)
+_maxBP	Integer	1	The maximum (ending) 1-based base pair position within the chromosome (BioR field)
+_minBP	Integer	1	The minimum (starting) 1-based base pair position within the chromosome (BioR field)
+_refAllele	String	1	The reference allele (BioR field)
+_type	String	1	The object type (variant, gene, drug, pathway, etc) (BioR field)
+ALT	String	.	Comma-separated list of alternate non-reference alleles called on at least one of the samples, made up of strings of bases A,C,G,T,N (case-insensitive). (VCF field)
+CHROM	String	1	Chromosome. (VCF field)
+FILTER	String	.	PASS if this position has passed all filters (i.e. a call is made at this position).  Otherwise if the site has not passed all filters, a semicolon-separated list of codes for filters that failed. (VCF field)
+ID	String	.	Semi-colon separated list of unique identifiers.  If this is a dbSNP variant, the rs number(s) should be used.  (VCF field)
+INFO.CLNACC	String	.	
+INFO.CLNALLE	Integer	.	
+INFO.CLNDBN	String	.	
+INFO.CLNDSDB	String	.	
+INFO.CLNDSDBID	String	.	
+INFO.CLNHGVS	String	.	
+INFO.CLNORIGIN	String	.	
+INFO.CLNSIG	String	.	VCF INFO.  A string that describes the variant's clinical significance, where  0 - unknown, 1 - untested, 2 - non-pathogenic, 3 - probable-non-pathogenic, 4 - probable-pathogenic, 5 - pathogenic, 6 - drug-response, 7 - histocompatibility, 255 - other.
+INFO.CLNSRC	String	.	
+INFO.CLNSRCID	String	.	
+INFO.dbSNPBuildID	Integer	1	
+INFO.GENEINFO	String	1	
+INFO.GMAF	Float	1	
+INFO.GNO	Boolean	0	
+INFO.KGPhase1	Boolean	0	
+INFO.KGPROD	Boolean	0	
+INFO.LSD	Boolean	0	
+INFO.NSN	Boolean	0	
+INFO.OTHERKG	Boolean	0	
+INFO.PH3	Boolean	0	
+INFO.PM	Boolean	0	
+INFO.REF	Boolean	0	
+INFO.RSPOS	Integer	1	
+INFO.SAO	Integer	1	
+INFO.SLO	Boolean	0	
+INFO.SSR	Integer	1	
+INFO.SYN	Boolean	0	
+INFO.VC	String	1	
+INFO.VLD	Boolean	0	
+INFO.VP	String	1	
+INFO.WGT	Integer	1	
+POS	Integer	1	The reference position, with the 1st base having position 1. (VCF field)
+QUAL	Float	1	Phred-scaled quality score for the assertion made in ALT, with high QUAL scores indicating high confidence calls. (VCF field)
+REF	String	1	Reference base(s), which must be one of A,C,G,T,N (case-insensitive).  Multiple bases permitted. (VCF field)

@@ -1,0 +1,7 @@
+$ cat example.vcf | bior_vcf_to_tjson | bior_same_variant -d data/dbSNP/137/clinvarPart.tsv.bgz | bior_drill -p INFO.CLNSIG[0] | bior_tjson_to_vcf 
+##fileformat=VCFv4.0
+##INFO=<ID=bior.clinvar137.INFO.CLNSIG[0],Number=.,Type=String,Description="VCF INFO.  A string that describes the variant's clinical significance, where  0 - unknown, 1 - untested, 2 - non-pathogenic, 3 - probable-non-pathogenic, 4 - probable-pathogenic, 5 - pathogenic, 6 - drug-response, 7 - histocompatibility, 255 - other.">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+13	32907403	.	T	C	.	.	bior.clinvar137.INFO.CLNSIG[0]=1
+15	3240324	.	N	C	.	.	.
+$
