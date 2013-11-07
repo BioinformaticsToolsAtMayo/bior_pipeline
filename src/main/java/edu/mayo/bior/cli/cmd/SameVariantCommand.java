@@ -33,7 +33,7 @@ public class SameVariantCommand implements CommandPlugin {
 	}
 
 	public void execute(CommandLine line, Options opts) throws Exception {
-
+		try {
 		// default column is last column (e.g. -1)
 		int column = -1;
 		if (line.hasOption(OPTION_COLUMN)) {
@@ -72,5 +72,9 @@ public class SameVariantCommand implements CommandPlugin {
 		Pipe<History, String>   postLogic = new HistoryOutPipe();
 		
 		mPipeline.execute(preLogic, logic, postLogic);		
+		}catch(Exception e) {
+			System.err.println("ERROR: " + e.getMessage());
+			throw e;
+		}
 	}
 }

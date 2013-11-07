@@ -30,6 +30,7 @@ public class VCF2VariantCommand implements CommandPlugin
 
 	public void execute(CommandLine line, Options opts) throws Exception
 	{
+		try {
 		Metadata metadata = new Metadata(operation);
 		
 		Pipe<String,  History>  preLogic  = new HistoryInPipe(metadata);
@@ -37,5 +38,9 @@ public class VCF2VariantCommand implements CommandPlugin
 		Pipe<History, String>   postLogic = new HistoryOutPipe();
 		
 		pipeline.execute(preLogic, logic, postLogic);
+		}catch(Exception e) {
+			System.err.println("ERROR: " + e.getMessage());
+			throw e;
+		}
 	}
 }

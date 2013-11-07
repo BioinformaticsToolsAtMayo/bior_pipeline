@@ -46,15 +46,14 @@ public class Tab2JSONCommand implements CommandPlugin {
         
         /**
          * A config file takes the following tab-delimited form:
-         * Key JsonType InjectorType    Delimiter/Literal_Value
+         * ColNum	Key JsonType InjectorType    Delimiter/Literal_Value   GoldenIdentifier
          * 
+         * Here is what each of these values means:
          * 
          * 0) Column# (not specified) is the column number that we wish to get the data from.  
          * The parser will insert the keys in the order that they are found in the file
          * It will assume there is one key for every column in the tab delimited file
          * Followed by any literals that should be injected for all values in the set
-         * 
-         * Here is what each of these values means:
          * 
          * 1) Key is the name of the identifier used to describe the value in the column
          * 

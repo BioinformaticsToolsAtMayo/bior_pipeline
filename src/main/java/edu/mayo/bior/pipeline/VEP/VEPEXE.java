@@ -44,6 +44,8 @@ public class VEPEXE implements PipeFunction<String,String>{
 	// 10 second timeout for VEP writing response to STDOUT
 	private static final long RECEIVE_TIMEOUT = 10;
 
+	private int mLinesSent = 0;
+	
 	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
 		mVep = new UnixStreamCommand(getVEPCommand(vepCmd), NO_CUSTOM_ENV, true, true); 
@@ -125,20 +127,23 @@ public class VEPEXE implements PipeFunction<String,String>{
 		// VEP will be bypassed
 		if (bypass(vcfLine))
 		{
-			sLogger.warn(String.format("bypassing VCF line: %s", vcfLine));
+			sLogger.warn(String.format("WARNING!!!!!  Line cannot be processed by VEP!!!!!!   bypassing VCF line: %s", vcfLine));
 			return getFakeResponse(vcfLine);
 		}
 		
 		try
 		{
 			
-			//sLogger.info("VEP out: " + vcfLine);
-
+			sLogger.info("VEP - sending line #" + ++mLinesSent + ":  " + firstXchars(vcfLine,100));
 			mVep.send(vcfLine);
+			sLogger.info("VEP - Line sent.");
 
 			try
 			{
+				sLogger.info("VEP - Receiving line...");
 				String result =  mVep.receive(RECEIVE_TIMEOUT, TimeUnit.SECONDS);
+				String[] vepParts = result.split("\t");
+				sLogger.info("VEP - received line: " + firstXchars(result, 100) + "\t....\t" + vepParts[vepParts.length-1]);
 				return result;
 			}
 			catch (TimeoutException te)
@@ -164,6 +169,13 @@ public class VEPEXE implements PipeFunction<String,String>{
 		throw new NoSuchElementException();
 	}
 
+	private String firstXchars(String str, int charLimit) {
+		if(str == null || str.length() < charLimit )
+			return str;
+		return str.substring(0,charLimit);
+	}
+
+	
 	/**
 	 * Gets a "fake" response from VEP that is useful for when VEP is
 	 * either bypassed entirely or VEP failed to send a response.

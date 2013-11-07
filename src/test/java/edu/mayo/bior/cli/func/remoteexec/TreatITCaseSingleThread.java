@@ -44,7 +44,7 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
  * @author duffp, mmeiners
  *
  */
-public class TreatITCase extends RemoteFunctionalTest
+public class TreatITCaseSingleThread extends RemoteFunctionalTest
 {
 
     @Before
@@ -66,7 +66,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_SubsetConfig():");
 		System.out.println("Annotate pipeline with a subset config file...");
-		TreatPipeline annotatePipe = new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config");
+		TreatPipelineSingleThread annotatePipe = new TreatPipelineSingleThread("src/test/resources/treat/configtest/smallSubset.config");
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe( new ArrayList(annotatePipe.getMetadata()) ),
@@ -83,13 +83,15 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
+	
+	
 	// Test with 15 columns (8 regular, 1 format, 6 sample)
 	@Test
 	public void testPipeline_SubsetConfigManyCols() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_SubsetConfigManyCols():");
 		System.out.println("Annotate pipeline with a subset config file, but with additional columns beyond the INFO col...");
-		TreatPipeline annotatePipe = new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config");
+		TreatPipelineSingleThread annotatePipe = new TreatPipelineSingleThread("src/test/resources/treat/configtest/smallSubset.config");
 		Pipeline pipes = new Pipeline(
 				new HistoryInPipe( new ArrayList(annotatePipe.getMetadata()) ),
 				annotatePipe,
@@ -119,6 +121,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
+	
     //OMIM.ID
     //# Hgnc - Ensembl Id
     //Ensembl_Gene_ID
@@ -132,9 +135,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_subsetWithDependencies():");
 		System.out.println("Annotate pipeline with columns that have dependencies on other data sources (and are in a different order in the config file vs what bior_annotate expects)...");
-        TreatPipeline anno = new TreatPipeline("src/test/resources/treat/configtest/subset.config");
-        String generatedCommand = anno.getGeneratedCommand();
-        System.out.println(generatedCommand);
+		TreatPipelineSingleThread anno = new TreatPipelineSingleThread("src/test/resources/treat/configtest/subset.config");
         Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe(new ArrayList<Metadata>(anno.getMetadata())),
@@ -159,7 +160,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_rsIdOnly_10000():");
 		System.out.println("Annotate pipeline with a single output column (dbsnp rsId)...");
-		TreatPipeline treatPipe = new TreatPipeline("src/test/resources/treat/configtest/dbsnpOnly.config");
+		TreatPipelineSingleThread treatPipe = new TreatPipelineSingleThread("src/test/resources/treat/configtest/dbsnpOnly.config");
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe( new ArrayList(treatPipe.getMetadata()) ),
@@ -179,104 +180,10 @@ public class TreatITCase extends RemoteFunctionalTest
 
 	
 	
-	@Test
-    public void testCmd_WithSmallSubsetConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
-		System.out.println("\n-------------------------------------------------------->>>>>");
-		System.out.println("Testing: testCmd_WithSmallSubsetConfigFile():");
-		System.out.println("AnnotateCommand With ConfigFile (small subset)...");
-    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv"));
-		
-		String configFilePath = "src/test/resources/treat/configtest/smallSubset.config";
-		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
-
-		// TEMP - dump to file to look at output later
-		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
-
-		if (out.exit != 0)
-			fail(out.stderr);
-        List<String> e = splitLines(expected);
-        List<String> s = splitLines(out.stdout);
-		compareListsNoHeader(e, s, true);
-		//assertMatch(splitLines(expected), splitLines(out.stdout));
-		System.out.println("<<<<<----------- Test passed -----");
-    }
-	
-
-	@Test
-    public void testCmd_WithSmallSubsetDependenciesConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
-		System.out.println("\n-------------------------------------------------------->>>>>");
-		System.out.println("Testing: testCmd_WithSmallSubsetDependenciesConfigFile():");
-		System.out.println("AnnotateCommand With ConfigFile (small subset with some data sources dependent on others before it)...");
-    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv"));
-		
-		String configFilePath = "src/test/resources/treat/configtest/subset.config";
-		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
-
-		// TEMP - dump to file to look at output later
-		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
-
-		if (out.exit != 0)
-			fail(out.stderr);
-        List<String> e = splitLines(expected);
-        List<String> r = splitLines(out.stdout);
-        compareListsNoHeader(e,r,true);
-		//assertMatch(splitLines(expected), splitLines(out.stdout));
-		System.out.println("<<<<<----------- Test passed -----");
-    }
-
-	@Test
-    public void testCmd_WithAllConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
-		System.out.println("\n-------------------------------------------------------->>>>>");
-		System.out.println("Testing: testCmd_WithAllConfigFile():");
-		System.out.println("AnnotateCommand With ConfigFile...");
-    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
-		
-		String configFilePath = "src/test/resources/treat/configtest/all.config";
-		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
-
-		// TEMP - dump to file to look at output later
-		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
-
-		if (out.exit != 0)
-			fail(out.stderr);
-
-		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
-		//assertMatch(splitLines(expected), splitLines(out.stdout));
-        compareListsNoHeader(splitLines(expected),splitLines(out.stdout),true);
-		System.out.println("<<<<<----------- Test passed -----");
-    }
-	
-    @Test
-    public void testCmd_NoConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
-		System.out.println("\n-------------------------------------------------------->>>>>");
-		System.out.println("Testing: testCmd_NoConfigFile():");
-		System.out.println("AnnotateCommand Without ConfigFile...");
-    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
-		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l"); //with 'config' option
-
-		if (out.exit != 0)
-			fail(out.stderr);
-		
-		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
-        compareListsNoHeader(splitLines(expected),splitLines(out.stdout),true);
-		System.out.println("<<<<<----------- Test passed -----");
-    }
-    
 	/** empty config file with no columns - expect an error message*/
+	// TODO: Should add a flag to allow user to call single-threaded command
     @Test
-    public void testEmptyConfigFile() throws IOException, InterruptedException {
+    public void testCmd_EmptyConfigFile() throws IOException, InterruptedException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
         System.out.println("Testing: testEmptyConfigFile(): AnnotateCommand ConfigFile - empty config file");
 
@@ -291,8 +198,9 @@ public class TreatITCase extends RemoteFunctionalTest
     }
 
 	/** invalid columns in the config file  - expect an error message */
+	// TODO: Should add a flag to allow user to call single-threaded command
     @Test
-    public void testAllInvalidColumns() throws IOException, InterruptedException {
+    public void testCmd_AllInvalidColumns() throws IOException, InterruptedException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
         System.out.println("Testing: testAllInvalidColumns(): AnnotateCommand ConfigFile - all invalid columns");
 
@@ -307,8 +215,9 @@ public class TreatITCase extends RemoteFunctionalTest
     }
     
 	/** some invalid columns in the config file - expect an error message */
+	// TODO: Should add a flag to allow user to call single-threaded command
     @Test
-    public void testSomeInvalidColumns() throws IOException, InterruptedException {
+    public void testCmd_SomeInvalidColumns() throws IOException, InterruptedException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
         System.out.println("Testing: testSomeInvalidColumns(): AnnotateCommand ConfigFile - some columns are invalid");
 

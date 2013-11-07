@@ -25,6 +25,8 @@ public class BiorProperties {
 
 	public enum Key { 
 		AnnotateMaxLinesInFlight,
+		TimeoutCommand,
+		MaxAlts,
 		SnpEffJar,
 		SnpEffConfig,
 		BiorVepPerl,
@@ -60,7 +62,7 @@ public class BiorProperties {
 	
     private static final String BIOR_PROP = "BIOR_PROP";
     private static String file = null;
-    private Properties prop = null;
+    private Properties mProp = null;
 
     private static Logger sLogger = Logger.getLogger(BiorProperties.class); 
     
@@ -108,8 +110,8 @@ public class BiorProperties {
         FileInputStream inStream = null;
         try {
             inStream = new FileInputStream(file);
-            prop = new Properties();
-            prop.load(inStream);
+            mProp = new Properties();
+            mProp.load(inStream);
         } catch (IOException ex) {
             sLogger.error("Error loading properties file: " + file, ex);
             throw ex;
@@ -132,14 +134,35 @@ public class BiorProperties {
      * @return value The value of the property.
      */
     public String get(Key key) {
-        return prop.getProperty(key.toString());
+        return mProp.getProperty(key.toString());
     }
     
+    /** Gets a key as an integer.  If the key does not exist or is not an integer, the defaultVal will be used.
+     * @param key  Retrieve the integer value for this key
+     * @param defaultVal  The default value to use if the key is not present, or is not an integer
+     * @return  The integer value for the key
+     */
+    public int getAsInt(Key key, int defaultVal) {
+    	String valStr = get(key);
+    	int valInt = isInteger(valStr)  ?  Integer.parseInt(valStr)  :  defaultVal;
+    	return valInt;
+    }
+    
+	private boolean isInteger(String val) {
+		try {
+			Integer.parseInt(val);
+			return true;
+		} catch(Exception e) {
+			return false;
+		}
+	}
+
+    
     public String get(String key){
-        return prop.getProperty(key);
+        return mProp.getProperty(key);
     }
     
     public Set<String> keySet(){
-        return this.prop.stringPropertyNames();
+        return this.mProp.stringPropertyNames();
     }
 }

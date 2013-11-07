@@ -36,22 +36,24 @@ import edu.mayo.exec.UnixStreamCommand;
  */
 public class SNPEFFEXE implements PipeFunction<String,String>{
 
-	private static final Logger log = Logger.getLogger(SNPEFFEXE.class);
-	private UnixStreamCommand snpeff;
+	private static final Logger sLog = Logger.getLogger(SNPEFFEXE.class);
+	private UnixStreamCommand mSnpeff;
+	private static int mCmdTimeout = 10; // This should be updated in a call to the getCmdTimeout() method
+	
 
 	public SNPEFFEXE(String[] snpEffCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
-		snpeff = new UnixStreamCommand(getSnpEffCommand(snpEffCmd), NO_CUSTOM_ENV, true, false); 
-		snpeff.launch();
-		snpeff.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
+		mSnpeff = new UnixStreamCommand(getSnpEffCommand(snpEffCmd), NO_CUSTOM_ENV, true, false); 
+		mSnpeff.launch();
+		mSnpeff.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		//send some fake data to get the ball rolling...
-		snpeff.send("chr1\t1588717\trs009\tG\tA\t0.0\t.\t.");
+		mSnpeff.send("chr1\t1588717\trs009\tG\tA\t0.0\t.\t.");
 		//and get out all of the header lines... dump them to /dev/null
-		snpeff.receive();
-		snpeff.receive();
-		snpeff.receive();
-		snpeff.receive();
-		snpeff.receive();
+		mSnpeff.receive();
+		mSnpeff.receive();
+		mSnpeff.receive();
+		mSnpeff.receive();
+		mSnpeff.receive();
 	}
 
 	public SNPEFFEXE() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException{
@@ -62,9 +64,18 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 	public SNPEFFEXE(boolean silent){
 	}
 
+	public static int getCmdTimeout(BiorProperties props) {
+		int cmdTimeoutInSeconds = props.getAsInt(Key.TimeoutCommand, 30);
+		sLog.info("TimeoutCommand (seconds) = " + cmdTimeoutInSeconds);
+		if( cmdTimeoutInSeconds < 10 || cmdTimeoutInSeconds > 300 )
+			sLog.warn("WARNING: TimeoutCommand is set to " + cmdTimeoutInSeconds + ".  It should probably be between 10 and 300.  Too short and it may timeout for a long line and crash the program unnecessarily.  Too long and it may wait a long time for a hung command to finish.");
+		return cmdTimeoutInSeconds;
+	}
+	
 	public static String[] getSnpEffCommand(String[] userCmd) throws IOException {
 		// See src/main/resources/bior.properties for example file to put into your user home directory
 		BiorProperties biorProps = new BiorProperties();
+		mCmdTimeout = getCmdTimeout(biorProps);
 
 		//java -Xmx4g -jar /data/snpEff/snpEff_3_1/snpEff.jar eff -c /data/snpEff/snpEff_3_1/snpEff.config -v GRCh37.68 example.vcf > output.vcf
 		final String[] command = {"java", 
@@ -101,35 +112,42 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 
 	public String compute(String a) {
 		try {
-			//log.info("SnpEff in: " + a);
+			sLog.info("SnpEff in (before checking if SNPEFF can handle it):\n" + firstXchars(a, 100) + "....");
 			String error = canCreateSeqChange(a);
 			if(error == null){
-				//log.info("SnpEff sending: " + a);
-				snpeff.send(a);
-				String result =  snpeff.receive();
-				//log.info("SnpEff out: " + result);
+				sLog.info("SnpEff sending...");
+				mSnpeff.send(a);
+				String result =  mSnpeff.receive();
+				String[] resultParts = result.split("\t");
+				sLog.info("SnpEff out: \n" + firstXchars(result,100) + "\t....\t" + resultParts[resultParts.length-1]);
 				return result;
 			}else {
 				System.err.println("SnpEff could not process line: " + a);
 				System.err.println("    " + error);
-                log.warn("SnpEff could not process line: " + a);
-                log.warn("    " + error);
+                sLog.warn("SnpEff could not process line: " + a);
+                sLog.warn("    " + error);
 				//log.info("SnpEff out: " + a + "\t" + error);
 				return a + "\t" + error;
 			}
 		} catch (Exception ex) {
 			terminate();
-			log.error("SNPEff failed at line:"+a + "\n" + ex);
+			sLog.error("SNPEff failed at line:"+a + "\n" + ex);
 			// Rethrow any runtime exceptions
 			throw new RuntimeException("SNPEff failed at line:"+a + "\n" + ex);
 		}
 	}
 
+	private String firstXchars(String str, int charLimit) {
+		if(str == null || str.length() < charLimit )
+			return str;
+		return str.substring(0,charLimit);
+	}
+
 	public void terminate() {
 		try {
-			this.snpeff.terminate();
+			this.mSnpeff.terminate();
 		} catch(Exception e) { 
-			log.error("Error terminating SNPEFFEXE pipe" + e);
+			sLog.error("Error terminating SNPEFFEXE pipe" + e);
 		}
 	}
 

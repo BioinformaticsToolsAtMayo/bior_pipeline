@@ -14,8 +14,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 
+import com.tinkerpop.pipes.util.Pipeline;
+
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
+import edu.mayo.bior.pipeline.Treat.TreatPipelineSingleThread;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.cli.InvalidOptionArgValueException;
@@ -32,55 +35,51 @@ public class AnnotateCommand implements CommandPlugin {
 
 	private static final String OPTION_GENOME_VERSION = "genome_version";
 	
-	private static final char OPTION_CONFIG_FILE = 'c';
+	private static final char OPTION_CONFIG_FILE   = 'c';
+	private static final char OPTION_SINGLE_THREAD = 's';
 
 	public void init(Properties props) throws Exception {
-		// TODO Auto-generated method stub
-	
 	}
 
-	/**
-	 * 
-	 */
-	public void execute(CommandLine line, Options opts) throws IOException, InterruptedException, 
-																BrokenBarrierException, TimeoutException, AbnormalExitException, 
-																InvalidOptionArgValueException, InvalidDataException{
+	public void execute(CommandLine line, Options opts) throws Exception
+	{
+		try {	
+			String configFilePath=null; 
 			
-		String configFilePath=null; 
-		
-		if (line.hasOption(OPTION_CONFIG_FILE)) {
+			if (line.hasOption(OPTION_CONFIG_FILE)) {
+				configFilePath = line.getOptionValue(OPTION_CONFIG_FILE);
+				if ( ! new File(configFilePath).exists()  ||  new File(configFilePath).length() == 0 ) {	
+					throw new InvalidOptionArgValueException(
+							opts.getOption(OPTION_CONFIG_FILE + ""),
+							configFilePath, 
+							"The Config file path '" + configFilePath + "' does not exist (or is empty). Please specify a valid config file path."
+							);
+				}
+			} 
 			
-			configFilePath = line.getOptionValue(OPTION_CONFIG_FILE);
-			
-			if ( ! new File(configFilePath).exists()  ||  new File(configFilePath).length() == 0 ) {	
+			try {
+				boolean isSingleThread = line.hasOption(OPTION_SINGLE_THREAD);
+				if( isSingleThread ) {
+					TreatPipelineSingleThread treatPipeline = new TreatPipelineSingleThread(configFilePath);
+					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 
+					mPipeline.execute(new HistoryInPipe(treatMetadata), treatPipeline, new HistoryOutPipe());
+				} else {				
+					TreatPipeline treatPipeline = new TreatPipeline(configFilePath);
+					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 
+					mPipeline.execute(new HistoryInPipe(treatMetadata), treatPipeline, new HistoryOutPipe());
+				}
+			} catch(IllegalArgumentException ex) {
 				throw new InvalidOptionArgValueException(
 						opts.getOption(OPTION_CONFIG_FILE + ""),
 						configFilePath, 
-						"The Config file path '" + configFilePath + "' does not exist (or is empty). Please specify a valid config file path."
+						ex.getMessage()
 						);
-			}else {
-                //if there is no config file, then we need to check if snpeff/vep is installed and bail if not
-                if(!DependancyUtil.isVEPInstalled()){
-                    System.exit(1);
-                }
-                if(!DependancyUtil.isSNPEffInstalled()){
-                    System.exit(1);
-                }
-            }
-		} 
-		 		
-		try {
-		 TreatPipeline  treatPipeline =	new TreatPipeline(configFilePath);
-		 List<Metadata>  treatMetadata =treatPipeline.getMetdata(); 
-		 mPipeline.execute(new HistoryInPipe(treatMetadata),treatPipeline,new HistoryOutPipe());
-		} catch(IllegalArgumentException ex) {
-			throw new InvalidOptionArgValueException(
-					opts.getOption(OPTION_CONFIG_FILE + ""),
-					configFilePath, 
-					ex.getMessage()
-					);
-		} catch (URISyntaxException e) {
-			throw new IOException("Could not load properties file for catalog or tool: " + e.getMessage());
+			} catch (URISyntaxException e) {
+				throw new IOException("Could not load properties file for catalog or tool: " + e.getMessage());
+			}
+		}catch(Exception e) {
+			System.err.println("ERROR: " + e.getMessage());
+			throw e;
 		}
 	}
 	

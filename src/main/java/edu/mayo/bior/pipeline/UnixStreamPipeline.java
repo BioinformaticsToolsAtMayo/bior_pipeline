@@ -104,10 +104,12 @@ public class UnixStreamPipeline
         
         // run pipeline
         boolean hasNext = true;
+        //int line = 1;
         while (hasNext)
         {
             try
-            {            	
+            {
+            	//System.err.println("XXXXX: Line " + line++);
             	pipeline.next();            	
             }
             catch (NoSuchElementException e)

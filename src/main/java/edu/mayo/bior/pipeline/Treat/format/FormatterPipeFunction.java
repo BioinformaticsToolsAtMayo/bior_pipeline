@@ -226,7 +226,7 @@ public class FormatterPipeFunction implements PipeFunction<History, History>
 				  fmt.getDrillPathsMatchingUserSelectedColumnSubset().toArray(new String[0])) );
 		      }
 		}
-			return metas;
+		return metas;
 	}
 
 	/**
