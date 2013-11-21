@@ -90,29 +90,59 @@ public class UnixStreamPipelineTest {
 		
 		return historyModified;
 	}
-	
+
+	/** Test invalid lines - this should only show a warning, but not fail the pipeline (since pipeline runs to completion. */
 	@Test
 	public void testInvalidInput() throws IOException {
 
 		final String history = 
 				"##Directive\n" + 
 				"#COL1\tCOL2\tCOL3\n" + 
-				"A\tB\tC";		
+				"A\tB\tC\n" +
+				"1\t2\t3";
 		
 		Pipe<History, History> pipe = new InvalidInputPipe();
 
+		final String expected = 
+				"##Directive\n" + 
+				"#COL1\tCOL2\tCOL3\n" + 
+				"1\t2\t3";
+
 		try {
-			
 			// run UnixStreamPipeline
-			run(history, pipe);			
-			
-			String mesg = String.format("Expected %s to be thrown.", InvalidDataException.class.getName());
-			fail(mesg);
-			
+			String out = run(history, pipe);
+			System.out.println("\nOutput:\n" + out);
+			assertEquals(expected, out);
+			System.out.println("Test passed.  InvalidDataException was caught and handled correctly as just a warning, not an error.");
 		} catch (InvalidDataException e) {
-			// expected
+			fail("FAILED: testInvalidInput - one or more invalid lines should not fail the pipeline.");
 		}
 	}
+	
+	/** Test an unrecoverable error - this will happen on the first line and fail the pipeline, 
+	 *  preventing subsequent lines from being read. 
+	 * @throws InvalidDataException */
+	@Test
+	public void testDeadlyError() throws IOException, InvalidDataException {
+
+		final String history = 
+				"##Directive\n" + 
+				"#COL1\tCOL2\tCOL3\n" + 
+				"A\tB\tC" +
+				"1\t2\t3";
+		
+		Pipe<History, History> pipe = new DeadlyErrorPipe();
+
+		try {
+			// run UnixStreamPipeline
+			String out = run(history, pipe);			
+			System.out.println("output = " + out);
+			fail("FAILED: testDeadlyError() - a NullPointerException should kill the pipeline, but did not.");
+		} catch (NullPointerException e) {
+			System.out.println("PASSED: testDeadlyError() passed.  NullPointerException was expected..");
+		}
+	}
+
 	
 	/**
 	 * Simple pipe that appends the given SUFFIX to the end of each item in the history.
@@ -144,7 +174,7 @@ public class UnixStreamPipelineTest {
 	}
 	
 	/**
-	 * Pipe that immediately throws an InvalidPipeInputException for 1st history.
+	 * Pipe that immediately throws an InvalidPipeInputException for 1st history, but allows subsequent lines to be processed
 	 */
 	class InvalidInputPipe extends AbstractPipe<History, History> {
 
@@ -152,15 +182,29 @@ public class UnixStreamPipelineTest {
 		
 		@Override
 		protected History processNextStart() throws NoSuchElementException, InvalidPipeInputException {
+			History h = this.starts.next();
 			if (mIsFirst) {				
 				mIsFirst = false;
 				throw new InvalidPipeInputException("message", this);
-			} else {
-				return this.starts.next();
 			}
-			
+			return h;
 		}
-		
 	}
-	
+
+	/** Pipe that immediately throws a NullPointerException which will end the pipeline, and not allow further processing */
+	class DeadlyErrorPipe extends AbstractPipe<History, History> {
+
+		private boolean mIsFirst = true;
+		
+		@Override
+		protected History processNextStart() throws NoSuchElementException, InvalidPipeInputException {
+			History h = this.starts.next();
+			if (mIsFirst) {				
+				mIsFirst = false;
+				throw new NullPointerException("This should be an unrecoverable error, and end the pipeline");
+			}
+			return h;
+		}
+	}
+
 }

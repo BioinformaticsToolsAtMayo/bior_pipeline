@@ -172,8 +172,8 @@ public class TreatITCase extends RemoteFunctionalTest
 		// Just check that we didn't get a hang (may want to verify the first and last lines match)
 		System.out.println("Actual size: " + actual.size());
 		assertEquals(10002, actual.size());
-		List<String> linesIn = FileCompareUtils.loadFile("src/test/resources/treat/10000.1tomany.vcf");
-        this.compareListsNoHeader(actual, linesIn,false);
+		List<String> expected = FileCompareUtils.loadFile("src/test/resources/treat/expected/expected.10000.1tomany.out");
+        this.compareListsNoHeader(expected, actual, false);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -185,47 +185,86 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("Testing: testCmd_WithSmallSubsetConfigFile():");
 		System.out.println("AnnotateCommand With ConfigFile (small subset)...");
     	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv"));
 		
 		String configFilePath = "src/test/resources/treat/configtest/smallSubset.config";
 		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
+		// execute command with config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-m", "-c", configFilePath); //with 'config' option
 
 		// TEMP - dump to file to look at output later
 		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
 
 		if (out.exit != 0)
 			fail(out.stderr);
-        List<String> e = splitLines(expected);
-        List<String> s = splitLines(out.stdout);
-		compareListsNoHeader(e, s, true);
+		
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv"));
+        List<String> expectedList = splitLines(expected);
+        List<String> actualList = splitLines(out.stdout);
+		compareListsNoHeader(expectedList, actualList, true);
 		//assertMatch(splitLines(expected), splitLines(out.stdout));
 		System.out.println("<<<<<----------- Test passed -----");
     }
 	
+	@Test
+    public void testCmd_smallSubsetConfig_statusFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testCmd_smallSubsetConfig_statusFile():");
+		System.out.println("AnnotateCommand With ConfigFile (small subset), and requesting status written to a file at end...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		
+		String configFilePath = "src/test/resources/treat/configtest/smallSubset.config";
+		File statusFile       = new File("src/test/resources/treat/temp/status.out");
+		if( statusFile.exists() )
+			statusFile.delete();
+		
+		// execute command with config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath, "-s", statusFile.getCanonicalPath()); //with 'config' option
 
+		// TEMP - dump to file to look at output later
+		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
+
+		if (out.exit != 0)
+			fail(out.stderr);
+
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv"));
+		compareListsNoHeader(splitLines(expected), splitLines(out.stdout), true);
+		
+		// Also compare the status output
+		String actualStatus = FileUtils.readFileToString(statusFile);
+		String expectedStatus = 
+					 "numLinesIn=25\n"
+				+ 	 "numLinesOut=25\n"
+				+ 	 "numLinesBadData=0\n"
+				+ 	 "isSuccessful=true\n";
+		assertEquals(expectedStatus, actualStatus);
+		if( statusFile.exists() )
+			statusFile.delete();
+		
+		//assertMatch(splitLines(expected), splitLines(out.stdout));
+		System.out.println("<<<<<----------- Test passed -----");
+    }
+
+	
 	@Test
     public void testCmd_WithSmallSubsetDependenciesConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testCmd_WithSmallSubsetDependenciesConfigFile():");
 		System.out.println("AnnotateCommand With ConfigFile (small subset with some data sources dependent on others before it)...");
     	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv"));
 		
 		String configFilePath = "src/test/resources/treat/configtest/subset.config";
 		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
+		// execute command with config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-m", "-c", configFilePath); //with 'config' option
 
 		// TEMP - dump to file to look at output later
 		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
 
 		if (out.exit != 0)
 			fail(out.stderr);
-        List<String> e = splitLines(expected);
-        List<String> r = splitLines(out.stdout);
-        compareListsNoHeader(e,r,true);
+
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv"));
+        compareListsNoHeader(splitLines(expected), splitLines(out.stdout), true);
 		//assertMatch(splitLines(expected), splitLines(out.stdout));
 		System.out.println("<<<<<----------- Test passed -----");
     }
@@ -236,12 +275,11 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("Testing: testCmd_WithAllConfigFile():");
 		System.out.println("AnnotateCommand With ConfigFile...");
     	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
 		
 		String configFilePath = "src/test/resources/treat/configtest/all.config";
 		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
+		// execute command with config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-m", "-c", configFilePath); //with 'config' option
 
 		// TEMP - dump to file to look at output later
 		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
@@ -251,6 +289,7 @@ public class TreatITCase extends RemoteFunctionalTest
 
 		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
 		//assertMatch(splitLines(expected), splitLines(out.stdout));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
         compareListsNoHeader(splitLines(expected),splitLines(out.stdout),true);
 		System.out.println("<<<<<----------- Test passed -----");
     }
@@ -261,15 +300,15 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("Testing: testCmd_NoConfigFile():");
 		System.out.println("AnnotateCommand Without ConfigFile...");
     	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
-		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
 		
-		// execute command with config file option - default
-		CommandOutput out = executeScript("bior_annotate", goldInput, "-l"); //with 'config' option
+		// execute command with NO config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-m");
 
 		if (out.exit != 0)
 			fail(out.stderr);
 		
 		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
         compareListsNoHeader(splitLines(expected),splitLines(out.stdout),true);
 		System.out.println("<<<<<----------- Test passed -----");
     }
@@ -283,8 +322,8 @@ public class TreatITCase extends RemoteFunctionalTest
         String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
         String configFilePath = "src/test/resources/treat/configtest/empty.config";
 
-        // execute command with config file option - default
-        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+        // execute command with config file option - default (and as multi-process)
+        CommandOutput out = executeScript("bior_annotate", goldInput, "-m", "-c", configFilePath); //with 'config' option
         assertEquals(out.stderr, 1, out.exit);
         assertTrue(out.stderr.contains("does not exist (or is empty). Please specify a valid config file path."));
 		System.out.println("<<<<<----------- Test passed -----");
@@ -299,8 +338,8 @@ public class TreatITCase extends RemoteFunctionalTest
         String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
         String configFilePath = "src/test/resources/treat/configtest/all_invalid.config";
 
-        // execute command with config file option - default
-        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+        // execute command with config file option - default (and as multi-process)
+        CommandOutput out = executeScript("bior_annotate", goldInput, "-m", "-c", configFilePath); //with 'config' option
         assertEquals(out.stderr, 1, out.exit);
         assertTrue(out.stderr.contains("these columns specified in the config file are not recognized:\n    INVALID1\n    INVALID2\n    INVALID3"));
 		System.out.println("<<<<<----------- Test passed -----");
@@ -315,8 +354,8 @@ public class TreatITCase extends RemoteFunctionalTest
         String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
         String configFilePath = "src/test/resources/treat/configtest/some_invalid.config";
 
-        // execute command with config file option - default
-        CommandOutput out = executeScript("bior_annotate", goldInput, "-c", configFilePath); //with 'config' option
+        // execute command with config file option - default (and as multi-process)
+        CommandOutput out = executeScript("bior_annotate", goldInput, "-m", "-c", configFilePath); //with 'config' option
         assertEquals(out.stderr, 1, out.exit);
         assertTrue(out.stderr.contains("these columns specified in the config file are not recognized:\n    INVALID1\n    INVALID2"));
 		System.out.println("<<<<<----------- Test passed -----");
@@ -332,7 +371,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("<<<<<----------- Test passed -----");
     }
     
-	private List<String> splitLines(String s) throws IOException {
+	public static List<String> splitLines(String s) throws IOException {
 		return Arrays.asList(s.split("\r\n|\n|\r"));
 	}
 	
@@ -430,28 +469,34 @@ public class TreatITCase extends RemoteFunctionalTest
 
     /**
      * In some cases, we don't want to test if annotate header lines are correct, so we remove them in both expected and output before we compare output
+	   @param isIgnoreBiorHeaderLinesOnly  If true, ignores only lines starting with ##BIOR.  If false, ignores ALL header lines (those beginning with #)
     */
-    public void compareListsNoHeader(List<String> expected, List<String> results, boolean biorLinesOnly){
-        String headerSignature = "#";
-        if(biorLinesOnly) headerSignature = "##BIOR";
-        int i = 0;
-        int j = 0;
-        while( i< expected.size() && j<results.size()){
-            String e = expected.get(i);
-            String r = expected.get(j);
-            while(e.startsWith(headerSignature)){
-                i++;
-                e = expected.get(i);
-            }
-            while(r.startsWith(headerSignature)){
-                j++;
-                r = expected.get(j);
-            }
-            assertEquals(e,r);
-            i++;
-            j++;
-        }
+    public static void compareListsNoHeader(List<String> expectedIn, List<String> resultsIn, boolean isIgnoreBiorHeaderLinesOnly){
+        String prefixToIgnore = "#";
+        if(isIgnoreBiorHeaderLinesOnly) 
+        	prefixToIgnore = "##BIOR";
+        
+        List<String> expected = removeLinesStartingWith(expectedIn, prefixToIgnore);
+        List<String> results  = removeLinesStartingWith(resultsIn, prefixToIgnore);
 
+        assertEquals("Lists are not the same size (after removing header lines)", expected.size(), results.size());
+
+        for(int i=0; i < expected.size(); i++) {
+            assertEquals("Lines were not equal.  (Line " + (i+1) + "):"
+            		+ "\nExpected: " + expected.get(i)
+            		+ "\nActual:   " + results.get(i),
+            		expected.get(i), results.get(i));
+        }
+    }
+    
+    /** Creates a new list that does not contain any of the lines starting with prefix */
+    private static List<String> removeLinesStartingWith(List<String> lines, String prefix) {
+    	List<String> out = new ArrayList<String>();
+    	for(String line : lines) {
+    		if( ! line.startsWith(prefix) )
+    			out.add(line);
+    	}
+    	return out;
     }
 
 }

@@ -12,11 +12,13 @@ import java.util.concurrent.TimeoutException;
 import edu.mayo.bior.util.DependancyUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
+import edu.mayo.bior.pipeline.UnixStreamPipeline.Status;
 import edu.mayo.bior.pipeline.Treat.TreatPipeline;
 import edu.mayo.bior.pipeline.Treat.TreatPipelineSingleThread;
 import edu.mayo.cli.CommandPlugin;
@@ -36,7 +38,9 @@ public class AnnotateCommand implements CommandPlugin {
 	private static final String OPTION_GENOME_VERSION = "genome_version";
 	
 	private static final char OPTION_CONFIG_FILE   = 'c';
-	private static final char OPTION_SINGLE_THREAD = 's';
+	private static final char OPTION_MULTI_PROCESS = 'm';
+	// If user provided path to status file (to write status after command completes)
+	private static final char OPTION_STATUS        = 's';
 
 	public void init(Properties props) throws Exception {
 	}
@@ -56,18 +60,22 @@ public class AnnotateCommand implements CommandPlugin {
 							);
 				}
 			} 
-			
+
 			try {
-				boolean isSingleThread = line.hasOption(OPTION_SINGLE_THREAD);
-				if( isSingleThread ) {
-					TreatPipelineSingleThread treatPipeline = new TreatPipelineSingleThread(configFilePath);
-					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 
-					mPipeline.execute(new HistoryInPipe(treatMetadata), treatPipeline, new HistoryOutPipe());
-				} else {				
+				boolean isMultiProcess = line.hasOption(OPTION_MULTI_PROCESS);
+				if( isMultiProcess ) {
+					sLogger.warn("WARNING: Running bior_annotate as a MULTI-PROCESS command!!!");
 					TreatPipeline treatPipeline = new TreatPipeline(configFilePath);
 					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 
 					mPipeline.execute(new HistoryInPipe(treatMetadata), treatPipeline, new HistoryOutPipe());
+				} else {
+					sLogger.info("NOTE: Running bior_annotate as a single-threaded command.");
+					TreatPipelineSingleThread treatPipeline = new TreatPipelineSingleThread(configFilePath);
+					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 
+					mPipeline.execute(new HistoryInPipe(treatMetadata), treatPipeline, new HistoryOutPipe());
 				}
+				// Ran to completion, so successful.  (even if individual lines failed)
+				mPipeline.getStatus().isSuccessful = true;
 			} catch(IllegalArgumentException ex) {
 				throw new InvalidOptionArgValueException(
 						opts.getOption(OPTION_CONFIG_FILE + ""),
@@ -78,8 +86,15 @@ public class AnnotateCommand implements CommandPlugin {
 				throw new IOException("Could not load properties file for catalog or tool: " + e.getMessage());
 			}
 		}catch(Exception e) {
+			mPipeline.getStatus().isSuccessful = false;
 			System.err.println("ERROR: " + e.getMessage());
 			throw e;
+		}
+		
+		// Write status out to a properties file
+		if( line.hasOption(OPTION_STATUS))	{
+			String statusFilePath = line.getOptionValue(OPTION_STATUS);
+			FileUtils.writeStringToFile(new File(statusFilePath), mPipeline.getStatus().toString());
 		}
 	}
 	

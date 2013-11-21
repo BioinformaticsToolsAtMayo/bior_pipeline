@@ -29,6 +29,7 @@ import edu.mayo.bior.pipeline.Treat.TreatPipelineSingleThread;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.PrintPipe;
+import edu.mayo.pipes.WritePipe;
 import edu.mayo.pipes.UNIX.CatPipe;
 import edu.mayo.pipes.UNIX.GrepEPipe;
 import edu.mayo.pipes.history.History;
@@ -76,10 +77,10 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 				);
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
 		List<String> actual = PipeTestUtils.getResults(pipes);
-		List<String> expected = splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv")));
+		List<String> expected = TreatITCase.splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv")));
         actual = PathReplace.replacePathDontCare(actual);
         expected = PathReplace.replacePathDontCare(expected);
-		assertLinesEqual(expected, actual);
+		TreatITCase.assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -117,7 +118,7 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		List<String> actual = PipeTestUtils.getResults(pipes);
         actual = PathReplace.replacePathDontCare(actual);
         expected = PathReplace.replacePathDontCare(expected);
-		assertLinesEqual(expected, actual);
+		TreatITCase.assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -147,8 +148,8 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
 		List<String> actual = PipeTestUtils.getResults(pipes);
 		System.out.println("Actual size: " + actual.size());
-		List<String> expected = splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv")));
-		assertLinesEqual(expected, actual);
+		List<String> expected = TreatITCase.splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv")));
+		TreatITCase.assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 	
@@ -166,6 +167,7 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 				new HistoryInPipe( new ArrayList(treatPipe.getMetadata()) ),
 				treatPipe,
 				new HistoryOutPipe()
+				//new WritePipe("src/test/resources/treat/expected/expected.10000.1tomany.out", false, true)
 				//new PrintPipe()
 				);
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/10000.1tomany.vcf"));
@@ -173,8 +175,8 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		// Just check that we didn't get a hang (may want to verify the first and last lines match)
 		System.out.println("Actual size: " + actual.size());
 		assertEquals(10002, actual.size());
-		List<String> linesIn = FileCompareUtils.loadFile("src/test/resources/treat/10000.1tomany.vcf");
-        this.compareListsNoHeader(actual, linesIn,false);
+		List<String> expected = FileCompareUtils.loadFile("src/test/resources/treat/expected/expected.10000.1tomany.out");
+        TreatITCase.compareListsNoHeader(expected, actual, false);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -231,136 +233,89 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		System.out.println("<<<<<----------- Test passed -----");
     }
     
-    @Test
-    public void testSplit() throws IOException {
+	@Test
+    public void testCmd_smallSubsetConfig_statusFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
 		System.out.println("\n-------------------------------------------------------->>>>>");
-		System.out.println("Testing: testSplit():");
-    	String str = "line1\nline2\r\nline3\nline4";
-    	List<String> expected = Arrays.asList("line1", "line2", "line3", "line4");
-    	assertEquals(expected, splitLines(str));
+		System.out.println("Testing: testCmd_smallSubsetConfig_statusFile():");
+		System.out.println("AnnotateCommand With ConfigFile (small subset), and requesting status written to a file at end...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		
+		String configFilePath = "src/test/resources/treat/configtest/smallSubset.config";
+		File statusFile       = new File("src/test/resources/treat/temp/status.out");
+		if( statusFile.exists() )
+			statusFile.delete();
+		
+		// execute command with config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath, "-s", statusFile.getCanonicalPath()); //with 'config' option
+
+		// TEMP - dump to file to look at output later
+		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
+
+		if (out.exit != 0)
+			fail(out.stderr);
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv"));
+        List<String> expectedList = TreatITCase.splitLines(expected);
+        List<String> actualList = TreatITCase.splitLines(out.stdout);
+		TreatITCase.compareListsNoHeader(expectedList, actualList, true);
+		
+		// Also compare the status output
+		String actualStatus = FileUtils.readFileToString(statusFile);
+		String expectedStatus = 
+					 "numLinesIn=25\n"
+				+ 	 "numLinesOut=25\n"
+				+ 	 "numLinesBadData=0\n"
+				+ 	 "isSuccessful=true\n";
+		assertEquals(expectedStatus, actualStatus);
+		if( statusFile.exists() )
+			statusFile.delete();
+		
+		//assertMatch(splitLines(expected), splitLines(out.stdout));
 		System.out.println("<<<<<----------- Test passed -----");
     }
-    
-	private List<String> splitLines(String s) throws IOException {
-		return Arrays.asList(s.split("\r\n|\n|\r"));
-	}
 	
-	
-	
-	/** Compare all lines and columns.
-	 * If there are '*' characters in the expected output, then don't compare these */
-	public static void assertLinesEqual(List<String> expected, List<String> actual) {
-		int numDiffs = 0;
-		System.out.println("# Lines: (expected: " + expected.size() + ", actual: " + actual.size() + ")");
-		for(int i=0; i < Math.max(expected.size(), actual.size()); i++) {
-			String lineExpect = expected.size() > i ? expected.get(i) : "";
-			String lineActual = actual.size()   > i ? actual.get(i)   : "";
-			
-			boolean foundColMismatch = false;
-			
-			int maxCols = Math.max(lineExpect.split("\t").length, lineActual.split("\t").length);
-			String[] expectCols = lineExpect.split("\t", maxCols);
-			String[] actualCols = lineActual.split("\t", maxCols);
-			StringBuilder expectedStr = new StringBuilder("Expected: ");
-			StringBuilder actualStr   = new StringBuilder("Actual:   ");
-			StringBuilder diffStr     = new StringBuilder("Diff:     ");
-			for(int j = 0; j < maxCols; j++) {
-				String expCol = expectCols.length > j ? expectCols[j] : "";
-				String actCol = actualCols.length > j ? actualCols[j] : "";
-
-				int maxLen = Math.max(expCol.length(), actCol.length());
-				
-				boolean isEqual = "*".equals(expCol) || expCol.equals(actCol);
-				if( ! isEqual ) 
-					foundColMismatch = true; 
-				
-				// Expected, Actual, Diff should all be same length (add 2 extra spaces to end)
-				expectedStr.append(expCol + StringUtils.repeat(" ", (maxLen+2)-expCol.length()));
-				actualStr.append(  actCol + StringUtils.repeat(" ", (maxLen+2)-actCol.length()));
-				diffStr.append(	   StringUtils.repeat( (isEqual ? " " : "^"), maxLen) + "  " );
-			}
-			
-			if(foundColMismatch)
-			{
-				numDiffs++;
-				System.out.println("--- Line " + (i+1) + " - Diff -----------------------------------");
-				System.out.println(expectedStr);
-				System.out.println(actualStr);
-				System.out.println(diffStr);
-				System.out.println("Actl/tab: " + lineActual);
-			}
-		}
-		if(numDiffs == 0)
-			System.out.println("  (All lines are the same)");
-		else
-			System.out.println("  (# of lines different: " + numDiffs + ")");
+	@Test
+    public void testCmd_WithSmallSubsetDependenciesConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testCmd_WithSmallSubsetDependenciesConfigFile():");
+		System.out.println("AnnotateCommand With ConfigFile (small subset with some data sources dependent on others before it)...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
 		
-		assertEquals(
-			"Number of differences between actual and expected (out of " + Math.max(expected.size(), actual.size()) + ")  ",
-			0, numDiffs);
-	}
-	
-	public static String getLineDiff(String lineExpect, String lineActual, int lineNum) {
-		final String EOL = System.getProperty("line.separator");
-		if(lineExpect == null && lineActual == null) 
-			return ""; // OK - both null
-		else if( lineExpect == null || lineActual == null) {
-			return  "--- Line " + lineNum + " - Diff ---" + EOL
-				+  	"Expected: " + (lineExpect == null ? "(null)" : lineExpect) + EOL
-				+ 	"Actual:   " + (lineActual == null ? "(null)" : lineActual) + EOL;
-		}
+		String configFilePath = "src/test/resources/treat/configtest/subset.config";
 		
-		StringBuilder diff = new StringBuilder();
-		int maxCols = Math.max(lineExpect.split("\t").length, lineActual.split("\t").length);
-		String[] expectCols = lineExpect.split("\t", maxCols);
-		String[] actualCols = lineActual.split("\t", maxCols);
-		diff.append("--- Line " + lineNum + " - Diff ---" + EOL);
-		StringBuilder expectedStr = new StringBuilder("Expected: ");
-		StringBuilder actualStr   = new StringBuilder("Actual:   ");
-		StringBuilder diffStr     = new StringBuilder("Diff:     ");
-		for(int j = 0; j < maxCols; j++) {
-			String expCol = expectCols.length > j ? expectCols[j] : "";
-			String actCol = actualCols.length > j ? actualCols[j] : "";
-			String delim = j < maxCols-1 ? "\t" : "";
-			expectedStr.append(expCol + delim);
-			actualStr.append(  actCol + delim);
-			int maxLen = Math.max(expCol.length(), actCol.length());
-			int numDelims = (maxLen / 8) + 1;
-			boolean isEqual = "*".equals(expCol) || expCol.equals(actCol);
-			diffStr.append( isEqual ? StringUtils.repeat("\t", numDelims) : StringUtils.repeat("^", maxLen)+"\t" );
-		}
-		diff.append(expectedStr + EOL);
-		diff.append(actualStr + EOL);
-		diff.append("Actl/tab: " + lineActual + EOL);
-		diff.append(diffStr + EOL);
+		// execute command with config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l", "-c", configFilePath); //with 'config' option
 
-		return diff.toString();
-	}
+		// TEMP - dump to file to look at output later
+		//FileUtils.write(new File("treatAllColsConfig.tsv"), out.stdout);
 
-    /**
-     * In some cases, we don't want to test if annotate header lines are correct, so we remove them in both expected and output before we compare output
-    */
-    public void compareListsNoHeader(List<String> expected, List<String> results, boolean biorLinesOnly){
-        String headerSignature = "#";
-        if(biorLinesOnly) headerSignature = "##BIOR";
-        int i = 0;
-        int j = 0;
-        while( i< expected.size() && j<results.size()){
-            String e = expected.get(i);
-            String r = expected.get(j);
-            while(e.startsWith(headerSignature)){
-                i++;
-                e = expected.get(i);
-            }
-            while(r.startsWith(headerSignature)){
-                j++;
-                r = expected.get(j);
-            }
-            assertEquals(e,r);
-            i++;
-            j++;
-        }
+		if (out.exit != 0)
+			fail(out.stderr);
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv"));
+        List<String> expectedList = TreatITCase.splitLines(expected);
+        List<String> actualList = TreatITCase.splitLines(out.stdout);
+        TreatITCase.compareListsNoHeader(expectedList, actualList, true);
+		//assertMatch(splitLines(expected), splitLines(out.stdout));
+		System.out.println("<<<<<----------- Test passed -----");
+    }
 
+
+    @Test
+    public void testCmd_NoConfigFile() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, InvalidDataException {
+		System.out.println("\n-------------------------------------------------------->>>>>");
+		System.out.println("Testing: testCmd_NoConfigFile():");
+		System.out.println("AnnotateCommand Without ConfigFile...");
+    	String goldInput  = FileUtils.readFileToString(new File("src/test/resources/treat/gold.vcf"));
+		
+		// execute command with NO config file option - default (and as multi-process)
+		CommandOutput out = executeScript("bior_annotate", goldInput, "-l");
+
+		if (out.exit != 0)
+			fail(out.stderr);
+		
+		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
+		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
+        TreatITCase.compareListsNoHeader(TreatITCase.splitLines(expected),TreatITCase.splitLines(out.stdout),true);
+		System.out.println("<<<<<----------- Test passed -----");
     }
 
 }

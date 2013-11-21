@@ -13,6 +13,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.pipes.InputStreamPipe;
+import edu.mayo.pipes.LineCounterPipe;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.exceptions.InvalidPipeInputException;
 import edu.mayo.pipes.history.History;
@@ -25,8 +26,30 @@ import edu.mayo.pipes.history.HistoryOutPipe;
  */
 public class UnixStreamPipeline
 {
+	public class Status {
+		public long numLinesIn = 0;
+		public long numLinesOut = 0;
+		// track how many data rows encounter an error
+		public long numLinesBadData = 0;
+		// Did the command run to completion (all rows processed, even if some rows failed)
+		public boolean isSuccessful = false;
+				
+		public String toString() {
+			String out = "numLinesIn=" + numLinesIn + "\n"
+					+ 	 "numLinesOut=" + numLinesOut + "\n"
+					+ 	 "numLinesBadData=" + numLinesBadData + "\n"
+					+ 	 "isSuccessful=" + isSuccessful + "\n";
+			return out;
+		}
+	}
 
+	private Status mStatus = new Status();
+	
 	private static Logger sLogger = Logger.getLogger(UnixStreamPipeline.class);
+	
+	public Status getStatus() {
+		return mStatus;
+	}
 	
 	/**
 	 * Executes the given Pipe like a stream-compatible UNIX command.
@@ -86,12 +109,19 @@ public class UnixStreamPipeline
 		InputStreamPipe	in 		= new InputStreamPipe();
 		PrintPipe		print	= new PrintPipe();
 		
+		// Counter pipes
+		LineCounterPipe<History> counterPipeIn  = new LineCounterPipe<History>();
+		LineCounterPipe<History> counterPipeOut = new LineCounterPipe<History>();
+		
+		
 		// pipeline definition
 		Pipe<InputStream, List<String>> pipeline = new Pipeline<InputStream, List<String>>
 			(
 					in,			// each STDIN line	--> String
 					preLogic,	// String			--> history
+					counterPipeIn,
 					logic,		// history			--> modified history*
+					counterPipeOut,
 					postLogic,	// history*			--> String
 					print		// String			--> STDOUT
 			);
@@ -99,9 +129,6 @@ public class UnixStreamPipeline
 		// prime pipeline with STDIN stream
         pipeline.setStarts(Arrays.asList(System.in));
 
-        // track how many data rows encounter an error
-        int invalidDataErrorCnt = 0;        
-        
         // run pipeline
         boolean hasNext = true;
         //int line = 1;
@@ -119,19 +146,27 @@ public class UnixStreamPipeline
             }
             catch (InvalidPipeInputException e)
             {
-            	invalidDataErrorCnt++;
+            	mStatus.numLinesBadData++;
             	sLogger.error(e.getMessage());            	
             }        	
         }
+
+        mStatus.numLinesIn   = counterPipeIn.getLineCount();
+        mStatus.numLinesOut  = counterPipeOut.getLineCount();
+        mStatus.isSuccessful = true;
         
-        if (invalidDataErrorCnt > 0)
+        if (mStatus.numLinesBadData > 0)
         {
-        	String mesg = 
+        	String msg = 
         		String.format(
         			"WARNING: Found %s data error(s).  Not all input data rows could be successfully processed.", 
-        			String.valueOf(invalidDataErrorCnt)
+        			String.valueOf(mStatus.numLinesBadData)
         		);
-        	throw new InvalidDataException(mesg);
+        	// Do NOT throw the exception if we've only had a few lines not processed as this will cause an exit code of 1
+        	// Instead, we'll dump to system.error and use exit 0 if we're able to run to completion
+        	//throw new InvalidDataException(msg);
+        	System.err.println(msg);
         }
+       
 	}
 }
