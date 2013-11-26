@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.tinkerpop.pipes.util.Pipeline;
@@ -49,10 +50,14 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
  */
 public class TreatITCaseExitCodes extends RemoteFunctionalTest
 {
+	
+	@BeforeClass
+	public void notice() {
+        System.out.println("Make sure you have the required catalogs installed and in your path (or mounted over SMB) before you attempt to run the TREAT/ANNOTATE TESTS");
+	}
 
     @Before
     public void cleanupBefore(){
-        System.out.println("Make sure you have the required catalogs installed and in your path (or mounted over SMB) before you attempt to run the TREAT/ANNOTATE TESTS");
         History.clearMetaData();
     }
 

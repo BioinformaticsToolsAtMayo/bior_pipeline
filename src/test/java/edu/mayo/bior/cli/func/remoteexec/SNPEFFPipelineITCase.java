@@ -70,12 +70,13 @@ public class SNPEFFPipelineITCase extends RemoteFunctionalTest
 	/** Test the treat input VCF */
 	public void treatVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException
 	{
-        System.out.println("SNPEFFPipelineITCase.treatVcf");
+        System.out.println("SNPEffPipelineITCase.treatVcf");
         SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe(metadata)), new HistoryOutPipe(), true);
 		p.setStarts(Arrays.asList("src/test/resources/tools/treat/treatInput.vcf"));
 		List<String> actual = PipeTestUtils.getResults(p);
 		List<String> expected = loadExpectedOutputFile(new File("src/test/resources/tools/snpeff/treat.expected.vcf"));
 		PipeTestUtils.assertListsEqual(expected, actual);
+		System.out.println("Test passed.");
 	}	
 
 	@Test 
@@ -86,13 +87,14 @@ public class SNPEFFPipelineITCase extends RemoteFunctionalTest
 	 */
 	public void significantEffects() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
-		System.out.println("SNPEffITCase.significantEffects(): testing variants that have more rare outputs so we can tell if lines match up between bior_snpeff output and the expected output from the jar command...");
+		System.out.println("SNPEffPipelineITCase.significantEffects(): testing variants that have more rare outputs so we can tell if lines match up between bior_snpeff output and the expected output from the jar command...");
 		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe(metadata)), new HistoryOutPipe(), false);
 		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/significantEffects.input.vcf"));
 		List<String> biorActualOutput = PipeTestUtils.pipeOutputToStrings2(p);
 		List<String> expectedFromCmdJar = loadExpectedOutputFile(new File("src/test/resources/tools/snpeff/significantEffects_cmdJar.expected.vcf"));
 		//printOutput(biorActualOutput);
 		assertCommandJarOutputEquivalentToBiorOutput(expectedFromCmdJar, biorActualOutput);
+		System.out.println("Test passed.");
 	}
 	
 
@@ -103,16 +105,17 @@ public class SNPEFFPipelineITCase extends RemoteFunctionalTest
 	 *  These shouldn't stop the pipeline, but may give odd or unexpected results */
 	public void badVariants() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
-		System.out.println("SNPEffITCase.badVariants(): test a vcf file that contains poorly formatted variants...");
+		System.out.println("SNPEffPipelineITCase.badVariants(): test a vcf file that contains poorly formatted variants...");
 		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new CatPipe(),new HistoryInPipe(metadata)), new HistoryOutPipe(),true);
 		p.setStarts(Arrays.asList("src/test/resources/tools/snpeff/badVariants.vcf"));
 		List<String> actual = PipeTestUtils.getResults(p);
 		List<String> expected = loadExpectedOutputFile(new File("src/test/resources/tools/snpeff/badVariants.expected.vcf"));
-                for (String ac : actual)	{	
-              System.out.println(ac);
-}
-                printOutput(actual);
+//        for (String ac : actual)	{	
+//        	System.out.println(ac);
+//        }
+//        printOutput(actual);
 		PipeTestUtils.assertListsEqual(expected, actual);
+		System.out.println("Test passed.");
 	}
 	
 	// PASSED!!!
@@ -121,7 +124,7 @@ public class SNPEFFPipelineITCase extends RemoteFunctionalTest
 	 *  which would most like occur because of spaces instead of tabs */
 	public void badVcf() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		System.out.println("\n-----------------------------------------------------");
-		System.out.println("SNPEffITCase.badVcf(): test a vcf file that has contains poorly formatted variants...");
+		System.out.println("SNPEffPipelineITCase.badVcf(): test a vcf file that has contains poorly formatted variants...");
 		SNPEFFPipeline p = new SNPEFFPipeline(new String[]{"GRCh37.64"}, new Pipeline(new HistoryInPipe(metadata)), new HistoryOutPipe(),true);
 
 		// Vcf file containing only 1 column because tabs are treated as spaces (min required is 7)

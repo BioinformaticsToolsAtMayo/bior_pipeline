@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.tinkerpop.pipes.util.Pipeline;
@@ -46,10 +47,9 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
  */
 public class TreatITCase extends RemoteFunctionalTest
 {
-
+	
     @Before
     public void cleanupBefore(){
-        System.out.println("Make sure you have the required catalogs installed and in your path (or mounted over SMB) before you attempt to run the TREAT/ANNOTATE TESTS");
         History.clearMetaData();
     }
 
@@ -430,6 +430,7 @@ public class TreatITCase extends RemoteFunctionalTest
 			0, numDiffs);
 	}
 	
+	
 	public static String getLineDiff(String lineExpect, String lineActual, int lineNum) {
 		final String EOL = System.getProperty("line.separator");
 		if(lineExpect == null && lineActual == null) 
@@ -481,12 +482,7 @@ public class TreatITCase extends RemoteFunctionalTest
 
         assertEquals("Lists are not the same size (after removing header lines)", expected.size(), results.size());
 
-        for(int i=0; i < expected.size(); i++) {
-            assertEquals("Lines were not equal.  (Line " + (i+1) + "):"
-            		+ "\nExpected: " + expected.get(i)
-            		+ "\nActual:   " + results.get(i),
-            		expected.get(i), results.get(i));
-        }
+        assertLinesEqual(expected, results);
     }
     
     /** Creates a new list that does not contain any of the lines starting with prefix */

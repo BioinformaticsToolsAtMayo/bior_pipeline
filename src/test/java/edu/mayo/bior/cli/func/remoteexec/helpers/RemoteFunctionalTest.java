@@ -1,6 +1,7 @@
 package edu.mayo.bior.cli.func.remoteexec.helpers;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import javax.management.BadAttributeValueExpException;
@@ -19,6 +21,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
@@ -28,15 +31,18 @@ import edu.mayo.bior.cli.func.BaseFunctionalTest;
 public class RemoteFunctionalTest extends BaseFunctionalTest {
 	
 	/** NOTE: All tests must be listed here if they are to be run!!!! */
-	private Class[] REMOTE_TESTS = {
+	private static Class[] REMOTE_TESTS = {
+		edu.mayo.bior.cli.func.remoteexec.Bior2VCFITCase.class,
+		edu.mayo.bior.cli.func.remoteexec.ManyCmdsITCase.class,
 		edu.mayo.bior.cli.func.remoteexec.SNPEffCommandITCase.class,
 		edu.mayo.bior.cli.func.remoteexec.SNPEFFEXEITCase.class,
 		edu.mayo.bior.cli.func.remoteexec.SNPEFFPipelineITCase.class,
+		edu.mayo.bior.cli.func.remoteexec.TreatITCase.class,
+		edu.mayo.bior.cli.func.remoteexec.TreatITCaseExitCodes.class,
+		edu.mayo.bior.cli.func.remoteexec.TreatITCaseSingleThread.class,
 		edu.mayo.bior.cli.func.remoteexec.VEPCommandITCase.class, 
 		edu.mayo.bior.cli.func.remoteexec.VEPEXEITCase.class, 
 		edu.mayo.bior.cli.func.remoteexec.VEPPipelineITCase.class, 
-		edu.mayo.bior.cli.func.remoteexec.TreatITCase.class,
-		edu.mayo.bior.cli.func.remoteexec.ManyCmdsITCase.class
 	};
 
 	public enum DevServerUserPropKeys { 
@@ -57,8 +63,16 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 	private static boolean mIsAllTestsSuccessful = false;
 	private static ArrayList<RemoteTestResult> mTestResults = new ArrayList<RemoteTestResult>();
 
+	public static void main(String[] args) {
+		verifyAllItCasesCovered();
+	}
+	
 	@BeforeClass
 	public static void beforeAll() throws Exception {
+		System.out.println("Make sure you have the required catalogs installed and in your path (or mounted over SMB) before you attempt to run the TREAT/ANNOTATE TESTS");
+
+		verifyAllItCasesCovered();
+		
 		mIsDevServer = new RemoteFunctionalTest().isOnBiorDevServer();
 
 		// If we are on the biordev server, then just return as the JUnit tests will be run individually.
@@ -94,6 +108,34 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 
 	}
 	
+
+	/** Make sure all classes under "edu.mayo.bior.cli.func.remoteexec/" are covered by the REMOTE_TESTS variable */
+	private static void verifyAllItCasesCovered() {
+		File remoteExecDir = new File("src/test/java/edu/mayo/bior/cli/func/remoteexec/");
+		File[] files = remoteExecDir.listFiles( new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".java");
+			}
+		});
+		List<String> classesNotCovered = new ArrayList<String>();
+		for(File file : files) {
+			String fileNameWithoutExt = file.getName().replace(".java", "");
+			boolean isCovered = false;
+			for(Class cls : REMOTE_TESTS) {
+				String clsName = cls.getSimpleName();
+				if( fileNameWithoutExt.equals(clsName) )
+					isCovered = true;
+			}
+			if( ! isCovered )
+				classesNotCovered.add(file.getName());
+		}
+		Assert.assertTrue("ERROR: These Java classes are not covered by remote tests.\n"
+			+ "Please add them to the REMOTE_TESTS variable of the RemoteFunctionalTest.java class:\n"
+			+ classesNotCovered.toString(),
+			classesNotCovered.size() == 0 );
+		System.out.println("All remote tests accounted for.");
+	}
+
 
 
 	@Before

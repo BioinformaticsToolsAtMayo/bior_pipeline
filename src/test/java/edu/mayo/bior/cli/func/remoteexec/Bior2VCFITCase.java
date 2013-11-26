@@ -36,7 +36,7 @@ public class Bior2VCFITCase extends RemoteFunctionalTest {
 		List<String> actual = PipeTestUtils.getResults(pipes);
 		
 		//System.out.println(Arrays.asList(actual));
-		
+		System.out.println("Test passed.");
 	}
 
 }

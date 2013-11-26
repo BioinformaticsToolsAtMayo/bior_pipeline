@@ -127,7 +127,7 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
             actualFixed.add(s);
         }
 	
-		VEPCommandITCase.printComparison(null, expectedFixed, actualFixed);
+		//VEPCommandITCase.printComparison(null, expectedFixed, actualFixed);
 
 		PipeTestUtils.assertListsEqual(expectedFixed, actualFixed);
 	}
