@@ -5,6 +5,7 @@
 ###SNPEFF ============================================
 SnpEffJar=/data/snpEff_2_0_5d/snpEff.jar
 SnpEffConfig=/data/snpEff_2_0_5d/snpEff.config
+SnpEffMaxHeap=4g
 
 ###VEP ===============================================
 BiorVepPerl=/usr/bin/perl
