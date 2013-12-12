@@ -29,6 +29,7 @@ public class BiorProperties {
 		MaxAlts,
 		SnpEffJar,
 		SnpEffConfig,
+		SnpEffMaxHeap,
 		BiorVepPerl,
 		BiorVep,
 		BiorVepCache,
