@@ -39,7 +39,7 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 	private static final Logger sLog = Logger.getLogger(SNPEFFEXE.class);
 	private UnixStreamCommand mSnpeff;
 	private static int mCmdTimeout = 10; // This should be updated in a call to the getCmdTimeout() method
-	
+	private static String mSnpEffMaxHeap = "4g";
 
 	public SNPEFFEXE(String[] snpEffCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
@@ -72,14 +72,23 @@ public class SNPEFFEXE implements PipeFunction<String,String>{
 		return cmdTimeoutInSeconds;
 	}
 	
+	public static String getMaxHeap(BiorProperties props) {
+		String maxHeap = props.get(Key.SnpEffMaxHeap);
+		if( maxHeap == null || maxHeap.length() == 0 )
+			maxHeap = "4g";  // default
+		sLog.info("SnpEffMaxHeap = " + maxHeap);
+		return maxHeap;
+	}
+	
 	public static String[] getSnpEffCommand(String[] userCmd) throws IOException {
 		// See src/main/resources/bior.properties for example file to put into your user home directory
 		BiorProperties biorProps = new BiorProperties();
 		mCmdTimeout = getCmdTimeout(biorProps);
+		mSnpEffMaxHeap = getMaxHeap(biorProps);
 
 		//java -Xmx4g -jar /data/snpEff/snpEff_3_1/snpEff.jar eff -c /data/snpEff/snpEff_3_1/snpEff.config -v GRCh37.68 example.vcf > output.vcf
 		final String[] command = {"java", 
-				"-Xmx4g", 
+				"-Xmx" + mSnpEffMaxHeap, 
 				"-jar", 
 				biorProps.get(Key.SnpEffJar),
 				"eff",
