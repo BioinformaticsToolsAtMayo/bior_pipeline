@@ -49,6 +49,13 @@ public class VEPEXE implements PipeFunction<String,String>{
 	public VEPEXE(String[] vepCmd) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException {
 		final Map<String, String> NO_CUSTOM_ENV = Collections.emptyMap();
 		mVep = new UnixStreamCommand(getVEPCommand(vepCmd), NO_CUSTOM_ENV, true, true); 
+		//-------------------------------------------------------------------------------
+		// NOTE: VEP will only work on 64-bit systems, when the "forcelinebuffering" 
+		// flag at the end of this line is set to "true"
+		// To get it to work on 32-bit systems, change this flag to "false"
+		// HOWEVER, this should be tested thoroughly before putting it into production!
+		//-------------------------------------------------------------------------------
+		//mVep = new UnixStreamCommand(getVEPCommand(vepCmd), NO_CUSTOM_ENV, true, false); 
 		mVep.launch();
 		mVep.send("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO");
 		//send some fake data to get the ball rolling...

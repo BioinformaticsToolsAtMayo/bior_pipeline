@@ -20,6 +20,7 @@ BiorVepCache=/data/variant_effect_predictor/cache/
 AnnotateMaxLinesInFlight=10
 TimeoutCommand=60
 MaxAlts=20
+### NOTE: Make sure the "fileBase" path ends in a slash!
 fileBase=/data/
 genesFile=NCBIGene/GRCh37_p10/genes.tsv.bgz
 bgiFile=BGI/hg19/LuCAMP_200exomeFinal.maf_GRCh37.tsv.bgz
