@@ -17,30 +17,7 @@ import com.tinkerpop.pipes.transform.TransformFunctionPipe;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.cli.cmd.Cmds;
-import edu.mayo.bior.pipeline.Treat.format.BgiFormatter;
-import edu.mayo.bior.pipeline.Treat.format.CosmicFormatter;
-import edu.mayo.bior.pipeline.Treat.format.DbsnpClinvarFormatter;
-import edu.mayo.bior.pipeline.Treat.format.DbsnpFormatter;
-import edu.mayo.bior.pipeline.Treat.format.EspFormatter;
-import edu.mayo.bior.pipeline.Treat.format.Formatter;
-import edu.mayo.bior.pipeline.Treat.format.FormatterPipeFunction;
-import edu.mayo.bior.pipeline.Treat.format.HapmapFormatter;
-import edu.mayo.bior.pipeline.Treat.format.HgncFormatter;
-import edu.mayo.bior.pipeline.Treat.format.MirBaseFormatter;
-import edu.mayo.bior.pipeline.Treat.format.NcbiGeneFormatter;
-import edu.mayo.bior.pipeline.Treat.format.OmimFormatter;
-import edu.mayo.bior.pipeline.Treat.format.SNPEffFormatter;
-import edu.mayo.bior.pipeline.Treat.format.ThousandGenomesFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscBlacklistedFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscConservationFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscEnhancerFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscRegulationFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscRepeatFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscTfbsFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscTssFormatter;
-import edu.mayo.bior.pipeline.Treat.format.UcscUniqueFormatter;
-import edu.mayo.bior.pipeline.Treat.format.VEPFormatter;
-import edu.mayo.bior.pipeline.Treat.format.VEPHgncFormatter;
+import edu.mayo.bior.pipeline.Treat.format.*;
 import edu.mayo.bior.util.BiorProperties;
 import edu.mayo.bior.util.BiorProperties.Key;
 import edu.mayo.bior.util.DependancyUtil;
@@ -82,11 +59,24 @@ public class TreatPipeline extends Pipeline<History, History>
 	 * @throws InterruptedException 
 	 * @throws URISyntaxException 
 	 */
-	public TreatPipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
+	public TreatPipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, 
+			AbnormalExitException, URISyntaxException
+	{
 		this(null);
 	}
 	
-	public TreatPipeline(String configFilePath) throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
+	/**
+	 * @param configFilePath
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws BrokenBarrierException
+	 * @throws TimeoutException
+	 * @throws AbnormalExitException
+	 * @throws URISyntaxException
+	 */
+	public TreatPipeline(String configFilePath) throws IOException, InterruptedException, BrokenBarrierException, 
+			TimeoutException, AbnormalExitException, URISyntaxException 
+	{
 		mUtils = new TreatUtils();
 		mConfigColumnsToOutput = mUtils.loadConfig(configFilePath);
 		mUtils.validateConfigFileColumns(mConfigColumnsToOutput);
@@ -94,6 +84,10 @@ public class TreatPipeline extends Pipeline<History, History>
 	}
 
     private String generatedCommand = "";
+    /**
+     * 
+     * @return	The generated command
+     */
     public String getGeneratedCommand(){
         return generatedCommand;
     }
@@ -112,7 +106,9 @@ public class TreatPipeline extends Pipeline<History, History>
 	 * @throws InterruptedException 
 	 * @throws URISyntaxException 
 	 */
-	private void initPipes() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException
+	@SuppressWarnings ({"rawtypes", "unchecked"})
+	private void initPipes() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, 
+		AbnormalExitException, URISyntaxException
 	{
 		// tracks the order of the added JSON columns
 		List<JsonColumn> order = new ArrayList<JsonColumn>();
@@ -148,7 +144,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		addLookup(     order, pipeList, new HgncFormatter(),			Key.hgncFile,			JsonColumn.HGNC,	Key.hgncIndexFile,  "GeneID",  		  "Entrez_Gene_ID");
 		// Drill to add OMIM ID X-REF
 		addLookup(     order, pipeList, new OmimFormatter(),			Key.omimFile,			JsonColumn.OMIM,	Key.omimIndexFile, 	"mapped_OMIM_ID", "MIM_Number");
-
+		
 		
 		// The many commands should be one string / one call
 		String pipesAsStr = pipeAsString(pipeList);
@@ -179,7 +175,6 @@ public class TreatPipeline extends Pipeline<History, History>
 				new CompressPipe(Cmds.Names.bior_compress.toString(), fSpec, "|", "\\|", true)
 			).getPipes() );
 	}
-
 
 
 	private void addVcfToTjson(List<JsonColumn> order, List<String> pipeList) {
@@ -308,7 +303,7 @@ public class TreatPipeline extends Pipeline<History, History>
 		}
 		return bigPipe.toString();
 	}
-
+	
 	
 	//==========================================================================
 	
@@ -339,12 +334,14 @@ public class TreatPipeline extends Pipeline<History, History>
 	}
 
 	
-	/** Use this after calling the constructor to get the metadata 
-	 *  for ONLY the columns the user wants in the end,
-	 * that will be used for HistoryInPipe */
+	/** 
+	 * Use this after calling the constructor to get the metadata 
+	 * for ONLY the columns the user wants in the end, that will be used for HistoryInPipe
+	 * 
+	 * @return	List of {@link Metadata}
+	 */
 	public List<Metadata> getMetadata() {
 		return mMetadataToAdd;
 	}
-
 
 }
