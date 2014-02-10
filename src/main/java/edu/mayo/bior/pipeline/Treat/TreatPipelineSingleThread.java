@@ -51,6 +51,7 @@ import edu.mayo.pipes.JSON.tabix.SameVariantPipe;
 import edu.mayo.pipes.bioinformatics.VCF2VariantPipe;
 import edu.mayo.pipes.history.CompressPipe;
 import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.string.TrimSpacesPipe;
 import edu.mayo.pipes.util.FieldSpecification;
 import edu.mayo.pipes.util.FieldSpecification.FieldDirection;
 import edu.mayo.pipes.util.metadata.Metadata;
@@ -111,6 +112,7 @@ public class TreatPipelineSingleThread extends Pipeline<History, History>
 		// tracks the order of the added JSON columns
 		List<JsonColumn> order = new ArrayList<JsonColumn>();
 
+		addTrim(pipeList);
 		addVcfToTjson( order, pipeList);
 		addVep(		   order, pipeList);
 		addVepHgnc(	   order, pipeList);
@@ -155,6 +157,11 @@ public class TreatPipelineSingleThread extends Pipeline<History, History>
 		this.setPipes(pipeList);		
 	}
 
+	private void addTrim(List<Pipe> pipeList) {
+		// Don't use the STDBUF option on the first command as this will cause an exception
+		pipeList.add(new TrimSpacesPipe());
+	}
+	
 	private void addVcfToTjson(List<JsonColumn> order, List<Pipe> pipeList) {
 		// 1ST JSON column is the original variant
 		order.add(JsonColumn.VARIANT);
@@ -228,7 +235,8 @@ public class TreatPipelineSingleThread extends Pipeline<History, History>
             System.err.println("SNPEFF is requested, bior is starting it up, this will take about 1 min.");
 			order.add(JsonColumn.SNPEFF);
 			mCatalogForColumn.add("/tools/snpeff");
-			pipeList.add(new SNPEFFPipeline (new String[]{SNPEffCommand.DEFAULT_GENOME_VERSION}, true));
+			//pipeList.add(new SNPEFFPipeline (new String[]{SNPEffCommand.DEFAULT_GENOME_VERSION}, true));
+			pipeList.add(new SNPEFFPipeline (new String[0], true));
 		} else {  // Show warning:
 			System.err.println("Warning: SnpEffect is listed as a required field, but is not installed.  Running without it...");
 		}

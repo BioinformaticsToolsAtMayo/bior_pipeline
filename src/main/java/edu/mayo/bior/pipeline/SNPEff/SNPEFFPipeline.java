@@ -20,6 +20,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.pipes.history.HistoryInPipe;
 import edu.mayo.pipes.meta.BridgeOverPipe;
+import edu.mayo.pipes.string.TrimSpacesPipe;
 
 /**
  *
@@ -56,6 +57,7 @@ public class SNPEFFPipeline extends Pipeline {
 		BridgeOverPipe bridge = new BridgeOverPipe(superviseMe, new VCFProgramMerge("SNPEff"));
 
 		Pipeline p = new Pipeline(
+				new TrimSpacesPipe(),
 				input,//??-history better convert it to a history comming into the pipeline e.g. HistoryInPipe
 				bridge, //the BridgeOverPipe: history-history
 				output

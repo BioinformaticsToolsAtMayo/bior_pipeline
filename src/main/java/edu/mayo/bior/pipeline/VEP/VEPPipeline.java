@@ -13,6 +13,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.history.History;
+import edu.mayo.pipes.string.TrimSpacesPipe;
 
 /**
  * @author Michael Meiners (m054457)
@@ -28,6 +29,7 @@ public class VEPPipeline  extends Pipeline {
         mIsWorstCaseOnly = pickworst;
         mVepExe = new VEPEXE(VEPEXE.getVEPCommand(new String[] {"1"} ));
         Pipeline pipeline = new Pipeline(
+        		new TrimSpacesPipe(),
         		new TransformFunctionPipe(new VepPrePipe()),
         		new TransformFunctionPipe(mVepExe),
         		new TransformFunctionPipe(new VepPostPipe())

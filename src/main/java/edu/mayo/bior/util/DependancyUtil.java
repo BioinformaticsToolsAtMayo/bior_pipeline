@@ -3,6 +3,8 @@ package edu.mayo.bior.util;
 import java.io.File;
 import java.io.IOException;
 
+import edu.mayo.bior.util.BiorProperties.Key;
+
 /**
  * Created with IntelliJ IDEA.
  * User: m102417
@@ -67,27 +69,29 @@ public class DependancyUtil {
      */
     public static boolean isSNPEffInstalled() throws IOException{
         BiorProperties prop = new BiorProperties();
-        String snpeffpath = prop.get("SnpEffJar");
-        File snpefF = new File(snpeffpath);
-        if(snpefF == null || !snpefF.exists()){
+        
+        String snpeffJarPath = prop.get(Key.SnpEffJar);
+        File snpeffJarFile = new File(snpeffJarPath);
+        if(snpeffJarFile == null || ! snpeffJarFile.exists()){
             System.err.println("SNPEffect is not correctly installed and on your path! you need to install it and modify the bior.properties file to use this feature!");
-            System.err.println("Current Path: " + snpeffpath );
+            System.err.println("Current Path: " + snpeffJarPath );
             System.err.println("bior.properties: " + BiorProperties.getFile());
 
             return false;
         }
-        String snpconfpath = prop.get("SnpEffConfig");
-        File snpconf = new File(snpconfpath);
-        if(snpconf == null || !snpconf.exists() ){
+        
+        String snpeffConfigPath = prop.get(Key.SnpEffConfig);
+        File snpeffConfigFile = new File(snpeffConfigPath);
+        if(snpeffConfigFile == null || ! snpeffConfigFile.exists() ){
             System.err.println("SNPEffect config is not correctly installed and in the bior.properties file! You need to create a valid config file, please see the SNPEff documentation");
-            System.err.println("Current Path: " + snpconfpath );
+            System.err.println("Current Path: " + snpeffConfigPath );
             System.err.println("bior.properties: " + BiorProperties.getFile());
             return false;
         }
-
+        
         return true;
     }
-
+    
     /**
      *
      ###VEP ===============================================

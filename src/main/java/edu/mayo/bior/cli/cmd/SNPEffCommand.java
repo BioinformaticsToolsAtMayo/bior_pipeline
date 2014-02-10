@@ -44,7 +44,8 @@ public class SNPEffCommand implements CommandPlugin{
 	private static final char OPTION_STATSFILE      = 's';   
 	private static final String OPTION_INTERVALFILE = "interval";
 	private static final String OPTION_PICKALL      = "all";
-	private static final String OPTION_GENOME_VERSION = "genome_version";
+	// Should no longer need "genome_version" since it is added to the cmd in bior.properties
+	//private static final String OPTION_GENOME_VERSION = "genome_version";
 	
 	/* BLACK LIST */
 //	private static final char OPTION_INPUTFORMAT= 'i';
@@ -118,16 +119,16 @@ public class SNPEffCommand implements CommandPlugin{
 		
 		List<String> cmdoptions = new ArrayList<String>();
 
-		String genomeDatabase;
-		if (line.hasOption(OPTION_GENOME_VERSION)) {
-			genomeDatabase = line.getOptionValue(OPTION_GENOME_VERSION);			
-		} else {
-			// default
-			genomeDatabase = DEFAULT_GENOME_VERSION;
-		}
-		// add as an argument, not an option
-		sLogger.debug(String.format("Using genome database version %s", genomeDatabase));
-		cmdoptions.add(genomeDatabase);
+//		String genomeDatabase;
+//		if (line.hasOption(OPTION_GENOME_VERSION)) {
+//			genomeDatabase = line.getOptionValue(OPTION_GENOME_VERSION);			
+//		} else {
+//			// default
+//			genomeDatabase = DEFAULT_GENOME_VERSION;
+//		}
+//		// add as an argument, not an option
+//		sLogger.debug(String.format("Using genome database version %s", genomeDatabase));
+//		cmdoptions.add(genomeDatabase);
 		
 		if (line.hasOption(OPTION_SNP)) {
 			cmdoptions.add(OPTION_DASH + OPTION_SNP);

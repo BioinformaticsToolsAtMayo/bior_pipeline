@@ -68,7 +68,7 @@ public class AnnotateCommand implements CommandPlugin {
 					TreatPipeline treatPipeline = new TreatPipeline(configFilePath);
 					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 
 					mPipeline.execute(new HistoryInPipe(treatMetadata), treatPipeline, new HistoryOutPipe());
-				} else {
+				} else {  // NOTE: THIS IS THE DEFAULT ONE THAT WILL BE RUN!!! ========================================
 					sLogger.info("NOTE: Running bior_annotate as a single-threaded command.");
 					TreatPipelineSingleThread treatPipeline = new TreatPipelineSingleThread(configFilePath);
 					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 

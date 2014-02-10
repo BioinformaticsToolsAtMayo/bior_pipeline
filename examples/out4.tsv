@@ -1,0 +1,9 @@
+##fileformat=VCFv4.0
+##BIOR=<ID="bior.ToTJson",Operation="bior_vcf_to_tjson",DataType="JSON",ShortUniqueName="ToTJson">
+##BIOR=<ID="bior.1kG_3",Operation="bior_same_variant",DataType="JSON",ShortUniqueName="1kG_3",Source="1000Genomes",Description="1000 Genomes Project goal is to find most genetic variants that have frequencies of at least 1% in the populations studied.",Version="3",Build="GRCh37",Path="/data5/bsi/catalogs/bior/v1/1000_genomes/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37.tsv.bgz">
+##BIOR=<ID="bior.1kG_3.INFO.AF",Operation="bior_drill",Field="INFO.AF",DataType="Float",Number="1",FieldDescription="Global Allele Frequency based on AC/AN",ShortUniqueName="1kG_3",Source="1000Genomes",Description="1000 Genomes Project goal is to find most genetic variants that have frequencies of at least 1% in the populations studied.",Version="3",Build="GRCh37",Path="/data5/bsi/catalogs/bior/v1/1000_genomes/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37.tsv.bgz">
+##BIOR=<ID="bior.1kG_3.INFO.AFR_AF",Operation="bior_drill",Field="INFO.AFR_AF",DataType="Float",Number="1",FieldDescription="Allele Frequency for samples from AFR based on AC/AN",ShortUniqueName="1kG_3",Source="1000Genomes",Description="1000 Genomes Project goal is to find most genetic variants that have frequencies of at least 1% in the populations studied.",Version="3",Build="GRCh37",Path="/data5/bsi/catalogs/bior/v1/1000_genomes/20110521/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites_GRCh37.tsv.bgz">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	bior.1kG_3.INFO.AF	bior.1kG_3.INFO.AFR_AF
+13	32907403	.	T	C	.	.	.	0.0041	0.02
+15	3240324	.	N	C	.	.	.	.	.
+17	41269232	rs145983188	G	C	.	.	.	0.0018	0.01

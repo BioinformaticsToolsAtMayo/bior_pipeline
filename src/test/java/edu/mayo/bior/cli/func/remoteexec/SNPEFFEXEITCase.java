@@ -48,7 +48,12 @@ public class SNPEFFEXEITCase extends RemoteFunctionalTest
 		System.out.println("\n-----------------------------------------------------");
 		System.out.println("SNPEffITCase.snpEffExeOnly(): run only the exec part of the pipeline to isolate and test it...");
 
-		UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(new String[] {"GRCh37.64"}), NO_CUSTOM_ENV, true, true);        	
+		// NOTE: The genome build is now specified in the bior.properties file, not as a String argument here
+		// For old SnpEff 2.0.5
+		//UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(new String[] {"GRCh37.64"}), NO_CUSTOM_ENV, true, true);
+		// For new SnpEff 3.4:
+		//UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(new String[] {"GRCh37.69"}), NO_CUSTOM_ENV, true, true);        	
+		UnixStreamCommand snpeff = new UnixStreamCommand(SNPEFFEXE.getSnpEffCommand(new String[0]), NO_CUSTOM_ENV, true, true);        	
 
 		BufferedReader br = new BufferedReader(new FileReader("src/test/resources/tools/snpeff/exeOnly_noMultiIndels.vcf"));
 
@@ -95,7 +100,12 @@ public class SNPEFFEXEITCase extends RemoteFunctionalTest
 
 		// Compare the output
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/tools/snpeff/exeOnly_noMultiIndels.expected.vcf");
-		//printOutput(actualOutput);
+		
+		System.out.println("========== Expected: =================");
+		PipeTestUtils.printLines(expected);
+		System.out.println("========== Actual:   =================");
+		PipeTestUtils.printLines(actualOutput);
+
 		PipeTestUtils.assertListsEqual(expected, actualOutput);
 	}
 }

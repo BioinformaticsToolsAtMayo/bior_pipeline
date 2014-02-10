@@ -27,9 +27,12 @@ public class BiorProperties {
 		AnnotateMaxLinesInFlight,
 		TimeoutCommand,
 		MaxAlts,
+		// SnpEffect
+		SnpEffCmd,		// Contains the full command to SnpEffect, BUT contains variables for $SnpEffJar and $SnpEffConfig that need to be replaced
 		SnpEffJar,
 		SnpEffConfig,
-		SnpEffMaxHeap,
+		//SnpEffMaxHeap,	// NO LONGER USED - covered by SnpEffCmd
+		// VEP
 		BiorVepPerl,
 		BiorVep,
 		BiorVepCache,

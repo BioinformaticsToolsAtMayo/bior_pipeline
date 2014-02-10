@@ -14,6 +14,7 @@ public class Cmds {
 		bior_overlap,
 		bior_drill,
 		bior_compress,
+		bior_trim_spaces,
 		
 		// Others not used yet by internal commands
 		bior_annotate,
