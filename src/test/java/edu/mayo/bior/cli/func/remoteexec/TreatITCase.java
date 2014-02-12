@@ -25,7 +25,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 import edu.mayo.bior.cli.PathReplace;
 import edu.mayo.bior.cli.func.CommandOutput;
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
-import edu.mayo.bior.pipeline.Treat.TreatPipeline;
+import edu.mayo.bior.pipeline.Treat.TreatPipelineMultiCmd;
 import edu.mayo.bior.pipeline.Treat.TreatPipelineSingleThread;
 import edu.mayo.cli.InvalidDataException;
 import edu.mayo.exec.AbnormalExitException;
@@ -66,7 +66,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_SubsetConfig():");
 		System.out.println("Annotate pipeline with a subset config file...");
-		TreatPipeline annotatePipe = new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config");
+		TreatPipelineMultiCmd annotatePipe = new TreatPipelineMultiCmd("src/test/resources/treat/configtest/smallSubset.config");
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe( new ArrayList(annotatePipe.getMetadata()) ),
@@ -89,7 +89,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_SubsetConfigManyCols():");
 		System.out.println("Annotate pipeline with a subset config file, but with additional columns beyond the INFO col...");
-		TreatPipeline annotatePipe = new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config");
+		TreatPipelineMultiCmd annotatePipe = new TreatPipelineMultiCmd("src/test/resources/treat/configtest/smallSubset.config");
 		Pipeline pipes = new Pipeline(
 				new HistoryInPipe( new ArrayList(annotatePipe.getMetadata()) ),
 				annotatePipe,
@@ -132,7 +132,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_subsetWithDependencies():");
 		System.out.println("Annotate pipeline with columns that have dependencies on other data sources (and are in a different order in the config file vs what bior_annotate expects)...");
-        TreatPipeline anno = new TreatPipeline("src/test/resources/treat/configtest/subset.config");
+        TreatPipelineMultiCmd anno = new TreatPipelineMultiCmd("src/test/resources/treat/configtest/subset.config");
         String generatedCommand = anno.getGeneratedCommand();
         System.out.println(generatedCommand);
         Pipeline pipes = new Pipeline(
@@ -159,7 +159,7 @@ public class TreatITCase extends RemoteFunctionalTest
 		System.out.println("\n-------------------------------------------------------->>>>>");
 		System.out.println("Testing: testPipeline_rsIdOnly_10000():");
 		System.out.println("Annotate pipeline with a single output column (dbsnp rsId)...");
-		TreatPipeline treatPipe = new TreatPipeline("src/test/resources/treat/configtest/dbsnpOnly.config");
+		TreatPipelineMultiCmd treatPipe = new TreatPipelineMultiCmd("src/test/resources/treat/configtest/dbsnpOnly.config");
 		Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe( new ArrayList(treatPipe.getMetadata()) ),

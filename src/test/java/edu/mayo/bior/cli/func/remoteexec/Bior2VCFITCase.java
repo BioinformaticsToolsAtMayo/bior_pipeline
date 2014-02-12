@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.cli.func.remoteexec.helpers.RemoteFunctionalTest;
-import edu.mayo.bior.pipeline.Treat.TreatPipeline;
+import edu.mayo.bior.pipeline.Treat.TreatPipelineMultiCmd;
 import edu.mayo.exec.AbnormalExitException;
 import edu.mayo.pipes.PrintPipe;
 import edu.mayo.pipes.UNIX.CatPipe;
@@ -28,7 +28,7 @@ public class Bior2VCFITCase extends RemoteFunctionalTest {
         Pipeline pipes = new Pipeline(
 				new CatPipe(),
 				new HistoryInPipe(),
-				new TreatPipeline("src/test/resources/treat/configtest/smallSubset.config"),
+				new TreatPipelineMultiCmd("src/test/resources/treat/configtest/smallSubset.config"),
 				new HistoryOutPipe(),
 				new PrintPipe()
 				);

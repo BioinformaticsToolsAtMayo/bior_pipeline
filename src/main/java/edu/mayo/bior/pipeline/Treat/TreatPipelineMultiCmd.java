@@ -57,12 +57,12 @@ import edu.mayo.pipes.util.metadata.Metadata;
  * @author Greg Dougherty, duffp, Mike Meiners
  *
  */
-public class TreatPipeline extends Pipeline<History, History>
+public class TreatPipelineMultiCmd extends Pipeline<History, History>
 {
 	private List<String> mConfigColumnsToOutput;
 	private TreatUtils mUtils;
 	
-	private static Logger sLogger = Logger.getLogger(TreatPipeline.class);
+	private static Logger sLogger = Logger.getLogger(TreatPipelineMultiCmd.class);
 	
 	private String mBiorLiteHome = "";
 	private String mBiorCmdDir = "";
@@ -82,7 +82,7 @@ public class TreatPipeline extends Pipeline<History, History>
 	 * @throws InterruptedException 
 	 * @throws URISyntaxException 
 	 */
-	public TreatPipeline() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
+	public TreatPipelineMultiCmd() throws IOException, InterruptedException, BrokenBarrierException, TimeoutException, AbnormalExitException, URISyntaxException {
 		this(null);
 	}
 	
@@ -95,7 +95,7 @@ public class TreatPipeline extends Pipeline<History, History>
 	 * @throws AbnormalExitException
 	 * @throws URISyntaxException
 	 */
-	public TreatPipeline(String configFilePath) throws IOException, InterruptedException, BrokenBarrierException, 
+	public TreatPipelineMultiCmd(String configFilePath) throws IOException, InterruptedException, BrokenBarrierException, 
 			TimeoutException, AbnormalExitException, URISyntaxException 
 	{
 		mUtils = new TreatUtils();

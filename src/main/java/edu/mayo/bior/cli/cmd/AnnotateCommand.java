@@ -19,7 +19,7 @@ import com.tinkerpop.pipes.util.Pipeline;
 
 import edu.mayo.bior.pipeline.UnixStreamPipeline;
 import edu.mayo.bior.pipeline.UnixStreamPipeline.Status;
-import edu.mayo.bior.pipeline.Treat.TreatPipeline;
+import edu.mayo.bior.pipeline.Treat.TreatPipelineMultiCmd;
 import edu.mayo.bior.pipeline.Treat.TreatPipelineSingleThread;
 import edu.mayo.cli.CommandPlugin;
 import edu.mayo.cli.InvalidDataException;
@@ -65,7 +65,7 @@ public class AnnotateCommand implements CommandPlugin {
 				boolean isMultiProcess = line.hasOption(OPTION_MULTI_PROCESS);
 				if( isMultiProcess ) {
 					sLogger.warn("WARNING: Running bior_annotate as a MULTI-PROCESS command!!!");
-					TreatPipeline treatPipeline = new TreatPipeline(configFilePath);
+					TreatPipelineMultiCmd treatPipeline = new TreatPipelineMultiCmd(configFilePath);
 					List<Metadata>  treatMetadata = treatPipeline.getMetadata(); 
 					mPipeline.execute(new HistoryInPipe(treatMetadata), treatPipeline, new HistoryOutPipe());
 				} else {  // NOTE: THIS IS THE DEFAULT ONE THAT WILL BE RUN!!! ========================================
