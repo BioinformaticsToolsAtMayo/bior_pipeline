@@ -6,6 +6,6 @@ GNU General Public License Version 3
   http://www.gnu.org/licenses/gpl.html
   http://www.gnu.org/licenses/quick-guide-gplv3.html 
 This will enable any user to use the software both for academic research
-use as well as “fee for service” model in Core Laboratories.
+use as well as "fee for service" model in Core Laboratories.
 
 See GPL.txt for more info.
