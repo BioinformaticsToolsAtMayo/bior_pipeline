@@ -52,7 +52,7 @@ public class TreatITCaseExitCodes extends RemoteFunctionalTest
 {
 	
 	@BeforeClass
-	public void notice() {
+	public static void notice() {
         System.out.println("Make sure you have the required catalogs installed and in your path (or mounted over SMB) before you attempt to run the TREAT/ANNOTATE TESTS");
 	}
 

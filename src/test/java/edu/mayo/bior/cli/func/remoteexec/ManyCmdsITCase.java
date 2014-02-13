@@ -101,9 +101,6 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
 		System.out.println("Command: " + cmd);
 		CommandOutput out = executeScriptWithPipes(cmd);
 	        
-//		assertEquals(out.stderr,"SNPEFF Starting up... this will take about a minute");
-		assertEquals(0, out.exit);
-		
 //		assertEquals(out.stderr,"SNPEFF Starting up... this will take about a minute ");
 		assertEquals(0, out.exit);
 		
