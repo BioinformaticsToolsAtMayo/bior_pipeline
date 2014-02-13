@@ -5,7 +5,12 @@
 ###SNPEFF ============================================
 SnpEffJar=/data/snpEff_2_0_5d/snpEff.jar
 SnpEffConfig=/data/snpEff_2_0_5d/snpEff.config
-SnpEffMaxHeap=4g
+# NOTE: When moving to a new version of SnpEff, you MUST download any genome files to match that version.
+#       You cannot reuse a genome build from an older version of SnpEff in a newer version.
+SnpEffCmd=java -Xmx4g  -jar $SnpEffJar  eff  -c $SnpEffConfig  -v  -o  vcf  -noLog  -noStats  GRCh37.64
+# SnpEffCmd=java -Xmx4g  -jar $SnpEffJar  eff  -c $SnpEffConfig  -v  -o  vcf  -noLog  -noStats  -canon  GRCh37.64
+# SnpEffCmd=java -Xmx4g  -jar $SnpEffJar  eff  -c $SnpEffConfig  -v  -o  vcf  -noLog  -noStats  -canon  GRCh37.69
+
 
 ###VEP ===============================================
 BiorVepPerl=/usr/bin/perl
