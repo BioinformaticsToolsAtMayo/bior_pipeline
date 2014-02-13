@@ -45,7 +45,7 @@ import edu.mayo.pipes.util.test.PipeTestUtils;
  * @author duffp, mmeiners
  *
  */
-public class TreatITCase extends RemoteFunctionalTest
+public class TreatITCaseMultiCmd extends RemoteFunctionalTest
 {
 	
     @Before

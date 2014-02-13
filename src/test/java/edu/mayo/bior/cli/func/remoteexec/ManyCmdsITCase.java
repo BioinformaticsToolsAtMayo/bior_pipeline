@@ -150,7 +150,7 @@ public class ManyCmdsITCase extends RemoteFunctionalTest {
                 }
         
 //       VEPCommandITCase.printComparison(null, expectedFixed, actual); 
-        TreatITCase.assertLinesEqual(expectedFixed, actual);
+        TreatITCaseMultiCmd.assertLinesEqual(expectedFixed, actual);
 //      PipeTestUtils.assertListsEqual(expectedFixed, actual);
 		
 	}

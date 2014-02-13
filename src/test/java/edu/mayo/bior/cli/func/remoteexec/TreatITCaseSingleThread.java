@@ -81,10 +81,10 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 				);
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
 		List<String> actual = PipeTestUtils.getResults(pipes);
-		List<String> expected = TreatITCase.splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv")));
+		List<String> expected = TreatITCaseMultiCmd.splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv")));
         actual = PathReplace.replacePathDontCare(actual);
         expected = PathReplace.replacePathDontCare(expected);
-		TreatITCase.assertLinesEqual(expected, actual);
+		TreatITCaseMultiCmd.assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -122,7 +122,7 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		List<String> actual = PipeTestUtils.getResults(pipes);
         actual = PathReplace.replacePathDontCare(actual);
         expected = PathReplace.replacePathDontCare(expected);
-		TreatITCase.assertLinesEqual(expected, actual);
+		TreatITCaseMultiCmd.assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -152,8 +152,8 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		pipes.setStarts(Arrays.asList("src/test/resources/treat/gold.vcf"));
 		List<String> actual = PipeTestUtils.getResults(pipes);
 		System.out.println("Actual size: " + actual.size());
-		List<String> expected = TreatITCase.splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv")));
-		TreatITCase.assertLinesEqual(expected, actual);
+		List<String> expected = TreatITCaseMultiCmd.splitLines(FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv")));
+		TreatITCaseMultiCmd.assertLinesEqual(expected, actual);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 	
@@ -180,7 +180,7 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		System.out.println("Actual size: " + actual.size());
 		assertEquals(10002, actual.size());
 		List<String> expected = FileCompareUtils.loadFile("src/test/resources/treat/expected/expected.10000.1tomany.out");
-        TreatITCase.compareListsNoHeader(expected, actual, false);
+        TreatITCaseMultiCmd.compareListsNoHeader(expected, actual, false);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -258,9 +258,9 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		if (out.exit != 0)
 			fail(out.stderr);
 		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/smallSubset_output.tsv"));
-        List<String> expectedList = TreatITCase.splitLines(expected);
-        List<String> actualList = TreatITCase.splitLines(out.stdout);
-		TreatITCase.compareListsNoHeader(expectedList, actualList, true);
+        List<String> expectedList = TreatITCaseMultiCmd.splitLines(expected);
+        List<String> actualList = TreatITCaseMultiCmd.splitLines(out.stdout);
+		TreatITCaseMultiCmd.compareListsNoHeader(expectedList, actualList, true);
 		
 		// Also compare the status output
 		String actualStatus = FileUtils.readFileToString(statusFile);
@@ -295,9 +295,9 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		if (out.exit != 0)
 			fail(out.stderr);
 		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/configtest/subset_output.tsv"));
-        List<String> expectedList = TreatITCase.splitLines(expected);
-        List<String> actualList = TreatITCase.splitLines(out.stdout);
-        TreatITCase.compareListsNoHeader(expectedList, actualList, true);
+        List<String> expectedList = TreatITCaseMultiCmd.splitLines(expected);
+        List<String> actualList = TreatITCaseMultiCmd.splitLines(out.stdout);
+        TreatITCaseMultiCmd.compareListsNoHeader(expectedList, actualList, true);
 		//assertMatch(splitLines(expected), splitLines(out.stdout));
 		System.out.println("<<<<<----------- Test passed -----");
     }
@@ -318,7 +318,7 @@ public class TreatITCaseSingleThread extends RemoteFunctionalTest
 		
 		//assertLinesEqual(splitLines(expected), splitLines(out.stdout));
 		String expected = FileUtils.readFileToString(new File("src/test/resources/treat/gold_output.tsv"));
-        TreatITCase.compareListsNoHeader(TreatITCase.splitLines(expected),TreatITCase.splitLines(out.stdout),true);
+        TreatITCaseMultiCmd.compareListsNoHeader(TreatITCaseMultiCmd.splitLines(expected),TreatITCaseMultiCmd.splitLines(out.stdout),true);
 		System.out.println("<<<<<----------- Test passed -----");
     }
 

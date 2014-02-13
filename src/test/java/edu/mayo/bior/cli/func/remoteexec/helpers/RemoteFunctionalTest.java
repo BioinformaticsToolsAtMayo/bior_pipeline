@@ -37,7 +37,7 @@ public class RemoteFunctionalTest extends BaseFunctionalTest {
 		edu.mayo.bior.cli.func.remoteexec.SNPEffCommandITCase.class,
 		edu.mayo.bior.cli.func.remoteexec.SNPEFFEXEITCase.class,
 		edu.mayo.bior.cli.func.remoteexec.SNPEFFPipelineITCase.class,
-		edu.mayo.bior.cli.func.remoteexec.TreatITCase.class,
+		edu.mayo.bior.cli.func.remoteexec.TreatITCaseMultiCmd.class,
 		edu.mayo.bior.cli.func.remoteexec.TreatITCaseExitCodes.class,
 		edu.mayo.bior.cli.func.remoteexec.TreatITCaseSingleThread.class,
 		edu.mayo.bior.cli.func.remoteexec.VEPCommandITCase.class, 

@@ -79,13 +79,13 @@ public class TreatITCaseExitCodes extends RemoteFunctionalTest
 		CommandOutput out = executeScript("bior_annotate", input, "-l", "-c", "src/test/resources/treat/configtest/smallSubset.config");
 		assertEquals(0, out.exit);
 		assertEquals("", out.stderr);
-        List<String> actual = TreatITCase.splitLines(out.stdout);
+        List<String> actual = TreatITCaseMultiCmd.splitLines(out.stdout);
 		List<String> expected = Arrays.asList(
 				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	rsID	dbSNP.SuspectRegion	dbSNP.ClinicalSig	dbSNP.DiseaseVariant	1000Genomes.EUR_AF",
 				"1	216424275	rs696723	C	G	.	.	.	rs696723	0	1	.	0.01",
 				"20	14370	rs6054257	G	A	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	.	.	.	.	."
 				);
-        TreatITCase.compareListsNoHeader(expected, actual, true);
+        TreatITCaseMultiCmd.compareListsNoHeader(expected, actual, true);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 	
@@ -103,14 +103,14 @@ public class TreatITCaseExitCodes extends RemoteFunctionalTest
 		CommandOutput out = executeScript("bior_annotate", input, "-l", "-c", "src/test/resources/treat/configtest/smallSubset.config");
 		assertEquals(0, out.exit);
 		assertEquals("WARNING: Found 1 data error(s).  Not all input data rows could be successfully processed.\n", out.stderr);
-        List<String> actual = TreatITCase.splitLines(out.stdout);
+        List<String> actual = TreatITCaseMultiCmd.splitLines(out.stdout);
 
         List<String> expected = Arrays.asList(
 				"#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	rsID	dbSNP.SuspectRegion	dbSNP.ClinicalSig	dbSNP.DiseaseVariant	1000Genomes.EUR_AF",
 				"1	216424275	rs696723	C	G	.	.	.	rs696723	0	1	.	0.01",
 				"21	21438265	21438265	A	G	.	.	.	rs138077500	0	.	.	0.0026"
 				);
-        TreatITCase.compareListsNoHeader(expected, actual, true);
+        TreatITCaseMultiCmd.compareListsNoHeader(expected, actual, true);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
@@ -130,9 +130,9 @@ public class TreatITCaseExitCodes extends RemoteFunctionalTest
 		assertTrue(out.stderr.contains("ERROR: Invalid value specified for option: --configfile")
 				&& out.stderr.contains("The Config file path")
 				&& out.stderr.contains("does not exist (or is empty)") );
-        List<String> actual = TreatITCase.splitLines(out.stdout);
+        List<String> actual = TreatITCaseMultiCmd.splitLines(out.stdout);
 		List<String> expected = Arrays.asList("");
-        TreatITCase.compareListsNoHeader(expected, actual, true);
+        TreatITCaseMultiCmd.compareListsNoHeader(expected, actual, true);
 		System.out.println("<<<<<----------- Test passed -----");
 	}
 
