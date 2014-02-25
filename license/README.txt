@@ -8,4 +8,4 @@ GNU General Public License Version 3
 This will enable any user to use the software both for academic research
 use as well as "fee for service" model in Core Laboratories.
 
-See GPL.txt for more info.
+See GPLv3.txt for more info.
